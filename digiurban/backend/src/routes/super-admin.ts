@@ -7,6 +7,8 @@ import { Response, NextFunction, RequestHandler } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { Prisma, Plan, TenantStatus, InvoiceStatus } from '@prisma/client';
+import { UNASSIGNED_POOL_ID, isUnassignedPool } from '../config/tenants';
+import { autoLinkCitizens } from '../services/citizen-auto-link';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -2158,7 +2160,7 @@ router.get(
 
 /**
  * GET /api/super-admin/citizens/unlinked
- * Listar cidadãos sem tenant vinculado
+ * Listar cidadãos no UNASSIGNED_POOL (sem tenant ativo)
  */
 router.get(
   '/citizens/unlinked',
@@ -2170,7 +2172,7 @@ router.get(
 
     const citizens = await prisma.citizen.findMany({
       where: {
-        tenantId: null
+        tenantId: UNASSIGNED_POOL_ID
       },
       take,
       orderBy: { createdAt: 'desc' },
@@ -2263,124 +2265,15 @@ router.put(
 
 /**
  * POST /api/super-admin/citizens/auto-link
- * Vincular automaticamente cidadãos sem tenant baseado na cidade
+ * Vincular automaticamente cidadãos do UNASSIGNED_POOL baseado na cidade
  */
 router.post(
   '/citizens/auto-link',
   authenticateToken,
   requireSuperAdmin,
   handleAsyncRoute(async (req, res) => {
-    // Buscar todos os cidadãos sem tenant
-    const unlinkedCitizens = await prisma.citizen.findMany({
-      where: {
-        tenantId: null,
-        address: {
-          not: null
-        }
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        address: true
-      }
-    });
-
-    // Buscar todos os tenants com informações de município
-    const tenants = await prisma.tenant.findMany({
-      where: {
-        nomeMunicipio: {
-          not: null
-        }
-      },
-      select: {
-        id: true,
-        name: true,
-        nomeMunicipio: true,
-        ufMunicipio: true
-      }
-    });
-
-    // Criar mapa de municípios -> tenantId
-    const municipioMap = new Map<string, string>();
-    tenants.forEach(tenant => {
-      if (tenant.nomeMunicipio && tenant.ufMunicipio) {
-        const key = `${tenant.nomeMunicipio.toLowerCase()}-${tenant.ufMunicipio.toLowerCase()}`;
-        municipioMap.set(key, tenant.id);
-      }
-    });
-
-    // Processar vinculações
-    const linked: any[] = [];
-    const notLinked: any[] = [];
-
-    for (const citizen of unlinkedCitizens) {
-      try {
-        const address = citizen.address as any;
-
-        if (!address || !address.city || !address.state) {
-          notLinked.push({
-            citizenId: citizen.id,
-            name: citizen.name,
-            reason: 'Endereço incompleto (falta cidade ou estado)'
-          });
-          continue;
-        }
-
-        const cityKey = `${address.city.toLowerCase()}-${address.state.toLowerCase()}`;
-        const tenantId = municipioMap.get(cityKey);
-
-        if (tenantId) {
-          // Vincular cidadão ao tenant
-          await prisma.citizen.update({
-            where: { id: citizen.id },
-            data: { tenantId }
-          });
-
-          const tenant = tenants.find(t => t.id === tenantId);
-          linked.push({
-            citizenId: citizen.id,
-            name: citizen.name,
-            email: citizen.email,
-            linkedTo: {
-              tenantId: tenant?.id,
-              tenantName: tenant?.name,
-              municipio: tenant?.nomeMunicipio,
-              uf: tenant?.ufMunicipio
-            }
-          });
-        } else {
-          notLinked.push({
-            citizenId: citizen.id,
-            name: citizen.name,
-            city: address.city,
-            state: address.state,
-            reason: 'Nenhum tenant encontrado para esta cidade'
-          });
-        }
-      } catch (error) {
-        console.error(`Erro ao processar cidadão ${citizen.id}:`, error);
-        notLinked.push({
-          citizenId: citizen.id,
-          name: citizen.name,
-          reason: 'Erro ao processar'
-        });
-      }
-    }
-
-    return res.json({
-      success: true,
-      message: `Vinculação automática concluída: ${linked.length} cidadãos vinculados, ${notLinked.length} não vinculados`,
-      summary: {
-        totalProcessed: unlinkedCitizens.length,
-        linked: linked.length,
-        notLinked: notLinked.length
-      },
-      details: {
-        linked,
-        notLinked
-      }
-    });
+    const result = await autoLinkCitizens();
+    return res.json(result);
   })
 );
 

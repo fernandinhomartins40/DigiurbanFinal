@@ -251,11 +251,11 @@ export default function CitizensManagementPage() {
           loading={loading}
         />
         <MetricCard
-          title="Desvinculados"
+          title="Não Atribuídos"
           value={stats.unlinked}
           icon={<AlertCircle size={24} />}
           color="red"
-          subtitle="Sem tenant"
+          subtitle="Aguardando tenant"
           loading={loading}
         />
       </div>
@@ -310,14 +310,14 @@ export default function CitizensManagementPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Vinculação
             </label>
-            <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+            <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50" title="Cidadãos de municípios sem tenant ativo (aguardando)">
               <input
                 type="checkbox"
                 checked={showUnlinkedOnly}
                 onChange={(e) => setShowUnlinkedOnly(e.target.checked)}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="text-sm">Apenas desvinculados</span>
+              <span className="text-sm">Apenas não atribuídos</span>
             </label>
           </div>
         </div>

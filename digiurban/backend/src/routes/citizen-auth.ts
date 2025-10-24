@@ -18,6 +18,7 @@ import {
   gerarSlugMunicipio,
   obterMetadadosMunicipio,
 } from '../services/municipio-validator';
+import { UNASSIGNED_POOL_ID, isUnassignedPool } from '../config/tenants';
 
 // ====================== ABORDAGEM HÍBRIDA ======================
 // REGRA DE OURO: SEMPRE CRIAR, NUNCA REMOVER - mantendo sistema centralizado + compatibilidade Express
@@ -145,33 +146,32 @@ router.post('/register', registerRateLimiter, asyncHandler(async (req: LocalTena
         },
       });
 
-      // Se não existe, criar novo tenant automaticamente usando dados validados do IBGE
+      // ✅ SOLUÇÃO PROFISSIONAL: Se não existe tenant ativo, vincular ao UNASSIGNED_POOL
       if (!tenantSelecionado) {
-        const slug = gerarSlugMunicipio(municipioValido.nome, municipioValido.uf);
-        const cnpj = municipioValido.cnpj || gerarCnpjFicticio(municipioValido.codigo_ibge);
+        console.log(`⚠️  Município ${municipioValido.nome} - ${municipioValido.uf} não possui tenant ativo. Vinculando ao UNASSIGNED_POOL...`);
 
-        tenantSelecionado = await prisma.tenant.create({
-          data: {
-            name: `${municipioValido.nome} - ${municipioValido.uf}`,
-            cnpj,
-            domain: slug,
-            status: 'TRIAL', // Inicia em trial
-            plan: 'STARTER',
-            trialEndsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias
-            population: municipioValido.populacao,
-            codigoIbge: municipioValido.codigo_ibge,
-            nomeMunicipio: municipioValido.nome,
-            ufMunicipio: municipioValido.uf,
-            metadata: {
-              ...obterMetadadosMunicipio(municipioValido),
-              criadoAutomaticamente: true,
-              primeiroCidadao: true,
-              dataAutoCriacao: new Date().toISOString(),
-            }
-          },
+        // Buscar o tenant pool global
+        tenantSelecionado = await prisma.tenant.findUnique({
+          where: { id: UNASSIGNED_POOL_ID }
         });
 
-        console.log(`✅ Novo tenant criado automaticamente: ${tenantSelecionado.name} (${tenantSelecionado.id}) - IBGE: ${municipioValido.codigo_ibge}`);
+        if (!tenantSelecionado) {
+          return res.status(500).json({
+            success: false,
+            error: 'SYSTEM_ERROR',
+            message: 'Sistema não configurado corretamente. Entre em contato com o suporte.'
+          });
+        }
+
+        // Flag para indicar que é um cidadão não atribuído
+        (req as any).isUnassignedCitizen = true;
+        (req as any).requestedMunicipio = {
+          nome: municipioValido.nome,
+          uf: municipioValido.uf,
+          codigoIbge: municipioValido.codigo_ibge
+        };
+
+        console.log(`✅ Cidadão será vinculado ao UNASSIGNED_POOL e aguardará ativação de ${municipioValido.nome} - ${municipioValido.uf}`);
       }
     }
     else {
@@ -271,17 +271,32 @@ router.post('/register', registerRateLimiter, asyncHandler(async (req: LocalTena
       success: true,
     });
 
+    // ✅ Mensagem diferenciada para cidadãos não atribuídos
+    const isUnassigned = (req as any).isUnassignedCitizen;
+    const requestedMunicipio = (req as any).requestedMunicipio;
+
     return res.status(201).json({
       success: true,
-      message: `Cidadão cadastrado com sucesso em ${tenantSelecionado.name}`,
+      message: isUnassigned
+        ? `Cadastro realizado com sucesso! Sua cidade (${requestedMunicipio.nome} - ${requestedMunicipio.uf}) ainda não está disponível na plataforma. Você será notificado quando ela for ativada.`
+        : `Cidadão cadastrado com sucesso em ${tenantSelecionado.name}`,
       data: {
         citizen: citizenData,
         municipio: {
           id: tenantSelecionado.id,
-          name: tenantSelecionado.name,
+          name: isUnassigned ? `${requestedMunicipio.nome} - ${requestedMunicipio.uf}` : tenantSelecionado.name,
         },
       },
-      tenantId: tenantSelecionado.id, // ✅ RETORNAR tenantId para o frontend armazenar
+      tenantId: tenantSelecionado.id,
+      // ✅ Flag indicando se é cidadão não atribuído (frontend pode exibir tela especial)
+      isUnassigned: isUnassigned || false,
+      ...(isUnassigned && {
+        requestedMunicipio: {
+          nome: requestedMunicipio.nome,
+          uf: requestedMunicipio.uf,
+          codigoIbge: requestedMunicipio.codigoIbge
+        }
+      })
     });
   } catch (error: unknown) {
     console.error('Erro no cadastro:', sanitizeForLog(error));

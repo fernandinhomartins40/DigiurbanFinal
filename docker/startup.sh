@@ -51,25 +51,62 @@ DATABASE_URL="file:/app/data/dev.db" npx prisma migrate deploy || {
 check_essential_data() {
     echo "🔍 Verificando dados essenciais no banco..."
 
+    # Criar script inline para verificação (não depende de arquivos externos)
+    cat > /tmp/check-db.js <<'CHECKSCRIPT'
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
+
+async function check() {
+  try {
+    const superAdminCount = await prisma.user.count({
+      where: { role: 'SUPER_ADMIN' }
+    });
+    const unassignedPool = await prisma.tenant.findUnique({
+      where: { id: 'clzunassigned000000000000000' }
+    });
+    const demoTenant = await prisma.tenant.findUnique({
+      where: { id: 'demo' }
+    });
+
+    console.log(JSON.stringify({
+      superAdminCount,
+      hasUnassignedPool: !!unassignedPool,
+      hasDemoTenant: !!demoTenant,
+      ok: superAdminCount > 0 && !!unassignedPool
+    }));
+
+    await prisma.$disconnect();
+    process.exit((superAdminCount > 0 && !!unassignedPool) ? 0 : 1);
+  } catch (error) {
+    console.error('Error:', error.message);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
+}
+
+check();
+CHECKSCRIPT
+
     # Executar script de verificação
-    INTEGRITY_RESULT=$(DATABASE_URL="file:/app/data/dev.db" node scripts/check-db-integrity.js 2>&1)
+    INTEGRITY_RESULT=$(DATABASE_URL="file:/app/data/dev.db" node /tmp/check-db.js 2>&1)
     INTEGRITY_EXIT_CODE=$?
 
+    # Limpar arquivo temporário
+    rm -f /tmp/check-db.js
+
     if [ $INTEGRITY_EXIT_CODE -eq 0 ]; then
-        echo "$INTEGRITY_RESULT" | grep -o '"superAdminCount":[0-9]*' | cut -d: -f2 | while read count; do
-            echo "  - Super Admins encontrados: $count"
-        done
-        echo "$INTEGRITY_RESULT" | grep -o '"unassignedPool":[a-z]*' | cut -d: -f2 | while read status; do
-            echo "  - UNASSIGNED_POOL: $([ "$status" = "true" ] && echo 'EXISTS' || echo 'MISSING')"
-        done
-        echo "$INTEGRITY_RESULT" | grep -o '"demoTenant":[a-z]*' | cut -d: -f2 | while read status; do
-            echo "  - Demo Tenant: $([ "$status" = "true" ] && echo 'EXISTS' || echo 'MISSING')"
-        done
+        # Extrair e mostrar informações
+        SUPER_ADMIN_COUNT=$(echo "$INTEGRITY_RESULT" | grep -o '"superAdminCount":[0-9]*' | cut -d: -f2)
+        HAS_UNASSIGNED=$(echo "$INTEGRITY_RESULT" | grep -o '"hasUnassignedPool":[a-z]*' | cut -d: -f2)
+        HAS_DEMO=$(echo "$INTEGRITY_RESULT" | grep -o '"hasDemoTenant":[a-z]*' | cut -d: -f2)
+
+        echo "  - Super Admins: ${SUPER_ADMIN_COUNT:-0}"
+        echo "  - UNASSIGNED_POOL: $([ "$HAS_UNASSIGNED" = "true" ] && echo 'EXISTS ✅' || echo 'MISSING ❌')"
+        echo "  - Demo Tenant: $([ "$HAS_DEMO" = "true" ] && echo 'EXISTS ✅' || echo 'MISSING ❌')"
         echo "✅ Dados essenciais existem"
         return 0
     else
         echo "⚠️  Dados essenciais faltando!"
-        echo "$INTEGRITY_RESULT"
         return 1
     fi
 }

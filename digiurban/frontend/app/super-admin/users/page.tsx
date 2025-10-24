@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { SuperAdminCard, MetricCard, TenantSelector, UserCreateModal } from '@/components/super-admin';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface User {
   id: string;
@@ -38,6 +40,8 @@ const USER_ROLES = [
 
 export default function UsersManagementPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,39 +76,71 @@ export default function UsersManagementPage() {
   };
 
   const handleResetPassword = async (userId: string, userEmail: string) => {
-    if (!confirm(`Tem certeza que deseja resetar a senha de ${userEmail}?`)) return;
+    const confirmed = await confirm({
+      title: 'Resetar senha',
+      description: `Tem certeza que deseja resetar a senha de ${userEmail}?`,
+      confirmText: 'Resetar',
+      variant: 'destructive',
+    });
+
+    if (!confirmed) return;
 
     try {
       await apiRequest(`/super-admin/users/${userId}/reset-password`, {
         method: 'POST'
       });
-      alert('✅ Senha resetada! Um email foi enviado ao usuário.');
+      toast({
+        title: 'Senha resetada com sucesso',
+        description: 'Um email foi enviado ao usuário.',
+      });
     } catch (error) {
       console.error('Error resetting password:', error);
-      alert('❌ Erro ao resetar senha');
+      toast({
+        title: 'Erro ao resetar senha',
+        description: 'Ocorreu um erro ao resetar a senha do usuário.',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleToggleStatus = async (userId: string, currentStatus: boolean) => {
     const action = currentStatus ? 'desativar' : 'ativar';
-    if (!confirm(`Tem certeza que deseja ${action} este usuário?`)) return;
+    const confirmed = await confirm({
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} usuário`,
+      description: `Tem certeza que deseja ${action} este usuário?`,
+      confirmText: action.charAt(0).toUpperCase() + action.slice(1),
+      variant: currentStatus ? 'destructive' : 'default',
+    });
+
+    if (!confirmed) return;
 
     try {
       await apiRequest(`/super-admin/users/${userId}/status`, {
         method: 'PUT',
         body: JSON.stringify({ isActive: !currentStatus })
       });
-      alert(`✅ Usuário ${action === 'ativar' ? 'ativado' : 'desativado'} com sucesso!`);
+      toast({
+        title: `Usuário ${action === 'ativar' ? 'ativado' : 'desativado'}`,
+        description: `O usuário foi ${action === 'ativar' ? 'ativado' : 'desativado'} com sucesso.`,
+      });
       fetchUsers();
     } catch (error) {
       console.error('Error toggling status:', error);
-      alert('❌ Erro ao alterar status');
+      toast({
+        title: 'Erro ao alterar status',
+        description: 'Ocorreu um erro ao alterar o status do usuário.',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleBulkAction = async (action: 'activate' | 'deactivate' | 'delete') => {
     if (selectedUsers.length === 0) {
-      alert('Selecione pelo menos um usuário');
+      toast({
+        title: 'Nenhum usuário selecionado',
+        description: 'Selecione pelo menos um usuário para executar esta ação.',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -114,19 +150,33 @@ export default function UsersManagementPage() {
       delete: 'deletar'
     }[action];
 
-    if (!confirm(`Tem certeza que deseja ${actionText} ${selectedUsers.length} usuários?`)) return;
+    const confirmed = await confirm({
+      title: `${actionText.charAt(0).toUpperCase() + actionText.slice(1)} usuários`,
+      description: `Tem certeza que deseja ${actionText} ${selectedUsers.length} usuários?`,
+      confirmText: actionText.charAt(0).toUpperCase() + actionText.slice(1),
+      variant: action === 'delete' ? 'destructive' : 'default',
+    });
+
+    if (!confirmed) return;
 
     try {
       await apiRequest(`/super-admin/users/bulk-action`, {
         method: 'POST',
         body: JSON.stringify({ action, userIds: selectedUsers })
       });
-      alert(`✅ ${selectedUsers.length} usuários ${actionText}dos com sucesso!`);
+      toast({
+        title: 'Ação executada com sucesso',
+        description: `${selectedUsers.length} usuários ${actionText}dos com sucesso.`,
+      });
       setSelectedUsers([]);
       fetchUsers();
     } catch (error) {
       console.error('Error performing bulk action:', error);
-      alert('❌ Erro ao executar ação em massa');
+      toast({
+        title: 'Erro ao executar ação',
+        description: 'Ocorreu um erro ao executar a ação em massa.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -452,8 +502,14 @@ export default function UsersManagementPage() {
                           {user.isActive ? <XCircle size={18} /> : <CheckCircle size={18} />}
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm(`Deletar usuário ${user.name}?`)) {
+                          onClick={async () => {
+                            const confirmed = await confirm({
+                              title: 'Deletar usuário',
+                              description: `Tem certeza que deseja deletar ${user.name}?`,
+                              confirmText: 'Deletar',
+                              variant: 'destructive',
+                            });
+                            if (confirmed) {
                               // handleDelete(user.id);
                             }
                           }}
@@ -480,6 +536,9 @@ export default function UsersManagementPage() {
           fetchUsers();
         }}
       />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog />
     </div>
   );
 }

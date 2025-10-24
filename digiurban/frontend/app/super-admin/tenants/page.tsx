@@ -6,8 +6,12 @@ import { Building2, Plus, Search, Filter, Download, Users, FileText, DollarSign,
 import { useTenants } from '@/hooks/super-admin';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin';
 import { TenantStatusBadge, PlanBadge } from '@/components/ui/status-badge';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 export default function TenantsPage() {
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [planFilter, setPlanFilter] = useState('');
@@ -33,14 +37,25 @@ export default function TenantsPage() {
     try {
       const success = await deleteTenant(tenantToDelete.id);
       if (success) {
-        alert(`✅ Tenant "${tenantToDelete.name}" desativado com sucesso!\n\nℹ️ Os dados foram preservados e podem ser recuperados.\nPara exclusão permanente, acesse "Tenants Desativados".`);
+        toast({
+          title: 'Tenant desativado com sucesso',
+          description: `O tenant "${tenantToDelete.name}" foi desativado. Os dados foram preservados e podem ser recuperados. Para exclusão permanente, acesse "Tenants Desativados".`,
+        });
         setDeleteModalOpen(false);
         setTenantToDelete(null);
       } else {
-        alert('Erro ao desativar tenant.');
+        toast({
+          title: 'Erro ao desativar tenant',
+          description: 'Ocorreu um erro ao desativar o tenant. Tente novamente.',
+          variant: 'destructive',
+        });
       }
     } catch (error: any) {
-      alert(`Erro ao desativar tenant: ${error.message || 'Erro desconhecido'}`);
+      toast({
+        title: 'Erro ao desativar tenant',
+        description: error.message || 'Erro desconhecido',
+        variant: 'destructive',
+      });
     } finally {
       setDeleting(false);
     }
@@ -398,6 +413,7 @@ export default function TenantsPage() {
           </div>
         </div>
       )}
+      <ConfirmDialog />
     </div>
   );
 }

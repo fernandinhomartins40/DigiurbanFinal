@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin/SuperAdminCard';
 import { TenantSelector } from '@/components/super-admin/TenantSelector';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import {
   FileText,
   DollarSign,
@@ -59,6 +61,8 @@ interface InvoiceMetrics {
 
 export default function BillingInvoicesPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [metrics, setMetrics] = useState<InvoiceMetrics>({
@@ -200,7 +204,11 @@ export default function BillingInvoicesPage() {
 
   const handleBulkAction = async (action: 'send-reminder' | 'mark-paid' | 'cancel') => {
     if (selectedInvoices.length === 0) {
-      alert('Selecione pelo menos uma fatura');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Selecione pelo menos uma fatura'
+      });
       return;
     }
 
@@ -213,11 +221,18 @@ export default function BillingInvoicesPage() {
         })
       });
 
-      alert(`Ação "${action}" executada com sucesso em ${selectedInvoices.length} fatura(s)`);
+      toast({
+        title: 'Sucesso',
+        description: `Ação "${action}" executada com sucesso em ${selectedInvoices.length} fatura(s)`
+      });
       setSelectedInvoices([]);
       fetchInvoices();
     } catch (error) {
-      alert('Erro ao executar ação em lote');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao executar ação em lote'
+      });
     }
   };
 
@@ -227,9 +242,16 @@ export default function BillingInvoicesPage() {
         method: 'POST'
       });
 
-      alert('Lembrete enviado com sucesso');
+      toast({
+        title: 'Sucesso',
+        description: 'Lembrete enviado com sucesso'
+      });
     } catch (error) {
-      alert('Erro ao enviar lembrete');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao enviar lembrete'
+      });
     }
   };
 
@@ -239,25 +261,45 @@ export default function BillingInvoicesPage() {
         method: 'POST'
       });
 
-      alert('Fatura marcada como paga');
+      toast({
+        title: 'Sucesso',
+        description: 'Fatura marcada como paga'
+      });
       fetchInvoices();
     } catch (error) {
-      alert('Erro ao marcar fatura como paga');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao marcar fatura como paga'
+      });
     }
   };
 
   const handleCancelInvoice = async (invoiceId: string) => {
-    if (!confirm('Tem certeza que deseja cancelar esta fatura?')) return;
+    const confirmed = await confirm({
+      title: 'Cancelar Fatura',
+      description: 'Tem certeza que deseja cancelar esta fatura?',
+      variant: 'destructive'
+    });
+
+    if (!confirmed) return;
 
     try {
       await apiRequest(`/super-admin/billing/invoices/${invoiceId}/cancel`, {
         method: 'POST'
       });
 
-      alert('Fatura cancelada com sucesso');
+      toast({
+        title: 'Sucesso',
+        description: 'Fatura cancelada com sucesso'
+      });
       fetchInvoices();
     } catch (error) {
-      alert('Erro ao cancelar fatura');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao cancelar fatura'
+      });
     }
   };
 
@@ -283,7 +325,11 @@ export default function BillingInvoicesPage() {
       a.click();
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      alert('Erro ao exportar faturas');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao exportar faturas'
+      });
     }
   };
 
@@ -337,7 +383,10 @@ export default function BillingInvoicesPage() {
               Exportar PDF
             </button>
             <button
-              onClick={() => alert('Funcionalidade de criar fatura manual em desenvolvimento')}
+              onClick={() => toast({
+                title: 'Em Desenvolvimento',
+                description: 'Funcionalidade de criar fatura manual em desenvolvimento'
+              })}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm"
             >
               <Plus className="inline w-4 h-4 mr-2" />
@@ -747,7 +796,10 @@ export default function BillingInvoicesPage() {
               {/* Actions */}
               <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                 <button
-                  onClick={() => alert('Funcionalidade de download PDF em desenvolvimento')}
+                  onClick={() => toast({
+                    title: 'Em Desenvolvimento',
+                    description: 'Funcionalidade de download PDF em desenvolvimento'
+                  })}
                   className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
                   <Download className="inline w-4 h-4 mr-2" />
@@ -782,6 +834,8 @@ export default function BillingInvoicesPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog />
     </main>
   );
 }

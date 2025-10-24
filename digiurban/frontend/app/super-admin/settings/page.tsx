@@ -15,6 +15,8 @@ import {
   XCircle,
   AlertTriangle
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface GlobalSettings {
   platformName: string;
@@ -59,6 +61,8 @@ interface NotificationSettings {
 }
 
 export default function SettingsManagementPage() {
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const { apiRequest } = useSuperAdminAuth();
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     platformName: 'DigiUrban',
@@ -135,10 +139,17 @@ export default function SettingsManagementPage() {
         body: JSON.stringify(globalSettings)
       });
 
-      alert('Configurações salvas com sucesso');
+      toast({
+        title: 'Configurações salvas',
+        description: 'As configurações globais foram salvas com sucesso.',
+      });
     } catch (error) {
       console.error('Error saving settings:', error);
-      alert('Erro ao salvar configurações');
+      toast({
+        title: 'Erro ao salvar configurações',
+        description: 'Ocorreu um erro ao salvar as configurações.',
+        variant: 'destructive',
+      });
     } finally {
       setSaving(false);
     }
@@ -172,10 +183,17 @@ export default function SettingsManagementPage() {
       setLimits(lims =>
         lims.map(l => l.key === key ? { ...l, value } : l)
       );
-      alert('Limite atualizado com sucesso');
+      toast({
+        title: 'Limite atualizado',
+        description: 'O limite foi atualizado com sucesso.',
+      });
     } catch (error) {
       console.error('Error updating limit:', error);
-      alert('Erro ao atualizar limite');
+      toast({
+        title: 'Erro ao atualizar limite',
+        description: 'Ocorreu um erro ao atualizar o limite.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -185,10 +203,17 @@ export default function SettingsManagementPage() {
         method: 'POST'
       });
 
-      alert('Integração testada com sucesso!');
+      toast({
+        title: 'Integração testada',
+        description: 'A integração foi testada com sucesso!',
+      });
     } catch (error) {
       console.error('Error testing integration:', error);
-      alert('Erro ao testar integração');
+      toast({
+        title: 'Erro ao testar integração',
+        description: 'Ocorreu um erro ao testar a integração.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -454,7 +479,10 @@ export default function SettingsManagementPage() {
                       Testar
                     </button>
                     <button
-                      onClick={() => alert('Configurar em desenvolvimento')}
+                      onClick={() => toast({
+                        title: 'Funcionalidade em desenvolvimento',
+                        description: 'A configuração de integrações estará disponível em breve.',
+                      })}
                       className="flex-1 px-3 py-1.5 bg-gray-600 text-white rounded text-sm hover:bg-gray-700"
                     >
                       Configurar
@@ -536,7 +564,10 @@ export default function SettingsManagementPage() {
 
               <div className="pt-4 border-t border-gray-200 flex justify-end">
                 <button
-                  onClick={() => alert('Salvar notificações em desenvolvimento')}
+                  onClick={() => toast({
+                    title: 'Funcionalidade em desenvolvimento',
+                    description: 'O salvamento de notificações estará disponível em breve.',
+                  })}
                   className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
                 >
                   <Save className="inline w-4 h-4 mr-2" />
@@ -547,6 +578,7 @@ export default function SettingsManagementPage() {
           </SuperAdminCard>
         )}
       </div>
+      <ConfirmDialog />
     </main>
   );
 }

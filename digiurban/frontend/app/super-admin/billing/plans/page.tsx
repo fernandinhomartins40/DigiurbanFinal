@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { SuperAdminCard } from '@/components/super-admin/SuperAdminCard';
+import { useToast } from '@/hooks/use-toast';
 import {
   DollarSign,
   Edit,
@@ -47,6 +48,7 @@ interface Discount {
 
 export default function PlansConfigurationPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
@@ -88,17 +90,28 @@ export default function PlansConfigurationPage() {
         body: JSON.stringify(updates)
       });
 
-      alert('Plano atualizado com sucesso');
+      toast({
+        title: 'Sucesso',
+        description: 'Plano atualizado com sucesso'
+      });
       setEditingPlan(null);
       fetchPlansData();
     } catch (error) {
-      alert('Erro ao atualizar plano');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao atualizar plano'
+      });
     }
   };
 
   const handleAddDiscount = async () => {
     if (!newDiscount.code || newDiscount.percentage <= 0) {
-      alert('Preencha todos os campos obrigatórios');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Preencha todos os campos obrigatórios'
+      });
       return;
     }
 
@@ -108,12 +121,19 @@ export default function PlansConfigurationPage() {
         body: JSON.stringify(newDiscount)
       });
 
-      alert('Desconto criado com sucesso');
+      toast({
+        title: 'Sucesso',
+        description: 'Desconto criado com sucesso'
+      });
       setShowAddDiscount(false);
       setNewDiscount({ code: '', percentage: 0, validUntil: '', maxUsage: 100 });
       fetchPlansData();
     } catch (error) {
-      alert('Erro ao criar desconto');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao criar desconto'
+      });
     }
   };
 

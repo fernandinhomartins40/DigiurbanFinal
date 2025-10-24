@@ -8,6 +8,8 @@ import { TenantStatusBadge, PlanBadge, InvoiceStatusBadge } from '@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface DashboardData {
   overview: {
@@ -85,6 +87,8 @@ interface Invoice {
 }
 
 export default function SuperAdminPage() {
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -141,6 +145,15 @@ export default function SuperAdminPage() {
   // Generate billing for current month
   const generateBilling = async () => {
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+
+    const confirmed = await confirm({
+      title: 'Gerar faturas do mês',
+      description: `Deseja gerar as faturas para o período ${currentMonth}?`,
+      confirmText: 'Gerar faturas',
+    });
+
+    if (!confirmed) return;
+
     try {
       const response = await fetch('/api/super-admin/billing/generate', {
         method: 'POST',
@@ -150,13 +163,20 @@ export default function SuperAdminPage() {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`${result.invoices.length} faturas geradas para ${currentMonth}`);
+        toast({
+          title: 'Faturas geradas com sucesso',
+          description: `${result.invoices.length} faturas geradas para ${currentMonth}`,
+        });
         // Refresh data
         window.location.reload();
       }
     } catch (error) {
       console.error('Error generating billing:', error);
-      alert('Erro ao gerar faturas');
+      toast({
+        title: 'Erro ao gerar faturas',
+        description: 'Ocorreu um erro ao gerar as faturas. Tente novamente.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -434,7 +454,10 @@ export default function SuperAdminPage() {
                 {
                   label: 'Ver Detalhes',
                   onClick: (tenant) => {
-                    alert(`Detalhes do tenant: ${tenant.name}`);
+                    toast({
+                      title: 'Detalhes do tenant',
+                      description: `Visualizando detalhes de: ${tenant.name}`,
+                    });
                   },
                   variant: 'outline'
                 }
@@ -453,7 +476,10 @@ export default function SuperAdminPage() {
                 {
                   label: 'Ver Fatura',
                   onClick: (invoice) => {
-                    alert(`Detalhes da fatura: ${invoice.number}`);
+                    toast({
+                      title: 'Detalhes da fatura',
+                      description: `Visualizando fatura: ${invoice.number}`,
+                    });
                   },
                   variant: 'outline'
                 }
@@ -462,6 +488,7 @@ export default function SuperAdminPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <ConfirmDialog />
     </main>
   );
 }

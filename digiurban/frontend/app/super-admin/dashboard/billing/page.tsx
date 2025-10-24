@@ -7,6 +7,7 @@ import { SuperAdminCard, MetricCard } from '@/components/super-admin';
 import { BarChart, LineChart } from '@/components/ui/charts';
 import { InvoiceStatusBadge, PlanBadge } from '@/components/ui/status-badge';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface BillingDashboardData {
   overview: {
@@ -50,6 +51,7 @@ interface BillingDashboardData {
 
 export default function BillingDashboardPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
   const [data, setData] = useState<BillingDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -76,10 +78,17 @@ export default function BillingDashboardPage() {
         method: 'POST',
         body: JSON.stringify({ period: currentMonth })
       });
-      alert(`✅ ${result.invoices?.length || 0} faturas geradas para ${currentMonth}`);
+      toast({
+        title: 'Sucesso',
+        description: `${result.invoices?.length || 0} faturas geradas para ${currentMonth}`
+      });
       fetchBillingData();
     } catch (error) {
-      alert('❌ Erro ao gerar faturas');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao gerar faturas'
+      });
     }
   };
 

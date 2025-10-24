@@ -5,6 +5,8 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Building2, Globe, Loader2 } from 'lucide-react';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface TenantData {
   id: string;
@@ -42,6 +44,8 @@ export default function EditTenantPage() {
   const router = useRouter();
   const params = useParams();
   const tenantId = params.id as string;
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const { apiRequest } = useSuperAdminAuth();
 
   const [loading, setLoading] = useState(true);
@@ -72,7 +76,11 @@ export default function EditTenantPage() {
       }
     } catch (error) {
       console.error('Erro ao carregar tenant:', error);
-      alert('Erro ao carregar dados do tenant');
+      toast({
+        title: 'Erro ao carregar tenant',
+        description: 'Não foi possível carregar os dados do tenant.',
+        variant: 'destructive',
+      });
       router.push('/super-admin/tenants');
     } finally {
       setLoading(false);
@@ -87,9 +95,21 @@ export default function EditTenantPage() {
     e.preventDefault();
 
     if (!formData.name) {
-      alert('Nome é obrigatório');
+      toast({
+        title: 'Campo obrigatório',
+        description: 'O nome do tenant é obrigatório.',
+        variant: 'destructive',
+      });
       return;
     }
+
+    const confirmed = await confirm({
+      title: 'Salvar alterações',
+      description: `Deseja salvar as alterações do tenant "${formData.name}"?`,
+      confirmText: 'Salvar',
+    });
+
+    if (!confirmed) return;
 
     setSaving(true);
 
@@ -106,12 +126,19 @@ export default function EditTenantPage() {
       });
 
       if (result.success) {
-        alert('Tenant atualizado com sucesso!');
+        toast({
+          title: 'Tenant atualizado',
+          description: 'As alterações foram salvas com sucesso.',
+        });
         router.push('/super-admin/tenants');
       }
     } catch (error: any) {
       console.error('Erro ao atualizar tenant:', error);
-      alert(`Erro ao atualizar tenant: ${error.message || 'Erro desconhecido'}`);
+      toast({
+        title: 'Erro ao atualizar tenant',
+        description: error.message || 'Erro desconhecido',
+        variant: 'destructive',
+      });
     } finally {
       setSaving(false);
     }
@@ -345,6 +372,7 @@ export default function EditTenantPage() {
           </button>
         </div>
       </form>
+      <ConfirmDialog />
     </div>
   );
 }

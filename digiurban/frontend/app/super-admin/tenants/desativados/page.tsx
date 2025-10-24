@@ -6,8 +6,12 @@ import { Building2, ArrowLeft, RefreshCw, Trash2, AlertTriangle, RotateCcw } fro
 import { useTenants } from '@/hooks/super-admin';
 import { SuperAdminCard } from '@/components/super-admin';
 import { TenantStatusBadge, PlanBadge } from '@/components/ui/status-badge';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 export default function DeactivatedTenantsPage() {
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [hardDeleteModalOpen, setHardDeleteModalOpen] = useState(false);
   const [reactivateModalOpen, setReactivateModalOpen] = useState(false);
   const [tenantToAction, setTenantToAction] = useState<any>(null);
@@ -33,7 +37,11 @@ export default function DeactivatedTenantsPage() {
     if (!tenantToAction) return;
 
     if (confirmPassword !== 'DELETE_PERMANENTLY') {
-      alert('❌ Senha de confirmação incorreta!\n\nDigite exatamente: DELETE_PERMANENTLY');
+      toast({
+        title: 'Senha de confirmação incorreta',
+        description: 'Digite exatamente: DELETE_PERMANENTLY',
+        variant: 'destructive',
+      });
       return;
     }
 
@@ -41,15 +49,27 @@ export default function DeactivatedTenantsPage() {
     try {
       const success = await hardDeleteTenant(tenantToAction.id, confirmPassword);
       if (success) {
-        alert(`⚠️ Tenant "${tenantToAction.name}" e TODOS os dados foram PERMANENTEMENTE excluídos!\n\n⚠️ Esta operação é IRREVERSÍVEL!`);
+        toast({
+          title: 'Tenant excluído permanentemente',
+          description: `O tenant "${tenantToAction.name}" e TODOS os dados foram PERMANENTEMENTE excluídos. Esta operação é IRREVERSÍVEL!`,
+          variant: 'destructive',
+        });
         setHardDeleteModalOpen(false);
         setTenantToAction(null);
         setConfirmPassword('');
       } else {
-        alert('Erro ao excluir permanentemente tenant.');
+        toast({
+          title: 'Erro ao excluir tenant',
+          description: 'Ocorreu um erro ao excluir permanentemente o tenant.',
+          variant: 'destructive',
+        });
       }
     } catch (error: any) {
-      alert(`Erro ao excluir tenant: ${error.message || 'Erro desconhecido'}`);
+      toast({
+        title: 'Erro ao excluir tenant',
+        description: error.message || 'Erro desconhecido',
+        variant: 'destructive',
+      });
     } finally {
       setProcessing(false);
     }
@@ -62,14 +82,25 @@ export default function DeactivatedTenantsPage() {
     try {
       const success = await reactivateTenant(tenantToAction.id);
       if (success) {
-        alert(`✅ Tenant "${tenantToAction.name}" reativado com sucesso!`);
+        toast({
+          title: 'Tenant reativado com sucesso',
+          description: `O tenant "${tenantToAction.name}" foi reativado.`,
+        });
         setReactivateModalOpen(false);
         setTenantToAction(null);
       } else {
-        alert('Erro ao reativar tenant.');
+        toast({
+          title: 'Erro ao reativar tenant',
+          description: 'Ocorreu um erro ao reativar o tenant.',
+          variant: 'destructive',
+        });
       }
     } catch (error: any) {
-      alert(`Erro ao reativar tenant: ${error.message || 'Erro desconhecido'}`);
+      toast({
+        title: 'Erro ao reativar tenant',
+        description: error.message || 'Erro desconhecido',
+        variant: 'destructive',
+      });
     } finally {
       setProcessing(false);
     }
@@ -370,6 +401,7 @@ export default function DeactivatedTenantsPage() {
           </div>
         </div>
       )}
+      <ConfirmDialog />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin/SuperAdminCard';
+import { useToast } from '@/hooks/use-toast';
 import {
   DollarSign,
   TrendingUp,
@@ -66,6 +67,7 @@ interface PlanConfig {
 
 export default function BillingManagementPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
   const [metrics, setMetrics] = useState<BillingMetrics | null>(null);
   const [revenueByPlan, setRevenueByPlan] = useState<RevenueByPlan[]>([]);
   const [revenueHistory, setRevenueHistory] = useState<RevenueHistory[]>([]);
@@ -147,7 +149,10 @@ export default function BillingManagementPage() {
               Gerenciar Faturas
             </Link>
             <button
-              onClick={() => alert('Configuração de planos em desenvolvimento')}
+              onClick={() => toast({
+                title: 'Em Desenvolvimento',
+                description: 'Configuração de planos em desenvolvimento'
+              })}
               className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 text-sm"
             >
               <Settings className="inline w-4 h-4 mr-2" />
@@ -346,7 +351,10 @@ export default function BillingManagementPage() {
                 <div className="flex justify-between items-start mb-3">
                   <h3 className="text-lg font-bold text-gray-900">{plan.name}</h3>
                   <button
-                    onClick={() => alert(`Editar plano ${plan.name}`)}
+                    onClick={() => toast({
+                      title: 'Em Desenvolvimento',
+                      description: `Editar plano ${plan.name}`
+                    })}
                     className="text-blue-600 hover:text-blue-800 text-sm"
                   >
                     Editar
@@ -400,7 +408,10 @@ export default function BillingManagementPage() {
           </Link>
 
           <button
-            onClick={() => alert('Relatório financeiro em desenvolvimento')}
+            onClick={() => toast({
+              title: 'Em Desenvolvimento',
+              description: 'Relatório financeiro em desenvolvimento'
+            })}
             className="block w-full text-left p-6 bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center gap-4">

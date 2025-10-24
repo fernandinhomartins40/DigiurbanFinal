@@ -10,6 +10,8 @@ import {
 import { getFullApiUrl } from '@/lib/api-config';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface Municipio {
   codigo_ibge?: string;
@@ -84,6 +86,8 @@ const BRAZIL_STATES = [
 
 export default function CreateTenantPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const { apiRequest } = useSuperAdminAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -234,7 +238,11 @@ export default function CreateTenantPage() {
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, totalSteps));
     } else {
-      alert('Por favor, preencha todos os campos obrigatórios');
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, preencha todos os campos obrigatórios antes de continuar.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -259,9 +267,21 @@ export default function CreateTenantPage() {
 
   const handleSubmit = async () => {
     if (!validateStep(4)) {
-      alert('Por favor, revise os dados antes de criar o tenant');
+      toast({
+        title: 'Revisão necessária',
+        description: 'Por favor, revise os dados antes de criar o tenant.',
+        variant: 'destructive',
+      });
       return;
     }
+
+    const confirmed = await confirm({
+      title: 'Criar novo tenant',
+      description: `Deseja criar o tenant "${formData.name}"? As credenciais serão enviadas para ${formData.adminEmail}.`,
+      confirmText: 'Criar tenant',
+    });
+
+    if (!confirmed) return;
 
     setLoading(true);
 
@@ -295,10 +315,17 @@ export default function CreateTenantPage() {
         body: JSON.stringify(payload)
       });
 
-      alert(`✅ Tenant "${formData.name}" criado com sucesso!\n\nCredenciais enviadas para: ${formData.adminEmail}`);
+      toast({
+        title: 'Tenant criado com sucesso',
+        description: `O tenant "${formData.name}" foi criado. Credenciais enviadas para: ${formData.adminEmail}`,
+      });
       router.push(`/super-admin/dashboard/tenant/${result.tenant.id}`);
     } catch (error) {
-      alert('❌ Erro ao criar tenant');
+      toast({
+        title: 'Erro ao criar tenant',
+        description: 'Ocorreu um erro ao criar o tenant. Tente novamente.',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
@@ -874,6 +901,7 @@ export default function CreateTenantPage() {
           )}
         </div>
       </div>
+      <ConfirmDialog />
     </div>
   );
 }

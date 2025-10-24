@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { SuperAdminCard, MetricCard, TenantSelector, TenantAutocomplete } from '@/components/super-admin';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface Citizen {
   id: string;
@@ -44,6 +46,8 @@ const VERIFICATION_STATUS = [
 
 export default function CitizensManagementPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [citizens, setCitizens] = useState<Citizen[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -91,9 +95,12 @@ export default function CitizensManagementPage() {
   };
 
   const handleAutoLink = async () => {
-    if (!confirm('Deseja vincular automaticamente todos os cidadãos não vinculados baseado na cidade de cadastro?')) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Vincular Cidadãos Automaticamente',
+      description: 'Deseja vincular automaticamente todos os cidadãos não vinculados baseado na cidade de cadastro?'
+    });
+
+    if (!confirmed) return;
 
     setAutoLinkLoading(true);
     try {
@@ -101,31 +108,49 @@ export default function CitizensManagementPage() {
         method: 'POST'
       });
 
-      alert(`✅ ${data.message}\n\n` +
-        `✓ Vinculados: ${data.summary.linked}\n` +
-        `✗ Não vinculados: ${data.summary.notLinked}`);
+      toast({
+        title: 'Sucesso',
+        description: `${data.message}. Vinculados: ${data.summary.linked}, Não vinculados: ${data.summary.notLinked}`
+      });
 
       fetchCitizens();
     } catch (error) {
       console.error('Error auto-linking citizens:', error);
-      alert('❌ Erro ao vincular cidadãos automaticamente');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao vincular cidadãos automaticamente'
+      });
     } finally {
       setAutoLinkLoading(false);
     }
   };
 
   const handleDelete = async (citizenId: string, citizenName: string) => {
-    if (!confirm(`Tem certeza que deseja excluir o cidadão ${citizenName}?`)) return;
+    const confirmed = await confirm({
+      title: 'Excluir Cidadão',
+      description: `Tem certeza que deseja excluir o cidadão ${citizenName}?`,
+      variant: 'destructive'
+    });
+
+    if (!confirmed) return;
 
     try {
       await apiRequest(`/super-admin/citizens/${citizenId}`, {
         method: 'DELETE'
       });
-      alert('✅ Cidadão excluído com sucesso!');
+      toast({
+        title: 'Sucesso',
+        description: 'Cidadão excluído com sucesso!'
+      });
       fetchCitizens();
     } catch (error) {
       console.error('Error deleting citizen:', error);
-      alert('❌ Erro ao excluir cidadão');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao excluir cidadão'
+      });
     }
   };
 
@@ -137,7 +162,11 @@ export default function CitizensManagementPage() {
 
   const handleLinkTenant = async () => {
     if (!citizenToLink || !selectedTenantForLink) {
-      alert('Selecione um tenant');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Selecione um tenant'
+      });
       return;
     }
 
@@ -146,12 +175,19 @@ export default function CitizensManagementPage() {
         method: 'PUT',
         body: JSON.stringify({ tenantId: selectedTenantForLink })
       });
-      alert('✅ Cidadão vinculado com sucesso!');
+      toast({
+        title: 'Sucesso',
+        description: 'Cidadão vinculado com sucesso!'
+      });
       setShowLinkModal(false);
       fetchCitizens();
     } catch (error) {
       console.error('Error linking citizen:', error);
-      alert('❌ Erro ao vincular cidadão');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao vincular cidadão'
+      });
     }
   };
 
@@ -202,12 +238,19 @@ export default function CitizensManagementPage() {
         method: 'PUT',
         body: JSON.stringify(editFormData)
       });
-      alert('✅ Cidadão atualizado com sucesso!');
+      toast({
+        title: 'Sucesso',
+        description: 'Cidadão atualizado com sucesso!'
+      });
       setShowEditModal(false);
       fetchCitizens();
     } catch (error) {
       console.error('Error updating citizen:', error);
-      alert('❌ Erro ao atualizar cidadão');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao atualizar cidadão'
+      });
     }
   };
 
@@ -875,6 +918,8 @@ export default function CitizensManagementPage() {
           </div>
         </div>
       )}
+
+      <ConfirmDialog />
     </div>
   );
 }

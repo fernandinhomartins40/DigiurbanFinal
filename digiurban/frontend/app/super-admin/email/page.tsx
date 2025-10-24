@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin/SuperAdminCard';
+import { useToast } from '@/hooks/use-toast';
 import {
   Mail,
   Send,
@@ -64,6 +65,7 @@ interface SMTPConnection {
 
 export default function EmailManagementPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
   const [metrics, setMetrics] = useState<EmailMetrics | null>(null);
   const [domains, setDomains] = useState<EmailDomain[]>([]);
   const [emailLogs, setEmailLogs] = useState<EmailLog[]>([]);
@@ -109,14 +111,25 @@ export default function EmailManagementPage() {
       });
 
       if (data) {
-        alert('Domínio verificado com sucesso');
+        toast({
+          title: 'Sucesso',
+          description: 'Domínio verificado com sucesso'
+        });
         fetchEmailData();
       } else {
-        alert('Erro ao verificar domínio. Verifique os registros DNS.');
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: 'Erro ao verificar domínio. Verifique os registros DNS.'
+        });
       }
     } catch (error) {
       console.error('Error verifying domain:', error);
-      alert('Erro ao verificar domínio');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao verificar domínio'
+      });
     }
   };
 
@@ -127,12 +140,19 @@ export default function EmailManagementPage() {
       });
 
       if (data) {
-        alert(`DKIM configurado. Adicione este registro DNS:\n\n${data.dkimRecord}`);
+        toast({
+          title: 'DKIM Configurado',
+          description: `Adicione este registro DNS: ${data.dkimRecord}`
+        });
         fetchEmailData();
       }
     } catch (error) {
       console.error('Error configuring DKIM:', error);
-      alert('Erro ao configurar DKIM');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao configurar DKIM'
+      });
     }
   };
 
@@ -185,7 +205,10 @@ export default function EmailManagementPage() {
             </p>
           </div>
           <button
-            onClick={() => alert('Adicionar domínio em desenvolvimento')}
+            onClick={() => toast({
+              title: 'Em Desenvolvimento',
+              description: 'Funcionalidade de adicionar domínio em desenvolvimento'
+            })}
             className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
           >
             <Globe className="inline w-4 h-4 mr-2" />

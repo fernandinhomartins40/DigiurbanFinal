@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin/SuperAdminCard';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 import {
   Database,
   HardDrive,
@@ -61,6 +63,8 @@ interface Job {
 
 export default function OperationsManagementPage() {
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [metrics, setMetrics] = useState<OperationsMetrics | null>(null);
   const [backups, setBackups] = useState<Backup[]>([]);
   const [cacheStats, setCacheStats] = useState<CacheStats[]>([]);
@@ -100,7 +104,13 @@ export default function OperationsManagementPage() {
   };
 
   const handleCreateBackup = async () => {
-    if (!confirm('Criar backup agora? Este processo pode levar alguns minutos.')) return;
+    const confirmed = await confirm({
+      title: 'Criar backup',
+      description: 'Criar backup agora? Este processo pode levar alguns minutos.',
+      confirmText: 'Criar backup',
+    });
+
+    if (!confirmed) return;
 
     try {
       const data = await apiRequest('/super-admin/operations/backups/create', {
@@ -108,17 +118,31 @@ export default function OperationsManagementPage() {
       });
 
       if (data) {
-        alert('Backup iniciado com sucesso');
+        toast({
+          title: 'Backup iniciado',
+          description: 'O processo de backup foi iniciado com sucesso.',
+        });
         fetchOperationsData();
       }
     } catch (error) {
       console.error('Error creating backup:', error);
-      alert('Erro ao criar backup');
+      toast({
+        title: 'Erro ao criar backup',
+        description: 'Ocorreu um erro ao iniciar o processo de backup.',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleClearCache = async (cacheType: string) => {
-    if (!confirm(`Limpar cache ${cacheType}?`)) return;
+    const confirmed = await confirm({
+      title: 'Limpar cache',
+      description: `Tem certeza que deseja limpar o cache ${cacheType}?`,
+      confirmText: 'Limpar',
+      variant: 'destructive',
+    });
+
+    if (!confirmed) return;
 
     try {
       const data = await apiRequest('/super-admin/operations/cache/clear', {
@@ -127,12 +151,19 @@ export default function OperationsManagementPage() {
       });
 
       if (data) {
-        alert('Cache limpo com sucesso');
+        toast({
+          title: 'Cache limpo',
+          description: `O cache ${cacheType} foi limpo com sucesso.`,
+        });
         fetchOperationsData();
       }
     } catch (error) {
       console.error('Error clearing cache:', error);
-      alert('Erro ao limpar cache');
+      toast({
+        title: 'Erro ao limpar cache',
+        description: 'Ocorreu um erro ao limpar o cache.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -143,12 +174,19 @@ export default function OperationsManagementPage() {
       });
 
       if (data) {
-        alert('Job reenfileirado com sucesso');
+        toast({
+          title: 'Job reenfileirado',
+          description: 'O job foi reenfileirado com sucesso.',
+        });
         fetchOperationsData();
       }
     } catch (error) {
       console.error('Error retrying job:', error);
-      alert('Erro ao reprocessar job');
+      toast({
+        title: 'Erro ao reprocessar job',
+        description: 'Ocorreu um erro ao reprocessar o job.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -388,14 +426,20 @@ export default function OperationsManagementPage() {
                           {backup.status === 'completed' && (
                             <>
                               <button
-                                onClick={() => alert('Download em desenvolvimento')}
+                                onClick={() => toast({
+                                  title: 'Funcionalidade em desenvolvimento',
+                                  description: 'Download de backup em breve.',
+                                })}
                                 className="p-1 text-blue-600 hover:bg-blue-50 rounded"
                                 title="Download"
                               >
                                 <Download className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => alert('Restore em desenvolvimento')}
+                                onClick={() => toast({
+                                  title: 'Funcionalidade em desenvolvimento',
+                                  description: 'Restore de backup em breve.',
+                                })}
                                 className="p-1 text-green-600 hover:bg-green-50 rounded"
                                 title="Restaurar"
                               >
@@ -403,7 +447,10 @@ export default function OperationsManagementPage() {
                               </button>
                               {backup.type === 'manual' && (
                                 <button
-                                  onClick={() => alert('Delete em desenvolvimento')}
+                                  onClick={() => toast({
+                                    title: 'Funcionalidade em desenvolvimento',
+                                    description: 'Delete de backup em breve.',
+                                  })}
                                   className="p-1 text-red-600 hover:bg-red-50 rounded"
                                   title="Deletar"
                                 >
@@ -558,6 +605,9 @@ export default function OperationsManagementPage() {
           </SuperAdminCard>
         )}
       </div>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog />
     </main>
   );
 }

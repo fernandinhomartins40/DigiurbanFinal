@@ -11,6 +11,8 @@ import { SuperAdminCard, MetricCard, ActivityLog } from '@/components/super-admi
 import { TenantStatusBadge, PlanBadge } from '@/components/ui/status-badge';
 import { LineChart } from '@/components/ui/charts';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 interface TenantDetail {
   id: string;
@@ -61,6 +63,8 @@ export default function TenantDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { apiRequest } = useSuperAdminAuth();
+  const { toast } = useToast();
+  const { confirm, ConfirmDialog } = useConfirmDialog();
   const tenantId = params.id as string;
 
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
@@ -85,7 +89,13 @@ export default function TenantDetailPage() {
   };
 
   const handleSuspend = async () => {
-    if (!confirm(`Tem certeza que deseja suspender o tenant ${tenant?.name}?`)) return;
+    const confirmed = await confirm({
+      title: 'Suspender Tenant',
+      description: `Tem certeza que deseja suspender o tenant ${tenant?.name}?`,
+      variant: 'destructive'
+    });
+
+    if (!confirmed) return;
 
     try {
       await apiRequest(`/super-admin/tenants/${tenantId}`, {
@@ -93,24 +103,45 @@ export default function TenantDetailPage() {
         body: JSON.stringify({ status: 'SUSPENDED' })
       });
 
-      alert('✅ Tenant suspenso com sucesso');
+      toast({
+        title: 'Sucesso',
+        description: 'Tenant suspenso com sucesso'
+      });
       fetchTenantDetail();
     } catch (error) {
-      alert('❌ Erro ao suspender tenant');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao suspender tenant'
+      });
     }
   };
 
   const handleActivate = async () => {
+    const confirmed = await confirm({
+      title: 'Ativar Tenant',
+      description: `Tem certeza que deseja ativar o tenant ${tenant?.name}?`
+    });
+
+    if (!confirmed) return;
+
     try {
       await apiRequest(`/super-admin/tenants/${tenantId}`, {
         method: 'PUT',
         body: JSON.stringify({ status: 'ACTIVE' })
       });
 
-      alert('✅ Tenant ativado com sucesso');
+      toast({
+        title: 'Sucesso',
+        description: 'Tenant ativado com sucesso'
+      });
       fetchTenantDetail();
     } catch (error) {
-      alert('❌ Erro ao ativar tenant');
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Erro ao ativar tenant'
+      });
     }
   };
 
@@ -447,6 +478,8 @@ export default function TenantDetailPage() {
           </SuperAdminCard>
         </div>
       </div>
+
+      <ConfirmDialog />
     </div>
   );
 }

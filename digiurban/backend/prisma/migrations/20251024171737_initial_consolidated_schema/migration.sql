@@ -12,6 +12,9 @@ CREATE TABLE "tenants" (
     "limits" JSONB,
     "settings" JSONB,
     "metadata" JSONB,
+    "codigoIbge" TEXT,
+    "nomeMunicipio" TEXT,
+    "ufMunicipio" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "hasEmailService" BOOLEAN NOT NULL DEFAULT false,
@@ -28,6 +31,8 @@ CREATE TABLE "users" (
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "tenantId" TEXT NOT NULL,
     "departmentId" TEXT,
+    "failedLoginAttempts" INTEGER NOT NULL DEFAULT 0,
+    "lockedUntil" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "lastLogin" DATETIME,
@@ -80,7 +85,9 @@ CREATE TABLE "citizens" (
     "birthDate" DATETIME,
     "address" JSONB,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "password" TEXT,
+    "password" TEXT NOT NULL,
+    "failedLoginAttempts" INTEGER NOT NULL DEFAULT 0,
+    "lockedUntil" DATETIME,
     "verificationStatus" TEXT NOT NULL DEFAULT 'PENDING',
     "verifiedAt" DATETIME,
     "verifiedBy" TEXT,
@@ -216,6 +223,26 @@ CREATE TABLE "notifications" (
     "metadata" JSONB,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "notifications_citizenId_fkey" FOREIGN KEY ("citizenId") REFERENCES "citizens" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "citizen_transfer_requests" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "citizenId" TEXT NOT NULL,
+    "fromTenantId" TEXT NOT NULL,
+    "toTenantId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "reason" TEXT NOT NULL,
+    "documents" JSONB,
+    "reviewedById" TEXT,
+    "reviewedAt" DATETIME,
+    "reviewNotes" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "citizen_transfer_requests_citizenId_fkey" FOREIGN KEY ("citizenId") REFERENCES "citizens" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "citizen_transfer_requests_fromTenantId_fkey" FOREIGN KEY ("fromTenantId") REFERENCES "tenants" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "citizen_transfer_requests_toTenantId_fkey" FOREIGN KEY ("toTenantId") REFERENCES "tenants" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "citizen_transfer_requests_reviewedById_fkey" FOREIGN KEY ("reviewedById") REFERENCES "users" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -621,15 +648,20 @@ CREATE TABLE "cache_entries" (
 -- CreateTable
 CREATE TABLE "audit_logs" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "tenantId" TEXT,
     "userId" TEXT,
+    "citizenId" TEXT,
+    "tenantId" TEXT NOT NULL,
     "action" TEXT NOT NULL,
-    "resource" TEXT NOT NULL,
-    "resourceId" TEXT,
-    "details" TEXT,
-    "ipAddress" TEXT,
+    "resource" TEXT,
+    "method" TEXT,
+    "details" JSONB,
+    "ip" TEXT,
     "userAgent" TEXT,
-    "timestamp" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "success" BOOLEAN NOT NULL DEFAULT true,
+    "errorMessage" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "audit_logs_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "audit_logs_citizenId_fkey" FOREIGN KEY ("citizenId") REFERENCES "citizens" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -3066,9 +3098,6 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE UNIQUE INDEX "departments_tenantId_name_key" ON "departments"("tenantId", "name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "citizens_cpf_key" ON "citizens"("cpf");
-
--- CreateIndex
 CREATE UNIQUE INDEX "citizens_tenantId_cpf_key" ON "citizens"("tenantId", "cpf");
 
 -- CreateIndex
@@ -3177,13 +3206,19 @@ CREATE UNIQUE INDEX "cache_entries_key_key" ON "cache_entries"("key");
 CREATE INDEX "cache_entries_expiresAt_idx" ON "cache_entries"("expiresAt");
 
 -- CreateIndex
-CREATE INDEX "audit_logs_tenantId_action_idx" ON "audit_logs"("tenantId", "action");
+CREATE INDEX "audit_logs_tenantId_idx" ON "audit_logs"("tenantId");
 
 -- CreateIndex
-CREATE INDEX "audit_logs_userId_timestamp_idx" ON "audit_logs"("userId", "timestamp");
+CREATE INDEX "audit_logs_userId_idx" ON "audit_logs"("userId");
 
 -- CreateIndex
-CREATE INDEX "audit_logs_resource_resourceId_idx" ON "audit_logs"("resource", "resourceId");
+CREATE INDEX "audit_logs_citizenId_idx" ON "audit_logs"("citizenId");
+
+-- CreateIndex
+CREATE INDEX "audit_logs_action_idx" ON "audit_logs"("action");
+
+-- CreateIndex
+CREATE INDEX "audit_logs_createdAt_idx" ON "audit_logs"("createdAt");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "rural_producers_tenantId_document_key" ON "rural_producers"("tenantId", "document");

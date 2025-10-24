@@ -349,7 +349,7 @@ model Service {
 // Cidadãos - Expandido para Fase 3
 model Citizen {
   id       String  @id @default(cuid())
-  cpf      String  @unique
+  cpf      String  // ✅ REMOVIDO @unique global - permite recadastro após exclusão e multi-tenant correto
   name     String
   email    String
   phone    String?

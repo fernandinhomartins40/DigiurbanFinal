@@ -42,12 +42,9 @@ DATABASE_URL="file:/app/data/dev.db" npx prisma migrate deploy || {
 # Se o banco foi resetado (.seeded não existe OU migrate reset foi executado), executar seed
 if [ ! -f "/app/data/.seeded" ]; then
     echo "🌱 Executando seed inicial..."
-    DATABASE_URL="file:/app/data/dev.db" node dist/scripts/seed.js || {
-        echo "⚠️ Seed falhou, tentando com node..."
-        DATABASE_URL="file:/app/data/dev.db" node prisma/seed.js || {
-            echo "❌ Seed falhou em ambas tentativas"
-            exit 1
-        }
+    DATABASE_URL="file:/app/data/dev.db" npm run db:seed || {
+        echo "❌ Seed falhou"
+        exit 1
     }
     touch /app/data/.seeded
     echo "✅ Seed concluído e marcado"

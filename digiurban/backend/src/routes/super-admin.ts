@@ -155,6 +155,14 @@ function requireSuperAdmin(req: express.Request, res: Response, next: NextFuncti
 
 // ====================== VALIDATION SCHEMAS ======================
 
+// Schema de senha forte reutilizável
+const strongPasswordSchema = z.string()
+  .min(8, 'Senha deve ter pelo menos 8 caracteres')
+  .regex(/[A-Z]/, 'Senha deve conter pelo menos uma letra maiúscula')
+  .regex(/[a-z]/, 'Senha deve conter pelo menos uma letra minúscula')
+  .regex(/\d/, 'Senha deve conter pelo menos um número')
+  .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Senha deve conter pelo menos um caractere especial');
+
 const createTenantSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   cnpj: z.string().min(14, 'CNPJ é obrigatório'),
@@ -168,7 +176,7 @@ const createTenantSchema = z.object({
   adminUser: z.object({
     email: z.string().email(),
     name: z.string().min(1),
-    password: z.string().optional(),
+    password: strongPasswordSchema, // ✅ OBRIGATÓRIO e com validação forte
   }).optional(),
 });
 
@@ -213,6 +221,15 @@ router.post('/login', async (req: express.Request, res: Response) => {
         email,
         role: 'SUPER_ADMIN' as any,
       },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        role: true,
+        isActive: true,
+        name: true,
+        mustChangePassword: true, // ✅ SEGURANÇA: Verificar se deve trocar senha
+      }
     });
 
     if (!user || !user.isActive) {
@@ -249,7 +266,12 @@ router.post('/login', async (req: express.Request, res: Response) => {
 
     const { password: _, ...userData } = user;
 
-    res.json({ success: true, user: userData });
+    res.json({
+      success: true,
+      user: userData,
+      // ✅ SEGURANÇA: Informar frontend se usuário precisa trocar senha
+      mustChangePassword: user.mustChangePassword,
+    });
   } catch (error) {
     console.error('Erro no login do Super Admin:', error);
     res.status(500).json({ success: false, error: 'Erro interno no servidor' });
@@ -523,7 +545,8 @@ router.post(
     // Criar usuário administrador se fornecido
     if (data.adminUser) {
       const bcrypt = require('bcryptjs');
-      const hashedPassword = await bcrypt.hash(data.adminUser.password || '123456', 12);
+      // ✅ SEGURANÇA: Senha obrigatória com validação forte (validada pelo schema Zod)
+      const hashedPassword = await bcrypt.hash(data.adminUser.password, 12);
 
       await prisma.user.create({
         data: {
@@ -532,6 +555,7 @@ router.post(
           password: hashedPassword,
           role: 'ADMIN',
           tenantId: tenant.id,
+          mustChangePassword: true, // ✅ Exigir troca de senha no primeiro login
         },
       });
     }
@@ -1929,6 +1953,17 @@ router.post(
   })
 );
 
+// Schema de validação para criação de usuário
+const createUserSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('Email inválido'),
+  password: strongPasswordSchema, // ✅ Validação de senha forte
+  role: z.string().optional(),
+  tenantId: z.string().min(1, 'Tenant é obrigatório'),
+  departmentId: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+
 /**
  * POST /api/super-admin/users
  * Criar novo usuário em um tenant específico
@@ -1938,29 +1973,20 @@ router.post(
   authenticateToken,
   requireSuperAdmin,
   handleAsyncRoute(async (req, res) => {
-    const { name, email, password, role, tenantId, departmentId, isActive } = req.body;
-
-    // Validações
-    if (!name || !email || !password || !tenantId) {
-      return res.status(400).json(
-        createErrorResponse('INVALID_INPUT', 'Nome, email, senha e tenant são obrigatórios')
-      );
+    // ✅ SEGURANÇA: Validar com Zod (inclui validação de senha forte)
+    let validatedData;
+    try {
+      validatedData = createUserSchema.parse(req.body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json(
+          createErrorResponse('VALIDATION_ERROR', 'Dados inválidos', error.issues)
+        );
+      }
+      throw error;
     }
 
-    // Validar email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json(
-        createErrorResponse('INVALID_EMAIL', 'Email inválido')
-      );
-    }
-
-    // Validar senha
-    if (password.length < 6) {
-      return res.status(400).json(
-        createErrorResponse('WEAK_PASSWORD', 'Senha deve ter no mínimo 6 caracteres')
-      );
-    }
+    const { name, email, password, role, tenantId, departmentId, isActive } = validatedData;
 
     // Verificar se tenant existe
     const tenant = await prisma.tenant.findUnique({
@@ -2014,10 +2040,11 @@ router.post(
         name: name.trim(),
         email: email.toLowerCase().trim(),
         password: hashedPassword,
-        role: role || 'USER',
+        role: (role || 'USER') as any, // TypeScript type assertion for Prisma enum
         tenantId,
         departmentId: departmentId || null,
-        isActive: isActive !== undefined ? isActive : true
+        isActive: isActive !== undefined ? isActive : true,
+        mustChangePassword: true, // ✅ Exigir troca de senha no primeiro login
       },
       include: {
         tenant: {

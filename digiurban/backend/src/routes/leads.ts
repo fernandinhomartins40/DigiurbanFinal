@@ -12,6 +12,15 @@ import {
   DEFAULT_VALUES,
   LeadData,
 } from '../types';
+import { z } from 'zod';
+
+// ✅ SEGURANÇA: Schema de senha forte
+const strongPasswordSchema = z.string()
+  .min(8, 'Senha deve ter pelo menos 8 caracteres')
+  .regex(/[A-Z]/, 'Senha deve conter pelo menos uma letra maiúscula')
+  .regex(/[a-z]/, 'Senha deve conter pelo menos uma letra minúscula')
+  .regex(/\d/, 'Senha deve conter pelo menos um número')
+  .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Senha deve conter pelo menos um caractere especial');
 
 const router = Router();
 const leadNotificationService = new LeadNotificationService();
@@ -105,6 +114,26 @@ router.post('/trial', async (req, res) => {
         error: 'Bad request',
         message: 'Nome, email, nome da prefeitura e CNPJ são obrigatórios',
       });
+    }
+
+    // ✅ SEGURANÇA: Validar senha forte se fornecida
+    if (!adminPassword) {
+      return res.status(400).json({
+        error: 'Bad request',
+        message: 'Senha do administrador é obrigatória',
+      });
+    }
+
+    try {
+      strongPasswordSchema.parse(adminPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: 'Validation error',
+          message: 'Senha não atende aos requisitos de segurança',
+          details: error.issues.map(issue => issue.message),
+        });
+      }
     }
 
     // Verificar se CNPJ já existe
@@ -209,7 +238,8 @@ router.post('/trial', async (req, res) => {
 
     // Criar usuário administrador
     const bcrypt = require('bcryptjs');
-    const hashedPassword = await bcrypt.hash(adminPassword || '123456', 12);
+    // ✅ SEGURANÇA: adminPassword já foi validado acima (não há fallback para senha fraca)
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
     const user = await prisma.user.create({
       data: {
@@ -218,6 +248,7 @@ router.post('/trial', async (req, res) => {
         password: hashedPassword,
         role: 'ADMIN',
         tenantId: tenant.id,
+        mustChangePassword: false, // ✅ Trial: usuário criou senha, não precisa trocar
       },
     });
 

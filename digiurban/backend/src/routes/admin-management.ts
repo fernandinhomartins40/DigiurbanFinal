@@ -296,10 +296,18 @@ const createServiceSchema = z.object({
 
 const updateServiceSchema = createServiceSchema.partial();
 
+// ✅ SEGURANÇA: Schema de senha forte
+const strongPasswordSchema = z.string()
+  .min(8, 'Senha deve ter pelo menos 8 caracteres')
+  .regex(/[A-Z]/, 'Senha deve conter pelo menos uma letra maiúscula')
+  .regex(/[a-z]/, 'Senha deve conter pelo menos uma letra minúscula')
+  .regex(/\d/, 'Senha deve conter pelo menos um número')
+  .regex(/[!@#$%^&*(),.?":{}|<>]/, 'Senha deve conter pelo menos um caractere especial');
+
 const createUserSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+  password: strongPasswordSchema, // ✅ Validação de senha forte
   role: z.enum(['USER', 'COORDINATOR', 'MANAGER']),
   departmentId: z.string().optional(),
 });
@@ -691,6 +699,7 @@ router.post(
         role: data.role,
         departmentId: departmentId || null,
         isActive: true,
+        mustChangePassword: true, // ✅ SEGURANÇA: Exigir troca de senha no primeiro login
       },
       select: {
         id: true,

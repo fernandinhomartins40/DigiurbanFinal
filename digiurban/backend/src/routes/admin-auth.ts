@@ -123,6 +123,7 @@ router.post(
           isActive: true,
           lastLogin: true,
           createdAt: true,
+          mustChangePassword: true, // ✅ SEGURANÇA: Verificar se deve trocar senha
           department: {
             select: {
               id: true,
@@ -234,6 +235,8 @@ router.post(
           permissions: getRolePermissions(user.role),
           // RETORNAR O TENANT ID PARA O FRONTEND ARMAZENAR
           tenantId: user.tenantId,
+          // ✅ SEGURANÇA: Informar frontend se usuário precisa trocar senha
+          mustChangePassword: user.mustChangePassword,
         },
       });
     } catch (error: unknown) {

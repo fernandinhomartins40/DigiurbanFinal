@@ -2,9 +2,26 @@ import { TenantStatus, UserRole, Plan } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 import { prisma } from '../lib/prisma';
 import { BCRYPT_ROUNDS } from '../config/security';
+import { UNASSIGNED_POOL_ID, UNASSIGNED_POOL_CONFIG } from '../config/tenants';
 
 async function main() {
   console.log('🌱 Iniciando seed do banco de dados...');
+
+  // 0. Criar UNASSIGNED_POOL (tenant especial para cidadãos sem município ativo)
+  const unassignedPool = await prisma.tenant.upsert({
+    where: { id: UNASSIGNED_POOL_ID },
+    update: {},
+    create: {
+      id: UNASSIGNED_POOL_ID,
+      name: UNASSIGNED_POOL_CONFIG.name,
+      cnpj: UNASSIGNED_POOL_CONFIG.cnpj,
+      domain: UNASSIGNED_POOL_CONFIG.domain,
+      plan: Plan.ENTERPRISE, // Usar ENTERPRISE para pool especial
+      status: TenantStatus.ACTIVE,
+    },
+  });
+
+  console.log('✅ UNASSIGNED_POOL criado:', unassignedPool.name);
 
   // 1. Criar tenant padrão (domain='demo' alinhado com .env)
   const defaultTenant = await prisma.tenant.upsert({

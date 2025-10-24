@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { SuperAdminCard } from '@/components/super-admin/SuperAdminCard';
 import { TenantSelector } from '@/components/super-admin/TenantSelector';
 import {
@@ -44,6 +45,7 @@ interface AdoptionCurve {
 }
 
 export default function DetailedAnalyticsPage() {
+  const { apiRequest } = useSuperAdminAuth();
   const [selectedTenant, setSelectedTenant] = useState<string>('all');
   const [navigationFlow, setNavigationFlow] = useState<NavigationFlow[]>([]);
   const [featureFunnel, setFeatureFunnel] = useState<FeatureFunnel[]>([]);
@@ -58,40 +60,19 @@ export default function DetailedAnalyticsPage() {
   const fetchDetailedAnalytics = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
       const tenantParam = selectedTenant !== 'all' ? `?tenantId=${selectedTenant}` : '';
 
-      const [flowRes, funnelRes, cohortRes, adoptionRes] = await Promise.all([
-        fetch(`http://localhost:3001/api/super-admin/analytics/navigation-flow${tenantParam}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`http://localhost:3001/api/super-admin/analytics/feature-funnel${tenantParam}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`http://localhost:3001/api/super-admin/analytics/cohorts${tenantParam}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`http://localhost:3001/api/super-admin/analytics/adoption${tenantParam}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      const [flowData, funnelData, cohortData, adoptionData] = await Promise.all([
+        apiRequest(`/super-admin/analytics/navigation-flow${tenantParam}`, { method: 'GET' }).catch(() => null),
+        apiRequest(`/super-admin/analytics/feature-funnel${tenantParam}`, { method: 'GET' }).catch(() => null),
+        apiRequest(`/super-admin/analytics/cohorts${tenantParam}`, { method: 'GET' }).catch(() => null),
+        apiRequest(`/super-admin/analytics/adoption${tenantParam}`, { method: 'GET' }).catch(() => null)
       ]);
 
-      if (flowRes.ok && funnelRes.ok && cohortRes.ok && adoptionRes.ok) {
-        const flowData = await flowRes.json();
-        const funnelData = await funnelRes.json();
-        const cohortData = await cohortRes.json();
-        const adoptionData = await adoptionRes.json();
-
-        setNavigationFlow(flowData.flow || mockNavigationFlow);
-        setFeatureFunnel(funnelData.funnel || mockFeatureFunnel);
-        setCohorts(cohortData.cohorts || mockCohorts);
-        setAdoptionCurves(adoptionData.curves || mockAdoptionCurves);
-      } else {
-        setNavigationFlow(mockNavigationFlow);
-        setFeatureFunnel(mockFeatureFunnel);
-        setCohorts(mockCohorts);
-        setAdoptionCurves(mockAdoptionCurves);
-      }
+      setNavigationFlow(flowData?.flow || mockNavigationFlow);
+      setFeatureFunnel(funnelData?.funnel || mockFeatureFunnel);
+      setCohorts(cohortData?.cohorts || mockCohorts);
+      setAdoptionCurves(adoptionData?.curves || mockAdoptionCurves);
     } catch (error) {
       console.error('Error fetching detailed analytics:', error);
       setNavigationFlow(mockNavigationFlow);

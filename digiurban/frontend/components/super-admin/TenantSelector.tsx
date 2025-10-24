@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Building2, Check, ChevronDown } from 'lucide-react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface Tenant {
   id: string;
@@ -23,6 +24,7 @@ export function TenantSelector({
   showAllOption = true,
   className = ''
 }: TenantSelectorProps) {
+  const { apiRequest } = useSuperAdminAuth();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -34,17 +36,11 @@ export function TenantSelector({
 
   const fetchTenants = async () => {
     try {
-      // Token via useSuperAdminAuth;
-      const response = await fetch('http://localhost:3001/api/super-admin/tenants?limit=1000', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const data = await apiRequest('/super-admin/tenants?limit=1000', {
+        method: 'GET'
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setTenants(data.tenants || []);
-      }
+      setTenants(data.tenants || []);
     } catch (error) {
       console.error('Error fetching tenants:', error);
     } finally {

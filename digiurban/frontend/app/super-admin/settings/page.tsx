@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { SuperAdminCard } from '@/components/super-admin/SuperAdminCard';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import {
   Settings,
   Flag,
@@ -87,49 +88,34 @@ export default function SettingsManagementPage() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      // Token via useSuperAdminAuth;
-
-      const [globalRes, flagsRes, limitsRes, integrationsRes, notificationsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/super-admin/settings/global', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/settings/feature-flags', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/settings/limits', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/settings/integrations', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/settings/notifications', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      const [globalData, flagsData, limitsData, integrationsData, notificationsData] = await Promise.all([
+        apiRequest('/super-admin/settings/global', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/settings/feature-flags', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/settings/limits', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/settings/integrations', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/settings/notifications', { method: 'GET' }).catch(() => null)
       ]);
 
-      if (globalRes.ok) {
-        const data = await globalRes.json();
-        setGlobalSettings(data.settings || globalSettings);
+      if (globalData) {
+        setGlobalSettings(globalData.settings || globalSettings);
       }
-      if (flagsRes.ok) {
-        const data = await flagsRes.json();
-        setFeatureFlags(data.flags || mockFeatureFlags);
-      }
-      if (limitsRes.ok) {
-        const data = await limitsRes.json();
-        setLimits(data.limits || mockLimits);
-      }
-      if (integrationsRes.ok) {
-        const data = await integrationsRes.json();
-        setIntegrations(data.integrations || mockIntegrations);
-      }
-      if (notificationsRes.ok) {
-        const data = await notificationsRes.json();
-        setNotifications(data.settings || notifications);
+      if (flagsData) {
+        setFeatureFlags(flagsData.flags || mockFeatureFlags);
       } else {
         setFeatureFlags(mockFeatureFlags);
+      }
+      if (limitsData) {
+        setLimits(limitsData.limits || mockLimits);
+      } else {
         setLimits(mockLimits);
+      }
+      if (integrationsData) {
+        setIntegrations(integrationsData.integrations || mockIntegrations);
+      } else {
         setIntegrations(mockIntegrations);
+      }
+      if (notificationsData) {
+        setNotifications(notificationsData.settings || notifications);
       }
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -143,20 +129,13 @@ export default function SettingsManagementPage() {
 
   const handleSaveGlobalSettings = async () => {
     setSaving(true);
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch('http://localhost:3001/api/super-admin/settings/global', {
+      await apiRequest('/super-admin/settings/global', {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(globalSettings)
       });
 
-      if (response.ok) {
-        alert('Configurações salvas com sucesso');
-      }
+      alert('Configurações salvas com sucesso');
     } catch (error) {
       console.error('Error saving settings:', error);
       alert('Erro ao salvar configurações');
@@ -166,48 +145,34 @@ export default function SettingsManagementPage() {
   };
 
   const handleToggleFeatureFlag = async (flagId: string) => {
-    // Token via useSuperAdminAuth;
     const flag = featureFlags.find(f => f.id === flagId);
     if (!flag) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/settings/feature-flags/${flagId}`, {
+      await apiRequest(`/super-admin/settings/feature-flags/${flagId}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ enabled: !flag.enabled })
       });
 
-      if (response.ok) {
-        setFeatureFlags(flags =>
-          flags.map(f => f.id === flagId ? { ...f, enabled: !f.enabled } : f)
-        );
-      }
+      setFeatureFlags(flags =>
+        flags.map(f => f.id === flagId ? { ...f, enabled: !f.enabled } : f)
+      );
     } catch (error) {
       console.error('Error toggling feature flag:', error);
     }
   };
 
   const handleUpdateLimit = async (key: string, value: number) => {
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/settings/limits/${key}`, {
+      await apiRequest(`/super-admin/settings/limits/${key}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ value })
       });
 
-      if (response.ok) {
-        setLimits(lims =>
-          lims.map(l => l.key === key ? { ...l, value } : l)
-        );
-        alert('Limite atualizado com sucesso');
-      }
+      setLimits(lims =>
+        lims.map(l => l.key === key ? { ...l, value } : l)
+      );
+      alert('Limite atualizado com sucesso');
     } catch (error) {
       console.error('Error updating limit:', error);
       alert('Erro ao atualizar limite');
@@ -215,21 +180,12 @@ export default function SettingsManagementPage() {
   };
 
   const handleTestIntegration = async (integrationId: string) => {
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/super-admin/settings/integrations/${integrationId}/test`,
-        {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
+      await apiRequest(`/super-admin/settings/integrations/${integrationId}/test`, {
+        method: 'POST'
+      });
 
-      if (response.ok) {
-        alert('Integração testada com sucesso!');
-      } else {
-        alert('Falha ao testar integração');
-      }
+      alert('Integração testada com sucesso!');
     } catch (error) {
       console.error('Error testing integration:', error);
       alert('Erro ao testar integração');

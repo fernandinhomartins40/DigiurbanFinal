@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin/SuperAdminCard';
 import {
   Database,
@@ -76,39 +77,17 @@ export default function OperationsManagementPage() {
   const fetchOperationsData = async () => {
     setLoading(true);
     try {
-      // Token via useSuperAdminAuth;
-
-      const [metricsRes, backupsRes, cacheRes, jobsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/super-admin/operations/metrics', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/operations/backups', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/operations/cache', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/operations/jobs', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      const [metricsData, backupsData, cacheData, jobsData] = await Promise.all([
+        apiRequest('/super-admin/operations/metrics', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/operations/backups', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/operations/cache', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/operations/jobs', { method: 'GET' }).catch(() => null)
       ]);
 
-      if (metricsRes.ok && backupsRes.ok && cacheRes.ok && jobsRes.ok) {
-        const metricsData = await metricsRes.json();
-        const backupsData = await backupsRes.json();
-        const cacheData = await cacheRes.json();
-        const jobsData = await jobsRes.json();
-
-        setMetrics(metricsData.metrics || mockMetrics);
-        setBackups(backupsData.backups || mockBackups);
-        setCacheStats(cacheData.stats || mockCacheStats);
-        setJobs(jobsData.jobs || mockJobs);
-      } else {
-        setMetrics(mockMetrics);
-        setBackups(mockBackups);
-        setCacheStats(mockCacheStats);
-        setJobs(mockJobs);
-      }
+      setMetrics(metricsData?.metrics || mockMetrics);
+      setBackups(backupsData?.backups || mockBackups);
+      setCacheStats(cacheData?.stats || mockCacheStats);
+      setJobs(jobsData?.jobs || mockJobs);
     } catch (error) {
       console.error('Error fetching operations data:', error);
       setMetrics(mockMetrics);
@@ -123,14 +102,12 @@ export default function OperationsManagementPage() {
   const handleCreateBackup = async () => {
     if (!confirm('Criar backup agora? Este processo pode levar alguns minutos.')) return;
 
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch('http://localhost:3001/api/super-admin/operations/backups/create', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const data = await apiRequest('/super-admin/operations/backups/create', {
+        method: 'POST'
       });
 
-      if (response.ok) {
+      if (data) {
         alert('Backup iniciado com sucesso');
         fetchOperationsData();
       }
@@ -143,18 +120,13 @@ export default function OperationsManagementPage() {
   const handleClearCache = async (cacheType: string) => {
     if (!confirm(`Limpar cache ${cacheType}?`)) return;
 
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/operations/cache/clear`, {
+      const data = await apiRequest('/super-admin/operations/cache/clear', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ type: cacheType })
       });
 
-      if (response.ok) {
+      if (data) {
         alert('Cache limpo com sucesso');
         fetchOperationsData();
       }
@@ -165,14 +137,12 @@ export default function OperationsManagementPage() {
   };
 
   const handleRetryJob = async (jobId: string) => {
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/operations/jobs/${jobId}/retry`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const data = await apiRequest(`/super-admin/operations/jobs/${jobId}/retry`, {
+        method: 'POST'
       });
 
-      if (response.ok) {
+      if (data) {
         alert('Job reenfileirado com sucesso');
         fetchOperationsData();
       }

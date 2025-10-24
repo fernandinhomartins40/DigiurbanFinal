@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin/SuperAdminCard';
 import {
   Mail,
@@ -79,39 +80,17 @@ export default function EmailManagementPage() {
   const fetchEmailData = async () => {
     setLoading(true);
     try {
-      // Token via useSuperAdminAuth;
-
-      const [metricsRes, domainsRes, logsRes, connectionsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/super-admin/email/overview', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/email/domains', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/email/logs?limit=50', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/email/connections', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      const [metricsData, domainsData, logsData, connectionsData] = await Promise.all([
+        apiRequest('/super-admin/email/overview', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/email/domains', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/email/logs?limit=50', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/email/connections', { method: 'GET' }).catch(() => null)
       ]);
 
-      if (metricsRes.ok && domainsRes.ok && logsRes.ok && connectionsRes.ok) {
-        const metricsData = await metricsRes.json();
-        const domainsData = await domainsRes.json();
-        const logsData = await logsRes.json();
-        const connectionsData = await connectionsRes.json();
-
-        setMetrics(metricsData.metrics || mockMetrics);
-        setDomains(domainsData.domains || mockDomains);
-        setEmailLogs(logsData.logs || mockEmailLogs);
-        setConnections(connectionsData.connections || mockConnections);
-      } else {
-        setMetrics(mockMetrics);
-        setDomains(mockDomains);
-        setEmailLogs(mockEmailLogs);
-        setConnections(mockConnections);
-      }
+      setMetrics(metricsData?.metrics || mockMetrics);
+      setDomains(domainsData?.domains || mockDomains);
+      setEmailLogs(logsData?.logs || mockEmailLogs);
+      setConnections(connectionsData?.connections || mockConnections);
     } catch (error) {
       console.error('Error fetching email data:', error);
       setMetrics(mockMetrics);
@@ -124,14 +103,12 @@ export default function EmailManagementPage() {
   };
 
   const handleVerifyDomain = async (domainId: string) => {
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/email/domains/${domainId}/verify`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const data = await apiRequest(`/super-admin/email/domains/${domainId}/verify`, {
+        method: 'POST'
       });
 
-      if (response.ok) {
+      if (data) {
         alert('Domínio verificado com sucesso');
         fetchEmailData();
       } else {
@@ -144,15 +121,12 @@ export default function EmailManagementPage() {
   };
 
   const handleConfigureDKIM = async (domainId: string) => {
-    // Token via useSuperAdminAuth;
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/email/domains/${domainId}/dkim`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+      const data = await apiRequest(`/super-admin/email/domains/${domainId}/dkim`, {
+        method: 'POST'
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (data) {
         alert(`DKIM configurado. Adicione este registro DNS:\n\n${data.dkimRecord}`);
         fetchEmailData();
       }

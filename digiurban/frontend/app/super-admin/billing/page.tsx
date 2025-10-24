@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin/SuperAdminCard';
 import {
   DollarSign,
@@ -78,43 +79,19 @@ export default function BillingManagementPage() {
   const fetchBillingData = async () => {
     setLoading(true);
     try {
-      // Token via useSuperAdminAuth;
-
-      const [metricsRes, revenueRes, historyRes, plansRes] = await Promise.all([
-        fetch('http://localhost:3001/api/super-admin/billing/metrics', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/billing/revenue-breakdown', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/billing/revenue-history', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/billing/plans', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      const [metricsData, revenueData, historyData, plansData] = await Promise.all([
+        apiRequest('/super-admin/billing/metrics', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/billing/revenue-breakdown', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/billing/revenue-history', { method: 'GET' }).catch(() => null),
+        apiRequest('/super-admin/billing/plans', { method: 'GET' }).catch(() => null)
       ]);
 
-      if (metricsRes.ok && revenueRes.ok && historyRes.ok && plansRes.ok) {
-        const metricsData = await metricsRes.json();
-        const revenueData = await revenueRes.json();
-        const historyData = await historyRes.json();
-        const plansData = await plansRes.json();
-
-        setMetrics(metricsData.metrics || mockMetrics);
-        setRevenueByPlan(revenueData.breakdown || mockRevenueByPlan);
-        setRevenueHistory(historyData.history || mockRevenueHistory);
-        setPlanConfigs(plansData.plans || mockPlanConfigs);
-      } else {
-        // Use mock data
-        setMetrics(mockMetrics);
-        setRevenueByPlan(mockRevenueByPlan);
-        setRevenueHistory(mockRevenueHistory);
-        setPlanConfigs(mockPlanConfigs);
-      }
+      setMetrics(metricsData?.metrics || mockMetrics);
+      setRevenueByPlan(revenueData?.breakdown || mockRevenueByPlan);
+      setRevenueHistory(historyData?.history || mockRevenueHistory);
+      setPlanConfigs(plansData?.plans || mockPlanConfigs);
     } catch (error) {
       console.error('Error fetching billing data:', error);
-      // Fallback to mock data
       setMetrics(mockMetrics);
       setRevenueByPlan(mockRevenueByPlan);
       setRevenueHistory(mockRevenueHistory);

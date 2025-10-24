@@ -92,23 +92,27 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
 
       // Se 401, token expirado ou inválido (cookie será limpo pelo backend)
       if (response.status === 401) {
-        console.log('[Auth] Token inválido ou expirado, limpando autenticação...')
+        console.log('[Auth] 401 recebido, limpando autenticação...')
         setUser(null)
         setStats(null)
         setPermissions([])
 
-        // Redirecionar apenas se não estiver na página de login e não estiver já redirecionando
-        if (
-          typeof window !== 'undefined' &&
-          !window.location.pathname.includes('/login') &&
-          !isRedirecting
-        ) {
+        // Redirecionar apenas se:
+        // 1. Não estiver na página de login
+        // 2. Não estiver já redirecionando
+        // 3. Não for a primeira verificação (checkAuth inicial)
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname : ''
+        const isLoginPage = currentPath.includes('/login')
+        const isProtectedPage = currentPath.startsWith('/admin') && !isLoginPage
+
+        if (isProtectedPage && !isRedirecting) {
           setIsRedirecting(true)
-          console.log('[Auth] Redirecionando para login...')
+          console.log('[Auth] Redirecionando para login após 401 em página protegida...')
           setTimeout(() => {
             window.location.href = '/admin/login'
-          }, 100)
+          }, 500)
         }
+
         throw new Error(errorData.code === 'TOKEN_EXPIRED' ? 'Token expirado' : 'Não autenticado')
       }
 
@@ -149,12 +153,13 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
       // ✅ Token JWT (com tenantId) vem via httpOnly cookie
       // Não precisa armazenar nada no localStorage!
 
-      // Atualizar estado
+      // Atualizar estado com dados do login
       setUser(data.user)
       setPermissions(data.permissions || [])
+      setStats(data.stats || null)
 
-      // Buscar estatísticas
-      await refreshUserData()
+      // Não chamar refreshUserData() aqui - dados já vieram no login
+      // O refreshUserData() será chamado pelo checkAuth() ao montar o dashboard
 
       router.push('/admin/dashboard')
     } catch (err) {
@@ -189,13 +194,15 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
       setUser(data.user)
       setStats(data.stats)
       setPermissions(data.permissions || [])
+      return true
     } catch (err) {
       // Silenciar erro 401 (já tratado no apiRequest)
       // Apenas logar outros erros
-      if (err instanceof Error && !err.message.includes('Authentication failed')) {
+      if (err instanceof Error && !err.message.includes('Authentication failed') && !err.message.includes('Não autenticado')) {
         console.error('Erro ao atualizar dados do usuário:', err)
       }
       // Não precisamos limpar aqui, apiRequest já fez isso
+      return false
     }
   }
 

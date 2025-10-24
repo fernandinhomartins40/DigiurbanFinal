@@ -234,6 +234,10 @@ model Tenant {
   // GABINETE DO PREFEITO
   agendaEvents          AgendaEvent[]
 
+  // TRANSFERÊNCIAS DE CIDADÃOS
+  transferRequestsFrom  CitizenTransferRequest[] @relation("TransferFrom")
+  transferRequestsTo    CitizenTransferRequest[] @relation("TransferTo")
+
   @@map("tenants")
 }
 
@@ -268,6 +272,7 @@ model User {
   createdProtocols  Protocol[] @relation("CreatedByUser")
   homeVisitsAsSocialWorker HomeVisit[] @relation("HomeVisitSocialWorker") // CRIADO
   socialAssistanceAsWorker SocialAssistanceAttendance[] @relation("SocialAssistanceWorker") // CRIADO
+  reviewedTransferRequests CitizenTransferRequest[] // CRIADO: Transferências revisadas pelo admin
 
   // Gabinete do Prefeito
   agendaEvents AgendaEvent[] @relation("AgendaEventCreator")
@@ -391,6 +396,7 @@ model Citizen {
   emergencyDeliveries EmergencyDelivery[] @relation("EmergencyDeliveryCitizen") // CRIADO
   socialAssistanceAttendances SocialAssistanceAttendance[] @relation("SocialAssistanceCitizen") // CRIADO
   vulnerableFamilyData VulnerableFamily? // CRIADO: Dados de vulnerabilidade quando aplicável
+  transferRequests CitizenTransferRequest[] // CRIADO: Solicitações de transferência de município
 
   // Audit Log
   auditLogs AuditLog[]
@@ -598,6 +604,44 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@map("notifications")
+}
+
+// Sistema de Transferência de Cidadãos entre Municípios
+model CitizenTransferRequest {
+  id        String   @id @default(cuid())
+
+  // Cidadão que solicita a transferência
+  citizenId String
+  citizen   Citizen  @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+
+  // Município de origem (atual)
+  fromTenantId String
+  fromTenant   Tenant @relation("TransferFrom", fields: [fromTenantId], references: [id], onDelete: Cascade)
+
+  // Município de destino (para onde quer se transferir)
+  toTenantId String
+  toTenant   Tenant @relation("TransferTo", fields: [toTenantId], references: [id], onDelete: Cascade)
+
+  // Status da transferência
+  status    String   @default("PENDING") // PENDING, APPROVED, REJECTED, CANCELLED
+
+  // Justificativa do cidadão
+  reason    String
+
+  // Documentos comprobatórios (comprovante de residência, etc.)
+  documents Json?
+
+  // Aprovação/Rejeição pelo município de destino
+  reviewedById String?
+  reviewedBy   User?   @relation(fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+  reviewNotes  String? // Motivo da aprovação/rejeição
+
+  // Metadados
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("citizen_transfer_requests")
 }
 
 // ============================================================================

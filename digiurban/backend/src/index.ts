@@ -83,6 +83,7 @@ import citizenProtocolsRoutes from './routes/citizen-protocols';
 import citizenFamilyRoutes from './routes/citizen-family';
 import citizenDocumentsRoutes from './routes/citizen-documents';
 import citizenNotificationsRoutes from './routes/citizen-notifications';
+import citizenTransferRoutes from './routes/citizen-transfer';
 
 // Fase 4 - Rotas Administrativas Específicas
 import adminAuthRoutes from './routes/admin-auth';
@@ -90,6 +91,7 @@ import adminProtocolsRoutes from './routes/admin-protocols';
 import adminManagementRoutes from './routes/admin-management';
 import adminChamadosRoutes from './routes/admin-chamados';
 import adminReportsRoutes from './routes/admin-reports';
+import adminTransferRoutes from './routes/admin-transfer';
 
 // Fase 5 - Páginas Especializadas por Secretaria
 import secretariasSaudeRoutes from './routes/secretarias-saude';
@@ -156,6 +158,7 @@ app.use('/api/citizen/protocols', citizenProtocolsRoutes);
 app.use('/api/citizen/family', citizenFamilyRoutes);
 app.use('/api/citizen/documents', citizenDocumentsRoutes);
 app.use('/api/citizen/notifications', citizenNotificationsRoutes);
+app.use('/api/citizen', citizenTransferRoutes);
 
 // Rotas Administrativas (Fase 4)
 app.use('/api/admin/auth', adminAuthRoutes);
@@ -164,6 +167,7 @@ app.use('/api/admin/management', adminManagementRoutes);
 app.use('/api/admin/chamados', adminChamadosRoutes);
 app.use('/api/admin/relatorios', adminReportsRoutes);
 app.use('/api/admin/gabinete', adminGabineteRoutes);
+app.use('/api/admin', adminTransferRoutes);
 
 // Rotas das Secretarias Especializadas (Fase 5)
 app.use('/api/secretarias/saude', secretariasSaudeRoutes);

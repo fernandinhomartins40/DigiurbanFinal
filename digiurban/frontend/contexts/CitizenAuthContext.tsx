@@ -3,6 +3,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface TenantInfo {
+  id: string;
+  name: string;
+  nomeMunicipio?: string | null;
+  ufMunicipio?: string | null;
+  codigoIbge?: string | null;
+  status: string;
+}
+
 interface Citizen {
   id: string;
   cpf: string;
@@ -16,11 +25,13 @@ interface Citizen {
   protocols?: any[];
   familyAsHead?: any[];
   notifications?: any[];
+  tenant?: TenantInfo;
 }
 
 interface CitizenAuthContextType {
   citizen: Citizen | null;
   tenantId: string | null;
+  tenant: TenantInfo | null;
   isLoading: boolean;
   login: (cpfOrEmail: string, password: string) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
@@ -50,6 +61,7 @@ const CitizenAuthContext = createContext<CitizenAuthContextType | null>(null);
 export function CitizenAuthProvider({ children }: { children: React.ReactNode }) {
   const [citizen, setCitizen] = useState<Citizen | null>(null);
   const [tenantId, setTenantId] = useState<string | null>(null);
+  const [tenant, setTenant] = useState<TenantInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -96,6 +108,7 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
       if (response.status === 401) {
         console.log('[CitizenAuth] Token inválido ou expirado, limpando autenticação...');
         setTenantId(null);
+        setTenant(null);
         setCitizen(null);
 
         // Redirecionar para login
@@ -118,9 +131,12 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
       const data = await apiRequest('/auth/citizen/me');
       setCitizen(data.citizen);
 
-      // ✅ Armazenar tenantId se vier do backend
+      // ✅ Armazenar tenantId e tenant completo se vierem do backend
       if (data.tenantId) {
         setTenantId(data.tenantId);
+      }
+      if (data.tenant) {
+        setTenant(data.tenant);
       }
 
       return true;
@@ -235,6 +251,7 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
       console.error('Erro ao fazer logout:', error);
     } finally {
       setTenantId(null);
+      setTenant(null);
       setCitizen(null);
       router.push('/cidadao/login');
     }
@@ -247,6 +264,7 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
   const value: CitizenAuthContextType = {
     citizen,
     tenantId,
+    tenant,
     isLoading,
     login,
     register,

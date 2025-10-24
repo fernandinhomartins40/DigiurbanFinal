@@ -446,6 +446,16 @@ router.get('/me', asyncHandler(async (req: LocalTenantRequest, res: Response) =>
         isActive: true,
       },
       include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            nomeMunicipio: true,
+            ufMunicipio: true,
+            codigoIbge: true,
+            status: true,
+          },
+        },
         protocols: {
           include: {
             service: true,
@@ -476,7 +486,8 @@ router.get('/me', asyncHandler(async (req: LocalTenantRequest, res: Response) =>
 
     return res.json({
       citizen: citizenData,
-      tenantId: citizen.tenantId, // ✅ ADICIONADO: Retornar tenantId para o frontend
+      tenantId: citizen.tenantId,
+      tenant: citizen.tenant, // ✅ NOVO: Retornar dados completos do tenant
     });
   } catch (error: unknown) {
     console.error('Erro ao buscar dados do cidadão:', error);

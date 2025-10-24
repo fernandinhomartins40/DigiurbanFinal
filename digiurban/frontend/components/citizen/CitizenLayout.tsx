@@ -13,9 +13,12 @@ import {
   X,
   LogOut,
   Bell,
-  ChevronRight
+  ChevronRight,
+  MapPin,
+  RefreshCw
 } from 'lucide-react';
 import { useCitizenAuth, useCitizenProtectedRoute } from '@/contexts/CitizenAuthContext';
+import { TransferRequestModal } from './TransferRequestModal';
 
 interface CitizenLayoutProps {
   children: React.ReactNode;
@@ -24,10 +27,11 @@ interface CitizenLayoutProps {
 
 export function CitizenLayout({ children, title }: CitizenLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const pathname = usePathname();
 
   // ✅ CORRIGIDO: Usar contexto centralizado de autenticação
-  const { citizen, isLoading } = useCitizenProtectedRoute();
+  const { citizen, tenant, isLoading } = useCitizenProtectedRoute();
   const { logout } = useCitizenAuth();
 
   const handleLogout = async () => {
@@ -94,7 +98,14 @@ export function CitizenLayout({ children, title }: CitizenLayoutProps) {
                 </div>
                 <div className="hidden sm:block">
                   <p className="text-sm font-semibold text-gray-900">Portal do Cidadão</p>
-                  <p className="text-xs text-gray-500">DigiUrban</p>
+                  {tenant && (
+                    <div className="flex items-center gap-1 text-xs text-blue-600">
+                      <MapPin className="h-3 w-3" />
+                      <span className="font-medium">
+                        {tenant.nomeMunicipio || tenant.name} - {tenant.ufMunicipio || 'BR'}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </Link>
             </div>
@@ -114,6 +125,13 @@ export function CitizenLayout({ children, title }: CitizenLayoutProps) {
                   <p className="text-xs text-gray-500">
                     CPF: {citizen.cpf?.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '***.$2.$3-**')}
                   </p>
+                  <button
+                    onClick={() => setShowTransferModal(true)}
+                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 mt-1"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Solicitar Transferência
+                  </button>
                 </div>
                 <button
                   onClick={handleLogout}
@@ -247,6 +265,12 @@ export function CitizenLayout({ children, title }: CitizenLayoutProps) {
           </div>
         </main>
       </div>
+
+      {/* Modal de Transferência */}
+      <TransferRequestModal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+      />
     </div>
   );
 }

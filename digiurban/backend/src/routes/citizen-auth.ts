@@ -308,7 +308,36 @@ router.post('/register', registerRateLimiter, asyncHandler(async (req: LocalTena
       });
     }
 
-    return res.status(500).json({ error: 'Erro interno do servidor' });
+    // ✅ Tratamento específico para erros do Prisma
+    if (error && typeof error === 'object' && 'code' in error) {
+      const prismaError = error as any;
+
+      // P2002: Unique constraint violation
+      if (prismaError.code === 'P2002') {
+        const fields = prismaError.meta?.target || [];
+        return res.status(400).json({
+          success: false,
+          error: 'DUPLICATE_ENTRY',
+          message: `Já existe um registro com ${fields.includes('cpf') ? 'este CPF' : fields.includes('email') ? 'este email' : 'estes dados'} neste município`,
+          details: { fields }
+        });
+      }
+
+      // P2003: Foreign key constraint violation
+      if (prismaError.code === 'P2003') {
+        return res.status(400).json({
+          success: false,
+          error: 'INVALID_REFERENCE',
+          message: 'Município selecionado não encontrado',
+        });
+      }
+    }
+
+    return res.status(500).json({
+      success: false,
+      error: 'SYSTEM_ERROR',
+      message: 'Erro interno do servidor'
+    });
   }
 }));
 

@@ -15,7 +15,7 @@ async function main() {
       id: UNASSIGNED_POOL_ID,
       name: UNASSIGNED_POOL_CONFIG.name,
       cnpj: UNASSIGNED_POOL_CONFIG.cnpj,
-      domain: UNASSIGNED_POOL_CONFIG.domain,
+      // ❌ REMOVIDO: domain (não usamos mais subdomínios)
       plan: Plan.ENTERPRISE, // Usar ENTERPRISE para pool especial
       status: TenantStatus.ACTIVE,
     },
@@ -23,14 +23,14 @@ async function main() {
 
   console.log('✅ UNASSIGNED_POOL criado:', unassignedPool.name);
 
-  // 1. Criar tenant padrão (domain='demo' alinhado com .env)
+  // 1. Criar tenant padrão para desenvolvimento
   const defaultTenant = await prisma.tenant.upsert({
     where: { cnpj: '00.000.000/0001-00' },
     update: {},
     create: {
       name: 'Prefeitura Municipal (Demo)',
       cnpj: '00.000.000/0001-00',
-      domain: 'demo',
+      // ❌ REMOVIDO: domain (não usamos mais subdomínios)
       plan: Plan.ENTERPRISE,
       status: TenantStatus.ACTIVE,
     },

@@ -163,7 +163,7 @@ router.get(
       const tenantsWithStats = tenants.map(tenant => ({
         id: tenant.id,
         name: tenant.name,
-        domain: tenant.domain,
+        // domain removido
         plan: tenant.emailPlanType,
         status: tenant.status,
         emailServer: tenant.emailServer
@@ -254,7 +254,7 @@ router.get(
         tenant: {
           id: tenant.id,
           name: tenant.name,
-          domain: tenant.domain,
+          // domain removido
           plan: tenant.emailPlanType,
         },
         emailServer: {

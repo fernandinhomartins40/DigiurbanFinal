@@ -376,7 +376,7 @@ export class DigiUrbanSMTPServer {
     try {
       const email = await prisma.email.findUnique({
         where: { id: emailId },
-        include: { domain: true },
+        include: {  },
       });
 
       if (!email) return;

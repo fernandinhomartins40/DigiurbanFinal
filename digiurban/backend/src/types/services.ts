@@ -147,7 +147,7 @@ export interface EmailServiceConfig extends BaseServiceConfig {
   apiKey?: string;
   apiSecret?: string;
   region?: string;
-  domain?: string;
+  // domain removido
   fromEmail: string;
   fromName: string;
   replyTo?: string;

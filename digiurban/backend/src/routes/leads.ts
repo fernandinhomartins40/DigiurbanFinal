@@ -148,11 +148,11 @@ router.post('/trial', async (req, res) => {
       });
     }
 
-    // Verificar se domínio já existe (se fornecido)
-    if (domain) {
-      const existingDomain = await prisma.tenant.findUnique({
-        where: { domain },
-      });
+    // ❌ REMOVIDO: Validação de domain (não usamos mais subdomínios)
+    // Verificação removida - identificação via JWT apenas
+
+    if (false) { // Código desabilitado
+      const existingDomain = null; // Removido
 
       if (existingDomain) {
         return res.status(409).json({
@@ -188,7 +188,7 @@ router.post('/trial', async (req, res) => {
       data: {
         name: companyName,
         cnpj,
-        domain: domain || null,
+        // domain removido - não usamos mais subdomínios
         plan: 'STARTER',
         status: 'TRIAL',
         population: population || null,
@@ -262,9 +262,8 @@ router.post('/trial', async (req, res) => {
 
     // Enviar email de boas-vindas com instruções de acesso
     try {
-      const loginUrl = tenant.domain
-        ? `https://${tenant.domain}.digiurban.com/admin/login`
-        : 'https://app.digiurban.com/admin/login';
+      // ✅ Login centralizado - sem subdomínios
+      const loginUrl = 'https://digiurban.com.br/admin/login';
 
       await leadNotificationService.sendTrialWelcomeEmail(
         convertTrialToService({
@@ -280,7 +279,7 @@ router.post('/trial', async (req, res) => {
           tenantId: tenant.id,
           tenantName: tenant.name,
           cnpj: tenant.cnpj,
-          domain: tenant.domain || null,
+          // domain removido,
           population: tenant.population || null,
           loginUrl,
           temporaryPassword: adminPassword || '123456',
@@ -296,7 +295,7 @@ router.post('/trial', async (req, res) => {
       tenant: {
         id: tenant.id,
         name: tenant.name,
-        domain: tenant.domain,
+        // domain removido
         status: tenant.status,
       },
       user: {
@@ -306,9 +305,8 @@ router.post('/trial', async (req, res) => {
         role: user.role,
       },
       accessInfo: {
-        loginUrl: tenant.domain
-          ? `https://${tenant.domain}.digiurban.com/login`
-          : 'https://digiurban.com/login',
+        // ✅ Login centralizado - sem subdomínios
+        loginUrl: 'https://digiurban.com.br/login',
         email: user.email,
         temporaryPassword: adminPassword || '123456',
       },

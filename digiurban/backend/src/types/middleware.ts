@@ -205,7 +205,7 @@ export interface RoleHierarchy {
  * Tenant estendido com informações adicionais para middleware
  */
 export interface TenantWithMeta extends Tenant {
-  isSubdomainRequest?: boolean;
+  // isSubdomainRequest removido
   usageStats?: UsageStats;
   _count?: {
     users: number;
@@ -259,7 +259,7 @@ export interface TenantMiddlewareOptions {
 export interface TenantIdentificationResult {
   identifier: string | null;
   source: 'subdomain' | 'header' | 'query' | 'default';
-  isSubdomainRequest: boolean;
+  // isSubdomainRequest removido
 }
 
 /**

@@ -16,7 +16,7 @@ export interface TrialData extends LeadData {
   tenantId: string;
   tenantName: string;
   cnpj: string;
-  domain: string | null;
+  // domain removido
   population: number | null;
   loginUrl: string;
   temporaryPassword: string;
@@ -39,7 +39,7 @@ export interface TrialDataForService extends LeadDataForService {
   tenantId: string;
   tenantName: string;
   cnpj: string;
-  domain?: string;
+  // domain removido
   population?: number;
   loginUrl: string;
   temporaryPassword: string;
@@ -84,7 +84,7 @@ export function convertTrialToService(trial: TrialData): TrialDataForService {
     tenantId: trial.tenantId,
     tenantName: trial.tenantName,
     cnpj: trial.cnpj,
-    domain: trial.domain || undefined,
+    // ❌ REMOVIDO: domain (não usamos mais)
     population: trial.population || undefined,
     loginUrl: trial.loginUrl,
     temporaryPassword: trial.temporaryPassword,

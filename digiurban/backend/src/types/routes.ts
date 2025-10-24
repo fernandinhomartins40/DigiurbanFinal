@@ -551,7 +551,7 @@ export interface SystemStatsResponse {
  */
 export interface CreateTenantRequest {
   name: string;
-  domain: string;
+  // domain removido
   cnpj: string;
   email: string;
   phone?: string;
@@ -578,7 +578,7 @@ export interface TenantSearchQuery extends SearchQuery {
   status?: TenantStatus;
   planId?: string;
   cnpj?: string;
-  domain?: string;
+  // domain removido
   createdAfter?: string;
   createdBefore?: string;
 }

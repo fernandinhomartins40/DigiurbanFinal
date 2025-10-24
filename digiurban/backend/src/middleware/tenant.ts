@@ -17,117 +17,119 @@ import '../types/globals';
 // Import TenantWithMeta from centralized types
 
 /**
- * Middleware para identificação e isolamento multi-tenant
- * Identifica o tenant por subdomínio ou header com suporte avançado
+ * Middleware para identificação e isolamento multi-tenant via JWT
+ * ✅ Estratégia: Identifica tenant através do JWT de autenticação
+ * ❌ Não usa mais subdomínios
  */
 export const tenantMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // ✅ CORRIGIDO: Logs reduzidos - apenas em modo desenvolvimento
     const isDev = process.env.NODE_ENV !== 'production';
     if (isDev) {
       console.log('[Tenant] Path:', req.originalUrl || req.path);
     }
 
-    let tenantIdentifier: string | null = null;
-    let isSubdomainRequest = false;
-
-    // 1. Tentar identificar por subdomínio (prioritário)
+    let tenantId: string | null = null;
     const host = req.get('host');
-    if (host) {
-      const hostParts = host.split('.');
-      const subdomain = hostParts[0];
 
-      // Detectar se é subdomínio válido
-      if (
-        subdomain &&
-        subdomain !== 'localhost' &&
-        subdomain !== 'www' &&
-        subdomain !== 'api' &&
-        hostParts.length > 2
-      ) {
-        // Garantir que é realmente um subdomínio
-        tenantIdentifier = subdomain;
-        isSubdomainRequest = true;
-      }
-    }
-
-    // 2. Fallback: Tentar identificar por header X-Tenant-ID
-    if (!tenantIdentifier) {
-      tenantIdentifier = req.get('X-Tenant-ID') || null;
-    }
-
-    // 3. Fallback: Tentar identificar por query parameter (para desenvolvimento)
-    if (!tenantIdentifier && req.query.tenant) {
-      tenantIdentifier = req.query.tenant as string;
-    }
-
-    // 4. Fallback: Tentar extrair tenant do JWT cookie admin (para rotas autenticadas admin via domínio principal)
-    // PRIORIDADE ALTA: Para login inteligente onde admin acessa via www.digiurban.com.br
-    if (!tenantIdentifier && req.cookies?.digiurban_admin_token) {
-      if (isDev) console.log('[Tenant] Extraindo tenant do JWT cookie admin');
+    // ============================================
+    // ESTRATÉGIA 1: JWT Cookie (PRINCIPAL)
+    // ============================================
+    // Para usuários admin logados, tenant vem do JWT
+    if (req.cookies?.digiurban_admin_token) {
+      if (isDev) console.log('[Tenant] Verificando JWT cookie admin...');
       try {
         const jwt = require('jsonwebtoken');
         const decoded = jwt.decode(req.cookies.digiurban_admin_token) as any;
         if (decoded?.tenantId) {
-          tenantIdentifier = decoded.tenantId;
-          if (isDev) console.log('[Tenant] ✅ Tenant extraído:', tenantIdentifier);
+          tenantId = decoded.tenantId;
+          if (isDev) console.log('[Tenant] ✅ Tenant do JWT:', tenantId);
         }
       } catch (err) {
         if (isDev) console.error('[Tenant] Erro ao decodificar JWT:', err);
       }
     }
 
-    // 5. Fallback: Tenant padrão para desenvolvimento local
-    if (!tenantIdentifier && (host?.includes('localhost') || host?.includes('127.0.0.1'))) {
-      tenantIdentifier = process.env.DEFAULT_TENANT || 'demo';
-      if (isDev) console.log('[Tenant] Usando tenant padrão:', tenantIdentifier);
+    // ============================================
+    // ESTRATÉGIA 2: Header X-Tenant-ID (APIs)
+    // ============================================
+    // Para integrações externas/APIs que não usam cookie
+    if (!tenantId) {
+      const headerTenant = req.get('X-Tenant-ID');
+      if (headerTenant) {
+        tenantId = headerTenant;
+        if (isDev) console.log('[Tenant] ✅ Tenant do header:', tenantId);
+      }
     }
 
-    // Se ainda não encontrou, verificar se é rota que não requer tenant
+    // ============================================
+    // ESTRATÉGIA 3: Query Param (DEV)
+    // ============================================
+    // Para desenvolvimento e testes
+    if (!tenantId && req.query.tenant) {
+      tenantId = req.query.tenant as string;
+      if (isDev) console.log('[Tenant] ✅ Tenant da query:', tenantId);
+    }
+
+    // ============================================
+    // ESTRATÉGIA 4: Tenant padrão (localhost)
+    // ============================================
+    if (!tenantId && (host?.includes('localhost') || host?.includes('127.0.0.1'))) {
+      tenantId = process.env.DEFAULT_TENANT || 'demo';
+      if (isDev) console.log('[Tenant] ✅ Tenant padrão (dev):', tenantId);
+    }
+
+    // ============================================
+    // ROTAS QUE NÃO EXIGEM TENANT
+    // ============================================
     const publicRoutes = [
       '/health',
       '/api/leads',
-      '/api/super-admin',
-      '/register', // Cadastro de cidadão não requer tenant pré-identificado
-      '/login', // Login de cidadão não requer tenant pré-identificado (identifica automaticamente)
-      '/auth/citizen/me', // Dados do cidadão logado (tenant vem do JWT)
-      '/admin/auth/me', // Dados do admin logado (tenant vem do JWT do cookie)
-      '/admin/auth/login', // Login de admin (identifica tenant automaticamente pelo email)
-      '/admin/auth/logout', // Logout de admin
-      '/admin/citizens', // Rotas de cidadãos admin (tenant vem do JWT do cookie)
-      '/admin/protocols', // Rotas de protocolos admin (tenant vem do JWT do cookie)
-      '/services', // Rotas de serviços (tenant vem do JWT do cookie)
+      '/api/super-admin', // Super admin não precisa de tenant
     ];
-    // Usar req.originalUrl para verificar a URL completa, não apenas req.path
-    const fullPath = req.originalUrl || req.path;
-    const isPublicRoute = publicRoutes.some(route => fullPath.includes(route));
 
-    if (!tenantIdentifier && !isPublicRoute) {
-      return res.status(400).json({
-        error: 'Tenant required',
-        message: 'Identificação do município é obrigatória',
-        hint: 'Use subdomínio (municipio.digiurban.com) ou header X-Tenant-ID',
+    const authRoutes = [
+      '/api/auth/citizen/register',
+      '/api/auth/citizen/login',
+      '/api/admin/auth/login',   // Login centralizado
+      '/api/admin/auth/logout',
+    ];
+
+    const fullPath = req.originalUrl || req.path;
+    const isPublicRoute = publicRoutes.some(route => fullPath.startsWith(route));
+    const isAuthRoute = authRoutes.some(route => fullPath.startsWith(route));
+
+    // ============================================
+    // VALIDAÇÃO DE TENANT
+    // ============================================
+    if (!tenantId) {
+      // Permitir rotas públicas e de autenticação sem tenant
+      if (isPublicRoute || isAuthRoute) {
+        if (isDev) console.log('[Tenant] ✅ Rota pública/auth liberada');
+        return next();
+      }
+
+      // Bloquear se não identificou tenant
+      return res.status(401).json({
+        error: 'Authentication required',
+        message: 'Faça login para acessar este recurso',
+        hint: 'Acesse /admin/login ou /login',
       });
     }
 
-    // Para rotas públicas, pular validação de tenant
-    if (isPublicRoute) {
-      if (isDev) console.log('[Tenant] ✅ Rota pública');
-      return next();
-    }
+    if (isDev) console.log('[Tenant] ID identificado:', tenantId);
 
-    if (isDev) console.log('[Tenant] Identifier:', tenantIdentifier);
-
-    // Buscar tenant no banco de dados
+    // ============================================
+    // BUSCAR TENANT NO BANCO
+    // ============================================
+    // Busca simplificada: apenas por ID ou CNPJ
     const tenant = await prisma.tenant.findFirst({
       where: {
         OR: [
-          { domain: tenantIdentifier || undefined },
-          { id: tenantIdentifier || undefined },
-          { cnpj: tenantIdentifier || undefined },
-        ].filter(condition => Object.values(condition)[0] !== undefined),
+          { id: tenantId },
+          { cnpj: tenantId },
+        ],
         status: {
-          in: [TenantStatus.ACTIVE, TenantStatus.TRIAL], // Incluir TRIAL
+          in: [TenantStatus.ACTIVE, TenantStatus.TRIAL],
         },
       },
       include: {
@@ -145,10 +147,8 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
       return res.status(404).json({
         error: 'Tenant not found',
         message: 'Município não encontrado ou inativo',
-        identifier: tenantIdentifier,
-        suggestion: isSubdomainRequest
-          ? 'Verifique se o subdomínio está correto'
-          : 'Verifique o header X-Tenant-ID ou use o subdomínio',
+        tenantId: tenantId,
+        hint: 'Faça login novamente',
       });
     }
 
@@ -182,7 +182,7 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
       ...tenant,
       usageStats: tenant._count || { users: 0, protocols: 0, services: 0 },
     };
-    (req as any).isSubdomainRequest = isSubdomainRequest;
+    // ❌ REMOVIDO: isSubdomainRequest (não usamos mais)
 
     next();
   } catch (error) {

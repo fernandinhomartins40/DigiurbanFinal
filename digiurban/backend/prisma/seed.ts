@@ -1,165 +1,188 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, TenantStatus, Plan } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
+// IDs fixos para tenants especiais
+const UNASSIGNED_POOL_ID = 'clzunassigned000000000000000';
+const DEMO_TENANT_ID = 'demo';
+
 async function main() {
-  console.log('🌱 Iniciando seed do banco de dados...\n');
+  console.log('🌱 Iniciando seed consolidado do banco de dados...\n');
 
   try {
-    // ========== CRIAR TENANT DEMO ==========
-    console.log('🏛️  Criando tenant demo...');
+    // ========== 0. CRIAR UNASSIGNED_POOL (CRÍTICO!) ==========
+    console.log('🏛️  Criando UNASSIGNED_POOL (tenant especial)...');
 
-    let demoTenant = await prisma.tenant.findFirst({
-      where: { OR: [{ id: 'demo' }, { domain: 'demo' }] }
-    });
-
-    if (!demoTenant) {
-      demoTenant = await prisma.tenant.create({
-        data: {
-          id: 'demo',
-          name: 'Município Demonstração',
-          cnpj: '00000000000191',
-          domain: 'demo',
-          status: 'ACTIVE',
-          plan: 'PROFESSIONAL',
-          codigoIbge: '0000000',
-          nomeMunicipio: 'Demonstração',
-          ufMunicipio: 'SP',
-          metadata: {
-            isDemoTenant: true,
-            createdBySeeder: true,
-            createdAt: new Date().toISOString()
-          }
+    const unassignedPool = await prisma.tenant.upsert({
+      where: { id: UNASSIGNED_POOL_ID },
+      update: {},
+      create: {
+        id: UNASSIGNED_POOL_ID,
+        name: 'Pool Global - Municípios Não Cadastrados',
+        cnpj: '00.000.000/0000-00',
+        // ❌ SEM domain - login centralizado via JWT
+        plan: 'ENTERPRISE',
+        status: 'ACTIVE',
+        metadata: {
+          isSystemTenant: true,
+          isUnassignedPool: true,
+          description: 'Tenant especial para cidadãos de municípios sem tenant ativo',
+          createdBy: 'SYSTEM',
+          readOnly: true,
+          cannotBeDeleted: true,
         }
-      });
-      console.log('   ✅ Tenant demo criado:', demoTenant.id);
-    } else {
-      console.log('   ℹ️  Tenant demo já existe:', demoTenant.id);
-    }
+      }
+    });
+    console.log('   ✅ UNASSIGNED_POOL criado:', unassignedPool.id);
 
-    // ========== CRIAR SUPER ADMIN ==========
+    // ========== 1. CRIAR TENANT DEMO ==========
+    console.log('\n🏛️  Criando tenant demo...');
+
+    const demoTenant = await prisma.tenant.upsert({
+      where: { id: DEMO_TENANT_ID },
+      update: {},
+      create: {
+        id: DEMO_TENANT_ID,
+        name: 'Município Demonstração',
+        cnpj: '00000000000191',
+        // ❌ SEM domain - login centralizado via JWT
+        status: 'ACTIVE',
+        plan: 'PROFESSIONAL',
+        codigoIbge: '0000000',
+        nomeMunicipio: 'Demonstração',
+        ufMunicipio: 'SP',
+        metadata: {
+          isDemoTenant: true,
+          createdBySeeder: true,
+          createdAt: new Date().toISOString()
+        }
+      }
+    });
+    console.log('   ✅ Tenant demo criado:', demoTenant.id);
+
+    // ========== 2. CRIAR SUPER ADMIN ==========
     console.log('\n👤 Criando super admin...');
 
-    const superAdminEmail = 'superadmin@digiurban.com';
-    const superAdminPassword = 'Super@admin123';
+    const superAdminEmail = 'super@admin.com';
+    const superAdminPassword = 'Super@123';
 
     let superAdmin = await prisma.user.findFirst({
       where: { email: superAdminEmail }
     });
 
-    if (!superAdmin) {
-      const hashedPassword = await bcrypt.hash(superAdminPassword, 12);
+    const hashedSuperPassword = await bcrypt.hash(superAdminPassword, 12);
 
+    if (!superAdmin) {
       superAdmin = await prisma.user.create({
         data: {
           email: superAdminEmail,
           name: 'Super Administrador',
-          password: hashedPassword,
+          password: hashedSuperPassword,
           role: 'SUPER_ADMIN',
           tenantId: demoTenant.id,
-          isActive: true
+          isActive: true,
+          mustChangePassword: false
         }
       });
       console.log('   ✅ Super admin criado:', superAdmin.email);
-      console.log('   📧 Email: superadmin@digiurban.com');
-      console.log('   🔑 Senha: Super@admin123');
     } else {
-      // Atualizar senha se usuário já existe
-      const hashedPassword = await bcrypt.hash(superAdminPassword, 12);
       await prisma.user.update({
         where: { id: superAdmin.id },
         data: {
-          password: hashedPassword,
+          password: hashedSuperPassword,
           isActive: true,
-          role: 'SUPER_ADMIN'
+          role: 'SUPER_ADMIN',
+          mustChangePassword: false
         }
       });
       console.log('   ℹ️  Super admin já existe (senha atualizada):', superAdmin.email);
-      console.log('   🔑 Senha: Super@admin123');
     }
 
-    // ========== CRIAR ADMIN DO TENANT DEMO ==========
+    // ========== 3. CRIAR ADMIN DO TENANT DEMO ==========
     console.log('\n👤 Criando admin do tenant demo...');
 
     const adminEmail = 'admin@demo.gov.br';
-    const adminPassword = 'Admin@demo123';
+    const adminPassword = 'Admin@123';
 
     let adminUser = await prisma.user.findFirst({
       where: { email: adminEmail }
     });
 
-    if (!adminUser) {
-      const hashedPassword = await bcrypt.hash(adminPassword, 12);
+    const hashedAdminPassword = await bcrypt.hash(adminPassword, 12);
 
+    if (!adminUser) {
       adminUser = await prisma.user.create({
         data: {
           email: adminEmail,
           name: 'Administrador Demo',
-          password: hashedPassword,
+          password: hashedAdminPassword,
           role: 'ADMIN',
           tenantId: demoTenant.id,
-          isActive: true
+          isActive: true,
+          mustChangePassword: false
         }
       });
       console.log('   ✅ Admin demo criado:', adminUser.email);
-      console.log('   📧 Email: admin@demo.gov.br');
-      console.log('   🔑 Senha: Admin@demo123');
     } else {
-      // Atualizar senha se usuário já existe
-      const hashedPassword = await bcrypt.hash(adminPassword, 12);
       await prisma.user.update({
         where: { id: adminUser.id },
         data: {
-          password: hashedPassword,
+          password: hashedAdminPassword,
           isActive: true,
-          role: 'ADMIN'
+          role: 'ADMIN',
+          mustChangePassword: false
         }
       });
       console.log('   ℹ️  Admin demo já existe (senha atualizada):', adminUser.email);
-      console.log('   🔑 Senha: Admin@demo123');
     }
 
-    // ========== CRIAR DEPARTAMENTO ==========
+    // ========== 4. CRIAR DEPARTAMENTO ==========
     console.log('\n🏢 Criando departamento...');
 
-    let department = await prisma.department.findFirst({
+    const department = await prisma.department.upsert({
       where: {
+        tenantId_name: {
+          tenantId: demoTenant.id,
+          name: 'Administração Geral'
+        }
+      },
+      update: {},
+      create: {
+        name: 'Administração Geral',
+        code: 'ADM',
         tenantId: demoTenant.id,
-        name: 'Administração Geral'
+        isActive: true
       }
     });
+    console.log('   ✅ Departamento criado:', department.name);
 
-    if (!department) {
-      department = await prisma.department.create({
-        data: {
-          name: 'Administração Geral',
-          tenantId: demoTenant.id,
-          isActive: true
-        }
-      });
-      console.log('   ✅ Departamento criado:', department.name);
-    } else {
-      console.log('   ℹ️  Departamento já existe:', department.name);
-    }
-
+    // ========== RESUMO FINAL ==========
     console.log('\n✅ Seed concluído com sucesso!');
     console.log('\n📋 ========================================');
     console.log('📋 CREDENCIAIS DE ACESSO - DigiUrban');
     console.log('📋 ========================================\n');
-    console.log('🏛️  TENANT DEMO:');
-    console.log(`   Nome: ${demoTenant.name}`);
-    console.log(`   Domínio: ${demoTenant.domain}`);
-    console.log(`   Status: ${demoTenant.status}\n`);
+
+    console.log('🏛️  TENANTS CRIADOS:');
+    console.log(`   1. ${unassignedPool.name} (ID: ${unassignedPool.id})`);
+    console.log(`   2. ${demoTenant.name} (ID: ${demoTenant.id})`);
+    console.log(`      CNPJ: ${demoTenant.cnpj}`);
+    console.log(`      Status: ${demoTenant.status}\n`);
+
     console.log('👤 SUPER ADMIN (Gestão Global SaaS):');
     console.log(`   📧 Email: ${superAdminEmail}`);
     console.log(`   🔑 Senha: ${superAdminPassword}`);
     console.log(`   🌐 URL: https://digiurban.com.br/super-admin/login\n`);
+
     console.log('👤 ADMIN TENANT DEMO (Gestão Municipal):');
     console.log(`   📧 Email: ${adminEmail}`);
     console.log(`   🔑 Senha: ${adminPassword}`);
     console.log(`   🌐 URL: https://digiurban.com.br/admin/login\n`);
+
     console.log('📋 ========================================');
+    console.log('✅ Login centralizado - sem subdomínios!');
+    console.log('✅ Identificação via JWT (autenticação)');
+    console.log('📋 ========================================\n');
 
   } catch (error) {
     console.error('❌ Erro no seed:', error);

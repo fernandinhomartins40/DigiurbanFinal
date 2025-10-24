@@ -166,7 +166,7 @@ const strongPasswordSchema = z.string()
 const createTenantSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   cnpj: z.string().min(14, 'CNPJ é obrigatório'),
-  domain: z.string().optional(),
+  // ❌ REMOVIDO: domain (não usamos mais subdomínios)
   plan: z.nativeEnum(Plan).default(Plan.STARTER),
   population: z.number().optional(),
   billing: z.any().optional(),
@@ -182,7 +182,7 @@ const createTenantSchema = z.object({
 
 const updateTenantSchema = z.object({
   name: z.string().optional(),
-  domain: z.string().optional(),
+  // ❌ REMOVIDO: domain
   plan: z.nativeEnum(Plan).optional(),
   status: z.nativeEnum(TenantStatus).optional(),
   population: z.number().optional(),
@@ -486,16 +486,7 @@ router.post(
       return res.status(409).json(createErrorResponse('CONFLICT', 'CNPJ já está em uso'));
     }
 
-    // Verificar se domínio já existe (se fornecido)
-    if (data.domain) {
-      const existingDomain = await prisma.tenant.findUnique({
-        where: { domain: data.domain },
-      });
-
-      if (existingDomain) {
-        return res.status(409).json(createErrorResponse('CONFLICT', 'Domínio já está em uso'));
-      }
-    }
+    // ❌ REMOVIDO: Validação de domain (não usamos mais)
 
     // Definir limites baseados no plano
     const planLimits = {
@@ -519,7 +510,7 @@ router.post(
       },
     };
 
-    // Criar tenant
+    // Criar tenant (sem campo domain)
     const tenantData: Record<string, unknown> = {
       name: data.name,
       cnpj: data.cnpj,
@@ -528,9 +519,7 @@ router.post(
       limits: planLimits[data.plan],
     };
 
-    if (data.domain) {
-      tenantData.domain = data.domain;
-    }
+    // ❌ REMOVIDO: if (data.domain) { tenantData.domain = data.domain; }
 
     if (data.population) {
       tenantData.population = data.population;
@@ -673,21 +662,12 @@ router.put(
       return res.status(404).json(createErrorResponse('NOT_FOUND', 'Tenant não encontrado'));
     }
 
-    // Verificar se domínio já existe (se fornecido e diferente do atual)
-    if (data.domain && data.domain !== tenant.domain) {
-      const existingDomain = await prisma.tenant.findUnique({
-        where: { domain: data.domain },
-      });
-
-      if (existingDomain) {
-        return res.status(409).json(createErrorResponse('CONFLICT', 'Domínio já está em uso'));
-      }
-    }
+    // ❌ REMOVIDO: Validação de domain (não usamos mais)
 
     const updateData: Record<string, unknown> = {};
 
     if (data.name !== undefined) updateData.name = data.name;
-    if (data.domain !== undefined) updateData.domain = data.domain;
+    // ❌ REMOVIDO: if (data.domain !== undefined) updateData.domain = data.domain;
     if (data.plan !== undefined) updateData.plan = data.plan;
     if (data.status !== undefined) updateData.status = data.status;
     if (data.population !== undefined) updateData.population = data.population;

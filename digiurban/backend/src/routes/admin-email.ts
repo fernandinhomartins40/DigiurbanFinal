@@ -142,7 +142,7 @@ router.post('/subscribe', requireRole('ADMIN'), asyncHandler(async (req: Authent
       },
       create: {
         tenantId,
-        hostname: `mail.${tenant.domain || tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
+        hostname: `mail.${tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
         monthlyPrice: getEmailPlanPrice(planId),
         maxEmailsPerMonth: getEmailPlanLimit(planId),
         isActive: true,
@@ -157,7 +157,7 @@ router.post('/subscribe', requireRole('ADMIN'), asyncHandler(async (req: Authent
       where: {
         emailServerId_email: {
           emailServerId: emailServer.id,
-          email: `admin@${tenant.domain || tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
+          email: `admin@${tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
         },
       },
       update: {
@@ -165,7 +165,7 @@ router.post('/subscribe', requireRole('ADMIN'), asyncHandler(async (req: Authent
       },
       create: {
         emailServerId: emailServer.id,
-        email: `admin@${tenant.domain || tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
+        email: `admin@${tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
         passwordHash,
         name: 'Administrador',
         isActive: true,
@@ -180,7 +180,7 @@ router.post('/subscribe', requireRole('ADMIN'), asyncHandler(async (req: Authent
       where: {
         emailServerId_domainName: {
           emailServerId: emailServer.id,
-          domainName: `${tenant.domain || tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
+          domainName: `${tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
         },
       },
       update: {
@@ -188,7 +188,7 @@ router.post('/subscribe', requireRole('ADMIN'), asyncHandler(async (req: Authent
       },
       create: {
         emailServerId: emailServer.id,
-        domainName: `${tenant.domain || tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
+        domainName: `${tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
         isVerified: true, // Domínio próprio já verificado
         dkimEnabled: true,
         spfEnabled: true,
@@ -215,7 +215,7 @@ router.post('/subscribe', requireRole('ADMIN'), asyncHandler(async (req: Authent
       success: true,
       message: 'Serviço de email contratado com sucesso!',
       credentials: {
-        email: `admin@${tenant.domain || tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
+        email: `admin@${tenant.name.toLowerCase().replace(/\s+/g, '-')}.digiurban.com.br`,
         password: defaultPassword,
         server: emailServer.hostname,
         port: 587,

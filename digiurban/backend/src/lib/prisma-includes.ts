@@ -1016,7 +1016,7 @@ export const EmailIncludes = {
 
   full: {
     emailServer: true,
-    domain: true,
+    
     user: true,
     events: {
       orderBy: {

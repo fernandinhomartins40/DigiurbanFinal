@@ -376,7 +376,7 @@ router.post('/login', loginRateLimiter, accountLockoutMiddleware('citizen'), asy
           select: {
             id: true,
             name: true,
-            domain: true,
+            
             status: true,
           },
         },

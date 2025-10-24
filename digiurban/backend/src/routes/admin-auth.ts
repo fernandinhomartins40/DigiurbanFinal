@@ -115,6 +115,7 @@ router.post(
         },
         select: {
           id: true,
+          name: true, // ✅ ADICIONADO
           email: true,
           password: true,
           role: true,
@@ -135,7 +136,7 @@ router.post(
             select: {
               id: true,
               name: true,
-              domain: true,
+              // ❌ REMOVIDO: domain
               status: true,
             },
           },
@@ -580,8 +581,9 @@ router.post('/logout', handleAsyncRoute(async (req, res) => {
     res.clearCookie('digiurban_admin_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax', // Mesmo valor do login
       path: '/',
+      domain: process.env.NODE_ENV === 'production' ? '.digiurban.com.br' : undefined,
     });
 
     res.json({

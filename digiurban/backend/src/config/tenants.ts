@@ -27,7 +27,7 @@ export const UNASSIGNED_POOL_CONFIG = {
   id: UNASSIGNED_POOL_ID,
   name: 'Pool Global - Municípios Não Cadastrados',
   cnpj: '00.000.000/0000-00', // CNPJ fictício para tenant especial
-  domain: 'unassigned-pool',
+  // ❌ REMOVIDO: domain (não usamos mais subdomínios)
   status: 'ACTIVE' as const,
   plan: 'SYSTEM' as const, // Plano especial para tenants do sistema
   trialEndsAt: null,

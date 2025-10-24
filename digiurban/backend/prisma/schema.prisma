@@ -63,12 +63,13 @@ enum LeadSource {
   CONTACT_FORM
 }
 
-// Tenant (Prefeituras) - Multi-tenancy
+// Tenant (Prefeituras) - Multi-tenancy via JWT
+// ✅ Identificação via autenticação (JWT), não via subdomínio
 model Tenant {
   id         String       @id @default(cuid())
   name       String       // Nome da Prefeitura
   cnpj       String       @unique
-  domain     String?      @unique // Subdomínio
+  // ❌ REMOVIDO: domain (não usamos subdomínios)
   plan       Plan         @default(STARTER)
   status     TenantStatus @default(TRIAL)
   trialEndsAt DateTime?   // Data de expiração do trial

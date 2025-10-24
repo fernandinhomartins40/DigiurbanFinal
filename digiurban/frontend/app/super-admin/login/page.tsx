@@ -27,7 +27,11 @@ export default function SuperAdminLoginPage() {
     setLoading(true)
 
     try {
-      const response = await fetch(getFullApiUrl('/super-admin/login'), {
+      const apiUrl = getFullApiUrl('/super-admin/login')
+      console.log('🔐 [Super Admin Login] Tentando login em:', apiUrl)
+      console.log('📧 Email:', email)
+
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,9 +40,14 @@ export default function SuperAdminLoginPage() {
         body: JSON.stringify({ email, password }),
       })
 
+      console.log('📡 [Super Admin Login] Status da resposta:', response.status)
+      console.log('📡 [Super Admin Login] Headers da resposta:', Object.fromEntries(response.headers.entries()))
+
       const data = await response.json()
+      console.log('📦 [Super Admin Login] Dados da resposta:', data)
 
       if (!response.ok) {
+        console.error('❌ [Super Admin Login] Erro:', data.error)
         throw new Error(data.error || 'Erro ao fazer login')
       }
 

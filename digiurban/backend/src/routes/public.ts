@@ -98,7 +98,7 @@ router.get(
       select: {
         id: true,
         name: true,
-        domain: true,
+        
         population: true,
       },
       orderBy: { name: 'asc' },
@@ -129,7 +129,7 @@ router.get(
       select: {
         id: true,
         name: true,
-        domain: true,
+        
         population: true,
       },
     });

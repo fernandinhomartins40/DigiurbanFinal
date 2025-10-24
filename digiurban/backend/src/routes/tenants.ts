@@ -42,7 +42,7 @@ router.get('/', authenticateToken, requireSuperAdmin, async (req, res) => {
       whereClause.OR = [
         { name: { contains: search as string } },
         { cnpj: { contains: search as string } },
-        { domain: { contains: search as string } },
+        // ❌ REMOVIDO: domain (não existe mais)
       ];
     }
 
@@ -217,27 +217,14 @@ router.post('/', authenticateToken, requireSuperAdmin, async (req, res) => {
       return;
     }
 
-    // Verificar se domínio já existe (se fornecido)
-    if (domain) {
-      const existingDomain = await prisma.tenant.findUnique({
-        where: { domain },
-      });
-
-      if (existingDomain) {
-        res.status(409).json({
-          error: 'Conflict',
-          message: 'Domínio já está em uso',
-        });
-        return;
-      }
-    }
+    // ❌ REMOVIDO: Validação de domain (não usamos mais subdomínios)
 
     // Criar tenant com dados validados do IBGE (se disponível)
     const tenant = await prisma.tenant.create({
       data: {
         name,
         cnpj,
-        domain: domain || (municipioValidado ? gerarSlugMunicipio(municipioValidado.nome, municipioValidado.uf) : null),
+        // domain removido - não usamos mais subdomínios
         plan: plan || 'STARTER',
         status: TenantStatus.ACTIVE,
         // ✅ Dados do município (se validado)
@@ -348,26 +335,13 @@ router.put(
         return;
       }
 
-      // Verificar se domínio já existe (se fornecido e diferente do atual)
-      if (domain && domain !== tenant.domain) {
-        const existingDomain = await prisma.tenant.findUnique({
-          where: { domain },
-        });
-
-        if (existingDomain) {
-          res.status(409).json({
-            error: 'Conflict',
-            message: 'Domínio já está em uso',
-          });
-          return;
-        }
-      }
+      // ❌ REMOVIDO: Validação de domain (não usamos mais subdomínios)
 
       const updatedTenant = await prisma.tenant.update({
         where: { id },
         data: {
           name: name || tenant.name,
-          domain: domain !== undefined ? domain : tenant.domain,
+          // domain removido - não usamos mais subdomínios
           plan: plan || tenant.plan,
           status: status || tenant.status,
         },

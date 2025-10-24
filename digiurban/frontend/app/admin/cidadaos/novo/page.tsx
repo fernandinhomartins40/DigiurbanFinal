@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { UserPlus, ArrowLeft, ShieldCheck } from 'lucide-react'
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator'
 
 export default function NovoCidadaoPage() {
   const router = useRouter()
@@ -48,13 +49,33 @@ export default function NovoCidadaoPage() {
       return
     }
 
-    if (formData.password && formData.password !== formData.confirmPassword) {
-      toast({
-        variant: 'destructive',
-        title: 'Senhas não coincidem',
-        description: 'As senhas devem ser iguais',
-      })
-      return
+    // Validação de senha forte
+    if (formData.password) {
+      const passwordRequirements = [
+        formData.password.length >= 8,
+        /[A-Z]/.test(formData.password),
+        /[a-z]/.test(formData.password),
+        /\d/.test(formData.password),
+        /[!@#$%^&*(),.?":{}|<>]/.test(formData.password),
+      ]
+
+      if (!passwordRequirements.every(req => req)) {
+        toast({
+          variant: 'destructive',
+          title: 'Senha fraca',
+          description: 'A senha não atende aos requisitos de segurança',
+        })
+        return
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        toast({
+          variant: 'destructive',
+          title: 'Senhas não coincidem',
+          description: 'As senhas devem ser iguais',
+        })
+        return
+      }
     }
 
     setLoading(true)
@@ -366,7 +387,7 @@ export default function NovoCidadaoPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
-                    placeholder="Mínimo 6 caracteres"
+                    placeholder="Mínimo 8 caracteres"
                   />
                 </div>
 
@@ -383,6 +404,15 @@ export default function NovoCidadaoPage() {
                   />
                 </div>
               </div>
+
+              {/* Indicador de força de senha */}
+              {formData.password && (
+                <PasswordStrengthIndicator
+                  password={formData.password}
+                  confirmPassword={formData.confirmPassword}
+                  showConfirmation={true}
+                />
+              )}
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900">
                 💡 <strong>Dica:</strong> Se não definir uma senha, o cidadão pode criar conta no Portal do Cidadão usando o email cadastrado.

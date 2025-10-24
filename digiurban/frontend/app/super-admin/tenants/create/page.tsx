@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { getFullApiUrl } from '@/lib/api-config';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
 
 interface Municipio {
   codigo_ibge?: string;
@@ -42,6 +43,7 @@ interface TenantData {
   adminName: string;
   adminEmail: string;
   adminPassword: string;
+  adminPasswordConfirm: string;
   adminPhone: string;
 
   // Step 4 - Endereço e Contato
@@ -96,6 +98,7 @@ export default function CreateTenantPage() {
     adminName: '',
     adminEmail: '',
     adminPassword: '',
+    adminPasswordConfirm: '',
     adminPhone: '',
     address: '',
     city: '',
@@ -208,7 +211,18 @@ export default function CreateTenantPage() {
       case 2:
         return !!formData.plan;
       case 3:
-        return !!(formData.adminName && formData.adminEmail && formData.adminPassword.length >= 6);
+        // Validação de senha forte
+        const passwordRequirements = [
+          formData.adminPassword.length >= 8,
+          /[A-Z]/.test(formData.adminPassword),
+          /[a-z]/.test(formData.adminPassword),
+          /\d/.test(formData.adminPassword),
+          /[!@#$%^&*(),.?":{}|<>]/.test(formData.adminPassword),
+        ];
+        const passwordValid = passwordRequirements.every(req => req);
+        const passwordsMatch = formData.adminPassword === formData.adminPasswordConfirm;
+
+        return !!(formData.adminName && formData.adminEmail && passwordValid && passwordsMatch);
       case 4:
         return true; // Opcional
       default:
@@ -267,12 +281,12 @@ export default function CreateTenantPage() {
         payload.ufMunicipio = formData.ufMunicipio;
       }
 
-      // Adicionar admin user
+      // Adicionar admin user (senha agora é obrigatória e validada)
       if (formData.adminName && formData.adminEmail) {
         payload.adminUser = {
           name: formData.adminName,
           email: formData.adminEmail,
-          password: formData.adminPassword || 'TempPassword123!'
+          password: formData.adminPassword
         };
       }
 
@@ -657,19 +671,45 @@ export default function CreateTenantPage() {
                 </div>
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Senha Temporária *
-                </label>
-                <input
-                  type="password"
-                  value={formData.adminPassword}
-                  onChange={(e) => updateField('adminPassword', e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <p className="text-xs text-gray-500 mt-1">
+              <div className="md:col-span-2 space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Senha *
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.adminPassword}
+                    onChange={(e) => updateField('adminPassword', e.target.value)}
+                    placeholder="Mínimo 8 caracteres"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirmar Senha *
+                  </label>
+                  <input
+                    type="password"
+                    value={formData.adminPasswordConfirm}
+                    onChange={(e) => updateField('adminPasswordConfirm', e.target.value)}
+                    placeholder="Digite a senha novamente"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+
+                {/* Indicador de força de senha */}
+                {formData.adminPassword && (
+                  <PasswordStrengthIndicator
+                    password={formData.adminPassword}
+                    confirmPassword={formData.adminPasswordConfirm}
+                    showConfirmation={true}
+                  />
+                )}
+
+                <p className="text-xs text-gray-500">
                   O usuário será solicitado a trocar a senha no primeiro acesso
                 </p>
               </div>

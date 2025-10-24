@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, User, Mail, Lock, Shield, Building2, Users } from 'lucide-react';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator';
 
 interface Tenant {
   id: string;
@@ -40,6 +41,7 @@ export function UserCreateModal({ isOpen, onClose, onSuccess }: UserCreateModalP
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     role: 'USER',
     tenantId: '',
     departmentId: '',
@@ -104,8 +106,23 @@ export function UserCreateModal({ isOpen, onClose, onSuccess }: UserCreateModalP
 
     if (!formData.password.trim()) {
       newErrors.password = 'Senha é obrigatória';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Senha deve ter no mínimo 6 caracteres';
+    } else {
+      // Validação de senha forte
+      const passwordRequirements = [
+        formData.password.length >= 8,
+        /[A-Z]/.test(formData.password),
+        /[a-z]/.test(formData.password),
+        /\d/.test(formData.password),
+        /[!@#$%^&*(),.?":{}|<>]/.test(formData.password),
+      ];
+
+      if (!passwordRequirements.every(req => req)) {
+        newErrors.password = 'A senha não atende aos requisitos de segurança';
+      }
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'As senhas não coincidem';
     }
 
     if (!formData.tenantId) {
@@ -146,6 +163,7 @@ export function UserCreateModal({ isOpen, onClose, onSuccess }: UserCreateModalP
         name: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role: 'USER',
         tenantId: '',
         departmentId: '',
@@ -170,6 +188,7 @@ export function UserCreateModal({ isOpen, onClose, onSuccess }: UserCreateModalP
         name: '',
         email: '',
         password: '',
+        confirmPassword: '',
         role: 'USER',
         tenantId: '',
         departmentId: '',
@@ -257,24 +276,55 @@ export function UserCreateModal({ isOpen, onClose, onSuccess }: UserCreateModalP
           </div>
 
           {/* Senha */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Senha *
-            </label>
-            <div className="relative">
-              <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.password ? 'border-red-300' : 'border-gray-300'
-                }`}
-                placeholder="Mínimo 6 caracteres"
-                disabled={loading}
-              />
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Senha *
+              </label>
+              <div className="relative">
+                <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.password ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="Mínimo 8 caracteres"
+                  disabled={loading}
+                />
+              </div>
+              {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
             </div>
-            {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirmar Senha *
+              </label>
+              <div className="relative">
+                <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
+                  }`}
+                  placeholder="Digite a senha novamente"
+                  disabled={loading}
+                />
+              </div>
+              {errors.confirmPassword && <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>}
+            </div>
+
+            {/* Indicador de força de senha */}
+            {formData.password && (
+              <PasswordStrengthIndicator
+                password={formData.password}
+                confirmPassword={formData.confirmPassword}
+                showConfirmation={true}
+              />
+            )}
           </div>
 
           {/* Tenant */}

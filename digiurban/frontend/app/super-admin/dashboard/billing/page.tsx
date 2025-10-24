@@ -6,6 +6,7 @@ import { DollarSign, FileText, AlertCircle, CheckCircle, Clock, TrendingUp, Down
 import { SuperAdminCard, MetricCard } from '@/components/super-admin';
 import { BarChart, LineChart } from '@/components/ui/charts';
 import { InvoiceStatusBadge, PlanBadge } from '@/components/ui/status-badge';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface BillingDashboardData {
   overview: {
@@ -48,6 +49,7 @@ interface BillingDashboardData {
 }
 
 export default function BillingDashboardPage() {
+  const { apiRequest } = useSuperAdminAuth();
   const [data, setData] = useState<BillingDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,17 +60,10 @@ export default function BillingDashboardPage() {
   const fetchBillingData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-      const response = await fetch('http://localhost:3001/api/super-admin/billing/dashboard', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setData(result.data);
-      }
+      const result = await apiRequest('/super-admin/billing/dashboard');
+      setData(result.data);
     } catch (error) {
-      console.error('Error fetching billing dashboard:', error);
+      // Erro já tratado pelo apiRequest
     } finally {
       setLoading(false);
     }
@@ -77,23 +72,13 @@ export default function BillingDashboardPage() {
   const generateBilling = async () => {
     const currentMonth = new Date().toISOString().slice(0, 7);
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-      const response = await fetch('http://localhost:3001/api/super-admin/billing/generate', {
+      const result = await apiRequest('/super-admin/billing/generate', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ period: currentMonth })
       });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert(`✅ ${result.invoices?.length || 0} faturas geradas para ${currentMonth}`);
-        fetchBillingData();
-      }
+      alert(`✅ ${result.invoices?.length || 0} faturas geradas para ${currentMonth}`);
+      fetchBillingData();
     } catch (error) {
-      console.error('Error generating billing:', error);
       alert('❌ Erro ao gerar faturas');
     }
   };

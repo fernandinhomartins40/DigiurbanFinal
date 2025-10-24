@@ -53,23 +53,16 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
 
   // ✅ SEGURANÇA: Função para fazer requisições autenticadas (usa cookies automáticos)
   const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-    console.log('[SuperAdminAuthContext] apiRequest chamado')
-    console.log('[SuperAdminAuthContext] Endpoint:', endpoint)
-
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers
     }
-
-    console.log('[SuperAdminAuthContext] Headers que serão enviados:', headers)
 
     // Usar getFullApiUrl para construir URL correta
     const { getFullApiUrl } = await import('@/lib/api-config')
     // Remove /api do endpoint se já estiver presente pois getFullApiUrl já adiciona
     const cleanEndpoint = endpoint.replace(/^\/api/, '')
     const url = getFullApiUrl(cleanEndpoint)
-
-    console.log('[SuperAdminAuthContext] URL final:', url)
 
     const response = await fetch(url, {
       ...options,
@@ -82,7 +75,6 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
 
       // Se token expirado ou inválido (401), limpar autenticação
       if (response.status === 401) {
-        console.log('[SuperAuth] Token inválido ou expirado, limpando autenticação...')
         setUser(null)
         setStats(null)
 
@@ -93,7 +85,6 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
           !isRedirecting
         ) {
           setIsRedirecting(true)
-          console.log('[SuperAuth] Redirecionando para login...')
           setTimeout(() => {
             window.location.href = '/super-admin/login'
           }, 100)
@@ -175,9 +166,16 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
       setUser(response.user)
       setStats(response.stats || null)
     } catch (err) {
-      // Silenciar erro 401 (já tratado no apiRequest)
-      if (err instanceof Error && !err.message.includes('Authentication failed')) {
+      // Silenciar erro 401 (já tratado no apiRequest) e erro de token
+      if (err instanceof Error &&
+          !err.message.includes('Token não fornecido') &&
+          !err.message.includes('Authentication failed')) {
         console.error('Erro ao atualizar dados do super admin:', err)
+      }
+      // Se erro de token, limpar estado silenciosamente
+      if (err instanceof Error && err.message.includes('Token não fornecido')) {
+        setUser(null)
+        setStats(null)
       }
     }
   }
@@ -188,7 +186,7 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
       // ✅ Tentar carregar dados do usuário (o cookie httpOnly será enviado automaticamente)
       await refreshUserData()
     } catch (err) {
-      console.error('Erro na verificação de autenticação super admin:', err)
+      // Silenciar erro 401/token - comportamento esperado para usuários não autenticados
       // Erro 401 já é tratado no apiRequest, que limpa o estado
     } finally {
       setLoading(false)

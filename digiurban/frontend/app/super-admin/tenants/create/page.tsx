@@ -8,6 +8,7 @@ import {
   FileCheck, Upload, Globe, Mail, Phone, MapPin
 } from 'lucide-react';
 import { getFullApiUrl } from '@/lib/api-config';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface Municipio {
   codigo_ibge?: string;
@@ -81,6 +82,7 @@ const BRAZIL_STATES = [
 
 export default function CreateTenantPage() {
   const router = useRouter();
+  const { apiRequest } = useSuperAdminAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<TenantData>({
@@ -250,14 +252,6 @@ export default function CreateTenantPage() {
     setLoading(true);
 
     try {
-      // Obter token do localStorage
-      const token = localStorage.getItem('digiurban_super_admin_token');
-
-      if (!token) {
-        alert('❌ Token de autenticação não encontrado. Faça login novamente.');
-        return;
-      }
-
       const payload: any = {
         name: formData.name,
         cnpj: formData.cnpj,
@@ -282,25 +276,14 @@ export default function CreateTenantPage() {
         };
       }
 
-      const response = await fetch(getFullApiUrl('/super-admin/tenants'), {
+      const result = await apiRequest('/super-admin/tenants', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(payload)
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        alert(`✅ Tenant "${formData.name}" criado com sucesso!\n\nCredenciais enviadas para: ${formData.adminEmail}`);
-        router.push(`/super-admin/dashboard/tenant/${result.tenant.id}`);
-      } else {
-        const error = await response.json();
-        alert(`❌ Erro ao criar tenant: ${error.message || 'Erro desconhecido'}`);
-      }
+      alert(`✅ Tenant "${formData.name}" criado com sucesso!\n\nCredenciais enviadas para: ${formData.adminEmail}`);
+      router.push(`/super-admin/dashboard/tenant/${result.tenant.id}`);
     } catch (error) {
-      console.error('Error creating tenant:', error);
       alert('❌ Erro ao criar tenant');
     } finally {
       setLoading(false);

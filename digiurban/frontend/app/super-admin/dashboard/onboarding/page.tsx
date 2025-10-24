@@ -6,6 +6,7 @@ import { Rocket, Users, Target, TrendingUp, Clock, CheckCircle, AlertCircle, XCi
 import { SuperAdminCard, MetricCard } from '@/components/super-admin';
 import { TenantStatusBadge, PlanBadge } from '@/components/ui/status-badge';
 import { BarChart, LineChart } from '@/components/ui/charts';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface OnboardingData {
   overview: {
@@ -48,6 +49,7 @@ interface OnboardingData {
 }
 
 export default function OnboardingDashboardPage() {
+  const { apiRequest } = useSuperAdminAuth();
   const [data, setData] = useState<OnboardingData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,17 +60,10 @@ export default function OnboardingDashboardPage() {
   const fetchOnboardingData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-      const response = await fetch('http://localhost:3001/api/super-admin/onboarding/dashboard', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        setData(result.data);
-      }
+      const result = await apiRequest('/super-admin/onboarding/dashboard');
+      setData(result.data);
     } catch (error) {
-      console.error('Error fetching onboarding dashboard:', error);
+      // Erro já tratado pelo apiRequest
     } finally {
       setLoading(false);
     }

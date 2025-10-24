@@ -20,6 +20,7 @@ import {
   Eye,
   Mail
 } from 'lucide-react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface Invoice {
   id: string;
@@ -57,6 +58,7 @@ interface InvoiceMetrics {
 }
 
 export default function BillingInvoicesPage() {
+  const { apiRequest } = useSuperAdminAuth();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
   const [metrics, setMetrics] = useState<InvoiceMetrics>({
@@ -89,25 +91,10 @@ export default function BillingInvoicesPage() {
   const fetchInvoices = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-      const response = await fetch('http://localhost:3001/api/super-admin/billing/invoices', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setInvoices(data.invoices || mockInvoices);
-        calculateMetrics(data.invoices || mockInvoices);
-      } else {
-        // Fallback to mock data
-        setInvoices(mockInvoices);
-        calculateMetrics(mockInvoices);
-      }
+      const data = await apiRequest('/super-admin/billing/invoices');
+      setInvoices(data.invoices || mockInvoices);
+      calculateMetrics(data.invoices || mockInvoices);
     } catch (error) {
-      console.error('Error fetching invoices:', error);
       // Use mock data on error
       setInvoices(mockInvoices);
       calculateMetrics(mockInvoices);
@@ -217,71 +204,44 @@ export default function BillingInvoicesPage() {
       return;
     }
 
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/billing/invoices/bulk-action`, {
+      await apiRequest('/super-admin/billing/invoices/bulk-action', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
           action,
           invoiceIds: selectedInvoices
         })
       });
 
-      if (response.ok) {
-        alert(`Ação "${action}" executada com sucesso em ${selectedInvoices.length} fatura(s)`);
-        setSelectedInvoices([]);
-        fetchInvoices();
-      }
+      alert(`Ação "${action}" executada com sucesso em ${selectedInvoices.length} fatura(s)`);
+      setSelectedInvoices([]);
+      fetchInvoices();
     } catch (error) {
-      console.error('Error executing bulk action:', error);
       alert('Erro ao executar ação em lote');
     }
   };
 
   const handleSendReminder = async (invoiceId: string) => {
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/billing/invoices/${invoiceId}/send-reminder`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      await apiRequest(`/super-admin/billing/invoices/${invoiceId}/send-reminder`, {
+        method: 'POST'
       });
 
-      if (response.ok) {
-        alert('Lembrete enviado com sucesso');
-      }
+      alert('Lembrete enviado com sucesso');
     } catch (error) {
-      console.error('Error sending reminder:', error);
       alert('Erro ao enviar lembrete');
     }
   };
 
   const handleMarkAsPaid = async (invoiceId: string) => {
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/billing/invoices/${invoiceId}/mark-paid`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      await apiRequest(`/super-admin/billing/invoices/${invoiceId}/mark-paid`, {
+        method: 'POST'
       });
 
-      if (response.ok) {
-        alert('Fatura marcada como paga');
-        fetchInvoices();
-      }
+      alert('Fatura marcada como paga');
+      fetchInvoices();
     } catch (error) {
-      console.error('Error marking as paid:', error);
       alert('Erro ao marcar fatura como paga');
     }
   };
@@ -289,47 +249,40 @@ export default function BillingInvoicesPage() {
   const handleCancelInvoice = async (invoiceId: string) => {
     if (!confirm('Tem certeza que deseja cancelar esta fatura?')) return;
 
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/billing/invoices/${invoiceId}/cancel`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      await apiRequest(`/super-admin/billing/invoices/${invoiceId}/cancel`, {
+        method: 'POST'
       });
 
-      if (response.ok) {
-        alert('Fatura cancelada com sucesso');
-        fetchInvoices();
-      }
+      alert('Fatura cancelada com sucesso');
+      fetchInvoices();
     } catch (error) {
-      console.error('Error cancelling invoice:', error);
       alert('Erro ao cancelar fatura');
     }
   };
 
   const handleExport = async (format: 'csv' | 'pdf') => {
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/billing/invoices/export?format=${format}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      // Note: apiRequest usa credentials: 'include' automaticamente
+      const { getFullApiUrl } = await import('@/lib/api-config');
+      const url = getFullApiUrl(`/super-admin/billing/invoices/export?format=${format}`);
+
+      const response = await fetch(url, {
+        credentials: 'include'
       });
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `invoices_${new Date().toISOString().split('T')[0]}.${format}`;
-        a.click();
+      if (!response.ok) {
+        throw new Error('Erro ao exportar');
       }
+
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `invoices_${new Date().toISOString().split('T')[0]}.${format}`;
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
-      console.error('Error exporting invoices:', error);
       alert('Erro ao exportar faturas');
     }
   };

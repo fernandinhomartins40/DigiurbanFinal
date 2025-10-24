@@ -209,12 +209,6 @@ export default function AuditLogPage() {
   ];
 
   useEffect(() => {
-    const token = localStorage.getItem('digiurban_super_admin_token');
-    if (!token) {
-      router.push('/super-admin/login');
-      return;
-    }
-
     loadAuditData();
   }, [router, dateRange, filterStatus, filterAction, filterResource]);
 

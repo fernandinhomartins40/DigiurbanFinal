@@ -17,6 +17,7 @@ import {
   Lock,
   Shield
 } from 'lucide-react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface DatabaseInfo {
   type: string;
@@ -47,6 +48,7 @@ interface Migration {
 
 export default function SchemaManagementPage() {
   const router = useRouter();
+  const { apiRequest } = useSuperAdminAuth();
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState<'overview' | 'tables' | 'migrations'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
@@ -175,12 +177,6 @@ export default function SchemaManagementPage() {
   ]);
 
   useEffect(() => {
-    const token = localStorage.getItem('digiurban_super_admin_token');
-    if (!token) {
-      router.push('/super-admin/login');
-      return;
-    }
-
     loadSchemaData();
   }, [router]);
 

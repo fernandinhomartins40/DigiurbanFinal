@@ -10,6 +10,7 @@ import {
 import { SuperAdminCard, MetricCard, ActivityLog } from '@/components/super-admin';
 import { TenantStatusBadge, PlanBadge } from '@/components/ui/status-badge';
 import { LineChart } from '@/components/ui/charts';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface TenantDetail {
   id: string;
@@ -59,6 +60,7 @@ interface TenantDetail {
 export default function TenantDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { apiRequest } = useSuperAdminAuth();
   const tenantId = params.id as string;
 
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
@@ -73,17 +75,10 @@ export default function TenantDetailPage() {
   const fetchTenantDetail = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-      const response = await fetch(`http://localhost:3001/api/super-admin/tenants/${tenantId}/detail`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setTenant(data.tenant);
-      }
+      const data = await apiRequest(`/super-admin/tenants/${tenantId}/detail`);
+      setTenant(data.tenant);
     } catch (error) {
-      console.error('Error fetching tenant detail:', error);
+      // Error already handled by apiRequest
     } finally {
       setLoading(false);
     }
@@ -93,44 +88,28 @@ export default function TenantDetailPage() {
     if (!confirm(`Tem certeza que deseja suspender o tenant ${tenant?.name}?`)) return;
 
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-      const response = await fetch(`http://localhost:3001/api/super-admin/tenants/${tenantId}`, {
+      await apiRequest(`/super-admin/tenants/${tenantId}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ status: 'SUSPENDED' })
       });
 
-      if (response.ok) {
-        alert('✅ Tenant suspenso com sucesso');
-        fetchTenantDetail();
-      }
+      alert('✅ Tenant suspenso com sucesso');
+      fetchTenantDetail();
     } catch (error) {
-      console.error('Error suspending tenant:', error);
       alert('❌ Erro ao suspender tenant');
     }
   };
 
   const handleActivate = async () => {
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-      const response = await fetch(`http://localhost:3001/api/super-admin/tenants/${tenantId}`, {
+      await apiRequest(`/super-admin/tenants/${tenantId}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({ status: 'ACTIVE' })
       });
 
-      if (response.ok) {
-        alert('✅ Tenant ativado com sucesso');
-        fetchTenantDetail();
-      }
+      alert('✅ Tenant ativado com sucesso');
+      fetchTenantDetail();
     } catch (error) {
-      console.error('Error activating tenant:', error);
       alert('❌ Erro ao ativar tenant');
     }
   };

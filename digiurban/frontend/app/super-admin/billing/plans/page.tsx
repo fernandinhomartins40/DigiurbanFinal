@@ -12,6 +12,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface PlanFeature {
   id: string;
@@ -45,6 +46,7 @@ interface Discount {
 }
 
 export default function PlansConfigurationPage() {
+  const { apiRequest } = useSuperAdminAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [editingPlan, setEditingPlan] = useState<string | null>(null);
@@ -64,29 +66,14 @@ export default function PlansConfigurationPage() {
   const fetchPlansData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('digiurban_super_admin_token');
-
-      const [plansRes, discountsRes] = await Promise.all([
-        fetch('http://localhost:3001/api/super-admin/billing/plans', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:3001/api/super-admin/billing/discounts', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      const [plansData, discountsData] = await Promise.all([
+        apiRequest('/super-admin/billing/plans'),
+        apiRequest('/super-admin/billing/discounts')
       ]);
 
-      if (plansRes.ok && discountsRes.ok) {
-        const plansData = await plansRes.json();
-        const discountsData = await discountsRes.json();
-
-        setPlans(plansData.plans || mockPlans);
-        setDiscounts(discountsData.discounts || mockDiscounts);
-      } else {
-        setPlans(mockPlans);
-        setDiscounts(mockDiscounts);
-      }
+      setPlans(plansData.plans || mockPlans);
+      setDiscounts(discountsData.discounts || mockDiscounts);
     } catch (error) {
-      console.error('Error fetching plans data:', error);
       setPlans(mockPlans);
       setDiscounts(mockDiscounts);
     } finally {
@@ -95,25 +82,16 @@ export default function PlansConfigurationPage() {
   };
 
   const handleUpdatePlan = async (planId: string, updates: Partial<Plan>) => {
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch(`http://localhost:3001/api/super-admin/billing/plans/${planId}`, {
+      await apiRequest(`/super-admin/billing/plans/${planId}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(updates)
       });
 
-      if (response.ok) {
-        alert('Plano atualizado com sucesso');
-        setEditingPlan(null);
-        fetchPlansData();
-      }
+      alert('Plano atualizado com sucesso');
+      setEditingPlan(null);
+      fetchPlansData();
     } catch (error) {
-      console.error('Error updating plan:', error);
       alert('Erro ao atualizar plano');
     }
   };
@@ -124,51 +102,31 @@ export default function PlansConfigurationPage() {
       return;
     }
 
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch('http://localhost:3001/api/super-admin/billing/discounts', {
+      await apiRequest('/super-admin/billing/discounts', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(newDiscount)
       });
 
-      if (response.ok) {
-        alert('Desconto criado com sucesso');
-        setShowAddDiscount(false);
-        setNewDiscount({ code: '', percentage: 0, validUntil: '', maxUsage: 100 });
-        fetchPlansData();
-      }
+      alert('Desconto criado com sucesso');
+      setShowAddDiscount(false);
+      setNewDiscount({ code: '', percentage: 0, validUntil: '', maxUsage: 100 });
+      fetchPlansData();
     } catch (error) {
-      console.error('Error creating discount:', error);
       alert('Erro ao criar desconto');
     }
   };
 
   const handleToggleDiscount = async (discountId: string, isActive: boolean) => {
-    const token = localStorage.getItem('digiurban_super_admin_token');
-
     try {
-      const response = await fetch(
-        `http://localhost:3001/api/super-admin/billing/discounts/${discountId}/toggle`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ isActive: !isActive })
-        }
-      );
+      await apiRequest(`/super-admin/billing/discounts/${discountId}/toggle`, {
+        method: 'POST',
+        body: JSON.stringify({ isActive: !isActive })
+      });
 
-      if (response.ok) {
-        fetchPlansData();
-      }
+      fetchPlansData();
     } catch (error) {
-      console.error('Error toggling discount:', error);
+      // Error already handled by apiRequest
     }
   };
 

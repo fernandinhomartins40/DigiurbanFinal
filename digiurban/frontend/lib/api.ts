@@ -143,10 +143,14 @@ class ApiClient {
 export const apiClient = new ApiClient()
 
 // ✅ SOLUÇÃO PROFISSIONAL: Extrair tenant ID do JWT (fonte única da verdade)
-function getTenantFromToken(token: string): string | null {
+function getTenantFromToken(token: string | null): string | null {
+  if (!token) return null
+
   try {
     // JWT format: header.payload.signature
     const payload = token.split('.')[1]
+    if (!payload) return null
+
     const decoded = JSON.parse(atob(payload))
     return decoded.tenantId || null
   } catch {

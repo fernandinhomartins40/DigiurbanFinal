@@ -7,7 +7,7 @@ import {
   Mail, Calendar, MapPin, Trash2, Eye, Edit2, Link2, Zap, AlertCircle,
   CheckCircle, XCircle, Clock
 } from 'lucide-react';
-import { SuperAdminCard, MetricCard, TenantSelector } from '@/components/super-admin';
+import { SuperAdminCard, MetricCard, TenantSelector, TenantAutocomplete } from '@/components/super-admin';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface Citizen {
@@ -187,7 +187,8 @@ export default function CitizensManagementPage() {
       phone: citizen.phone || '',
       cpf: citizen.cpf,
       verificationStatus: citizen.verificationStatus,
-      address: citizen.address || {}
+      address: citizen.address || {},
+      tenantId: citizen.tenantId || ''
     });
     setShowEditModal(true);
     console.log('[DEBUG] showEditModal setado para true');
@@ -759,6 +760,25 @@ export default function CitizensManagementPage() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Vinculação de Tenant */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vincular a Tenant
+                </label>
+                <TenantAutocomplete
+                  selectedTenantId={editFormData.tenantId}
+                  onSelect={(tenantId) => setEditFormData({...editFormData, tenantId})}
+                  onClear={() => setEditFormData({...editFormData, tenantId: ''})}
+                  placeholder="Digite para buscar tenant..."
+                  showClearButton={true}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedCitizen?.tenant?.name === 'Pool Global - Municípios Não Cadastrados'
+                    ? '⚠️ Este cidadão está no Pool Global. Selecione um tenant para vinculá-lo.'
+                    : 'Selecione um tenant para vincular o cidadão ou deixe em branco para manter atual.'}
+                </p>
               </div>
 
               {/* Status de Verificação */}

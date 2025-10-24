@@ -25,7 +25,7 @@ import {
   Route,
   Settings
 } from 'lucide-react'
-import { useAdminAuth } from '@/hooks/useAdminAuth'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 
 interface Funcionario {
   id: string

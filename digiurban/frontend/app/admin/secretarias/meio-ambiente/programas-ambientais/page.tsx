@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts'
-import { useAdminAuth } from '@/hooks/useAdminAuth'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { Plus, Search, Filter, Download, Eye, Edit, Recycle, TreePine, Droplets, Sun, Leaf, Users, Calendar, TrendingUp, Target, Award, MapPin, Clock } from 'lucide-react'
 
 interface ProgramaAmbiental {

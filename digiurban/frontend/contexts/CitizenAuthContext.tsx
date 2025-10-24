@@ -257,8 +257,8 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
     }
   };
 
-  const refreshCitizenData = async () => {
-    await fetchCitizenData();
+  const refreshCitizenData = async (): Promise<boolean> => {
+    return await fetchCitizenData();
   };
 
   const value: CitizenAuthContextType = {

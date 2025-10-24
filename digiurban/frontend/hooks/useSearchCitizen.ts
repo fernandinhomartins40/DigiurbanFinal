@@ -35,6 +35,7 @@ export function useSearchCitizen() {
           headers: {
             'X-Tenant-ID': tenantId || '',
           },
+          credentials: 'include', // ✅ Enviar cookies httpOnly
         }
       )
 
@@ -68,6 +69,7 @@ export function useSearchCitizen() {
           'X-Tenant-ID': tenantId || '',
         },
         body: JSON.stringify(citizenData),
+        credentials: 'include', // ✅ Enviar cookies httpOnly
       })
 
       if (!response.ok) {

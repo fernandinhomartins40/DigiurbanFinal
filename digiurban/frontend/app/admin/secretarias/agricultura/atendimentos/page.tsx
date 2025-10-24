@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Calendar } from "@/components/ui/calendar"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts'
-import { useAdminAuth } from '@/hooks/useAdminAuth'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { Plus, Search, Filter, Download, Eye, Edit, MessageSquare, Users, Wheat, Tractor, Leaf, TreePine, Droplets, Calendar as CalendarIcon, MapPin, FileText, CheckCircle } from 'lucide-react'
 
 interface AtendimentoRural {

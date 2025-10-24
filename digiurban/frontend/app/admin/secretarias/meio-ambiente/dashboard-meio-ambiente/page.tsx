@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Calendar } from "@/components/ui/calendar"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, RadialBarChart, RadialBar } from 'recharts'
-import { useAdminAuth } from '@/hooks/useAdminAuth'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { TreePine, Droplets, Wind, Recycle, Sun, Leaf, TrendingUp, AlertTriangle, CheckCircle, Activity, Eye, Download, Filter, Search, BarChart3, PieChart as PieChartIcon, MapPin, Target, Award, Thermometer } from 'lucide-react'
 
 interface IndicadorAmbiental {

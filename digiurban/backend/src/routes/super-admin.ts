@@ -339,6 +339,50 @@ router.get('/auth/me', handleAsyncRoute(async (req, res) => {
 }));
 
 /**
+ * GET /api/super-admin/tenants/search
+ * Buscar tenants para autocomplete (lightweight)
+ */
+router.get(
+  '/tenants/search',
+  handleAsyncRoute(async (req, res) => {
+    const search = getStringParam(req.query.q) || getStringParam(req.query.search);
+    const limit = getNumberParam(req.query.limit) || 20;
+
+    const where: any = {
+      status: { not: TenantStatus.CANCELLED },
+      id: { not: UNASSIGNED_POOL_ID }, // Excluir Pool Global
+    };
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { nomeMunicipio: { contains: search, mode: 'insensitive' } },
+        { cnpj: { contains: search } },
+      ];
+    }
+
+    const tenants = await prisma.tenant.findMany({
+      where,
+      take: limit,
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        nomeMunicipio: true,
+        ufMunicipio: true,
+        status: true,
+        plan: true,
+      },
+    });
+
+    return res.json({
+      success: true,
+      tenants,
+    });
+  })
+);
+
+/**
  * GET /api/super-admin/tenants
  * Listar todos os tenants com filtros avançados
  */

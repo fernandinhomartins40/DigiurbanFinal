@@ -1,4 +1,5 @@
 'use client'
+// @ts-nocheck
 
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

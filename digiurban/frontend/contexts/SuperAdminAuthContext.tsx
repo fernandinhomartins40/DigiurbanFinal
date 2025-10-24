@@ -123,11 +123,12 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
       const data = await response.json()
 
       // ✅ SEGURANÇA: Token agora vem em cookie httpOnly, não em JSON
-      // Atualizar estado
+      // Atualizar estado com dados do login (já vêm na resposta)
       setUser(data.user)
+      setStats(data.stats || null)
 
-      // Buscar estatísticas
-      await refreshUserData()
+      // Não chamar refreshUserData() aqui - dados já vieram no login
+      // O refreshUserData() será chamado pelo checkAuth() ao montar o dashboard
 
       router.push('/super-admin/dashboard')
     } catch (err) {
@@ -160,16 +161,18 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
   }
 
   // Função para atualizar dados do usuário
-  const refreshUserData = async () => {
+  const refreshUserData = async (): Promise<boolean> => {
     try {
       const response = await apiRequest('/super-admin/auth/me')
       setUser(response.user)
       setStats(response.stats || null)
+      return true
     } catch (err) {
       // Silenciar erro 401 (já tratado no apiRequest) e erro de token
       if (err instanceof Error &&
           !err.message.includes('Token não fornecido') &&
-          !err.message.includes('Authentication failed')) {
+          !err.message.includes('Authentication failed') &&
+          !err.message.includes('Não autenticado')) {
         console.error('Erro ao atualizar dados do super admin:', err)
       }
       // Se erro de token, limpar estado silenciosamente
@@ -177,6 +180,7 @@ export function SuperAdminAuthProvider({ children }: SuperAdminAuthProviderProps
         setUser(null)
         setStats(null)
       }
+      return false
     }
   }
 

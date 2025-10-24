@@ -27,7 +27,7 @@ import {
   Wrench,
   Archive
 } from 'lucide-react'
-import { useAdminAuth } from '@/hooks/useAdminAuth'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 
 interface DashboardData {
   atendimentos: {

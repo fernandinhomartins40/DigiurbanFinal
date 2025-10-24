@@ -94,6 +94,7 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
       '/admin/auth/me', // Dados do admin logado (tenant vem do JWT do cookie)
       '/admin/auth/login', // Login de admin (identifica tenant automaticamente pelo email)
       '/admin/auth/logout', // Logout de admin
+      '/admin/citizens', // Rotas de cidadãos admin (tenant vem do JWT do cookie)
     ];
     // Usar req.originalUrl para verificar a URL completa, não apenas req.path
     const fullPath = req.originalUrl || req.path;

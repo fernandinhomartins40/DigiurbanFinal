@@ -72,6 +72,11 @@ const menuItems: MenuItem[] = [
     icon: UserCog
   },
   {
+    title: 'Cidadãos',
+    href: '/super-admin/citizens',
+    icon: Users
+  },
+  {
     title: 'Billing & Financeiro',
     href: '#billing',
     icon: DollarSign,

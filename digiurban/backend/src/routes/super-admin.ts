@@ -2088,4 +2088,401 @@ router.get(
   })
 );
 
+// ====================== CITIZENS ROUTES ======================
+
+/**
+ * GET /api/super-admin/citizens
+ * Listar todos os cidadãos cross-tenant com filtros
+ */
+router.get(
+  '/citizens',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { tenantId, search, limit, verificationStatus } = req.query;
+
+    const where: any = {};
+
+    // Filtro por tenant
+    if (tenantId && typeof tenantId === 'string' && tenantId !== '') {
+      where.tenantId = tenantId;
+    }
+
+    // Filtro por status de verificação
+    if (verificationStatus && typeof verificationStatus === 'string') {
+      where.verificationStatus = verificationStatus;
+    }
+
+    // Busca por nome, email ou CPF
+    if (search && typeof search === 'string') {
+      where.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { cpf: { contains: search.replace(/\D/g, '') } }
+      ];
+    }
+
+    const take = limit ? parseInt(limit as string, 10) : 100;
+
+    const [citizens, total] = await Promise.all([
+      prisma.citizen.findMany({
+        where,
+        take,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          tenant: {
+            select: {
+              id: true,
+              name: true,
+              nomeMunicipio: true,
+              ufMunicipio: true
+            }
+          }
+        }
+      }),
+      prisma.citizen.count({ where })
+    ]);
+
+    // Remover senhas do retorno
+    const citizensWithoutPasswords = citizens.map(({ password, ...citizen }) => citizen);
+
+    return res.json({
+      success: true,
+      citizens: citizensWithoutPasswords,
+      total,
+      page: 1,
+      limit: take
+    });
+  })
+);
+
+/**
+ * GET /api/super-admin/citizens/unlinked
+ * Listar cidadãos sem tenant vinculado
+ */
+router.get(
+  '/citizens/unlinked',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { limit } = req.query;
+    const take = limit ? parseInt(limit as string, 10) : 100;
+
+    const citizens = await prisma.citizen.findMany({
+      where: {
+        tenantId: null
+      },
+      take,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        cpf: true,
+        phone: true,
+        address: true,
+        verificationStatus: true,
+        createdAt: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      citizens,
+      total: citizens.length
+    });
+  })
+);
+
+/**
+ * PUT /api/super-admin/citizens/:id/link-tenant
+ * Vincular cidadão a um tenant
+ */
+router.put(
+  '/citizens/:id/link-tenant',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { id } = req.params;
+    const { tenantId } = req.body;
+
+    if (!id || !tenantId) {
+      return res.status(400).json(
+        createErrorResponse('BAD_REQUEST', 'ID do cidadão e tenantId são obrigatórios')
+      );
+    }
+
+    // Verificar se tenant existe
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId }
+    });
+
+    if (!tenant) {
+      return res.status(404).json(
+        createErrorResponse('TENANT_NOT_FOUND', 'Tenant não encontrado')
+      );
+    }
+
+    // Verificar se cidadão existe
+    const citizen = await prisma.citizen.findUnique({
+      where: { id }
+    });
+
+    if (!citizen) {
+      return res.status(404).json(
+        createErrorResponse('CITIZEN_NOT_FOUND', 'Cidadão não encontrado')
+      );
+    }
+
+    // Vincular cidadão ao tenant
+    const updatedCitizen = await prisma.citizen.update({
+      where: { id },
+      data: { tenantId },
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            nomeMunicipio: true,
+            ufMunicipio: true
+          }
+        }
+      }
+    });
+
+    // Remover senha do retorno
+    const { password, ...citizenWithoutPassword } = updatedCitizen;
+
+    return res.json({
+      success: true,
+      message: 'Cidadão vinculado ao tenant com sucesso',
+      citizen: citizenWithoutPassword
+    });
+  })
+);
+
+/**
+ * POST /api/super-admin/citizens/auto-link
+ * Vincular automaticamente cidadãos sem tenant baseado na cidade
+ */
+router.post(
+  '/citizens/auto-link',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    // Buscar todos os cidadãos sem tenant
+    const unlinkedCitizens = await prisma.citizen.findMany({
+      where: {
+        tenantId: null,
+        address: {
+          not: null
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        address: true
+      }
+    });
+
+    // Buscar todos os tenants com informações de município
+    const tenants = await prisma.tenant.findMany({
+      where: {
+        nomeMunicipio: {
+          not: null
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        nomeMunicipio: true,
+        ufMunicipio: true
+      }
+    });
+
+    // Criar mapa de municípios -> tenantId
+    const municipioMap = new Map<string, string>();
+    tenants.forEach(tenant => {
+      if (tenant.nomeMunicipio && tenant.ufMunicipio) {
+        const key = `${tenant.nomeMunicipio.toLowerCase()}-${tenant.ufMunicipio.toLowerCase()}`;
+        municipioMap.set(key, tenant.id);
+      }
+    });
+
+    // Processar vinculações
+    const linked: any[] = [];
+    const notLinked: any[] = [];
+
+    for (const citizen of unlinkedCitizens) {
+      try {
+        const address = citizen.address as any;
+
+        if (!address || !address.city || !address.state) {
+          notLinked.push({
+            citizenId: citizen.id,
+            name: citizen.name,
+            reason: 'Endereço incompleto (falta cidade ou estado)'
+          });
+          continue;
+        }
+
+        const cityKey = `${address.city.toLowerCase()}-${address.state.toLowerCase()}`;
+        const tenantId = municipioMap.get(cityKey);
+
+        if (tenantId) {
+          // Vincular cidadão ao tenant
+          await prisma.citizen.update({
+            where: { id: citizen.id },
+            data: { tenantId }
+          });
+
+          const tenant = tenants.find(t => t.id === tenantId);
+          linked.push({
+            citizenId: citizen.id,
+            name: citizen.name,
+            email: citizen.email,
+            linkedTo: {
+              tenantId: tenant?.id,
+              tenantName: tenant?.name,
+              municipio: tenant?.nomeMunicipio,
+              uf: tenant?.ufMunicipio
+            }
+          });
+        } else {
+          notLinked.push({
+            citizenId: citizen.id,
+            name: citizen.name,
+            city: address.city,
+            state: address.state,
+            reason: 'Nenhum tenant encontrado para esta cidade'
+          });
+        }
+      } catch (error) {
+        console.error(`Erro ao processar cidadão ${citizen.id}:`, error);
+        notLinked.push({
+          citizenId: citizen.id,
+          name: citizen.name,
+          reason: 'Erro ao processar'
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: `Vinculação automática concluída: ${linked.length} cidadãos vinculados, ${notLinked.length} não vinculados`,
+      summary: {
+        totalProcessed: unlinkedCitizens.length,
+        linked: linked.length,
+        notLinked: notLinked.length
+      },
+      details: {
+        linked,
+        notLinked
+      }
+    });
+  })
+);
+
+/**
+ * DELETE /api/super-admin/citizens/:id
+ * Excluir cidadão
+ */
+router.delete(
+  '/citizens/:id',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json(
+        createErrorResponse('BAD_REQUEST', 'ID do cidadão é obrigatório')
+      );
+    }
+
+    const citizen = await prisma.citizen.findUnique({
+      where: { id }
+    });
+
+    if (!citizen) {
+      return res.status(404).json(
+        createErrorResponse('CITIZEN_NOT_FOUND', 'Cidadão não encontrado')
+      );
+    }
+
+    await prisma.citizen.delete({
+      where: { id }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Cidadão excluído com sucesso'
+    });
+  })
+);
+
+/**
+ * PUT /api/super-admin/citizens/:id
+ * Atualizar dados do cidadão
+ */
+router.put(
+  '/citizens/:id',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { id } = req.params;
+    const { name, email, phone, cpf, tenantId, verificationStatus, address } = req.body;
+
+    if (!id) {
+      return res.status(400).json(
+        createErrorResponse('BAD_REQUEST', 'ID do cidadão é obrigatório')
+      );
+    }
+
+    const citizen = await prisma.citizen.findUnique({
+      where: { id }
+    });
+
+    if (!citizen) {
+      return res.status(404).json(
+        createErrorResponse('CITIZEN_NOT_FOUND', 'Cidadão não encontrado')
+      );
+    }
+
+    const dataToUpdate: any = {};
+    if (name !== undefined) dataToUpdate.name = name;
+    if (email !== undefined) dataToUpdate.email = email;
+    if (phone !== undefined) dataToUpdate.phone = phone;
+    if (cpf !== undefined) dataToUpdate.cpf = cpf;
+    if (tenantId !== undefined) dataToUpdate.tenantId = tenantId;
+    if (verificationStatus !== undefined) dataToUpdate.verificationStatus = verificationStatus;
+    if (address !== undefined) dataToUpdate.address = address;
+
+    const updatedCitizen = await prisma.citizen.update({
+      where: { id },
+      data: dataToUpdate,
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            nomeMunicipio: true,
+            ufMunicipio: true
+          }
+        }
+      }
+    });
+
+    // Remover senha do retorno
+    const { password, ...citizenWithoutPassword } = updatedCitizen;
+
+    return res.json({
+      success: true,
+      message: 'Cidadão atualizado com sucesso',
+      citizen: citizenWithoutPassword
+    });
+  })
+);
+
 export default router;

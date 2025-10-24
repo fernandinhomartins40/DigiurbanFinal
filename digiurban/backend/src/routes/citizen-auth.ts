@@ -131,15 +131,34 @@ router.post('/register', registerRateLimiter, asyncHandler(async (req: LocalTena
         });
       }
 
-      // 🔍 BUSCA INTELIGENTE: Procurar tenant por código IBGE (prioridade) ou nome
+      // 🔍 BUSCA INTELIGENTE: Procurar tenant por código IBGE (prioridade), nome ou nome do tenant
       tenantSelecionado = await prisma.tenant.findFirst({
         where: {
-          OR: [
-            { codigoIbge: municipioValido.codigo_ibge }, // ✅ Busca principal por código IBGE
+          AND: [
+            { status: { in: ['ACTIVE', 'TRIAL'] } }, // ✅ Apenas tenants ativos
             {
-              AND: [
-                { nomeMunicipio: municipioValido.nome },
-                { ufMunicipio: municipioValido.uf }
+              OR: [
+                { codigoIbge: municipioValido.codigo_ibge }, // ✅ Busca principal por código IBGE
+                {
+                  // Busca por nomeMunicipio e ufMunicipio (se preenchidos)
+                  AND: [
+                    { nomeMunicipio: municipioValido.nome },
+                    { ufMunicipio: municipioValido.uf }
+                  ]
+                },
+                {
+                  // ✅ FALLBACK: Busca por nome do tenant contendo nome do município
+                  // Ex: "Palmital - PR" encontra município "Palmital"
+                  AND: [
+                    { name: { contains: municipioValido.nome } },
+                    {
+                      OR: [
+                        { ufMunicipio: municipioValido.uf },
+                        { name: { contains: municipioValido.uf } }
+                      ]
+                    }
+                  ]
+                }
               ]
             }
           ]

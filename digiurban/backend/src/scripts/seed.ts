@@ -163,8 +163,14 @@ async function main() {
   // 5. Criar cidadão de exemplo
   const citizenPassword = await bcrypt.hash('senha123', BCRYPT_ROUNDS);
 
+  // ✅ CORRIGIDO: usar compound unique key após remoção de @unique no CPF
   const cidadao = await prisma.citizen.upsert({
-    where: { cpf: '12345678901' },
+    where: {
+      tenantId_cpf: {
+        tenantId: defaultTenant.id,
+        cpf: '12345678901'
+      }
+    },
     update: {},
     create: {
       name: 'João da Silva',

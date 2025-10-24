@@ -15,8 +15,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { AddVulnerabilityForm } from '@/components/admin/AddVulnerabilityForm'
-import { apiRequest } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import {
   Search,
   UserPlus,
@@ -85,6 +85,7 @@ interface VulnerableFamily {
 
 export default function VulnerableFamiliesPage() {
   const { toast } = useToast()
+  const { apiRequest } = useAdminAuth()
   const [searchCpf, setSearchCpf] = useState('')
   const [searching, setSearching] = useState(false)
   const [searchedCitizen, setSearchedCitizen] = useState<Citizen | null>(null)

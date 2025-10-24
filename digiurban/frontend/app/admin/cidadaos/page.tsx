@@ -7,7 +7,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog'
-import { apiRequest } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
 import {
   Users,
@@ -66,7 +65,7 @@ interface Citizen {
 
 export default function CidadaosPage() {
   const router = useRouter()
-  const { user } = useAdminAuth()
+  const { user, apiRequest } = useAdminAuth()
   const { hasPermission } = useAdminPermissions()
   const { toast } = useToast()
 
@@ -101,14 +100,21 @@ export default function CidadaosPage() {
       // Buscar todos os cidadãos usando o endpoint correto
       const response = await apiRequest('/admin/citizens')
 
+      console.log('[CIDADÃOS] Response recebida:', response)
+      console.log('[CIDADÃOS] success:', response?.success)
+      console.log('[CIDADÃOS] citizens:', response?.citizens)
+      console.log('[CIDADÃOS] total citizens:', response?.citizens?.length)
+
       // O backend retorna { success: true, citizens: [...], pagination: {...} }
       if (response.success && response.citizens) {
+        console.log('[CIDADÃOS] Setando cidadãos:', response.citizens.length)
         setCitizens(response.citizens)
       } else {
+        console.warn('[CIDADÃOS] Response inválida ou sem cidadãos')
         setCitizens([])
       }
     } catch (err) {
-      console.error('Error fetching citizens:', err)
+      console.error('[CIDADÃOS] Error fetching citizens:', err)
       toast({
         variant: 'destructive',
         title: 'Erro',

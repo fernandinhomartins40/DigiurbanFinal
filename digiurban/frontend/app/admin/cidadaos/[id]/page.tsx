@@ -7,9 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CitizenFamilyComposition } from '@/components/admin/CitizenFamilyComposition'
-import { apiRequest } from '@/lib/api'
 import { useToast } from '@/hooks/use-toast'
-import { useAdminPermissions } from '@/contexts/AdminAuthContext'
+import { useAdminAuth, useAdminPermissions } from '@/contexts/AdminAuthContext'
 import {
   ArrowLeft,
   User,
@@ -92,6 +91,7 @@ export default function CitizenDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const { toast } = useToast()
+  const { apiRequest } = useAdminAuth()
   const { hasPermission } = useAdminPermissions()
 
   const citizenId = params.id as string

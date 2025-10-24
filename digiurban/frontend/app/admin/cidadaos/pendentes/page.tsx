@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
-import { apiRequest } from '@/lib/api'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import {
   Users,
   FileText,
@@ -72,6 +72,7 @@ export default function PendingCitizensPage() {
   const [processing, setProcessing] = useState(false)
 
   const { toast } = useToast()
+  const { apiRequest } = useAdminAuth()
 
   useEffect(() => {
     loadPendingCitizens()

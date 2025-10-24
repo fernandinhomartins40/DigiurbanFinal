@@ -55,6 +55,10 @@ export default function CitizensManagementPage() {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [citizenToLink, setCitizenToLink] = useState<Citizen | null>(null);
   const [selectedTenantForLink, setSelectedTenantForLink] = useState('');
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null);
+  const [editFormData, setEditFormData] = useState<any>({});
 
   useEffect(() => {
     fetchCitizens();
@@ -164,6 +168,45 @@ export default function CitizensManagementPage() {
       setSelectedCitizens([]);
     } else {
       setSelectedCitizens(citizens.map(c => c.id));
+    }
+  };
+
+  const openViewModal = (citizen: Citizen) => {
+    console.log('[DEBUG] openViewModal chamado com:', citizen);
+    setSelectedCitizen(citizen);
+    setShowViewModal(true);
+    console.log('[DEBUG] showViewModal setado para true');
+  };
+
+  const openEditModal = (citizen: Citizen) => {
+    console.log('[DEBUG] openEditModal chamado com:', citizen);
+    setSelectedCitizen(citizen);
+    setEditFormData({
+      name: citizen.name,
+      email: citizen.email,
+      phone: citizen.phone || '',
+      cpf: citizen.cpf,
+      verificationStatus: citizen.verificationStatus,
+      address: citizen.address || {}
+    });
+    setShowEditModal(true);
+    console.log('[DEBUG] showEditModal setado para true');
+  };
+
+  const handleEditSubmit = async () => {
+    if (!selectedCitizen) return;
+
+    try {
+      await apiRequest(`/super-admin/citizens/${selectedCitizen.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(editFormData)
+      });
+      alert('✅ Cidadão atualizado com sucesso!');
+      setShowEditModal(false);
+      fetchCitizens();
+    } catch (error) {
+      console.error('Error updating citizen:', error);
+      alert('❌ Erro ao atualizar cidadão');
     }
   };
 
@@ -447,14 +490,14 @@ export default function CitizensManagementPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => alert('Visualização em desenvolvimento')}
+                            onClick={() => openViewModal(citizen)}
                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                             title="Visualizar"
                           >
                             <Eye size={18} />
                           </button>
                           <button
-                            onClick={() => alert('Edição em desenvolvimento')}
+                            onClick={() => openEditModal(citizen)}
                             className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                             title="Editar"
                           >
@@ -524,6 +567,289 @@ export default function CitizensManagementPage() {
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Vincular
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Citizen Modal */}
+      {showViewModal && selectedCitizen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                Detalhes do Cidadão
+              </h3>
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Informações Pessoais */}
+              <div className="border-b pb-4">
+                <h4 className="font-semibold text-gray-700 mb-3">Informações Pessoais</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-gray-500">Nome</label>
+                    <p className="font-medium">{selectedCitizen.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">CPF</label>
+                    <p className="font-medium">{selectedCitizen.cpf}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">Email</label>
+                    <p className="font-medium">{selectedCitizen.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">Telefone</label>
+                    <p className="font-medium">{selectedCitizen.phone || 'Não informado'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Endereço */}
+              {selectedCitizen.address && (
+                <div className="border-b pb-4">
+                  <h4 className="font-semibold text-gray-700 mb-3">Endereço</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm text-gray-500">Rua</label>
+                      <p className="font-medium">{selectedCitizen.address.street || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-500">Número</label>
+                      <p className="font-medium">{selectedCitizen.address.number || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-500">Bairro</label>
+                      <p className="font-medium">{selectedCitizen.address.neighborhood || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-500">Cidade</label>
+                      <p className="font-medium">{selectedCitizen.address.city || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-500">Estado</label>
+                      <p className="font-medium">{selectedCitizen.address.state || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm text-gray-500">CEP</label>
+                      <p className="font-medium">{selectedCitizen.address.zipCode || '-'}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Status e Tenant */}
+              <div>
+                <h4 className="font-semibold text-gray-700 mb-3">Status e Vinculação</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-gray-500">Tenant</label>
+                    <p className="font-medium">{selectedCitizen.tenant?.name || 'Não vinculado'}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">Status de Verificação</label>
+                    <p>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getVerificationBadge(selectedCitizen.verificationStatus).color}`}>
+                        {getVerificationBadge(selectedCitizen.verificationStatus).label}
+                      </span>
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">Data de Cadastro</label>
+                    <p className="font-medium">{formatDate(selectedCitizen.createdAt)}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-500">Status</label>
+                    <p>
+                      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        selectedCitizen.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {selectedCitizen.isActive ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowViewModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Fechar
+              </button>
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  openEditModal(selectedCitizen);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Editar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Citizen Modal */}
+      {showEditModal && selectedCitizen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-6">
+              <h3 className="text-xl font-bold text-gray-900">
+                Editar Cidadão
+              </h3>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Informações Pessoais */}
+              <div>
+                <h4 className="font-semibold text-gray-700 mb-3">Informações Pessoais</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                    <input
+                      type="text"
+                      value={editFormData.name || ''}
+                      onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                    <input
+                      type="text"
+                      value={editFormData.cpf || ''}
+                      disabled
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={editFormData.email || ''}
+                      onChange={(e) => setEditFormData({...editFormData, email: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+                    <input
+                      type="text"
+                      value={editFormData.phone || ''}
+                      onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Status de Verificação */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status de Verificação</label>
+                <select
+                  value={editFormData.verificationStatus || ''}
+                  onChange={(e) => setEditFormData({...editFormData, verificationStatus: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {VERIFICATION_STATUS.map(status => (
+                    <option key={status.value} value={status.value}>{status.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Endereço */}
+              <div>
+                <h4 className="font-semibold text-gray-700 mb-3">Endereço</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Rua</label>
+                    <input
+                      type="text"
+                      value={editFormData.address?.street || ''}
+                      onChange={(e) => setEditFormData({...editFormData, address: {...editFormData.address, street: e.target.value}})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Número</label>
+                    <input
+                      type="text"
+                      value={editFormData.address?.number || ''}
+                      onChange={(e) => setEditFormData({...editFormData, address: {...editFormData.address, number: e.target.value}})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Bairro</label>
+                    <input
+                      type="text"
+                      value={editFormData.address?.neighborhood || ''}
+                      onChange={(e) => setEditFormData({...editFormData, address: {...editFormData.address, neighborhood: e.target.value}})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                    <input
+                      type="text"
+                      value={editFormData.address?.city || ''}
+                      onChange={(e) => setEditFormData({...editFormData, address: {...editFormData.address, city: e.target.value}})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                    <input
+                      type="text"
+                      value={editFormData.address?.state || ''}
+                      onChange={(e) => setEditFormData({...editFormData, address: {...editFormData.address, state: e.target.value}})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      maxLength={2}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">CEP</label>
+                    <input
+                      type="text"
+                      value={editFormData.address?.zipCode || ''}
+                      onChange={(e) => setEditFormData({...editFormData, address: {...editFormData.address, zipCode: e.target.value}})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleEditSubmit}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              >
+                Salvar Alterações
               </button>
             </div>
           </div>

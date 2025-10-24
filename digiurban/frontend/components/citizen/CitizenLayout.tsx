@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import {
@@ -15,6 +15,7 @@ import {
   Bell,
   ChevronRight
 } from 'lucide-react';
+import { useCitizenAuth, useCitizenProtectedRoute } from '@/contexts/CitizenAuthContext';
 
 interface CitizenLayoutProps {
   children: React.ReactNode;
@@ -23,60 +24,14 @@ interface CitizenLayoutProps {
 
 export function CitizenLayout({ children, title }: CitizenLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [citizen, setCitizen] = useState<any>(null);
-  const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    const fetchCitizenData = async () => {
-      try {
-        const token = localStorage.getItem('digiurban_citizen_token');
-        if (!token) {
-          router.push('/cidadao/login');
-          return;
-        }
+  // ✅ CORRIGIDO: Usar contexto centralizado de autenticação
+  const { citizen, isLoading } = useCitizenProtectedRoute();
+  const { logout } = useCitizenAuth();
 
-        // Extrair tenantId do JWT token
-        const getTenantFromToken = (authToken: string): string | null => {
-          try {
-            const payload = authToken.split('.')[1];
-            const decoded = JSON.parse(atob(payload));
-            return decoded.tenantId || null;
-          } catch {
-            return null;
-          }
-        };
-
-        const tenantId = getTenantFromToken(token);
-
-        const { getFullApiUrl } = await import('@/lib/api-config');
-        const response = await fetch(getFullApiUrl('/auth/citizen/me'), {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(tenantId && { 'X-Tenant-ID': tenantId }),
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setCitizen(data.citizen);
-        } else {
-          localStorage.removeItem('digiurban_citizen_token');
-          router.push('/cidadao/login');
-        }
-      } catch (error) {
-        console.error('Erro ao buscar dados do cidadão:', error);
-        router.push('/cidadao/login');
-      }
-    };
-
-    fetchCitizenData();
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('digiurban_citizen_token');
-    router.push('/cidadao/login');
+  const handleLogout = async () => {
+    await logout();
   };
 
   const navigationItems = [
@@ -102,7 +57,8 @@ export function CitizenLayout({ children, title }: CitizenLayoutProps) {
     }
   ];
 
-  if (!citizen) {
+  // ✅ CORRIGIDO: Mostrar loading enquanto verifica autenticação
+  if (isLoading || !citizen) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">

@@ -117,10 +117,19 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
     try {
       const data = await apiRequest('/auth/citizen/me');
       setCitizen(data.citizen);
+
+      // ✅ Armazenar tenantId se vier do backend
+      if (data.tenantId) {
+        setTenantId(data.tenantId);
+      }
+
       return true;
     } catch (error) {
       console.error('Erro ao buscar dados do cidadão:', error);
-      await logout();
+      // ✅ CORRIGIDO: Não fazer logout se estiver na página de login
+      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+        await logout();
+      }
       return false;
     }
   };

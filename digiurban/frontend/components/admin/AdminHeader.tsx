@@ -35,7 +35,8 @@ export function AdminHeader() {
 
   if (!user) return null
 
-  const getUserInitials = (name: string) => {
+  const getUserInitials = (name: string | undefined) => {
+    if (!name) return 'U'
     return name
       .split(' ')
       .map(word => word[0])
@@ -102,7 +103,7 @@ export function AdminHeader() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="hidden md:block text-left">
-                    <div className="text-sm font-medium">{user.name}</div>
+                    <div className="text-sm font-medium">{user.name || 'Usuário'}</div>
                     <Badge
                       variant="secondary"
                       className={`text-xs ${roleColors[user.role]}`}
@@ -116,7 +117,7 @@ export function AdminHeader() {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name}</p>
+                  <p className="text-sm font-medium leading-none">{user.name || 'Usuário'}</p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {user.email}
                   </p>

@@ -341,7 +341,7 @@ export function AdminSidebar() {
       {/* Informações do usuário na parte inferior */}
       <div className="border-t border-gray-200 p-4">
         <div className="text-xs text-gray-500">
-          <div className="font-medium">{user.name}</div>
+          <div className="font-medium">{user.name || user.email || 'Usuário'}</div>
           {user.department && (
             <div className="truncate">{user.department.name}</div>
           )}

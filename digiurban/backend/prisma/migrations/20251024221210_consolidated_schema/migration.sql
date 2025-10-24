@@ -3,7 +3,6 @@ CREATE TABLE "tenants" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "cnpj" TEXT NOT NULL,
-    "domain" TEXT,
     "plan" TEXT NOT NULL DEFAULT 'STARTER',
     "status" TEXT NOT NULL DEFAULT 'TRIAL',
     "trialEndsAt" DATETIME,
@@ -33,6 +32,7 @@ CREATE TABLE "users" (
     "departmentId" TEXT,
     "failedLoginAttempts" INTEGER NOT NULL DEFAULT 0,
     "lockedUntil" DATETIME,
+    "mustChangePassword" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL,
     "lastLogin" DATETIME,
@@ -3087,9 +3087,6 @@ CREATE TABLE "_ServiceToSpecializedPage" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tenants_cnpj_key" ON "tenants"("cnpj");
-
--- CreateIndex
-CREATE UNIQUE INDEX "tenants_domain_key" ON "tenants"("domain");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");

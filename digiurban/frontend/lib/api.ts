@@ -20,8 +20,10 @@ class ApiClient {
       'Content-Type': 'application/json',
     }
 
+    // ✅ NOTA: Não é mais necessário enviar Authorization header
+    // O JWT é enviado automaticamente via httpOnly cookie (mais seguro)
+    // Fallback mantido apenas para retrocompatibilidade temporária
     if (typeof window !== 'undefined') {
-      // Tentar buscar token do super admin primeiro, depois admin normal
       const token = localStorage.getItem('digiurban_super_admin_token') || localStorage.getItem('digiurban_admin_token')
       if (token) {
         headers.Authorization = `Bearer ${token}`
@@ -46,6 +48,7 @@ class ApiClient {
       const response = await fetch(url.toString(), {
         method: 'GET',
         headers: this.getHeaders(),
+        credentials: 'include', // ✅ Enviar cookies httpOnly
       })
 
       const data = await response.json()
@@ -66,6 +69,7 @@ class ApiClient {
         method: 'POST',
         headers: this.getHeaders(),
         body: body ? JSON.stringify(body) : undefined,
+        credentials: 'include', // ✅ Enviar cookies httpOnly
       })
 
       const data = await response.json()
@@ -86,6 +90,7 @@ class ApiClient {
         method: 'PUT',
         headers: this.getHeaders(),
         body: body ? JSON.stringify(body) : undefined,
+        credentials: 'include', // ✅ Enviar cookies httpOnly
       })
 
       const data = await response.json()
@@ -105,6 +110,7 @@ class ApiClient {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         method: 'DELETE',
         headers: this.getHeaders(),
+        credentials: 'include', // ✅ Enviar cookies httpOnly
       })
 
       const data = await response.json()
@@ -125,6 +131,7 @@ class ApiClient {
         method: 'PATCH',
         headers: this.getHeaders(),
         body: body ? JSON.stringify(body) : undefined,
+        credentials: 'include', // ✅ Enviar cookies httpOnly
       })
 
       const data = await response.json()

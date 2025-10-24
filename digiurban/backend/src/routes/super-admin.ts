@@ -1927,4 +1927,165 @@ router.post(
   })
 );
 
+/**
+ * POST /api/super-admin/users
+ * Criar novo usuário em um tenant específico
+ */
+router.post(
+  '/users',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { name, email, password, role, tenantId, departmentId, isActive } = req.body;
+
+    // Validações
+    if (!name || !email || !password || !tenantId) {
+      return res.status(400).json(
+        createErrorResponse('INVALID_INPUT', 'Nome, email, senha e tenant são obrigatórios')
+      );
+    }
+
+    // Validar email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json(
+        createErrorResponse('INVALID_EMAIL', 'Email inválido')
+      );
+    }
+
+    // Validar senha
+    if (password.length < 6) {
+      return res.status(400).json(
+        createErrorResponse('WEAK_PASSWORD', 'Senha deve ter no mínimo 6 caracteres')
+      );
+    }
+
+    // Verificar se tenant existe
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId }
+    });
+
+    if (!tenant) {
+      return res.status(404).json(
+        createErrorResponse('TENANT_NOT_FOUND', 'Tenant não encontrado')
+      );
+    }
+
+    // Verificar se email já existe
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (existingUser) {
+      return res.status(409).json(
+        createErrorResponse('EMAIL_EXISTS', 'Este email já está cadastrado')
+      );
+    }
+
+    // Verificar se departamento existe (se fornecido)
+    if (departmentId) {
+      const department = await prisma.department.findUnique({
+        where: { id: departmentId }
+      });
+
+      if (!department) {
+        return res.status(404).json(
+          createErrorResponse('DEPARTMENT_NOT_FOUND', 'Departamento não encontrado')
+        );
+      }
+
+      // Verificar se departamento pertence ao tenant
+      if (department.tenantId !== tenantId) {
+        return res.status(400).json(
+          createErrorResponse('INVALID_DEPARTMENT', 'Departamento não pertence ao tenant selecionado')
+        );
+      }
+    }
+
+    // Hash da senha
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Criar usuário
+    const user = await prisma.user.create({
+      data: {
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        password: hashedPassword,
+        role: role || 'USER',
+        tenantId,
+        departmentId: departmentId || null,
+        isActive: isActive !== undefined ? isActive : true
+      },
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        department: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    // Remover senha do retorno
+    const { password: _, ...userWithoutPassword } = user;
+
+    return res.status(201).json({
+      success: true,
+      message: 'Usuário criado com sucesso',
+      user: userWithoutPassword
+    });
+  })
+);
+
+/**
+ * GET /api/super-admin/tenants/:id/departments
+ * Obter departamentos de um tenant específico
+ */
+router.get(
+  '/tenants/:id/departments',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json(
+        createErrorResponse('BAD_REQUEST', 'ID do tenant é obrigatório')
+      );
+    }
+
+    const tenant = await prisma.tenant.findUnique({
+      where: { id }
+    });
+
+    if (!tenant) {
+      return res.status(404).json(
+        createErrorResponse('TENANT_NOT_FOUND', 'Tenant não encontrado')
+      );
+    }
+
+    const departments = await prisma.department.findMany({
+      where: { tenantId: id },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        description: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      departments
+    });
+  })
+);
+
 export default router;

@@ -6,7 +6,7 @@ import {
   Users, Search, Filter, Download, UserPlus, Shield, UserX,
   Mail, Calendar, Building2, MoreVertical, Key, Trash2, CheckCircle, XCircle
 } from 'lucide-react';
-import { SuperAdminCard, MetricCard, TenantSelector } from '@/components/super-admin';
+import { SuperAdminCard, MetricCard, TenantSelector, UserCreateModal } from '@/components/super-admin';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface User {
@@ -45,7 +45,7 @@ export default function UsersManagementPage() {
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [showActionsMenu, setShowActionsMenu] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -180,7 +180,10 @@ export default function UsersManagementPage() {
             Gerencie usuários de todos os tenants da plataforma
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        >
           <UserPlus size={20} />
           Novo Usuário
         </button>
@@ -488,6 +491,15 @@ export default function UsersManagementPage() {
           </table>
         </div>
       </SuperAdminCard>
+
+      {/* User Create Modal */}
+      <UserCreateModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={() => {
+          fetchUsers();
+        }}
+      />
     </div>
   );
 }

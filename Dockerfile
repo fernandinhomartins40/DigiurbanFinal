@@ -68,10 +68,12 @@ WORKDIR /app/backend
 COPY --from=backend-builder /app/backend/node_modules ./node_modules
 COPY --from=backend-builder /app/backend/dist ./dist
 COPY --from=backend-builder /app/backend/prisma ./prisma
-COPY --from=backend-builder /app/backend/scripts ./scripts
 COPY --from=backend-builder /app/backend/src/data ./dist/data
 COPY --from=backend-builder /app/backend/package.json ./
 COPY --from=backend-builder /app/backend/node_modules/.prisma ./node_modules/.prisma
+
+# Copiar scripts diretamente do contexto (não do builder)
+COPY digiurban/backend/scripts ./scripts
 
 # Criar diretórios de dados
 RUN mkdir -p /app/data /app/uploads /app/logs && \

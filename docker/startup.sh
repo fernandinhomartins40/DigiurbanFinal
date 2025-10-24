@@ -27,16 +27,27 @@ fi
 # Migrar banco de dados Prisma
 echo "📦 Executando migrations do Prisma..."
 DATABASE_URL="file:/app/data/dev.db" npx prisma migrate deploy || {
-    echo "⚠️  Migrations falharam, tentando criar tabelas..."
-    DATABASE_URL="file:/app/data/dev.db" npx prisma db push --skip-generate || echo "❌ Erro ao criar tabelas"
+    echo "⚠️  Migrations falharam, tentando db push..."
+    DATABASE_URL="file:/app/data/dev.db" npx prisma db push --skip-generate || {
+        echo "❌ db push falhou, tentando migrate reset (DESTRUCTIVO)..."
+        echo "⚠️  ATENÇÃO: Isto irá recriar o banco do zero!"
+        DATABASE_URL="file:/app/data/dev.db" npx prisma migrate reset --force --skip-generate || {
+            echo "❌ Todas as tentativas falharam. Verifique o schema."
+            exit 1
+        }
+    }
 }
 
 # Seed inicial se necessário
+# Se o banco foi resetado (.seeded não existe OU migrate reset foi executado), executar seed
 if [ ! -f "/app/data/.seeded" ]; then
     echo "🌱 Executando seed inicial..."
-    DATABASE_URL="file:/app/data/dev.db" node prisma/seed.js || {
-        echo "❌ Seed falhou"
-        exit 1
+    DATABASE_URL="file:/app/data/dev.db" node dist/scripts/seed.js || {
+        echo "⚠️ Seed falhou, tentando com node..."
+        DATABASE_URL="file:/app/data/dev.db" node prisma/seed.js || {
+            echo "❌ Seed falhou em ambas tentativas"
+            exit 1
+        }
     }
     touch /app/data/.seeded
     echo "✅ Seed concluído e marcado"

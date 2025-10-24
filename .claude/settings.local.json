@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ssh root@72.60.10.108 \"systemctl status nginx\")",
+      "Bash(ssh:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix: corrigir erros de tipo TypeScript que impediam deploy\n\n- Adiciona req.jwtPayload para separar dados do JWT dos dados completos do usuário\n- Remove declaração duplicada de tipos em authenticate-tenant.ts\n- Atualiza admin-auth.ts e citizen-auth.ts para usar req.jwtPayload\n- Resolve conflito entre JwtPayload e UserWithRelations\n- Build TypeScript agora passa sem erros\n\nSolução profissional que separa responsabilidades:\n- req.jwtPayload: dados do token JWT\n- req.user: dados completos do usuário do banco (quando carregado)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix: corrigir erros de deploy no Docker (municipios.json, trust proxy, db)\n\nCorreções implementadas:\n1. Dockerfile: Copiar arquivos JSON estáticos (municipios-brasil.json) diretamente do src para dist\n2. Express: Adicionar trust proxy para funcionar atrás do nginx (corrige rate-limit)\n3. startup.sh: Melhorar criação de banco com fallback para db push e reset\n\nProblemas resolvidos:\n- ❌ Backend falhava: ENOENT municipios-brasil.json\n- ❌ Express rate-limit: ERR_ERL_UNEXPECTED_X_FORWARDED_FOR\n- ❌ Prisma: table main.tenants does not exist\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git reset:*)",
+      "Bash(npx tsc:*)",
+      "Bash(tee:*)",
+      "Bash(git commit:*)",
+      "Bash(scp:*)",
+      "Bash(node:*)",
+      "Bash(powershell:*)",
+      "Bash(gh run list:*)",
+      "Read(//c/Projetos/**)",
+      "Bash(curl -X POST https://digiurban.com.br/api/super-admin/login -H \"Content-Type: application/json\" -d '{\"\"\"\"email\"\"\"\":\"\"\"\"super@admin.com\"\"\"\",\"\"\"\"password\"\"\"\":\"\"\"\"super123\"\"\"\"}' -v)",
+      "Bash(curl -X POST https://digiurban.com.br/api/super-admin/login )",
+      "Bash(curl:*)",
+      "Bash(git config:*)",
+      "Bash(git rm:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

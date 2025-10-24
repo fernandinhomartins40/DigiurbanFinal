@@ -1,0 +1,863 @@
+app/admin/cidadaos/page.tsx(64,26): error TS2339: Property 'tenantId' does not exist on type 'AdminUser'.
+app/admin/cidadaos/page.tsx(350,46): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes<HTMLButtonElement> & RefAttributes<HTMLButtonElement>'.
+app/admin/cidadaos/page.tsx(355,46): error TS2322: Type '{ children: Element[]; align: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement> & { sideOffset?: number | undefined; } & RefAttributes<HTMLDivElement>'.
+app/admin/cidadaos/page_temp.tsx(54,17): error TS2339: Property 'tenantId' does not exist on type 'AdminAuthContextType'.
+app/admin/cidadaos/page_temp.tsx(311,46): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes<HTMLButtonElement> & RefAttributes<HTMLButtonElement>'.
+app/admin/cidadaos/page_temp.tsx(316,46): error TS2322: Type '{ children: Element[]; align: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement> & { sideOffset?: number | undefined; } & RefAttributes<HTMLDivElement>'.
+app/admin/equipe/page.tsx(294,46): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes<HTMLButtonElement> & RefAttributes<HTMLButtonElement>'.
+app/admin/equipe/page.tsx(299,46): error TS2322: Type '{ children: Element[]; align: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement> & { sideOffset?: number | undefined; } & RefAttributes<HTMLDivElement>'.
+app/admin/secretarias/educacao/chamadas-escolares/page.tsx(271,20): error TS2304: Cannot find name 'escolas'.
+app/admin/secretarias/educacao/chamadas-escolares/page.tsx(271,33): error TS7006: Parameter 'escola' implicitly has an 'any' type.
+app/admin/secretarias/educacao/chamadas-escolares/page.tsx(393,16): error TS2304: Cannot find name 'escolas'.
+app/admin/secretarias/educacao/chamadas-escolares/page.tsx(393,29): error TS7006: Parameter 'escola' implicitly has an 'any' type.
+app/admin/secretarias/esportes/atletas-federados/page.tsx(289,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/esportes/competicoes-torneios/page.tsx(145,7): error TS2353: Object literal may only specify known properties, and 'duracaoPartida' does not exist in type '{ sistemaDisputa: string; numeroFases: number; duracaoMinutos: number; criteriosClassificacao: string[]; observacoes?: string | undefined; }'.
+app/admin/secretarias/esportes/competicoes-torneios/page.tsx(169,7): error TS2353: Object literal may only specify known properties, and 'custoArbitragem' does not exist in type '{ orcamentoTotal: number; custosRealizados: number; قیمتArbitragem: number; custoInfraestrutura: number; receitaInscricoes: number; receitaPatrocinio: number; }'.
+app/admin/secretarias/esportes/competicoes-torneios/page.tsx(216,7): error TS2353: Object literal may only specify known properties, and 'duracaoPartida' does not exist in type '{ sistemaDisputa: string; numeroFases: number; duracaoMinutos: number; criteriosClassificacao: string[]; observacoes?: string | undefined; }'.
+app/admin/secretarias/esportes/competicoes-torneios/page.tsx(234,7): error TS2353: Object literal may only specify known properties, and 'custoArbitragem' does not exist in type '{ orcamentoTotal: number; custosRealizados: number; قیمتArbitragem: number; custoInfraestrutura: number; receitaInscricoes: number; receitaPatrocinio: number; }'.
+app/admin/secretarias/esportes/competicoes-torneios/page.tsx(531,76): error TS2339: Property 'duracaoPartida' does not exist on type '{ sistemaDisputa: string; numeroFases: number; duracaoMinutos: number; criteriosClassificacao: string[]; observacoes?: string | undefined; }'.
+app/admin/secretarias/esportes/dashboard/page.tsx(340,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/esportes/escolinhas-esportivas/page.tsx(307,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/esportes/eventos-esportivos/page.tsx(331,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/esportes/infraestrutura-esportiva/page.tsx(330,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/habitacao/atendimentos/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/habitacao/atendimentos/page.tsx(760,22): error TS2304: Cannot find name 'RefreshCw'.
+app/admin/secretarias/habitacao/dashboard-habitacao/page.tsx(15,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/habitacao/inscricoes/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/habitacao/programas-habitacionais/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/habitacao/regularizacao-fundiaria/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/habitacao/unidades-habitacionais/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/habitacao/unidades-habitacionais/page.tsx(291,18): error TS2322: Type '{ id: number; codigo: string; endereco: string; tipo: string; programa: string; area_util: string; quartos: number; banheiros: number; valor_avaliacao: string; status: string; data_entrega: string; ... 6 more ...; observacoes: string; } | { ...; } | { ...; }' is not assignable to type '{ id: number; codigo: string; endereco: string; tipo: string; programa: string; area_util: string; quartos: number; banheiros: number; valor_avaliacao: string; status: string; data_entrega: string; ... 6 more ...; observacoes: string; } | { ...; }'.
+app/admin/secretarias/habitacao/unidades-habitacionais/page.tsx(291,31): error TS2322: Type '{ quartos: number; banheiros: number; status: string; data_entrega: null; morador_atual: null; cpf_morador: null; telefone_morador: null; vencimento_contrato: null; ultima_manutencao: null; ... 8 more ...; id: number; }' is not assignable to type '{ id: number; codigo: string; endereco: string; tipo: string; programa: string; area_util: string; quartos: number; banheiros: number; valor_avaliacao: string; status: string; data_entrega: string; ... 6 more ...; observacoes: string; } | { ...; }'.
+app/admin/secretarias/habitacao/unidades-habitacionais/page.tsx(313,21): error TS2322: Type '{ id: number; unidade_codigo: string; tipo: string; descricao: string; data_solicitacao: string; data_execucao: string; responsavel: string; valor: string; status: string; prioridade: string; } | { ...; }' is not assignable to type '{ id: number; unidade_codigo: string; tipo: string; descricao: string; data_solicitacao: string; data_execucao: string; responsavel: string; valor: string; status: string; prioridade: string; }'.
+app/admin/secretarias/habitacao/unidades-habitacionais/page.tsx(313,37): error TS2322: Type '{ data_solicitacao: string; data_execucao: null; status: string; unidade_codigo: string; tipo: string; descricao: string; responsavel: string; valor: string; prioridade: string; id: number; }' is not assignable to type '{ id: number; unidade_codigo: string; tipo: string; descricao: string; data_solicitacao: string; data_execucao: string; responsavel: string; valor: string; status: string; prioridade: string; }'.
+app/admin/secretarias/meio-ambiente/atendimentos/page.tsx(121,7): error TS2322: Type '"educacao"' is not assignable to type '"solo" | "clima" | "flora" | "fauna" | "recursos_hidricos" | "ar" | "residuos" | "energia"'.
+app/admin/secretarias/meio-ambiente/atendimentos/page.tsx(139,7): error TS2322: Type '"apoio"' is not assignable to type '"orientacao" | "denuncia" | "educacao" | "licenciamento" | "consultoria" | "projeto"'.
+app/admin/secretarias/obras-publicas/atendimentos/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/obras-publicas/atendimentos/page.tsx(255,41): error TS2339: Property 'membros' does not exist on type '{ cidadao: string; cpf: string; telefone: string; email: string; tipo_solicitacao: string; categoria: string; assunto: string; descricao: string; endereco_problema: string; bairro: string; prioridade: string; urgencia: string; }'.
+app/admin/secretarias/obras-publicas/atendimentos/page.tsx(901,22): error TS2304: Cannot find name 'RefreshCw'.
+app/admin/secretarias/obras-publicas/dashboard-obras/page.tsx(43,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/obras-publicas/dashboard-obras/page.tsx(276,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/obras-publicas/dashboard-obras/page.tsx(472,28): error TS2322: Type '"success"' is not assignable to type '"default" | "secondary" | "destructive" | "outline" | null | undefined'.
+app/admin/secretarias/obras-publicas/mapa-obras/page.tsx(61,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/obras-publicas/mapa-obras/page.tsx(186,23): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+app/admin/secretarias/obras-publicas/mapa-obras/page.tsx(187,21): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+app/admin/secretarias/obras-publicas/mapa-obras/page.tsx(488,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/obras-publicas/obras-intervencoes/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/obras-publicas/progresso-obras/page.tsx(68,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/obras-publicas/progresso-obras/page.tsx(272,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/obras-publicas/progresso-obras/page.tsx(501,34): error TS2322: Type '"default" | "secondary" | "success"' is not assignable to type '"default" | "secondary" | "destructive" | "outline" | null | undefined'.
+app/admin/secretarias/planejamento-urbano/aprovacao-projetos/page.tsx(321,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/planejamento-urbano/atendimentos/page.tsx(128,19): error TS1117: An object literal cannot have multiple properties with the same name.
+app/admin/secretarias/planejamento-urbano/atendimentos/page.tsx(304,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/planejamento-urbano/consultas-publicas/page.tsx(304,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/planejamento-urbano/dashboard-planejamento/page.tsx(15,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/planejamento-urbano/dashboard-planejamento/page.tsx(580,28): error TS2304: Cannot find name 'Eye'.
+app/admin/secretarias/planejamento-urbano/denuncias-reclamacoes/page.tsx(306,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/planejamento-urbano/emissao-alvaras/page.tsx(304,65): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/planejamento-urbano/mapa-urbano/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/planejamento-urbano/projetos/page.tsx(19,16): error TS2554: Expected 0 arguments, but got 1.
+app/admin/secretarias/planejamento-urbano/projetos/page.tsx(244,18): error TS2322: Type '{ id: number; nome: string; tipo: string; responsavel: string; inicio: string; previsao_fim: string; progresso: number; orcamento: string; status: string; prioridade: string; zona: string; beneficiarios: number; ... 4 more ...; licencas: string[]; } | { ...; }' is not assignable to type '{ id: number; nome: string; tipo: string; responsavel: string; inicio: string; previsao_fim: string; progresso: number; orcamento: string; status: string; prioridade: string; zona: string; beneficiarios: number; ... 4 more ...; licencas: string[]; }'.
+app/admin/secretarias/planejamento-urbano/projetos/page.tsx(244,31): error TS2322: Type '{ progresso: number; status: string; etapa_atual: string; equipe: string[]; documentos: number; licencas: never[]; nome: string; tipo: string; responsavel: string; inicio: string; previsao_fim: string; ... 5 more ...; id: number; }' is not assignable to type '{ id: number; nome: string; tipo: string; responsavel: string; inicio: string; previsao_fim: string; progresso: number; orcamento: string; status: string; prioridade: string; zona: string; beneficiarios: number; ... 4 more ...; licencas: string[]; }'.
+app/admin/secretarias/saude/acs/page.tsx(54,5): error TS2339: Property 'getPatientsByFilters' does not exist on type '{ patients: Patient[]; loading: boolean; error: string | null; fetchPatients: (filters?: PatientFilters | undefined) => Promise<void>; getPatientById: (id: string) => Promise<...>; ... 17 more ...; getPatientsByNeighborhood: (neighborhood: string) => Patient[]; }'.
+app/admin/secretarias/saude/acs/page.tsx(67,10): error TS2339: Property 'role' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(67,33): error TS2551: Property 'speciality' does not exist on type 'HealthProfessional'. Did you mean 'specialty'?
+app/admin/secretarias/saude/acs/page.tsx(71,59): error TS2339: Property 'status' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(73,73): error TS2339: Property 'area' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(251,41): error TS2339: Property 'area' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(319,67): error TS2339: Property 'area' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(321,43): error TS2339: Property 'status' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(327,57): error TS2339: Property 'crm' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(331,57): error TS2551: Property 'speciality' does not exist on type 'HealthProfessional'. Did you mean 'specialty'?
+app/admin/secretarias/saude/acs/page.tsx(335,57): error TS2339: Property 'email' does not exist on type 'HealthProfessional'.
+app/admin/secretarias/saude/acs/page.tsx(379,69): error TS2339: Property 'address' does not exist on type 'Patient'.
+app/admin/secretarias/saude/acs/page.tsx(395,59): error TS2339: Property 'status' does not exist on type 'Patient'.
+app/admin/secretarias/saude/agendamentos/page.tsx(58,5): error TS2339: Property 'getTodayAppointments' does not exist on type '{ appointments: MedicalAppointment[]; loading: boolean; error: string | null; fetchAppointments: (filters?: MedicalAppointmentFilters | undefined) => Promise<...>; ... 20 more ...; getNoShowRate: () => number; }'.
+app/admin/secretarias/saude/agendamentos/page.tsx(79,50): error TS2367: This comparison appears to be unintentional because the types '"COMPLETED" | "CANCELLED" | "IN_PROGRESS" | "SCHEDULED" | "CONFIRMED" | "NO_SHOW" | "RESCHEDULED"' and '"WAITING_LIST"' have no overlap.
+app/admin/secretarias/saude/agendamentos/page.tsx(98,7): error TS2322: Type 'string' is not assignable to type '"EMERGENCY" | "CONSULTATION" | "RETURN" | "PROCEDURE" | "PREVENTIVE" | "TELEMEDICINE" | "HOME_VISIT"'.
+app/admin/secretarias/saude/agendamentos/page.tsx(101,7): error TS2322: Type '"NORMAL"' is not assignable to type '"URGENT" | "EMERGENCY" | "ROUTINE" | "ELECTIVE"'.
+app/admin/secretarias/saude/agendamentos/page.tsx(346,39): error TS7006: Parameter 'appointment' implicitly has an 'any' type.
+app/admin/secretarias/saude/atendimentos/page.tsx(61,5): error TS2339: Property 'getTodayAppointments' does not exist on type '{ appointments: MedicalAppointment[]; loading: boolean; error: string | null; fetchAppointments: (filters?: MedicalAppointmentFilters | undefined) => Promise<...>; ... 20 more ...; getNoShowRate: () => number; }'.
+app/admin/secretarias/saude/atendimentos/page.tsx(90,7): error TS2322: Type 'string' is not assignable to type '"EMERGENCY" | "CONSULTATION" | "RETURN" | "PROCEDURE" | "PREVENTIVE" | "TELEMEDICINE" | "HOME_VISIT"'.
+app/admin/secretarias/saude/atendimentos/page.tsx(92,7): error TS2322: Type 'string' is not assignable to type '"URGENT" | "EMERGENCY" | "ROUTINE" | "ELECTIVE"'.
+app/admin/secretarias/saude/atendimentos/page.tsx(332,39): error TS7006: Parameter 'appointment' implicitly has an 'any' type.
+app/admin/secretarias/saude/campanhas/page.tsx(79,5): error TS2339: Property 'getVaccinationsByStatus' does not exist on type '{ vaccinations: VaccinationRecord[]; inventory: VaccineInventory[]; campaigns: VaccinationCampaign[]; loading: boolean; error: string | null; ... 18 more ...; getVaccinationStats: () => { ...; }; }'.
+app/admin/secretarias/saude/campanhas/page.tsx(80,5): error TS2339: Property 'getTodayVaccinations' does not exist on type '{ vaccinations: VaccinationRecord[]; inventory: VaccineInventory[]; campaigns: VaccinationCampaign[]; loading: boolean; error: string | null; ... 18 more ...; getVaccinationStats: () => { ...; }; }'.
+app/admin/secretarias/saude/campanhas/page.tsx(108,45): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/campanhas/page.tsx(110,57): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/campanhas/page.tsx(120,45): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/campanhas/page.tsx(122,57): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/exames/page.tsx(58,5): error TS2339: Property 'records' does not exist on type '{ medicalRecords: MedicalRecord[]; loading: boolean; error: string | null; fetchMedicalRecords: (filters?: MedicalRecordFilters | undefined) => Promise<...>; ... 18 more ...; getRecentConsultations: (days?: number) => MedicalRecord[]; }'.
+app/admin/secretarias/saude/exames/page.tsx(61,5): error TS2339: Property 'createRecord' does not exist on type '{ medicalRecords: MedicalRecord[]; loading: boolean; error: string | null; fetchMedicalRecords: (filters?: MedicalRecordFilters | undefined) => Promise<...>; ... 18 more ...; getRecentConsultations: (days?: number) => MedicalRecord[]; }'.
+app/admin/secretarias/saude/exames/page.tsx(62,5): error TS2339: Property 'getRecordsByType' does not exist on type '{ medicalRecords: MedicalRecord[]; loading: boolean; error: string | null; fetchMedicalRecords: (filters?: MedicalRecordFilters | undefined) => Promise<...>; ... 18 more ...; getRecentConsultations: (days?: number) => MedicalRecord[]; }'.
+app/admin/secretarias/saude/exames/page.tsx(63,5): error TS2339: Property 'getRecordsByDateRange' does not exist on type '{ medicalRecords: MedicalRecord[]; loading: boolean; error: string | null; fetchMedicalRecords: (filters?: MedicalRecordFilters | undefined) => Promise<...>; ... 18 more ...; getRecentConsultations: (days?: number) => MedicalRecord[]; }'.
+app/admin/secretarias/saude/exames/page.tsx(80,49): error TS7006: Parameter 'record' implicitly has an 'any' type.
+app/admin/secretarias/saude/exames/page.tsx(81,55): error TS7006: Parameter 'record' implicitly has an 'any' type.
+app/admin/secretarias/saude/exames/page.tsx(88,50): error TS7006: Parameter 'record' implicitly has an 'any' type.
+app/admin/secretarias/saude/exames/page.tsx(93,53): error TS7006: Parameter 'record' implicitly has an 'any' type.
+app/admin/secretarias/saude/exames/page.tsx(98,64): error TS2367: This comparison appears to be unintentional because the types '"OPERATIONAL" | "MAINTENANCE" | "OUT_OF_ORDER" | "RETIRED"' and '"ACTIVE"' have no overlap.
+app/admin/secretarias/saude/exames/page.tsx(329,38): error TS7006: Parameter 'exame' implicitly has an 'any' type.
+app/admin/secretarias/saude/exames/page.tsx(406,44): error TS7006: Parameter 'resultado' implicitly has an 'any' type.
+app/admin/secretarias/saude/medicamentos/page.tsx(365,14): error TS2304: Cannot find name 'transactions'.
+app/admin/secretarias/saude/medicamentos/page.tsx(371,15): error TS2304: Cannot find name 'transactions'.
+app/admin/secretarias/saude/medicamentos/page.tsx(371,46): error TS7006: Parameter 'transaction' implicitly has an 'any' type.
+app/admin/secretarias/saude/programas/page.tsx(50,5): error TS2339: Property 'getProgramsByStatus' does not exist on type '{ programs: HealthProgram[]; loading: boolean; error: string | null; fetchPrograms: () => Promise<void>; createProgram: (data: CreateHealthProgramData) => Promise<...>; enrollParticipant: (programId: string, patientId: string) => Promise<...>; getActivePrograms: () => HealthProgram[]; }'.
+app/admin/secretarias/saude/programas/page.tsx(62,73): error TS2551: Property 'participants_count' does not exist on type 'HealthProgram'. Did you mean 'participants'?
+app/admin/secretarias/saude/programas/page.tsx(63,51): error TS2339: Property 'target_participants' does not exist on type 'HealthProgram'.
+app/admin/secretarias/saude/programas/page.tsx(63,76): error TS2551: Property 'participants_count' does not exist on type 'HealthProgram'. Did you mean 'participants'?
+app/admin/secretarias/saude/programas/page.tsx(66,22): error TS2551: Property 'participants_count' does not exist on type 'HealthProgram'. Did you mean 'participants'?
+app/admin/secretarias/saude/programas/page.tsx(66,48): error TS2339: Property 'target_participants' does not exist on type 'HealthProgram'.
+app/admin/secretarias/saude/programas/page.tsx(310,46): error TS2339: Property 'target_participants' does not exist on type 'HealthProgram'.
+app/admin/secretarias/saude/programas/page.tsx(311,44): error TS2551: Property 'participants_count' does not exist on type 'HealthProgram'. Did you mean 'participants'?
+app/admin/secretarias/saude/programas/page.tsx(311,74): error TS2339: Property 'target_participants' does not exist on type 'HealthProgram'.
+app/admin/secretarias/saude/programas/page.tsx(321,76): error TS2339: Property 'description' does not exist on type 'HealthProgram'.
+app/admin/secretarias/saude/programas/page.tsx(331,39): error TS2551: Property 'participants_count' does not exist on type 'HealthProgram'. Did you mean 'participants'?
+app/admin/secretarias/saude/programas/page.tsx(331,76): error TS2339: Property 'target_participants' does not exist on type 'HealthProgram'.
+app/admin/secretarias/saude/tfd/page.tsx(112,5): error TS2339: Property 'emergencies' does not exist on type '{ emergencyCases: EmergencyCase[]; equipment: EmergencyEquipment[]; loading: boolean; error: string | null; fetchEmergencyCases: (filters?: EmergencyFilters | undefined) => Promise<...>; ... 8 more ...; getAverageWaitingTime: () => number; }'.
+app/admin/secretarias/saude/tfd/page.tsx(115,5): error TS2339: Property 'createEmergency' does not exist on type '{ emergencyCases: EmergencyCase[]; equipment: EmergencyEquipment[]; loading: boolean; error: string | null; fetchEmergencyCases: (filters?: EmergencyFilters | undefined) => Promise<...>; ... 8 more ...; getAverageWaitingTime: () => number; }'.
+app/admin/secretarias/saude/tfd/page.tsx(116,5): error TS2339: Property 'getEmergenciesByStatus' does not exist on type '{ emergencyCases: EmergencyCase[]; equipment: EmergencyEquipment[]; loading: boolean; error: string | null; fetchEmergencyCases: (filters?: EmergencyFilters | undefined) => Promise<...>; ... 8 more ...; getAverageWaitingTime: () => number; }'.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(50,5): error TS2339: Property 'emergencyCalls' does not exist on type '{ emergencyCases: EmergencyCase[]; equipment: EmergencyEquipment[]; loading: boolean; error: string | null; fetchEmergencyCases: (filters?: EmergencyFilters | undefined) => Promise<...>; ... 8 more ...; getAverageWaitingTime: () => number; }'.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(53,5): error TS2339: Property 'createCall' does not exist on type '{ emergencyCases: EmergencyCase[]; equipment: EmergencyEquipment[]; loading: boolean; error: string | null; fetchEmergencyCases: (filters?: EmergencyFilters | undefined) => Promise<...>; ... 8 more ...; getAverageWaitingTime: () => number; }'.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(72,62): error TS7006: Parameter 'call' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(72,68): error TS7006: Parameter 'index' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(87,60): error TS7006: Parameter 'call' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(262,42): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(275,40): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(299,77): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(299,82): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(327,46): error TS7006: Parameter 'v' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(327,83): error TS7006: Parameter 'veiculo' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(421,39): error TS7006: Parameter 'viagem' implicitly has an 'any' type.
+app/admin/secretarias/saude/transporte-pacientes/page.tsx(484,41): error TS7006: Parameter 'veiculo' implicitly has an 'any' type.
+app/admin/secretarias/seguranca-publica/mapa-pontos-criticos/page.tsx(478,28): error TS2304: Cannot find name 'CheckCircle'.
+app/admin/secretarias/servicos-publicos/dashboard-servicos-publicos/page.tsx(88,17): error TS2339: Property 'hasPermission' does not exist on type '{ login: (email: string, password: string) => Promise<void>; logout: () => void; checkAuth: () => Promise<void>; hasRole: (requiredRole: string) => boolean; isAuthenticated: boolean; user: User | null; loading: boolean; error: string | null; }'.
+app/admin/secretarias/servicos-publicos/problemas-com-foto/page.tsx(60,17): error TS2339: Property 'hasPermission' does not exist on type '{ login: (email: string, password: string) => Promise<void>; logout: () => void; checkAuth: () => Promise<void>; hasRole: (requiredRole: string) => boolean; isAuthenticated: boolean; user: User | null; loading: boolean; error: string | null; }'.
+app/admin/secretarias/servicos-publicos/problemas-com-foto/page.tsx(217,32): error TS2339: Property 'nome' does not exist on type 'User'.
+app/admin/secretarias/servicos-publicos/problemas-com-foto/page.tsx(245,34): error TS2339: Property 'nome' does not exist on type 'User'.
+app/admin/secretarias/servicos-publicos/programacao-equipes/page.tsx(75,17): error TS2339: Property 'hasPermission' does not exist on type '{ login: (email: string, password: string) => Promise<void>; logout: () => void; checkAuth: () => Promise<void>; hasRole: (requiredRole: string) => boolean; isAuthenticated: boolean; user: User | null; loading: boolean; error: string | null; }'.
+app/admin/secretarias/servicos-publicos/programacao-equipes/page.tsx(867,37): error TS2339: Property 'nome' does not exist on type 'User'.
+app/admin/secretarias/turismo/atendimentos/page.tsx(382,13): error TS2322: Type '"cultura"' is not assignable to type '"familia" | "evento" | "lazer" | "negocios" | "educacional" | "religioso"'.
+app/admin/secretarias/turismo/atendimentos/page.tsx(488,26): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+app/admin/secretarias/turismo/atendimentos/page.tsx(726,66): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/turismo/estabelecimentos-locais/page.tsx(1035,66): error TS18046: 'percent' is of type 'unknown'.
+app/admin/secretarias/turismo/estabelecimentos-locais/page.tsx(1331,32): error TS2304: Cannot find name 'Trophy'.
+app/admin/secretarias/turismo/pontos-turisticos/page.tsx(468,9): error TS2741: Property 'redes_sociais' is missing in type '{ telefone: string; email: string; }' but required in type '{ telefone?: string | undefined; email?: string | undefined; site?: string | undefined; redes_sociais: { facebook?: string | undefined; instagram?: string | undefined; youtube?: string | undefined; }; }'.
+app/admin/secretarias/turismo/pontos-turisticos/page.tsx(517,9): error TS2741: Property 'feriados_especiais' is missing in type '{ dias_funcionamento: string[]; temporada_alta: { inicio: string; fim: string; observacoes: string; }; }' but required in type '{ horario_abertura?: string | undefined; horario_fechamento?: string | undefined; dias_funcionamento: string[]; temporada_alta?: { inicio: string; fim: string; observacoes: string; } | undefined; temporada_baixa?: { ...; } | undefined; feriados_especiais: string[]; }'.
+app/admin/secretarias/turismo/pontos-turisticos/page.tsx(901,66): error TS18046: 'percent' is of type 'unknown'.
+components/admin/AdminHeader.tsx(88,34): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes<HTMLButtonElement> & RefAttributes<HTMLButtonElement>'.
+components/admin/AdminHeader.tsx(100,45): error TS7053: Element implicitly has an 'any' type because expression of type 'UserRole' can't be used to index type '{ USER: string; COORDINATOR: string; MANAGER: string; ADMIN: string; }'.
+components/admin/AdminHeader.tsx(102,24): error TS7053: Element implicitly has an 'any' type because expression of type 'UserRole' can't be used to index type '{ USER: string; COORDINATOR: string; MANAGER: string; ADMIN: string; }'.
+components/admin/AdminHeader.tsx(108,51): error TS2322: Type '{ children: Element[]; className: string; align: string; forceMount: true; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement> & { sideOffset?: number | undefined; } & RefAttributes<HTMLDivElement>'.
+components/admin/AdminHeader.tsx(117,49): error TS7053: Element implicitly has an 'any' type because expression of type 'UserRole' can't be used to index type '{ USER: string; COORDINATOR: string; MANAGER: string; ADMIN: string; }'.
+components/admin/AdminHeader.tsx(119,22): error TS7053: Element implicitly has an 'any' type because expression of type 'UserRole' can't be used to index type '{ USER: string; COORDINATOR: string; MANAGER: string; ADMIN: string; }'.
+components/admin/IntegradorPaginasEspecializadas.tsx(262,77): error TS2339: Property 'servicosGerados' does not exist on type 'PaginaEspecializada'.
+components/admin/SincronizacaoServicos.tsx(176,33): error TS2345: Argument of type 'string | null | undefined' is not assignable to parameter of type 'string | null'.
+components/admin/specialized/education/SistemaMatriculas.tsx(11,26): error TS2307: Cannot find module '@/components/ui/checkbox' or its corresponding type declarations.
+components/admin/specialized/education/SistemaMatriculas.tsx(838,41): error TS7006: Parameter 'checked' implicitly has an 'any' type.
+components/admin/specialized/education/SistemaMatriculas.tsx(849,41): error TS7006: Parameter 'checked' implicitly has an 'any' type.
+components/admin/templates/HealthPageTemplate.tsx(206,17): error TS2304: Cannot find name 'BarChart3'.
+components/admin/templates/HealthPageTemplate.tsx(213,18): error TS7053: Element implicitly has an 'any' type because expression of type '"dashboard" | "atendimentos" | "programas" | "transporte" | "acs" | "medicamentos" | "agendamentos" | "campanhas" | "tfd" | "exames"' can't be used to index type '{ atendimentos: { title: string; description: string; sections: { id: string; title: string; description: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; stats: { ...; }; component: Element; }[]; }; agendamentos: { ...; }; medicamentos: { ...; }; campanhas: { ...; };...'.
+components/admin/templates/HealthPageTemplate.tsx(250,94): error TS2304: Cannot find name 'BarChart3'.
+components/admin/ValidadorFase5.tsx(262,9): error TS2561: Object literal may only specify known properties, but 'descricação' does not exist in type 'ValidacaoItem'. Did you mean to write 'descricao'?
+components/alerts/AlertCard.tsx(49,11): error TS2339: Property 'resolveAlert' does not exist on type '{ alerts: Alert[]; triggers: AlertTrigger[]; dashboard: AlertDashboard | null; loading: boolean; error: string | null; fetchAlerts: (filters?: { type?: string | undefined; isActive?: boolean | undefined; } | undefined) => Promise<...>; ... 12 more ...; getAlertTemplates: () => ({ ...; } | ... 3 more ... | { ...; })[...'.
+components/alerts/AlertCard.tsx(49,25): error TS2339: Property 'acknowledgeAlert' does not exist on type '{ alerts: Alert[]; triggers: AlertTrigger[]; dashboard: AlertDashboard | null; loading: boolean; error: string | null; fetchAlerts: (filters?: { type?: string | undefined; isActive?: boolean | undefined; } | undefined) => Promise<...>; ... 12 more ...; getAlertTemplates: () => ({ ...; } | ... 3 more ... | { ...; })[...'.
+components/alerts/AlertDashboard.tsx(33,42): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(34,44): error TS2339: Property 'severity' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(35,44): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(39,28): error TS2339: Property 'severity' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(39,61): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(130,23): error TS2739: Type 'Alert' is missing the following properties from type 'Alert': title, severity, status
+components/alerts/AlertDashboard.tsx(189,49): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(236,68): error TS2339: Property 'severity' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(237,66): error TS2339: Property 'severity' does not exist on type 'Alert'.
+components/alerts/AlertDashboard.tsx(238,65): error TS2339: Property 'severity' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(55,13): error TS2339: Property 'title' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(56,7): error TS18048: 'alert.description' is possibly 'undefined'.
+components/alerts/AlertList.tsx(58,63): error TS2339: Property 'severity' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(60,59): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(68,50): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(69,56): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(70,52): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(76,45): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(78,45): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(80,45): error TS2339: Property 'status' does not exist on type 'Alert'.
+components/alerts/AlertList.tsx(221,25): error TS2739: Type 'Alert' is missing the following properties from type 'Alert': title, severity, status
+components/alerts/AlertList.tsx(263,19): error TS2739: Type 'Alert' is missing the following properties from type 'Alert': title, severity, status
+components/analytics/dashboards/CitizenDashboard.tsx(18,11): error TS2339: Property 'fetchDashboard' does not exist on type '{ dashboards: Dashboard[]; currentDashboard: Dashboard | null; dashboardData: any; loading: boolean; error: string | null; fetchDashboards: () => Promise<void>; ... 9 more ...; setCurrentDashboard: Dispatch<...>; }'.
+components/analytics/dashboards/CoordinatorDashboard.tsx(19,11): error TS2339: Property 'fetchDashboard' does not exist on type '{ dashboards: Dashboard[]; currentDashboard: Dashboard | null; dashboardData: any; loading: boolean; error: string | null; fetchDashboards: () => Promise<void>; ... 9 more ...; setCurrentDashboard: Dispatch<...>; }'.
+components/analytics/dashboards/EmployeeDashboard.tsx(19,11): error TS2339: Property 'fetchDashboard' does not exist on type '{ dashboards: Dashboard[]; currentDashboard: Dashboard | null; dashboardData: any; loading: boolean; error: string | null; fetchDashboards: () => Promise<void>; ... 9 more ...; setCurrentDashboard: Dispatch<...>; }'.
+components/analytics/dashboards/ExecutiveDashboard.tsx(19,11): error TS2339: Property 'fetchDashboard' does not exist on type '{ dashboards: Dashboard[]; currentDashboard: Dashboard | null; dashboardData: any; loading: boolean; error: string | null; fetchDashboards: () => Promise<void>; ... 9 more ...; setCurrentDashboard: Dispatch<...>; }'.
+components/analytics/dashboards/index.ts(11,6): error TS2304: Cannot find name 'CitizenDashboard'.
+components/analytics/dashboards/index.ts(12,6): error TS2304: Cannot find name 'EmployeeDashboard'.
+components/analytics/dashboards/index.ts(13,6): error TS2304: Cannot find name 'CoordinatorDashboard'.
+components/analytics/dashboards/index.ts(14,6): error TS2304: Cannot find name 'ManagerDashboard'.
+components/analytics/dashboards/index.ts(15,6): error TS2304: Cannot find name 'ExecutiveDashboard'.
+components/analytics/dashboards/index.ts(16,6): error TS2304: Cannot find name 'SuperAdminDashboard'.
+components/analytics/dashboards/ManagerDashboard.tsx(19,11): error TS2339: Property 'fetchDashboard' does not exist on type '{ dashboards: Dashboard[]; currentDashboard: Dashboard | null; dashboardData: any; loading: boolean; error: string | null; fetchDashboards: () => Promise<void>; ... 9 more ...; setCurrentDashboard: Dispatch<...>; }'.
+components/analytics/dashboards/SuperAdminDashboard.tsx(18,11): error TS2339: Property 'fetchDashboard' does not exist on type '{ dashboards: Dashboard[]; currentDashboard: Dashboard | null; dashboardData: any; loading: boolean; error: string | null; fetchDashboards: () => Promise<void>; ... 9 more ...; setCurrentDashboard: Dispatch<...>; }'.
+components/etl/DataQuality.tsx(575,20): error TS2304: Cannot find name 'Plus'.
+components/ml/ModelConfig.tsx(13,24): error TS2307: Cannot find module '@/components/ui/slider' or its corresponding type declarations.
+components/ml/ModelConfig.tsx(471,38): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(557,40): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(572,40): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(587,40): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(646,42): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(731,46): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(766,40): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(781,40): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/ml/ModelConfig.tsx(797,42): error TS7031: Binding element 'value' implicitly has an 'any' type.
+components/performance/index.ts(486,12): error TS2304: Cannot find name 'cacheManager'.
+components/performance/index.ts(491,5): error TS2304: Cannot find name 'cacheManager'.
+components/performance/index.ts(492,5): error TS2304: Cannot find name 'cacheManager'.
+components/performance/index.ts(493,5): error TS2304: Cannot find name 'cacheManager'.
+components/performance/index.ts(498,5): error TS2304: Cannot find name 'cacheManager'.
+components/performance/index.ts(503,19): error TS2304: Cannot find name 'cacheManager'.
+components/performance/index.ts(507,69): error TS18046: 'stat' is of type 'unknown'.
+components/performance/index.ts(508,71): error TS18046: 'stat' is of type 'unknown'.
+components/performance/index.ts(509,25): error TS2571: Object is of type 'unknown'.
+components/performance/index.ts(509,74): error TS18046: 'stat' is of type 'unknown'.
+components/performance/index.ts(510,69): error TS18046: 'stat' is of type 'unknown'.
+components/performance/index.ts(511,73): error TS18046: 'stat' is of type 'unknown'.
+components/reports/ReportBuilder.tsx(80,11): error TS2339: Property 'createReport' does not exist on type '{ reports: Report[]; executions: ReportExecution[]; loading: boolean; error: string | null; fetchReports: () => Promise<void>; executeReport: (reportId: string, params?: ExecuteReportParams) => Promise<...>; ... 7 more ...; getReportTemplates: () => ({ ...; } | ... 1 more ... | { ...; })[]; }'.
+components/reports/ReportBuilder.tsx(637,25): error TS2322: Type '{ time: string; frequency?: "manual" | "daily" | "weekly" | "monthly" | undefined; recipients?: string[]; }' is not assignable to type '{ frequency: "manual" | "daily" | "weekly" | "monthly"; time?: string | undefined; recipients?: string[] | undefined; }'.
+components/reports/ReportBuilder.tsx(648,25): error TS2322: Type '{ recipients: string[]; frequency?: "manual" | "daily" | "weekly" | "monthly" | undefined; time?: string; }' is not assignable to type '{ frequency: "manual" | "daily" | "weekly" | "monthly"; time?: string | undefined; recipients?: string[] | undefined; }'.
+components/reports/ReportList.tsx(70,43): error TS2339: Property 'deleteReport' does not exist on type '{ reports: Report[]; executions: ReportExecution[]; loading: boolean; error: string | null; fetchReports: () => Promise<void>; executeReport: (reportId: string, params?: ExecuteReportParams) => Promise<...>; ... 7 more ...; getReportTemplates: () => ({ ...; } | ... 1 more ... | { ...; })[]; }'.
+components/reports/ReportList.tsx(70,57): error TS2339: Property 'cloneReport' does not exist on type '{ reports: Report[]; executions: ReportExecution[]; loading: boolean; error: string | null; fetchReports: () => Promise<void>; executeReport: (reportId: string, params?: ExecuteReportParams) => Promise<...>; ... 7 more ...; getReportTemplates: () => ({ ...; } | ... 1 more ... | { ...; })[]; }'.
+components/reports/ReportList.tsx(104,18): error TS2339: Property 'executionCount' does not exist on type 'Report'.
+components/reports/ReportList.tsx(104,37): error TS2339: Property 'executionCount' does not exist on type 'Report'.
+components/reports/ReportList.tsx(112,44): error TS2367: This comparison appears to be unintentional because the types '"OPERATIONAL" | "MANAGERIAL" | "EXECUTIVE" | "CUSTOM"' and '"operational"' have no overlap.
+components/reports/ReportList.tsx(113,43): error TS2367: This comparison appears to be unintentional because the types '"OPERATIONAL" | "MANAGERIAL" | "EXECUTIVE" | "CUSTOM"' and '"managerial"' have no overlap.
+components/reports/ReportList.tsx(114,42): error TS2367: This comparison appears to be unintentional because the types '"OPERATIONAL" | "MANAGERIAL" | "EXECUTIVE" | "CUSTOM"' and '"executive"' have no overlap.
+components/reports/ReportList.tsx(225,34): error TS2322: Type '{ children: Element; asChild: true; }' is not assignable to type 'IntrinsicAttributes & ButtonHTMLAttributes<HTMLButtonElement> & RefAttributes<HTMLButtonElement>'.
+components/reports/ReportList.tsx(230,34): error TS2322: Type '{ children: (Element | undefined)[]; align: string; }' is not assignable to type 'IntrinsicAttributes & HTMLAttributes<HTMLDivElement> & { sideOffset?: number | undefined; } & RefAttributes<HTMLDivElement>'.
+components/reports/ReportList.tsx(431,49): error TS2741: Property 'executionCount' is missing in type 'import("C:/Projetos Cursor/DigiurbanFinal/digiurban/frontend/hooks/api/analytics/useReports").Report' but required in type 'Report'.
+components/reports/ReportList.tsx(467,43): error TS2741: Property 'executionCount' is missing in type 'import("C:/Projetos Cursor/DigiurbanFinal/digiurban/frontend/hooks/api/analytics/useReports").Report' but required in type 'Report'.
+components/reports/ReportPreview.tsx(8,28): error TS2307: Cannot find module '@/components/ui/scroll-area' or its corresponding type declarations.
+components/reports/ReportPreview.tsx(94,22): error TS2345: Argument of type '{ executionId: string; status: string; } | null' is not assignable to parameter of type 'SetStateAction<ReportPreviewData | null>'.
+components/ui/calendar.tsx(55,9): error TS2353: Object literal may only specify known properties, and 'IconLeft' does not exist in type 'Partial<CustomComponents>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(269,23): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(283,7): error TS2322: Type 'unknown' is not assignable to type 'AgriculturalCommerce | null'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(299,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(300,7): error TS2322: Type 'unknown' is not assignable to type 'AgriculturalCommerce | null'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(316,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(317,7): error TS2322: Type 'unknown' is not assignable to type 'AgriculturalCommerce | null'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(349,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(377,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(403,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(431,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(454,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(478,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(496,14): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/agriculture/useAgriculturalCommerce.ts(512,23): error TS2345: Argument of type '(prev: AgriculturalCommerce[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<AgriculturalCommerce[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(248,19): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(262,7): error TS2322: Type 'unknown' is not assignable to type 'DevelopmentProgram | null'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(278,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(279,7): error TS2322: Type 'unknown' is not assignable to type 'DevelopmentProgram | null'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(295,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(296,7): error TS2322: Type 'unknown' is not assignable to type 'DevelopmentProgram | null'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(328,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(353,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(370,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(387,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(410,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(436,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/useDevelopmentPrograms.ts(453,19): error TS2345: Argument of type '(prev: DevelopmentProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<DevelopmentProgram[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(237,19): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(251,7): error TS2322: Type 'unknown' is not assignable to type 'PhytosanitaryControl | null'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(267,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(268,7): error TS2322: Type 'unknown' is not assignable to type 'PhytosanitaryControl | null'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(284,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(285,7): error TS2322: Type 'unknown' is not assignable to type 'PhytosanitaryControl | null'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(317,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(348,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(376,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(399,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(422,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(444,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePhytosanitaryControl.ts(461,19): error TS2345: Argument of type '(prev: PhytosanitaryControl[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PhytosanitaryControl[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(167,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(181,7): error TS2322: Type 'unknown' is not assignable to type 'PropertyInspection | null'.
+hooks/api/agriculture/usePropertyInspection.ts(197,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(198,7): error TS2322: Type 'unknown' is not assignable to type 'PropertyInspection | null'.
+hooks/api/agriculture/usePropertyInspection.ts(214,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(215,7): error TS2322: Type 'unknown' is not assignable to type 'PropertyInspection | null'.
+hooks/api/agriculture/usePropertyInspection.ts(247,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(264,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(289,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(314,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(342,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(362,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/usePropertyInspection.ts(379,22): error TS2345: Argument of type '(prev: PropertyInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PropertyInspection[]>'.
+hooks/api/agriculture/useRuralProducers.ts(194,25): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<RuralProducer[]>'.
+hooks/api/agriculture/useRuralProducers.ts(208,7): error TS2322: Type 'unknown' is not assignable to type 'RuralProducer | null'.
+hooks/api/agriculture/useRuralProducers.ts(224,25): error TS2345: Argument of type '(prev: RuralProducer[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<RuralProducer[]>'.
+hooks/api/agriculture/useRuralProducers.ts(225,7): error TS2322: Type 'unknown' is not assignable to type 'RuralProducer | null'.
+hooks/api/agriculture/useRuralProducers.ts(241,25): error TS2345: Argument of type '(prev: RuralProducer[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<RuralProducer[]>'.
+hooks/api/agriculture/useRuralProducers.ts(242,7): error TS2322: Type 'unknown' is not assignable to type 'RuralProducer | null'.
+hooks/api/agriculture/useRuralProducers.ts(274,25): error TS2345: Argument of type '(prev: RuralProducer[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<RuralProducer[]>'.
+hooks/api/agriculture/useRuralProducers.ts(303,25): error TS2345: Argument of type '(prev: RuralProducer[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<RuralProducer[]>'.
+hooks/api/agriculture/useRuralProducers.ts(325,25): error TS2345: Argument of type '(prev: RuralProducer[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<RuralProducer[]>'.
+hooks/api/agriculture/useRuralProducers.ts(342,25): error TS2345: Argument of type '(prev: RuralProducer[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<RuralProducer[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(245,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(259,7): error TS2322: Type 'unknown' is not assignable to type 'TechnicalAssistance | null'.
+hooks/api/agriculture/useTechnicalAssistance.ts(275,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(276,7): error TS2322: Type 'unknown' is not assignable to type 'TechnicalAssistance | null'.
+hooks/api/agriculture/useTechnicalAssistance.ts(292,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(293,7): error TS2322: Type 'unknown' is not assignable to type 'TechnicalAssistance | null'.
+hooks/api/agriculture/useTechnicalAssistance.ts(325,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(347,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(364,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(393,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(438,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(461,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/agriculture/useTechnicalAssistance.ts(494,22): error TS2345: Argument of type '(prev: TechnicalAssistance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TechnicalAssistance[]>'.
+hooks/api/analytics/useAlerts.ts(84,17): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAlerts.ts(99,24): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAlerts.ts(117,28): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAlerts.ts(154,19): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAlerts.ts(169,31): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAlerts.ts(189,20): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAnalytics.ts(69,26): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAnalytics.ts(84,15): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAnalytics.ts(99,17): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAnalytics.ts(114,24): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useAnalytics.ts(150,47): error TS2769: No overload matches this call.
+hooks/api/analytics/useBenchmarks.ts(55,20): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useBenchmarks.ts(77,20): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useBenchmarks.ts(102,14): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useBenchmarks.ts(125,14): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useDashboards.ts(103,21): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useDashboards.ts(118,24): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useDashboards.ts(119,14): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useDashboards.ts(135,28): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useDashboards.ts(153,32): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useKPIs.ts(58,15): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useKPIs.ts(73,22): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useKPIs.ts(91,26): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useKPIs.ts(124,24): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useKPIs.ts(164,14): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useKPIs.ts(180,7): error TS18048: 'kpi.currentValue' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(180,27): error TS18048: 'kpi.critical' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(188,7): error TS18048: 'kpi.currentValue' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(188,27): error TS18048: 'kpi.warning' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(189,33): error TS18048: 'kpi.currentValue' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(189,52): error TS18048: 'kpi.critical' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(197,7): error TS18048: 'kpi.currentValue' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(197,27): error TS18048: 'kpi.target' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(213,47): error TS2769: No overload matches this call.
+hooks/api/analytics/useKPIs.ts(333,33): error TS18048: 'kpi.critical' is possibly 'undefined'.
+hooks/api/analytics/useKPIs.ts(338,33): error TS18048: 'kpi.critical' is possibly 'undefined'.
+hooks/api/analytics/useReports.ts(70,18): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useReports.ts(85,14): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useReports.ts(105,20): error TS2339: Property 'headers' does not exist on type 'ApiResponse<unknown>'.
+hooks/api/analytics/useReports.ts(110,30): error TS2322: Type 'unknown' is not assignable to type 'BlobPart'.
+hooks/api/analytics/useReports.ts(116,33): error TS2339: Property 'headers' does not exist on type 'ApiResponse<unknown>'.
+hooks/api/analytics/useReports.ts(140,25): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/analytics/useReports.ts(156,14): error TS18046: 'response.data' is of type 'unknown'.
+hooks/api/culture/useCulturalArtists.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/culture/useCulturalEducation.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/culture/useCulturalEvents.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/culture/useCulturalFunding.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/culture/useCulturalHeritage.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/culture/useCulturalHeritage.ts(675,49): error TS2769: No overload matches this call.
+hooks/api/culture/useCulturalProjects.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/culture/useCulturalReports.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/culture/useCulturalSpaces.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/education/index.ts(13,3): error TS2459: Module '"./useSchools"' declares 'School' locally, but it is not exported.
+hooks/api/education/index.ts(14,3): error TS2459: Module '"./useSchools"' declares 'CreateSchoolData' locally, but it is not exported.
+hooks/api/education/index.ts(15,3): error TS2459: Module '"./useSchools"' declares 'UpdateSchoolData' locally, but it is not exported.
+hooks/api/education/index.ts(16,3): error TS2459: Module '"./useSchools"' declares 'UseSchoolsReturn' locally, but it is not exported.
+hooks/api/education/index.ts(20,3): error TS2459: Module '"./useStudents"' declares 'Student' locally, but it is not exported.
+hooks/api/education/index.ts(21,3): error TS2459: Module '"./useStudents"' declares 'CreateStudentData' locally, but it is not exported.
+hooks/api/education/index.ts(22,3): error TS2459: Module '"./useStudents"' declares 'UpdateStudentData' locally, but it is not exported.
+hooks/api/education/index.ts(23,3): error TS2459: Module '"./useStudents"' declares 'StudentFilters' locally, but it is not exported.
+hooks/api/education/index.ts(24,3): error TS2459: Module '"./useStudents"' declares 'UseStudentsReturn' locally, but it is not exported.
+hooks/api/education/index.ts(28,3): error TS2459: Module '"./useEnrollments"' declares 'Enrollment' locally, but it is not exported.
+hooks/api/education/index.ts(29,3): error TS2459: Module '"./useEnrollments"' declares 'CreateEnrollmentData' locally, but it is not exported.
+hooks/api/education/index.ts(30,3): error TS2459: Module '"./useEnrollments"' declares 'UpdateEnrollmentData' locally, but it is not exported.
+hooks/api/education/index.ts(31,3): error TS2459: Module '"./useEnrollments"' declares 'EnrollmentFilters' locally, but it is not exported.
+hooks/api/education/index.ts(32,3): error TS2724: '"./useEnrollments"' has no exported member named 'UseEnrollmentsReturn'. Did you mean 'useEnrollments'?
+hooks/api/education/index.ts(36,3): error TS2724: '"./useAttendance"' has no exported member named 'Attendance'. Did you mean 'useAttendance'?
+hooks/api/education/index.ts(37,3): error TS2459: Module '"./useAttendance"' declares 'MarkAttendanceData' locally, but it is not exported.
+hooks/api/education/index.ts(38,3): error TS2459: Module '"./useAttendance"' declares 'BulkAttendanceData' locally, but it is not exported.
+hooks/api/education/index.ts(39,3): error TS2459: Module '"./useAttendance"' declares 'AttendanceFilters' locally, but it is not exported.
+hooks/api/education/index.ts(40,3): error TS2459: Module '"./useAttendance"' declares 'AttendanceStats' locally, but it is not exported.
+hooks/api/education/index.ts(41,3): error TS2724: '"./useAttendance"' has no exported member named 'UseAttendanceReturn'. Did you mean 'useAttendance'?
+hooks/api/education/index.ts(45,3): error TS2724: '"./useSchoolTransport"' has no exported member named 'SchoolTransport'. Did you mean 'useSchoolTransport'?
+hooks/api/education/index.ts(46,3): error TS2459: Module '"./useSchoolTransport"' declares 'CreateSchoolTransportData' locally, but it is not exported.
+hooks/api/education/index.ts(47,3): error TS2724: '"./useSchoolTransport"' has no exported member named 'UpdateSchoolTransportData'. Did you mean 'useSchoolTransport'?
+hooks/api/education/index.ts(48,3): error TS2459: Module '"./useSchoolTransport"' declares 'TransportStudent' locally, but it is not exported.
+hooks/api/education/index.ts(49,3): error TS2459: Module '"./useSchoolTransport"' declares 'AddStudentToTransportData' locally, but it is not exported.
+hooks/api/education/index.ts(50,3): error TS2724: '"./useSchoolTransport"' has no exported member named 'UseSchoolTransportReturn'. Did you mean 'useSchoolTransport'?
+hooks/api/education/index.ts(54,3): error TS2459: Module '"./useSchoolMeals"' declares 'SchoolMeal' locally, but it is not exported.
+hooks/api/education/index.ts(55,3): error TS2459: Module '"./useSchoolMeals"' declares 'CreateSchoolMealData' locally, but it is not exported.
+hooks/api/education/index.ts(56,3): error TS2459: Module '"./useSchoolMeals"' declares 'UpdateSchoolMealData' locally, but it is not exported.
+hooks/api/education/index.ts(57,3): error TS2459: Module '"./useSchoolMeals"' declares 'MealPlan' locally, but it is not exported.
+hooks/api/education/index.ts(58,3): error TS2459: Module '"./useSchoolMeals"' declares 'CreateMealPlanData' locally, but it is not exported.
+hooks/api/education/index.ts(59,3): error TS2459: Module '"./useSchoolMeals"' declares 'MealFilters' locally, but it is not exported.
+hooks/api/education/index.ts(60,3): error TS2724: '"./useSchoolMeals"' has no exported member named 'UseSchoolMealsReturn'. Did you mean 'useSchoolMeals'?
+hooks/api/education/index.ts(64,3): error TS2724: '"./useSchoolIncidents"' has no exported member named 'SchoolIncident'. Did you mean 'useSchoolIncidents'?
+hooks/api/education/index.ts(65,3): error TS2459: Module '"./useSchoolIncidents"' declares 'CreateSchoolIncidentData' locally, but it is not exported.
+hooks/api/education/index.ts(66,3): error TS2459: Module '"./useSchoolIncidents"' declares 'UpdateSchoolIncidentData' locally, but it is not exported.
+hooks/api/education/index.ts(67,3): error TS2459: Module '"./useSchoolIncidents"' declares 'IncidentFilters' locally, but it is not exported.
+hooks/api/education/index.ts(68,3): error TS2459: Module '"./useSchoolIncidents"' declares 'IncidentStats' locally, but it is not exported.
+hooks/api/education/index.ts(69,3): error TS2724: '"./useSchoolIncidents"' has no exported member named 'UseSchoolIncidentsReturn'. Did you mean 'useSchoolIncidents'?
+hooks/api/education/index.ts(73,3): error TS2459: Module '"./useSchoolEvents"' declares 'SchoolEvent' locally, but it is not exported.
+hooks/api/education/index.ts(74,3): error TS2459: Module '"./useSchoolEvents"' declares 'CreateSchoolEventData' locally, but it is not exported.
+hooks/api/education/index.ts(75,3): error TS2459: Module '"./useSchoolEvents"' declares 'UpdateSchoolEventData' locally, but it is not exported.
+hooks/api/education/index.ts(76,3): error TS2459: Module '"./useSchoolEvents"' declares 'EventFilters' locally, but it is not exported.
+hooks/api/education/index.ts(77,3): error TS2459: Module '"./useSchoolEvents"' declares 'EventRegistration' locally, but it is not exported.
+hooks/api/education/index.ts(78,3): error TS2724: '"./useSchoolEvents"' has no exported member named 'UseSchoolEventsReturn'. Did you mean 'useSchoolEvents'?
+hooks/api/education/useSchoolMeals.ts(214,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/environment/useEnvironmentalEducation.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/environment/useEnvironmentalLicensing.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/environment/useEnvironmentalMonitoring.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/environment/useEnvironmentalMonitoring.ts(672,49): error TS2769: No overload matches this call.
+hooks/api/environment/useEnvironmentalMonitoring.ts(676,52): error TS2769: No overload matches this call.
+hooks/api/environment/useEnvironmentalReports.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/environment/useUrbanForestry.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/environment/useWasteManagement.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/environment/useWasteManagement.ts(928,49): error TS2769: No overload matches this call.
+hooks/api/health/index.ts(19,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'Patient'.
+hooks/api/health/index.ts(20,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreatePatientData'.
+hooks/api/health/index.ts(21,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'PatientFilters'.
+hooks/api/health/index.ts(22,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'MedicalAppointment'.
+hooks/api/health/index.ts(23,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateMedicalAppointmentData'.
+hooks/api/health/index.ts(24,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'AppointmentFilters'.
+hooks/api/health/index.ts(25,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'MedicalRecord'.
+hooks/api/health/index.ts(26,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateMedicalRecordData'.
+hooks/api/health/index.ts(27,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'MedicalRecordFilters'.
+hooks/api/health/index.ts(28,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'VaccinationRecord'.
+hooks/api/health/index.ts(29,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateVaccinationRecordData'.
+hooks/api/health/index.ts(30,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'VaccinationFilters'.
+hooks/api/health/index.ts(31,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'PharmacyTransaction'.
+hooks/api/health/index.ts(32,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreatePharmacyTransactionData'.
+hooks/api/health/index.ts(33,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'PharmacyFilters'.
+hooks/api/health/index.ts(34,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'EmergencyCall'.
+hooks/api/health/index.ts(35,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateEmergencyCallData'.
+hooks/api/health/index.ts(36,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'EmergencyFilters'.
+hooks/api/health/index.ts(37,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthProgram'.
+hooks/api/health/index.ts(38,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateHealthProgramData'.
+hooks/api/health/index.ts(39,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthProgramFilters'.
+hooks/api/health/index.ts(40,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthProfessional'.
+hooks/api/health/index.ts(41,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateHealthProfessionalData'.
+hooks/api/health/index.ts(42,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthEquipment'.
+hooks/api/health/index.ts(43,3): error TS2724: '"./useHealthCenters"' has no exported member named 'CreateHealthEquipmentData'. Did you mean 'CreateHealthCenterData'?
+hooks/api/health/index.ts(44,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'EpidemiologicalSurveillance'.
+hooks/api/health/index.ts(45,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'OutbreakInvestigation'.
+hooks/api/health/index.ts(46,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateEpidemiologicalSurveillanceData'.
+hooks/api/health/index.ts(47,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthStatistics'.
+hooks/api/health/index.ts(48,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateHealthStatisticsData'.
+hooks/api/health/index.ts(49,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthStatisticsFilters'.
+hooks/api/health/index.ts(50,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthInspection'.
+hooks/api/health/index.ts(51,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'CreateHealthInspectionData'.
+hooks/api/health/index.ts(52,3): error TS2305: Module '"./useHealthCenters"' has no exported member 'HealthInspectionFilters'.
+hooks/api/health/index.ts(62,3): error TS2305: Module '"./useMedicalAppointments"' has no exported member 'AppointmentFilters'.
+hooks/api/health/index.ts(75,3): error TS2305: Module '"./usePharmacy"' has no exported member 'PharmacyTransaction'.
+hooks/api/health/index.ts(76,3): error TS2305: Module '"./usePharmacy"' has no exported member 'CreatePharmacyTransactionData'.
+hooks/api/health/index.ts(80,3): error TS2724: '"./useEmergencyServices"' has no exported member named 'EmergencyCall'. Did you mean 'EmergencyCase'?
+hooks/api/health/index.ts(81,3): error TS2724: '"./useEmergencyServices"' has no exported member named 'CreateEmergencyCallData'. Did you mean 'CreateEmergencyCaseData'?
+hooks/api/health/index.ts(87,3): error TS2305: Module '"./useHealthPrograms"' has no exported member 'HealthProgramFilters'.
+hooks/api/health/useEmergencyServices.ts(167,25): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<EmergencyCase[]>'.
+hooks/api/health/useEmergencyServices.ts(181,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<EmergencyEquipment[]>'.
+hooks/api/health/useEmergencyServices.ts(196,25): error TS2345: Argument of type '(prev: EmergencyCase[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<EmergencyCase[]>'.
+hooks/api/health/useEmergencyServices.ts(197,7): error TS2322: Type 'unknown' is not assignable to type 'EmergencyCase | null'.
+hooks/api/health/useEmergencyServices.ts(213,25): error TS2345: Argument of type '(prev: EmergencyCase[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<EmergencyCase[]>'.
+hooks/api/health/useEmergencyServices.ts(230,25): error TS2345: Argument of type '(prev: EmergencyCase[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<EmergencyCase[]>'.
+hooks/api/health/useEmergencyServices.ts(258,25): error TS2345: Argument of type '(prev: EmergencyCase[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<EmergencyCase[]>'.
+hooks/api/health/useEpidemiology.ts(138,24): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<EpidemiologicalSurveillance[]>'.
+hooks/api/health/useEpidemiology.ts(152,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<OutbreakInvestigation[]>'.
+hooks/api/health/useEpidemiology.ts(167,24): error TS2345: Argument of type '(prev: EpidemiologicalSurveillance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<EpidemiologicalSurveillance[]>'.
+hooks/api/health/useEpidemiology.ts(168,7): error TS2322: Type 'unknown' is not assignable to type 'EpidemiologicalSurveillance | null'.
+hooks/api/health/useEpidemiology.ts(184,24): error TS2345: Argument of type '(prev: EpidemiologicalSurveillance[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<EpidemiologicalSurveillance[]>'.
+hooks/api/health/useHealthCenters.ts(295,24): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(309,7): error TS2322: Type 'unknown' is not assignable to type 'HealthCenter | null'.
+hooks/api/health/useHealthCenters.ts(325,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(326,7): error TS2322: Type 'unknown' is not assignable to type 'HealthCenter | null'.
+hooks/api/health/useHealthCenters.ts(342,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(343,7): error TS2322: Type 'unknown' is not assignable to type 'HealthCenter | null'.
+hooks/api/health/useHealthCenters.ts(375,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(398,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(415,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(437,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(461,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(486,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(509,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthCenters.ts(526,24): error TS2345: Argument of type '(prev: HealthCenter[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthCenter[]>'.
+hooks/api/health/useHealthEquipment.ts(72,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<HealthEquipment[]>'.
+hooks/api/health/useHealthEquipment.ts(87,20): error TS2345: Argument of type '(prev: HealthEquipment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthEquipment[]>'.
+hooks/api/health/useHealthEquipment.ts(88,7): error TS2322: Type 'unknown' is not assignable to type 'HealthEquipment | null'.
+hooks/api/health/useHealthEquipment.ts(104,20): error TS2345: Argument of type '(prev: HealthEquipment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthEquipment[]>'.
+hooks/api/health/useHealthEquipment.ts(121,20): error TS2345: Argument of type '(prev: HealthEquipment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthEquipment[]>'.
+hooks/api/health/useHealthInspection.ts(157,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(171,7): error TS2322: Type 'unknown' is not assignable to type 'HealthInspection | null'.
+hooks/api/health/useHealthInspection.ts(187,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(188,7): error TS2322: Type 'unknown' is not assignable to type 'HealthInspection | null'.
+hooks/api/health/useHealthInspection.ts(204,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(205,7): error TS2322: Type 'unknown' is not assignable to type 'HealthInspection | null'.
+hooks/api/health/useHealthInspection.ts(221,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(248,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(273,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(295,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(316,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(339,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthInspection.ts(360,22): error TS2345: Argument of type '(prev: HealthInspection[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthInspection[]>'.
+hooks/api/health/useHealthProfessionals.ts(86,24): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<HealthProfessional[]>'.
+hooks/api/health/useHealthProfessionals.ts(101,24): error TS2345: Argument of type '(prev: HealthProfessional[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthProfessional[]>'.
+hooks/api/health/useHealthProfessionals.ts(102,7): error TS2322: Type 'unknown' is not assignable to type 'HealthProfessional | null'.
+hooks/api/health/useHealthProfessionals.ts(122,24): error TS2345: Argument of type '(prev: HealthProfessional[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthProfessional[]>'.
+hooks/api/health/useHealthPrograms.ts(68,19): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<HealthProgram[]>'.
+hooks/api/health/useHealthPrograms.ts(83,19): error TS2345: Argument of type '(prev: HealthProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthProgram[]>'.
+hooks/api/health/useHealthPrograms.ts(84,7): error TS2322: Type 'unknown' is not assignable to type 'HealthProgram | null'.
+hooks/api/health/useHealthPrograms.ts(100,19): error TS2345: Argument of type '(prev: HealthProgram[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthProgram[]>'.
+hooks/api/health/useHealthStatistics.ts(280,21): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<HealthStatistics[]>'.
+hooks/api/health/useHealthStatistics.ts(294,7): error TS2322: Type 'unknown' is not assignable to type 'HealthStatistics | null'.
+hooks/api/health/useHealthStatistics.ts(310,21): error TS2345: Argument of type '(prev: HealthStatistics[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<HealthStatistics[]>'.
+hooks/api/health/useHealthStatistics.ts(311,7): error TS2322: Type 'unknown' is not assignable to type 'HealthStatistics | null'.
+hooks/api/health/useMedicalAppointments.ts(301,23): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(315,7): error TS2322: Type 'unknown' is not assignable to type 'MedicalAppointment | null'.
+hooks/api/health/useMedicalAppointments.ts(331,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(332,7): error TS2322: Type 'unknown' is not assignable to type 'MedicalAppointment | null'.
+hooks/api/health/useMedicalAppointments.ts(348,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(349,7): error TS2322: Type 'unknown' is not assignable to type 'MedicalAppointment | null'.
+hooks/api/health/useMedicalAppointments.ts(381,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(398,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(508,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(530,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(552,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(572,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalAppointments.ts(589,23): error TS2345: Argument of type '(prev: MedicalAppointment[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalAppointment[]>'.
+hooks/api/health/useMedicalRecords.ts(480,25): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(494,7): error TS2322: Type 'unknown' is not assignable to type 'MedicalRecord | null'.
+hooks/api/health/useMedicalRecords.ts(509,7): error TS2322: Type 'unknown' is not assignable to type 'MedicalRecord | null'.
+hooks/api/health/useMedicalRecords.ts(525,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(526,7): error TS2322: Type 'unknown' is not assignable to type 'MedicalRecord | null'.
+hooks/api/health/useMedicalRecords.ts(542,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(543,7): error TS2322: Type 'unknown' is not assignable to type 'MedicalRecord | null'.
+hooks/api/health/useMedicalRecords.ts(559,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(593,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(626,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(655,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(687,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(711,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(738,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/useMedicalRecords.ts(756,25): error TS2345: Argument of type '(prev: MedicalRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicalRecord[]>'.
+hooks/api/health/usePatients.ts(347,19): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePatients.ts(361,7): error TS2322: Type 'unknown' is not assignable to type 'Patient | null'.
+hooks/api/health/usePatients.ts(376,7): error TS2322: Type 'unknown' is not assignable to type 'Patient | null'.
+hooks/api/health/usePatients.ts(392,19): error TS2345: Argument of type '(prev: Patient[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePatients.ts(393,7): error TS2322: Type 'unknown' is not assignable to type 'Patient | null'.
+hooks/api/health/usePatients.ts(409,19): error TS2345: Argument of type '(prev: Patient[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePatients.ts(410,7): error TS2322: Type 'unknown' is not assignable to type 'Patient | null'.
+hooks/api/health/usePatients.ts(442,19): error TS2345: Argument of type '(prev: Patient[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePatients.ts(468,19): error TS2345: Argument of type '(prev: Patient[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePatients.ts(492,19): error TS2345: Argument of type '(prev: Patient[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePatients.ts(531,19): error TS2345: Argument of type '(prev: Patient[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePatients.ts(555,19): error TS2345: Argument of type '(prev: Patient[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<Patient[]>'.
+hooks/api/health/usePharmacy.ts(128,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<PharmacyDispensing[]>'.
+hooks/api/health/usePharmacy.ts(142,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<MedicationInventory[]>'.
+hooks/api/health/usePharmacy.ts(157,22): error TS2345: Argument of type '(prev: PharmacyDispensing[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<PharmacyDispensing[]>'.
+hooks/api/health/usePharmacy.ts(158,7): error TS2322: Type 'unknown' is not assignable to type 'PharmacyDispensing | null'.
+hooks/api/health/usePharmacy.ts(180,20): error TS2345: Argument of type '(prev: MedicationInventory[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<MedicationInventory[]>'.
+hooks/api/health/useVaccination.ts(302,23): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<VaccinationRecord[]>'.
+hooks/api/health/useVaccination.ts(316,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<VaccineInventory[]>'.
+hooks/api/health/useVaccination.ts(330,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<VaccinationCampaign[]>'.
+hooks/api/health/useVaccination.ts(345,23): error TS2345: Argument of type '(prev: VaccinationRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<VaccinationRecord[]>'.
+hooks/api/health/useVaccination.ts(346,7): error TS2322: Type 'unknown' is not assignable to type 'VaccinationRecord | null'.
+hooks/api/health/useVaccination.ts(362,23): error TS2345: Argument of type '(prev: VaccinationRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<VaccinationRecord[]>'.
+hooks/api/health/useVaccination.ts(363,7): error TS2322: Type 'unknown' is not assignable to type 'VaccinationRecord | null'.
+hooks/api/health/useVaccination.ts(387,23): error TS2345: Argument of type '(prev: VaccinationRecord[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<VaccinationRecord[]>'.
+hooks/api/health/useVaccination.ts(408,20): error TS2345: Argument of type '(prev: VaccineInventory[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<VaccineInventory[]>'.
+hooks/api/health/useVaccination.ts(425,20): error TS2345: Argument of type '(prev: VaccinationCampaign[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<VaccinationCampaign[]>'.
+hooks/api/health/useVaccination.ts(426,7): error TS2322: Type 'unknown' is not assignable to type 'VaccinationCampaign | null'.
+hooks/api/health/useVaccination.ts(442,20): error TS2345: Argument of type '(prev: VaccinationCampaign[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<VaccinationCampaign[]>'.
+hooks/api/health/useVaccination.ts(464,20): error TS2345: Argument of type '(prev: VaccinationCampaign[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<VaccinationCampaign[]>'.
+hooks/api/housing/useHousingApplications.ts(377,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingApplications.ts(419,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingApplications.ts(475,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingApplications.ts(489,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingApplications.ts(559,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingBeneficiaries.ts(640,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingMaintenance.ts(366,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingMaintenance.ts(422,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingMaintenance.ts(478,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingMaintenance.ts(506,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingReports.ts(559,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingReports.ts(573,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/housing/useHousingReports.ts(587,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/index.ts(8,15): error TS2307: Cannot find module './social-assistance' or its corresponding type declarations.
+hooks/api/index.ts(11,15): error TS2307: Cannot find module './public-security' or its corresponding type declarations.
+hooks/api/index.ts(23,15): error TS2307: Cannot find module './housing' or its corresponding type declarations.
+hooks/api/index.ts(32,15): error TS2307: Cannot find module './environment' or its corresponding type declarations.
+hooks/api/public-services/index.ts(12,3): error TS2724: '"./useServiceRequests"' has no exported member named 'ServiceRequest'. Did you mean 'useServiceRequests'?
+hooks/api/public-services/index.ts(13,3): error TS2459: Module '"./useServiceRequests"' declares 'CreateServiceRequestData' locally, but it is not exported.
+hooks/api/public-services/index.ts(14,3): error TS2459: Module '"./useServiceRequests"' declares 'UpdateServiceRequestData' locally, but it is not exported.
+hooks/api/public-services/index.ts(15,3): error TS2459: Module '"./useServiceRequests"' declares 'ServiceRequestFilters' locally, but it is not exported.
+hooks/api/public-services/index.ts(16,3): error TS2724: '"./useServiceRequests"' has no exported member named 'UseServiceRequestsReturn'. Did you mean 'useServiceRequests'?
+hooks/api/public-services/index.ts(20,3): error TS2724: '"./useCleaningSchedule"' has no exported member named 'CleaningSchedule'. Did you mean 'useCleaningSchedule'?
+hooks/api/public-services/index.ts(21,3): error TS2459: Module '"./useCleaningSchedule"' declares 'CreateCleaningScheduleData' locally, but it is not exported.
+hooks/api/public-services/index.ts(22,3): error TS2724: '"./useCleaningSchedule"' has no exported member named 'UseCleaningScheduleReturn'. Did you mean 'useCleaningSchedule'?
+hooks/api/public-services/index.ts(26,3): error TS2459: Module '"./useStreetLighting"' declares 'StreetLight' locally, but it is not exported.
+hooks/api/public-services/index.ts(27,3): error TS2459: Module '"./useStreetLighting"' declares 'CreateStreetLightData' locally, but it is not exported.
+hooks/api/public-services/index.ts(28,3): error TS2459: Module '"./useStreetLighting"' declares 'ReportIssueData' locally, but it is not exported.
+hooks/api/public-services/index.ts(29,3): error TS2459: Module '"./useStreetLighting"' declares 'MaintenanceData' locally, but it is not exported.
+hooks/api/public-services/index.ts(30,3): error TS2724: '"./useStreetLighting"' has no exported member named 'UseStreetLightingReturn'. Did you mean 'useStreetLighting'?
+hooks/api/public-services/index.ts(34,3): error TS2724: '"./useSpecialCollection"' has no exported member named 'SpecialCollection'. Did you mean 'useSpecialCollection'?
+hooks/api/public-services/index.ts(35,3): error TS2459: Module '"./useSpecialCollection"' declares 'CreateSpecialCollectionData' locally, but it is not exported.
+hooks/api/public-services/index.ts(36,3): error TS2724: '"./useSpecialCollection"' has no exported member named 'UseSpecialCollectionReturn'. Did you mean 'useSpecialCollection'?
+hooks/api/public-services/index.ts(40,3): error TS2724: '"./useProblemReports"' has no exported member named 'ProblemReport'. Did you mean 'useProblemReports'?
+hooks/api/public-services/index.ts(41,3): error TS2459: Module '"./useProblemReports"' declares 'CreateProblemReportData' locally, but it is not exported.
+hooks/api/public-services/index.ts(42,3): error TS2724: '"./useProblemReports"' has no exported member named 'UseProblemReportsReturn'. Did you mean 'useProblemReports'?
+hooks/api/public-services/index.ts(46,3): error TS2724: '"./useTeamSchedule"' has no exported member named 'TeamSchedule'. Did you mean 'useTeamSchedule'?
+hooks/api/public-services/index.ts(47,3): error TS2459: Module '"./useTeamSchedule"' declares 'CreateTeamScheduleData' locally, but it is not exported.
+hooks/api/public-services/index.ts(48,3): error TS2459: Module '"./useTeamSchedule"' declares 'TeamMember' locally, but it is not exported.
+hooks/api/public-services/index.ts(49,3): error TS2724: '"./useTeamSchedule"' has no exported member named 'UseTeamScheduleReturn'. Did you mean 'useTeamSchedule'?
+hooks/api/public-services/index.ts(53,3): error TS2724: '"./usePublicServicesAttendances"' has no exported member named 'PublicServiceAttendance'. Did you mean 'usePublicServicesAttendances'?
+hooks/api/public-services/index.ts(54,3): error TS2724: '"./usePublicServicesAttendances"' has no exported member named 'CreatePublicServiceAttendanceData'. Did you mean 'usePublicServicesAttendances'?
+hooks/api/public-services/index.ts(55,3): error TS2459: Module '"./usePublicServicesAttendances"' declares 'AttendanceFilters' locally, but it is not exported.
+hooks/api/public-services/index.ts(56,3): error TS2459: Module '"./usePublicServicesAttendances"' declares 'AttendanceStats' locally, but it is not exported.
+hooks/api/public-services/index.ts(57,3): error TS2724: '"./usePublicServicesAttendances"' has no exported member named 'UsePublicServicesAttendancesReturn'. Did you mean 'usePublicServicesAttendances'?
+hooks/api/public-works/usePublicWorksContracts.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/public-works/usePublicWorksEquipment.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/public-works/usePublicWorksEquipment.ts(461,49): error TS2769: No overload matches this call.
+hooks/api/public-works/usePublicWorksInspections.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/public-works/usePublicWorksInspections.ts(378,22): error TS2339: Property 'evidence' does not exist on type '{ description: string; category: string; evidence?: File[] | undefined; } | { description: string; category: "CRITICAL" | "MINOR" | "MAJOR"; severity: "LOW" | "HIGH" | "MEDIUM" | "CRITICAL"; requirement: string; evidence: File[]; correctionDeadline?: string | undefined; } | { ...; }'.
+hooks/api/public-works/usePublicWorksInspections.ts(378,53): error TS2339: Property 'evidence' does not exist on type '{ description: string; category: string; evidence?: File[] | undefined; } | { description: string; category: "CRITICAL" | "MINOR" | "MAJOR"; severity: "LOW" | "HIGH" | "MEDIUM" | "CRITICAL"; requirement: string; evidence: File[]; correctionDeadline?: string | undefined; } | { ...; }'.
+hooks/api/public-works/usePublicWorksInspections.ts(379,20): error TS2339: Property 'evidence' does not exist on type '{ description: string; category: string; evidence?: File[] | undefined; } | { description: string; category: "CRITICAL" | "MINOR" | "MAJOR"; severity: "LOW" | "HIGH" | "MEDIUM" | "CRITICAL"; requirement: string; evidence: File[]; correctionDeadline?: string | undefined; } | { ...; }'.
+hooks/api/public-works/usePublicWorksInspections.ts(379,38): error TS7006: Parameter 'file' implicitly has an 'any' type.
+hooks/api/public-works/usePublicWorksInspections.ts(379,44): error TS7006: Parameter 'fileIndex' implicitly has an 'any' type.
+hooks/api/public-works/usePublicWorksInspections.ts(382,27): error TS2339: Property 'evidence' does not exist on type '{ description: string; category: string; evidence?: File[] | undefined; } | { description: string; category: "CRITICAL" | "MINOR" | "MAJOR"; severity: "LOW" | "HIGH" | "MEDIUM" | "CRITICAL"; requirement: string; evidence: File[]; correctionDeadline?: string | undefined; } | { ...; }'.
+hooks/api/public-works/usePublicWorksProjects.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/public-works/usePublicWorksReports.ts(2,27): error TS2307: Cannot find module '@/lib/api-client' or its corresponding type declarations.
+hooks/api/security/index.ts(13,3): error TS2724: '"./useSecurityOccurrences"' has no exported member named 'SecurityOccurrence'. Did you mean 'useSecurityOccurrences'?
+hooks/api/security/index.ts(14,3): error TS2459: Module '"./useSecurityOccurrences"' declares 'CreateSecurityOccurrenceData' locally, but it is not exported.
+hooks/api/security/index.ts(15,3): error TS2724: '"./useSecurityOccurrences"' has no exported member named 'UpdateSecurityOccurrenceData'. Did you mean 'useSecurityOccurrences'?
+hooks/api/security/index.ts(16,3): error TS2459: Module '"./useSecurityOccurrences"' declares 'OccurrenceFilters' locally, but it is not exported.
+hooks/api/security/index.ts(17,3): error TS2724: '"./useSecurityOccurrences"' has no exported member named 'UseSecurityOccurrencesReturn'. Did you mean 'useSecurityOccurrences'?
+hooks/api/security/index.ts(21,3): error TS2724: '"./useSecurityAlerts"' has no exported member named 'SecurityAlert'. Did you mean 'useSecurityAlerts'?
+hooks/api/security/index.ts(22,3): error TS2459: Module '"./useSecurityAlerts"' declares 'CreateSecurityAlertData' locally, but it is not exported.
+hooks/api/security/index.ts(23,3): error TS2724: '"./useSecurityAlerts"' has no exported member named 'UseSecurityAlertsReturn'. Did you mean 'useSecurityAlerts'?
+hooks/api/security/index.ts(27,3): error TS2724: '"./useSecurityPatrols"' has no exported member named 'SecurityPatrol'. Did you mean 'useSecurityPatrols'?
+hooks/api/security/index.ts(28,3): error TS2459: Module '"./useSecurityPatrols"' declares 'CreateSecurityPatrolData' locally, but it is not exported.
+hooks/api/security/index.ts(29,3): error TS2724: '"./useSecurityPatrols"' has no exported member named 'UseSecurityPatrolsReturn'. Did you mean 'useSecurityPatrols'?
+hooks/api/security/index.ts(33,3): error TS2724: '"./useCriticalPoints"' has no exported member named 'CriticalPoint'. Did you mean 'useCriticalPoints'?
+hooks/api/security/index.ts(34,3): error TS2459: Module '"./useCriticalPoints"' declares 'CreateCriticalPointData' locally, but it is not exported.
+hooks/api/security/index.ts(35,3): error TS2724: '"./useCriticalPoints"' has no exported member named 'UseCriticalPointsReturn'. Did you mean 'useCriticalPoints'?
+hooks/api/security/index.ts(39,3): error TS2724: '"./useSecurityStatistics"' has no exported member named 'SecurityStatistics'. Did you mean 'useSecurityStatistics'?
+hooks/api/security/index.ts(40,3): error TS2724: '"./useSecurityStatistics"' has no exported member named 'UseSecurityStatisticsReturn'. Did you mean 'useSecurityStatistics'?
+hooks/api/security/index.ts(44,3): error TS2459: Module '"./useIntegratedSurveillance"' declares 'SurveillanceCamera' locally, but it is not exported.
+hooks/api/security/index.ts(45,3): error TS2724: '"./useIntegratedSurveillance"' has no exported member named 'UseIntegratedSurveillanceReturn'. Did you mean 'useIntegratedSurveillance'?
+hooks/api/security/index.ts(49,3): error TS2724: '"./useSecurityAttendances"' has no exported member named 'SecurityAttendance'. Did you mean 'useSecurityAttendances'?
+hooks/api/security/index.ts(50,3): error TS2459: Module '"./useSecurityAttendances"' declares 'CreateSecurityAttendanceData' locally, but it is not exported.
+hooks/api/security/index.ts(51,3): error TS2724: '"./useSecurityAttendances"' has no exported member named 'UseSecurityAttendancesReturn'. Did you mean 'useSecurityAttendances'?
+hooks/api/security/index.ts(55,3): error TS2459: Module '"./useGuardSupport"' declares 'GuardSupportRequest' locally, but it is not exported.
+hooks/api/security/index.ts(56,3): error TS2459: Module '"./useGuardSupport"' declares 'CreateGuardSupportRequestData' locally, but it is not exported.
+hooks/api/security/index.ts(57,3): error TS2724: '"./useGuardSupport"' has no exported member named 'UseGuardSupportReturn'. Did you mean 'useGuardSupport'?
+hooks/api/security/useSecurityAlerts.ts(105,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/security/useSecurityPatrols.ts(84,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/security/useSecurityPatrols.ts(126,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/social/index.ts(14,3): error TS2459: Module '"./useVulnerableFamilies"' declares 'VulnerableFamily' locally, but it is not exported.
+hooks/api/social/index.ts(15,3): error TS2459: Module '"./useVulnerableFamilies"' declares 'CreateVulnerableFamilyData' locally, but it is not exported.
+hooks/api/social/index.ts(16,3): error TS2459: Module '"./useVulnerableFamilies"' declares 'UpdateVulnerableFamilyData' locally, but it is not exported.
+hooks/api/social/index.ts(17,3): error TS2459: Module '"./useVulnerableFamilies"' declares 'FamilyFilters' locally, but it is not exported.
+hooks/api/social/index.ts(18,3): error TS2459: Module '"./useVulnerableFamilies"' declares 'FamilyStats' locally, but it is not exported.
+hooks/api/social/index.ts(19,3): error TS2724: '"./useVulnerableFamilies"' has no exported member named 'UseVulnerableFamiliesReturn'. Did you mean 'useVulnerableFamilies'?
+hooks/api/social/index.ts(23,3): error TS2459: Module '"./useFamilyVisits"' declares 'FamilyVisit' locally, but it is not exported.
+hooks/api/social/index.ts(24,3): error TS2459: Module '"./useFamilyVisits"' declares 'CreateFamilyVisitData' locally, but it is not exported.
+hooks/api/social/index.ts(25,3): error TS2459: Module '"./useFamilyVisits"' declares 'UpdateFamilyVisitData' locally, but it is not exported.
+hooks/api/social/index.ts(26,3): error TS2459: Module '"./useFamilyVisits"' declares 'VisitFilters' locally, but it is not exported.
+hooks/api/social/index.ts(27,3): error TS2459: Module '"./useFamilyVisits"' declares 'VisitStats' locally, but it is not exported.
+hooks/api/social/index.ts(28,3): error TS2724: '"./useFamilyVisits"' has no exported member named 'UseFamilyVisitsReturn'. Did you mean 'useFamilyVisits'?
+hooks/api/social/index.ts(32,3): error TS2724: '"./useSocialPrograms"' has no exported member named 'SocialProgram'. Did you mean 'useSocialPrograms'?
+hooks/api/social/index.ts(33,3): error TS2459: Module '"./useSocialPrograms"' declares 'CreateSocialProgramData' locally, but it is not exported.
+hooks/api/social/index.ts(34,3): error TS2459: Module '"./useSocialPrograms"' declares 'UpdateSocialProgramData' locally, but it is not exported.
+hooks/api/social/index.ts(35,3): error TS2459: Module '"./useSocialPrograms"' declares 'ProgramFilters' locally, but it is not exported.
+hooks/api/social/index.ts(36,3): error TS2459: Module '"./useSocialPrograms"' declares 'ProgramStats' locally, but it is not exported.
+hooks/api/social/index.ts(37,3): error TS2724: '"./useSocialPrograms"' has no exported member named 'UseSocialProgramsReturn'. Did you mean 'useSocialPrograms'?
+hooks/api/social/index.ts(41,3): error TS2724: '"./useFamilyBenefits"' has no exported member named 'FamilyBenefit'. Did you mean 'useFamilyBenefits'?
+hooks/api/social/index.ts(42,3): error TS2459: Module '"./useFamilyBenefits"' declares 'CreateFamilyBenefitData' locally, but it is not exported.
+hooks/api/social/index.ts(43,3): error TS2459: Module '"./useFamilyBenefits"' declares 'UpdateFamilyBenefitData' locally, but it is not exported.
+hooks/api/social/index.ts(44,3): error TS2459: Module '"./useFamilyBenefits"' declares 'BenefitFilters' locally, but it is not exported.
+hooks/api/social/index.ts(45,3): error TS2724: '"./useFamilyBenefits"' has no exported member named 'UseFamilyBenefitsReturn'. Did you mean 'useFamilyBenefits'?
+hooks/api/social/index.ts(49,3): error TS2459: Module '"./useEmergencyDeliveries"' declares 'EmergencyDelivery' locally, but it is not exported.
+hooks/api/social/index.ts(50,3): error TS2459: Module '"./useEmergencyDeliveries"' declares 'CreateEmergencyDeliveryData' locally, but it is not exported.
+hooks/api/social/index.ts(51,3): error TS2459: Module '"./useEmergencyDeliveries"' declares 'UpdateEmergencyDeliveryData' locally, but it is not exported.
+hooks/api/social/index.ts(52,3): error TS2459: Module '"./useEmergencyDeliveries"' declares 'DeliveryFilters' locally, but it is not exported.
+hooks/api/social/index.ts(53,3): error TS2724: '"./useEmergencyDeliveries"' has no exported member named 'UseEmergencyDeliveriesReturn'. Did you mean 'useEmergencyDeliveries'?
+hooks/api/social/index.ts(57,3): error TS2459: Module '"./useServiceUnits"' declares 'ServiceUnit' locally, but it is not exported.
+hooks/api/social/index.ts(58,3): error TS2459: Module '"./useServiceUnits"' declares 'CreateServiceUnitData' locally, but it is not exported.
+hooks/api/social/index.ts(59,3): error TS2459: Module '"./useServiceUnits"' declares 'UpdateServiceUnitData' locally, but it is not exported.
+hooks/api/social/index.ts(60,3): error TS2724: '"./useServiceUnits"' has no exported member named 'UseServiceUnitsReturn'. Did you mean 'useServiceUnits'?
+hooks/api/social/index.ts(64,3): error TS2724: '"./useSocialAttendances"' has no exported member named 'SocialAttendance'. Did you mean 'useSocialAttendances'?
+hooks/api/social/index.ts(65,3): error TS2459: Module '"./useSocialAttendances"' declares 'CreateSocialAttendanceData' locally, but it is not exported.
+hooks/api/social/index.ts(66,3): error TS2724: '"./useSocialAttendances"' has no exported member named 'UpdateSocialAttendanceData'. Did you mean 'useSocialAttendances'?
+hooks/api/social/index.ts(67,3): error TS2459: Module '"./useSocialAttendances"' declares 'AttendanceFilters' locally, but it is not exported.
+hooks/api/social/index.ts(68,3): error TS2724: '"./useSocialAttendances"' has no exported member named 'UseSocialAttendancesReturn'. Did you mean 'useSocialAttendances'?
+hooks/api/social/index.ts(72,3): error TS2724: '"./useProgramEnrollments"' has no exported member named 'ProgramEnrollment'. Did you mean 'useProgramEnrollments'?
+hooks/api/social/index.ts(73,3): error TS2459: Module '"./useProgramEnrollments"' declares 'CreateProgramEnrollmentData' locally, but it is not exported.
+hooks/api/social/index.ts(74,3): error TS2724: '"./useProgramEnrollments"' has no exported member named 'UpdateProgramEnrollmentData'. Did you mean 'useProgramEnrollments'?
+hooks/api/social/index.ts(75,3): error TS2459: Module '"./useProgramEnrollments"' declares 'EnrollmentFilters' locally, but it is not exported.
+hooks/api/social/index.ts(76,3): error TS2724: '"./useProgramEnrollments"' has no exported member named 'UseProgramEnrollmentsReturn'. Did you mean 'useProgramEnrollments'?
+hooks/api/social/index.ts(80,3): error TS2724: '"./useCrasCreasManagement"' has no exported member named 'CrasCreasManagement'. Did you mean 'useCrasCreasManagement'?
+hooks/api/social/index.ts(81,3): error TS2724: '"./useCrasCreasManagement"' has no exported member named 'CreateCrasCreasManagementData'. Did you mean 'useCrasCreasManagement'?
+hooks/api/social/index.ts(82,3): error TS2724: '"./useCrasCreasManagement"' has no exported member named 'UpdateCrasCreasManagementData'. Did you mean 'useCrasCreasManagement'?
+hooks/api/social/index.ts(83,3): error TS2459: Module '"./useCrasCreasManagement"' declares 'ManagementFilters' locally, but it is not exported.
+hooks/api/social/index.ts(84,3): error TS2724: '"./useCrasCreasManagement"' has no exported member named 'UseCrasCreasManagementReturn'. Did you mean 'useCrasCreasManagement'?
+hooks/api/social/useSocialPrograms.ts(159,11): error TS2430: Interface 'UpdateSocialProgramData' incorrectly extends interface 'Partial<CreateSocialProgramData>'.
+hooks/api/sports/index.ts(13,3): error TS2459: Module '"./useSportsEvents"' declares 'SportsEvent' locally, but it is not exported.
+hooks/api/sports/index.ts(14,3): error TS2459: Module '"./useSportsEvents"' declares 'CreateSportsEventData' locally, but it is not exported.
+hooks/api/sports/index.ts(15,3): error TS2724: '"./useSportsEvents"' has no exported member named 'UseSportsEventsReturn'. Did you mean 'useSportsEvents'?
+hooks/api/sports/index.ts(19,3): error TS2459: Module '"./useCompetitions"' declares 'Competition' locally, but it is not exported.
+hooks/api/sports/index.ts(20,3): error TS2459: Module '"./useCompetitions"' declares 'CreateCompetitionData' locally, but it is not exported.
+hooks/api/sports/index.ts(21,3): error TS2724: '"./useCompetitions"' has no exported member named 'UseCompetitionsReturn'. Did you mean 'useCompetitions'?
+hooks/api/sports/index.ts(25,3): error TS2459: Module '"./useAthletes"' declares 'Athlete' locally, but it is not exported.
+hooks/api/sports/index.ts(26,3): error TS2459: Module '"./useAthletes"' declares 'CreateAthleteData' locally, but it is not exported.
+hooks/api/sports/index.ts(27,3): error TS2459: Module '"./useAthletes"' declares 'UseAthletesReturn' locally, but it is not exported.
+hooks/api/sports/index.ts(31,3): error TS2459: Module '"./useSportsTeams"' declares 'SportsTeam' locally, but it is not exported.
+hooks/api/sports/index.ts(32,3): error TS2459: Module '"./useSportsTeams"' declares 'CreateSportsTeamData' locally, but it is not exported.
+hooks/api/sports/index.ts(33,3): error TS2724: '"./useSportsTeams"' has no exported member named 'UseSportsTeamsReturn'. Did you mean 'useSportsTeams'?
+hooks/api/sports/index.ts(37,3): error TS2724: '"./useSportsInfrastructure"' has no exported member named 'SportsInfrastructure'. Did you mean 'useSportsInfrastructure'?
+hooks/api/sports/index.ts(38,3): error TS2724: '"./useSportsInfrastructure"' has no exported member named 'CreateSportsInfrastructureData'. Did you mean 'useSportsInfrastructure'?
+hooks/api/sports/index.ts(39,3): error TS2724: '"./useSportsInfrastructure"' has no exported member named 'UseSportsInfrastructureReturn'. Did you mean 'useSportsInfrastructure'?
+hooks/api/sports/index.ts(43,3): error TS2724: '"./useSportsPrograms"' has no exported member named 'SportsProgram'. Did you mean 'useSportsPrograms'?
+hooks/api/sports/index.ts(44,3): error TS2459: Module '"./useSportsPrograms"' declares 'CreateSportsProgramData' locally, but it is not exported.
+hooks/api/sports/index.ts(45,3): error TS2724: '"./useSportsPrograms"' has no exported member named 'UseSportsProgramsReturn'. Did you mean 'useSportsPrograms'?
+hooks/api/sports/index.ts(49,3): error TS2724: '"./useSportsInstructors"' has no exported member named 'SportsInstructor'. Did you mean 'useSportsInstructors'?
+hooks/api/sports/index.ts(50,3): error TS2459: Module '"./useSportsInstructors"' declares 'CreateSportsInstructorData' locally, but it is not exported.
+hooks/api/sports/index.ts(51,3): error TS2724: '"./useSportsInstructors"' has no exported member named 'UseSportsInstructorsReturn'. Did you mean 'useSportsInstructors'?
+hooks/api/sports/index.ts(55,3): error TS2724: '"./useSportsReports"' has no exported member named 'SportsReport'. Did you mean 'useSportsReports'?
+hooks/api/sports/index.ts(56,3): error TS2459: Module '"./useSportsReports"' declares 'CreateSportsReportData' locally, but it is not exported.
+hooks/api/sports/index.ts(57,3): error TS2459: Module '"./useSportsReports"' declares 'ReportFilters' locally, but it is not exported.
+hooks/api/sports/index.ts(58,3): error TS2459: Module '"./useSportsReports"' declares 'ReportStats' locally, but it is not exported.
+hooks/api/sports/index.ts(59,3): error TS2724: '"./useSportsReports"' has no exported member named 'UseSportsReportsReturn'. Did you mean 'useSportsReports'?
+hooks/api/sports/useSportsAttendances.ts(180,112): error TS2554: Expected 2 arguments, but got 3.
+hooks/api/sports/useSportsReports.ts(211,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/sports/useSportsReports.ts(225,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/sports/useSportsSchools.ts(229,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/tourism/useTourismAccommodation.ts(379,25): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(393,7): error TS2322: Type 'unknown' is not assignable to type 'TourismAccommodation | null'.
+hooks/api/tourism/useTourismAccommodation.ts(409,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(410,7): error TS2322: Type 'unknown' is not assignable to type 'TourismAccommodation | null'.
+hooks/api/tourism/useTourismAccommodation.ts(426,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(427,7): error TS2322: Type 'unknown' is not assignable to type 'TourismAccommodation | null'.
+hooks/api/tourism/useTourismAccommodation.ts(459,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(481,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(505,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(537,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(560,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAccommodation.ts(583,25): error TS2345: Argument of type '(prev: TourismAccommodation[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAccommodation[]>'.
+hooks/api/tourism/useTourismAttractions.ts(297,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(311,7): error TS2322: Type 'unknown' is not assignable to type 'TourismAttraction | null'.
+hooks/api/tourism/useTourismAttractions.ts(327,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(328,7): error TS2322: Type 'unknown' is not assignable to type 'TourismAttraction | null'.
+hooks/api/tourism/useTourismAttractions.ts(344,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(345,7): error TS2322: Type 'unknown' is not assignable to type 'TourismAttraction | null'.
+hooks/api/tourism/useTourismAttractions.ts(377,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(399,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(422,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(445,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(467,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismAttractions.ts(492,22): error TS2345: Argument of type '(prev: TourismAttraction[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismAttraction[]>'.
+hooks/api/tourism/useTourismEvents.ts(382,17): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(396,7): error TS2322: Type 'unknown' is not assignable to type 'TourismEvent | null'.
+hooks/api/tourism/useTourismEvents.ts(412,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(413,7): error TS2322: Type 'unknown' is not assignable to type 'TourismEvent | null'.
+hooks/api/tourism/useTourismEvents.ts(429,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(430,7): error TS2322: Type 'unknown' is not assignable to type 'TourismEvent | null'.
+hooks/api/tourism/useTourismEvents.ts(462,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(487,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(511,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(540,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(562,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismEvents.ts(591,17): error TS2345: Argument of type '(prev: TourismEvent[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismEvent[]>'.
+hooks/api/tourism/useTourismGuides.ts(329,17): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(343,7): error TS2322: Type 'unknown' is not assignable to type 'TourismGuide | null'.
+hooks/api/tourism/useTourismGuides.ts(359,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(360,7): error TS2322: Type 'unknown' is not assignable to type 'TourismGuide | null'.
+hooks/api/tourism/useTourismGuides.ts(376,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(377,7): error TS2322: Type 'unknown' is not assignable to type 'TourismGuide | null'.
+hooks/api/tourism/useTourismGuides.ts(409,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(435,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(452,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(482,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(506,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(529,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismGuides.ts(551,17): error TS2345: Argument of type '(prev: TourismGuide[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismGuide[]>'.
+hooks/api/tourism/useTourismPackages.ts(365,19): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(379,7): error TS2322: Type 'unknown' is not assignable to type 'TourismPackage | null'.
+hooks/api/tourism/useTourismPackages.ts(395,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(396,7): error TS2322: Type 'unknown' is not assignable to type 'TourismPackage | null'.
+hooks/api/tourism/useTourismPackages.ts(412,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(413,7): error TS2322: Type 'unknown' is not assignable to type 'TourismPackage | null'.
+hooks/api/tourism/useTourismPackages.ts(445,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(469,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(489,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(518,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(549,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPackages.ts(576,19): error TS2345: Argument of type '(prev: TourismPackage[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPackage[]>'.
+hooks/api/tourism/useTourismPromotion.ts(344,21): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(358,7): error TS2322: Type 'unknown' is not assignable to type 'TourismPromotion | null'.
+hooks/api/tourism/useTourismPromotion.ts(374,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(375,7): error TS2322: Type 'unknown' is not assignable to type 'TourismPromotion | null'.
+hooks/api/tourism/useTourismPromotion.ts(391,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(392,7): error TS2322: Type 'unknown' is not assignable to type 'TourismPromotion | null'.
+hooks/api/tourism/useTourismPromotion.ts(424,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(449,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(486,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(510,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(532,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(554,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismPromotion.ts(571,21): error TS2345: Argument of type '(prev: TourismPromotion[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismPromotion[]>'.
+hooks/api/tourism/useTourismStatistics.ts(395,21): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'SetStateAction<TourismStatistics[]>'.
+hooks/api/tourism/useTourismStatistics.ts(409,7): error TS2322: Type 'unknown' is not assignable to type 'TourismStatistics | null'.
+hooks/api/tourism/useTourismStatistics.ts(425,21): error TS2345: Argument of type '(prev: TourismStatistics[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismStatistics[]>'.
+hooks/api/tourism/useTourismStatistics.ts(426,7): error TS2322: Type 'unknown' is not assignable to type 'TourismStatistics | null'.
+hooks/api/tourism/useTourismStatistics.ts(442,21): error TS2345: Argument of type '(prev: TourismStatistics[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismStatistics[]>'.
+hooks/api/tourism/useTourismStatistics.ts(443,7): error TS2322: Type 'unknown' is not assignable to type 'TourismStatistics | null'.
+hooks/api/tourism/useTourismStatistics.ts(519,21): error TS2345: Argument of type '(prev: TourismStatistics[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismStatistics[]>'.
+hooks/api/tourism/useTourismStatistics.ts(549,21): error TS2345: Argument of type '(prev: TourismStatistics[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismStatistics[]>'.
+hooks/api/tourism/useTourismStatistics.ts(580,21): error TS2345: Argument of type '(prev: TourismStatistics[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismStatistics[]>'.
+hooks/api/tourism/useTourismStatistics.ts(603,21): error TS2345: Argument of type '(prev: TourismStatistics[]) => unknown[]' is not assignable to parameter of type 'SetStateAction<TourismStatistics[]>'.
+hooks/api/urban-planning/index.ts(14,3): error TS2459: Module '"./useUrbanPlanning"' declares 'UrbanPlan' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(15,3): error TS2459: Module '"./useUrbanPlanning"' declares 'CreateUrbanPlanData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(16,3): error TS2724: '"./useUrbanPlanning"' has no exported member named 'UseUrbanPlanningReturn'. Did you mean 'useUrbanPlanning'?
+hooks/api/urban-planning/index.ts(20,3): error TS2459: Module '"./useZoning"' declares 'ZoningArea' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(21,3): error TS2459: Module '"./useZoning"' declares 'CreateZoningAreaData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(22,3): error TS2459: Module '"./useZoning"' declares 'UseZoningReturn' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(26,3): error TS2459: Module '"./useLandUse"' declares 'LandUsePlot' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(27,3): error TS2459: Module '"./useLandUse"' declares 'CreateLandUsePlotData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(28,3): error TS2459: Module '"./useLandUse"' declares 'UseLandUseReturn' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(32,3): error TS2724: '"./useConstructionLicenses"' has no exported member named 'ConstructionLicense'. Did you mean 'useConstructionLicenses'?
+hooks/api/urban-planning/index.ts(33,3): error TS2459: Module '"./useConstructionLicenses"' declares 'CreateConstructionLicenseData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(34,3): error TS2724: '"./useConstructionLicenses"' has no exported member named 'UseConstructionLicensesReturn'. Did you mean 'useConstructionLicenses'?
+hooks/api/urban-planning/index.ts(38,3): error TS2724: '"./useUrbanProjects"' has no exported member named 'UrbanProject'. Did you mean 'useUrbanProjects'?
+hooks/api/urban-planning/index.ts(39,3): error TS2459: Module '"./useUrbanProjects"' declares 'CreateUrbanProjectData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(40,3): error TS2724: '"./useUrbanProjects"' has no exported member named 'UseUrbanProjectsReturn'. Did you mean 'useUrbanProjects'?
+hooks/api/urban-planning/index.ts(44,3): error TS2459: Module '"./useTrafficPlanning"' declares 'TrafficPlan' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(45,3): error TS2459: Module '"./useTrafficPlanning"' declares 'CreateTrafficPlanData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(46,3): error TS2724: '"./useTrafficPlanning"' has no exported member named 'UseTrafficPlanningReturn'. Did you mean 'useTrafficPlanning'?
+hooks/api/urban-planning/index.ts(50,3): error TS2724: '"./useUrbanInfrastructure"' has no exported member named 'UrbanInfrastructure'. Did you mean 'useUrbanInfrastructure'?
+hooks/api/urban-planning/index.ts(51,3): error TS2724: '"./useUrbanInfrastructure"' has no exported member named 'CreateUrbanInfrastructureData'. Did you mean 'useUrbanInfrastructure'?
+hooks/api/urban-planning/index.ts(52,3): error TS2724: '"./useUrbanInfrastructure"' has no exported member named 'UseUrbanInfrastructureReturn'. Did you mean 'useUrbanInfrastructure'?
+hooks/api/urban-planning/index.ts(56,3): error TS2459: Module '"./useUrbanReports"' declares 'UrbanReport' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(57,3): error TS2459: Module '"./useUrbanReports"' declares 'CreateUrbanReportData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(58,3): error TS2724: '"./useUrbanReports"' has no exported member named 'UseUrbanReportsReturn'. Did you mean 'useUrbanReports'?
+hooks/api/urban-planning/index.ts(62,3): error TS2724: '"./useUrbanMonitoring"' has no exported member named 'UrbanMonitoring'. Did you mean 'useUrbanMonitoring'?
+hooks/api/urban-planning/index.ts(63,3): error TS2459: Module '"./useUrbanMonitoring"' declares 'CreateUrbanMonitoringData' locally, but it is not exported.
+hooks/api/urban-planning/index.ts(64,3): error TS2724: '"./useUrbanMonitoring"' has no exported member named 'UseUrbanMonitoringReturn'. Did you mean 'useUrbanMonitoring'?
+hooks/api/urban-planning/useConstructionLicenses.ts(282,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/urban-planning/useConstructionLicenses.ts(324,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/urban-planning/useTrafficPlanning.ts(529,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/urban-planning/useUrbanMonitoring.ts(433,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/urban-planning/useUrbanPlanning.ts(309,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/urban-planning/useUrbanReports.ts(589,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/urban-planning/useUrbanReports.ts(603,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/api/urban-planning/useUrbanReports.ts(617,40): error TS2554: Expected 2 arguments, but got 1.
+hooks/useCache.ts(84,32): error TS2802: Type 'MapIterator<[string, CacheEntry<T>]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+hooks/useCache.ts(98,32): error TS2802: Type 'MapIterator<[string, CacheEntry<T>]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+hooks/useCache.ts(112,32): error TS2802: Type 'MapIterator<[string, CacheEntry<T>]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+hooks/useCache.ts(249,32): error TS2802: Type 'MapIterator<[string, CacheEntry<T>]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+hooks/useOptimizedQuery.ts(497,5): error TS2345: Argument of type '(string | unknown[])[]' is not assignable to parameter of type 'string | string[]'.
+hooks/usePerformance.tsx(349,22): error TS2554: Expected 1 arguments, but got 0.
+hooks/useSearchCitizen.ts(19,11): error TS2339: Property 'tenantId' does not exist on type 'AdminAuthContextType'.
+lib/geracao-automatica.ts(105,39): error TS2802: Type 'MapIterator<[string, any[]]>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.

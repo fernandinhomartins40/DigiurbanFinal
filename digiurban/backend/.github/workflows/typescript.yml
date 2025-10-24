@@ -1,0 +1,260 @@
+# ============================================================================
+# FASE 3.2 - CI/CD TYPESCRIPT VALIDATION
+# GitHub Actions workflow para validação contínua de TypeScript
+# ============================================================================
+
+name: TypeScript Validation & Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  typescript-check:
+    name: TypeScript Type Checking
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: TypeScript type checking
+        run: npx tsc --noEmit
+
+      - name: ESLint checking
+        run: npm run lint
+
+      - name: Code formatting check
+        run: npm run format:check
+
+  build-test:
+    name: Build & Test Suite
+    runs-on: ubuntu-latest
+    needs: typescript-check
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build project
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+
+  security-audit:
+    name: Security & Dependency Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate
+
+      - name: Check for outdated dependencies
+        run: npm outdated || true
+
+  performance-benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Build performance test
+        run: |
+          time npm run build
+          echo "Build completed"
+
+      - name: TypeScript compilation benchmark
+        run: |
+          time npx tsc --noEmit
+          echo "TypeScript check completed"
+
+  code-quality-metrics:
+    name: Code Quality Metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Calculate TypeScript coverage
+        run: |
+          echo "🔍 Calculating TypeScript coverage..."
+
+          # Count total TypeScript files
+          total_files=$(find src -name "*.ts" | wc -l)
+          echo "📊 Total TypeScript files: $total_files"
+
+          # Count files with @ts-ignore or @ts-expect-error
+          suppressed_files=$(grep -r -l "@ts-ignore\|@ts-expect-error" src --include="*.ts" | wc -l)
+          echo "⚠️  Files with suppressions: $suppressed_files"
+
+          # Calculate coverage percentage
+          if [ $total_files -gt 0 ]; then
+            coverage=$(echo "scale=2; (($total_files - $suppressed_files) * 100) / $total_files" | bc)
+            echo "✅ TypeScript coverage: ${coverage}%"
+          fi
+
+          # Count TypeScript errors
+          error_count=$(npx tsc --noEmit 2>&1 | grep -c "error TS" || echo "0")
+          echo "🚨 TypeScript errors: $error_count"
+
+          echo "📈 Quality Metrics Summary:"
+          echo "- Total files: $total_files"
+          echo "- Files with suppressions: $suppressed_files"
+          echo "- TypeScript coverage: ${coverage}%"
+          echo "- Active errors: $error_count"
+
+  deployment-readiness:
+    name: Deployment Readiness Check
+    runs-on: ubuntu-latest
+    needs: [typescript-check, build-test, security-audit]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Final validation checklist
+        run: |
+          echo "🚀 Final deployment readiness checklist:"
+
+          # Check if TypeScript compiles without errors
+          if npx tsc --noEmit; then
+            echo "✅ TypeScript compilation: PASSED"
+          else
+            echo "❌ TypeScript compilation: FAILED"
+            exit 1
+          fi
+
+          # Check if build succeeds
+          if npm run build; then
+            echo "✅ Build process: PASSED"
+          else
+            echo "❌ Build process: FAILED"
+            exit 1
+          fi
+
+          # Check if linting passes
+          if npm run lint; then
+            echo "✅ Code linting: PASSED"
+          else
+            echo "❌ Code linting: FAILED"
+            exit 1
+          fi
+
+          echo "🎉 All deployment readiness checks PASSED!"
+
+      - name: Generate deployment report
+        run: |
+          echo "# 📋 Deployment Report" > deployment-report.md
+          echo "" >> deployment-report.md
+          echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> deployment-report.md
+          echo "**Commit:** ${{ github.sha }}" >> deployment-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "## ✅ Quality Checks" >> deployment-report.md
+          echo "- [x] TypeScript compilation successful" >> deployment-report.md
+          echo "- [x] Build process successful" >> deployment-report.md
+          echo "- [x] Code linting passed" >> deployment-report.md
+          echo "- [x] Security audit passed" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "## 📊 Metrics" >> deployment-report.md
+
+          # Add metrics to report
+          total_files=$(find src -name "*.ts" | wc -l)
+          error_count=$(npx tsc --noEmit 2>&1 | grep -c "error TS" || echo "0")
+          echo "- **Total TypeScript files:** $total_files" >> deployment-report.md
+          echo "- **TypeScript errors:** $error_count" >> deployment-report.md
+          echo "- **Node.js version:** $(node --version)" >> deployment-report.md
+          echo "- **npm version:** $(npm --version)" >> deployment-report.md
+
+      - name: Upload deployment report
+        uses: actions/upload-artifact@v3
+        with:
+          name: deployment-report-${{ github.sha }}
+          path: deployment-report.md

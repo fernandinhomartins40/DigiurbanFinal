@@ -1,0 +1,68 @@
+# Node modules
+**/node_modules
+**/npm-debug.log
+
+# Next.js
+**/.next
+**/out
+
+# Desenvolvimento
+**/.git
+**/.github
+**/.vscode
+**/.idea
+
+# Testes e logs
+**/coverage
+**/test-results
+**/*.log
+**/logs
+
+# Temporários
+**/.env.local
+**/.env.*.local
+**/tmp
+**/temp
+
+# Build artifacts
+**/dist
+**/build
+
+# Scripts de teste
+**/*test*.js
+**/*test*.ts
+**/test-*.js
+**/verify-*.js
+**/check-*.js
+**/fix-*.js
+**/audit-*.js
+**/update-*.js
+**/delete-*.js
+**/create-*.js
+**/move-*.js
+**/reset-*.js
+**/setup-*.js
+**/list-*.js
+**/get-*.js
+
+# Documentação
+**/*.md
+!**/README.md
+
+# Arquivos de erro
+**/typescript-errors*.txt
+**/typescript-errors*.log
+**/errors-*.txt
+**/*-audit*.json
+**/*-audit*.txt
+
+# Database local
+**/dev.db
+**/dev.db-journal
+
+# Outros
+**/.DS_Store
+**/Thumbs.db
+**/*.swp
+**/*.swo
+**/nul

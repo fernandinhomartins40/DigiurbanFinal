@@ -112,13 +112,13 @@ export function useAuditLog(options: UseAuditLogOptions = {}): UseAuditLogReturn
       }
 
       const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
+      a.href = downloadUrl;
       a.download = `audit-log-${new Date().toISOString()}.${format}`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
+      window.URL.revokeObjectURL(downloadUrl);
       document.body.removeChild(a);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao exportar logs');

@@ -56,9 +56,21 @@
 **/*-audit*.json
 **/*-audit*.txt
 
-# Database local
+# Database local (CRÍTICO: nunca copiar bancos para imagem Docker)
+**/*.db
+**/*.db-*
 **/dev.db
 **/dev.db-journal
+**/dev.db-shm
+**/dev.db-wal
+**/prisma/*.db
+**/prisma/*.db-*
+**/data/*.db
+**/data/*.db-*
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
 
 # Outros
 **/.DS_Store

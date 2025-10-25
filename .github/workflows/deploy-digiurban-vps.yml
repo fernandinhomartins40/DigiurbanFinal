@@ -102,6 +102,12 @@ jobs:
             echo "Parando container existente..."
             docker-compose -f docker-compose.vps.yml down || true
 
+            # ⚠️ CRÍTICO: Remover TODOS os arquivos .db ANTES do build
+            echo "Removendo arquivos .db do código-fonte..."
+            find . -name "*.db" -type f ! -path "*/node_modules/*" -delete || true
+            find . -name "*.db-*" -type f ! -path "*/node_modules/*" -delete || true
+            echo "✅ Arquivos .db removidos"
+
             # Limpar TODOS os recursos Docker antigos para garantir rebuild limpo
             echo "Limpando recursos antigos..."
             docker container prune -f || true

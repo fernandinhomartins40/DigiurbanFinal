@@ -293,7 +293,7 @@ router.get(
       const isCpfSearch = searchClean.length >= 3 && /^\d+$/.test(searchClean);
 
       // Buscar cidadãos por nome ou CPF
-      const where: Prisma.CitizenWhereInput = {
+      const where = {
         tenantId: user.tenantId,
         isActive: true,
         OR: [
@@ -303,7 +303,7 @@ router.get(
       };
 
       const citizens = await prisma.citizen.findMany({
-        where,
+        where: where as Prisma.CitizenWhereInput,
         select: {
           id: true,
           name: true,

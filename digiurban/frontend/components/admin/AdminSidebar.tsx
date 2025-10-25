@@ -79,10 +79,16 @@ export function AdminSidebar() {
       title: 'Gestão',
       items: [
         {
-          title: 'Serviços',
-          href: '/admin/gerenciamento-servicos',
+          title: 'Catálogo de Serviços',
+          href: '/admin/servicos',
           icon: Settings,
           permissions: ['services:create', 'services:update']
+        },
+        {
+          title: 'Estatísticas',
+          href: '/admin/gerenciamento-servicos',
+          icon: BarChart3,
+          permissions: ['services:read']
         },
         {
           title: 'Equipe',

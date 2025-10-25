@@ -1,5 +1,6 @@
 import { PrismaClient, TenantStatus, Plan } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { seedInitialServices } from './seeds/initial-services';
 
 const prisma = new PrismaClient();
 
@@ -156,6 +157,37 @@ async function main() {
       }
     });
     console.log('   ✅ Departamento criado:', department.name);
+
+    // ========== 5. CRIAR DEPARTAMENTOS PRINCIPAIS ==========
+    console.log('\n🏢 Criando departamentos principais...');
+
+    const mainDepartments = [
+      { name: 'Secretaria de Saúde', code: 'SAUDE' },
+      { name: 'Secretaria de Educação', code: 'EDUCACAO' },
+      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS' },
+    ];
+
+    for (const dept of mainDepartments) {
+      await prisma.department.upsert({
+        where: {
+          tenantId_name: {
+            tenantId: demoTenant.id,
+            name: dept.name
+          }
+        },
+        update: { code: dept.code, isActive: true },
+        create: {
+          name: dept.name,
+          code: dept.code,
+          tenantId: demoTenant.id,
+          isActive: true
+        }
+      });
+      console.log(`   ✅ ${dept.name} (${dept.code})`);
+    }
+
+    // ========== 6. POPULAR SERVIÇOS INICIAIS ==========
+    await seedInitialServices(demoTenant.id);
 
     // ========== RESUMO FINAL ==========
     console.log('\n✅ Seed concluído com sucesso!');

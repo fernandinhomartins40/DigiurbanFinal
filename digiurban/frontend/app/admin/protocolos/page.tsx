@@ -185,8 +185,8 @@ export default function ProtocolsPage() {
   // Carregar serviços
   const loadServices = async () => {
     try {
-      const data = await apiRequest('/services')
-      setServices(data.data?.services || [])
+      const data = await apiRequest('/api/services')
+      setServices(data.data || [])
     } catch (error) {
       console.error('Erro ao carregar serviços:', error)
     }

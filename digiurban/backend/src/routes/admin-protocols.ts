@@ -275,14 +275,16 @@ router.get(
   handleAsyncRoute(async (req, res) => {
     console.log('[SEARCH-CITIZENS] Endpoint chamado', { query: req.query });
 
-    if (!isAuthenticatedRequest(req)) {
-      console.log('[SEARCH-CITIZENS] Unauthorized');
+    const authReq = req as AuthenticatedRequest;
+
+    if (!authReq.user) {
+      console.log('[SEARCH-CITIZENS] Unauthorized - no user');
       res.status(401).json(createErrorResponse('UNAUTHORIZED', 'Acesso não autorizado'));
       return;
     }
 
     try {
-      const { user } = req;
+      const { user } = authReq;
       const search = getStringParam(req.query.q) || getStringParam(req.query.search) || '';
       const limit = getNumberParam(req.query.limit) || 10;
 

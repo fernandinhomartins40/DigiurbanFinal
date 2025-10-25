@@ -298,14 +298,14 @@ export default function ProtocolsPage() {
                   Novo Protocolo
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
+              <DialogContent className="max-w-2xl max-h-[calc(100vh-4rem)] flex flex-col">
+                <DialogHeader className="flex-shrink-0">
                   <DialogTitle>Criar Novo Protocolo</DialogTitle>
                   <DialogDescription>
                     Preencha os dados para criar um novo protocolo em nome de um cidadão
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
+                <div className="space-y-4 py-4 overflow-y-auto flex-1">
                   <CitizenAutocomplete
                     value={selectedCitizen}
                     onChange={setSelectedCitizen}
@@ -391,7 +391,7 @@ export default function ProtocolsPage() {
                     />
                   </div>
                 </div>
-                <div className="flex justify-end space-x-2">
+                <div className="flex justify-end space-x-2 flex-shrink-0 border-t pt-4">
                   <Button variant="outline" onClick={() => setShowNewProtocolDialog(false)}>
                     Cancelar
                   </Button>
@@ -624,8 +624,8 @@ export default function ProtocolsPage() {
 
       {/* Dialog de Visualização */}
       <Dialog open={!!selectedProtocol && !showAssignDialog} onOpenChange={(open) => !open && setSelectedProtocol(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[calc(100vh-4rem)] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Detalhes do Protocolo #{selectedProtocol?.number}</DialogTitle>
             <DialogDescription>
               Informações completas do protocolo
@@ -633,7 +633,7 @@ export default function ProtocolsPage() {
           </DialogHeader>
 
           {selectedProtocol && (
-            <div className="space-y-6">
+            <div className="space-y-6 overflow-y-auto flex-1">
               {/* Status e Prioridade */}
               <div className="flex items-center gap-4">
                 <Badge
@@ -781,7 +781,7 @@ export default function ProtocolsPage() {
             </div>
           )}
 
-          <div className="flex justify-end">
+          <div className="flex justify-end flex-shrink-0 border-t pt-4">
             <Button variant="outline" onClick={() => setSelectedProtocol(null)}>
               Fechar
             </Button>

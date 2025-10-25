@@ -28,7 +28,7 @@ export function CitizenAutocomplete({
   value,
   onChange,
   label = 'Cidadão',
-  placeholder = 'Digite o nome ou CPF do cidadão...',
+  placeholder = 'Digite o nome do cidadão...',
   required = false,
   error,
 }: CitizenAutocompleteProps) {

@@ -285,7 +285,7 @@ router.get(
 
     try {
       const { user } = authReq;
-      const search = getStringParam(req.query.q) || getStringParam(req.query.search) || '';
+      const search = getStringParam(req.query.q) || '';
       const limit = getNumberParam(req.query.limit) || 10;
 
       console.log('[SEARCH-CITIZENS] Busca:', { search, limit, tenantId: user.tenantId });
@@ -296,27 +296,16 @@ router.get(
         return;
       }
 
-      // Remover formatação de CPF se for número
-      const searchClean = search.replace(/\D/g, '');
-      const isCpfSearch = searchClean.length >= 3 && /^\d+$/.test(searchClean);
-
-      // Buscar cidadãos por nome ou CPF
-      const orConditions: any[] = [
-        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-      ];
-
-      if (isCpfSearch) {
-        orConditions.push({ cpf: { contains: searchClean } });
-      }
-
-      const where = {
-        tenantId: user.tenantId,
-        isActive: true,
-        OR: orConditions,
-      };
-
+      // Buscar cidadãos apenas por nome (simplificado)
       const citizens = await prisma.citizen.findMany({
-        where: where as Prisma.CitizenWhereInput,
+        where: {
+          tenantId: user.tenantId,
+          isActive: true,
+          name: {
+            contains: search,
+            mode: 'insensitive' as Prisma.QueryMode,
+          },
+        },
         select: {
           id: true,
           name: true,

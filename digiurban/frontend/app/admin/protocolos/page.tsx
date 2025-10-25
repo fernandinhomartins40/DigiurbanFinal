@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { CitizenAutocomplete } from '@/components/admin/CitizenAutocomplete'
+import { useToast } from '@/hooks/use-toast'
 import {
   Search,
   Filter,
@@ -87,6 +89,7 @@ const statusColors = {
 export default function ProtocolsPage() {
   const { user, apiRequest, loading: authLoading } = useAdminAuth()
   const { hasPermission } = useAdminPermissions()
+  const { toast } = useToast()
   const [protocols, setProtocols] = useState<Protocol[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
@@ -100,8 +103,8 @@ export default function ProtocolsPage() {
   const [showNewProtocolDialog, setShowNewProtocolDialog] = useState(false)
   const [services, setServices] = useState([])
   const [departments, setDepartments] = useState([])
+  const [selectedCitizen, setSelectedCitizen] = useState<any>(null)
   const [newProtocol, setNewProtocol] = useState({
-    citizenCpf: '',
     serviceId: '',
     departmentId: '',
     description: '',
@@ -203,30 +206,48 @@ export default function ProtocolsPage() {
   // Criar novo protocolo
   const createProtocol = async () => {
     // Validação dos campos obrigatórios
-    if (!newProtocol.citizenCpf || !newProtocol.serviceId || !newProtocol.departmentId) {
-      alert('Por favor, preencha todos os campos obrigatórios (CPF, Serviço e Departamento)')
+    if (!selectedCitizen || !newProtocol.serviceId || !newProtocol.departmentId) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, selecione o cidadão, serviço e departamento.',
+        variant: 'destructive',
+      })
       return
     }
 
     try {
       await apiRequest('/admin/protocols', {
         method: 'POST',
-        body: JSON.stringify(newProtocol)
+        body: JSON.stringify({
+          citizenId: selectedCitizen.id,
+          serviceId: newProtocol.serviceId,
+          departmentId: newProtocol.departmentId,
+          description: newProtocol.description,
+          priority: newProtocol.priority,
+        })
+      })
+
+      toast({
+        title: 'Protocolo criado',
+        description: 'O protocolo foi criado com sucesso.',
       })
 
       setShowNewProtocolDialog(false)
+      setSelectedCitizen(null)
       setNewProtocol({
-        citizenCpf: '',
         serviceId: '',
         departmentId: '',
         description: '',
-        priority: 3 // Normal = 3
+        priority: 3
       })
       await loadProtocols()
-      alert('Protocolo criado com sucesso!')
     } catch (error) {
       console.error('Erro ao criar protocolo:', error)
-      alert('Erro ao criar protocolo. Verifique os dados e tente novamente.')
+      toast({
+        title: 'Erro ao criar protocolo',
+        description: 'Ocorreu um erro ao criar o protocolo. Verifique os dados e tente novamente.',
+        variant: 'destructive',
+      })
     }
   }
 
@@ -285,15 +306,13 @@ export default function ProtocolsPage() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="citizenCpf">CPF do Cidadão *</Label>
-                    <Input
-                      id="citizenCpf"
-                      placeholder="000.000.000-00"
-                      value={newProtocol.citizenCpf}
-                      onChange={(e) => setNewProtocol({ ...newProtocol, citizenCpf: e.target.value })}
-                    />
-                  </div>
+                  <CitizenAutocomplete
+                    value={selectedCitizen}
+                    onChange={setSelectedCitizen}
+                    label="Cidadão"
+                    placeholder="Digite o nome ou CPF do cidadão..."
+                    required
+                  />
 
                   <div className="space-y-2">
                     <Label htmlFor="serviceId">Serviço *</Label>

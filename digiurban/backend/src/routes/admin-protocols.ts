@@ -268,6 +268,63 @@ const createProtocolSchema = z.object({
 router.use(tenantMiddleware);
 router.use(adminAuthMiddleware);
 
+// GET /api/admin/protocols/search-citizens - Buscar cidadãos para autocomplete
+router.get(
+  '/search-citizens',
+  requirePermission('protocols:create'),
+  handleAsyncRoute(async (req, res) => {
+    if (!isAuthenticatedRequest(req)) {
+      res.status(401).json(createErrorResponse('UNAUTHORIZED', 'Acesso não autorizado'));
+      return;
+    }
+
+    try {
+      const { user } = req;
+      const search = getStringParam(req.query.q) || getStringParam(req.query.search) || '';
+      const limit = getNumberParam(req.query.limit) || 10;
+
+      if (search.length < 2) {
+        res.json(createSuccessResponse({ citizens: [] }, 'Digite pelo menos 2 caracteres'));
+        return;
+      }
+
+      // Remover formatação de CPF se for número
+      const searchClean = search.replace(/\D/g, '');
+      const isCpfSearch = searchClean.length >= 3 && /^\d+$/.test(searchClean);
+
+      // Buscar cidadãos por nome ou CPF
+      const where: Prisma.CitizenWhereInput = {
+        tenantId: user.tenantId,
+        isActive: true,
+        OR: [
+          { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          ...(isCpfSearch ? [{ cpf: { contains: searchClean } }] : []),
+        ],
+      };
+
+      const citizens = await prisma.citizen.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          cpf: true,
+          email: true,
+          phone: true,
+        },
+        take: limit,
+        orderBy: {
+          name: 'asc',
+        },
+      });
+
+      res.json(createSuccessResponse({ citizens }, 'Cidadãos encontrados'));
+    } catch (error: unknown) {
+      console.error('Erro ao buscar cidadãos:', error);
+      res.status(500).json(createErrorResponse('INTERNAL_ERROR', 'Erro ao buscar cidadãos'));
+    }
+  })
+);
+
 // GET /api/admin/protocols - Listar protocolos com filtro por nível de acesso
 router.get(
   '/',

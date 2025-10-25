@@ -160,6 +160,36 @@ export default function SecretariaObrasPublicasPage() {
         </Card>
       </div>
 
+      {/* Ações Rápidas */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ações Rápidas</CardTitle>
+          <CardDescription>
+            Acesso direto às funcionalidades mais utilizadas
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Button className="h-20 flex flex-col" variant="outline">
+              <Plus className="h-6 w-6 mb-2" />
+              <span>Nova Obra</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <TrendingUp className="h-6 w-6 mb-2" />
+              <span>Atualizar Progresso</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <FileText className="h-6 w-6 mb-2" />
+              <span>Novo Contrato</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <MapPin className="h-6 w-6 mb-2" />
+              <span>Mapear Obra</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Módulos Especializados */}
       <div>
         <h2 className="text-2xl font-semibold mb-6">Módulos Especializados</h2>
@@ -200,36 +230,6 @@ export default function SecretariaObrasPublicasPage() {
           ))}
         </div>
       </div>
-
-      {/* Ações Rápidas */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-          <CardDescription>
-            Acesso direto às funcionalidades mais utilizadas
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col" variant="outline">
-              <Plus className="h-6 w-6 mb-2" />
-              <span>Nova Obra</span>
-            </Button>
-            <Button className="h-20 flex flex-col" variant="outline">
-              <TrendingUp className="h-6 w-6 mb-2" />
-              <span>Atualizar Progresso</span>
-            </Button>
-            <Button className="h-20 flex flex-col" variant="outline">
-              <FileText className="h-6 w-6 mb-2" />
-              <span>Novo Contrato</span>
-            </Button>
-            <Button className="h-20 flex flex-col" variant="outline">
-              <MapPin className="h-6 w-6 mb-2" />
-              <span>Mapear Obra</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

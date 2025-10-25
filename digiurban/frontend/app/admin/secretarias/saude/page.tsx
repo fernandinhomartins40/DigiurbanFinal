@@ -178,6 +178,32 @@ export default function SecretariaSaudePage() {
         </Card>
       </div>
 
+      {/* Ações Rápidas */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ações Rápidas</CardTitle>
+          <CardDescription>
+            Acesso direto às funcionalidades mais utilizadas
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Button className="h-20 flex flex-col" variant="outline">
+              <Calendar className="h-6 w-6 mb-2" />
+              <span>Agendar Consulta</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <FileText className="h-6 w-6 mb-2" />
+              <span>Relatório Mensal</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <Activity className="h-6 w-6 mb-2" />
+              <span>Painel COVID-19</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Módulos Especializados */}
       <div>
         <h2 className="text-2xl font-semibold mb-6">Módulos Especializados</h2>
@@ -218,32 +244,6 @@ export default function SecretariaSaudePage() {
           ))}
         </div>
       </div>
-
-      {/* Ações Rápidas */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ações Rápidas</CardTitle>
-          <CardDescription>
-            Acesso direto às funcionalidades mais utilizadas
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button className="h-20 flex flex-col" variant="outline">
-              <Calendar className="h-6 w-6 mb-2" />
-              <span>Agendar Consulta</span>
-            </Button>
-            <Button className="h-20 flex flex-col" variant="outline">
-              <FileText className="h-6 w-6 mb-2" />
-              <span>Relatório Mensal</span>
-            </Button>
-            <Button className="h-20 flex flex-col" variant="outline">
-              <Activity className="h-6 w-6 mb-2" />
-              <span>Painel COVID-19</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

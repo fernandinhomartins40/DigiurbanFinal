@@ -367,7 +367,7 @@ export function CitizenFamilyComposition({ citizenId, citizenName, canEdit = tru
                 <p className="text-sm text-gray-500 mt-1">Buscando...</p>
               )}
               {searchResults.length > 0 && (
-                <div className="mt-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto">
+                <div className="mt-2 border border-gray-200 rounded-lg max-h-60 overflow-y-auto">
                   {searchResults.map((citizen) => (
                     <button
                       key={citizen.id}

@@ -761,12 +761,13 @@ export default function GestaoFamiliasVulneraveis({
 
       {/* Modal de Cadastro de Família */}
       {showFamilyForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <CardTitle>Cadastrar Nova Família Vulnerável</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="w-full max-w-4xl my-8">
+            <Card className="w-full max-h-[calc(100vh-4rem)] flex flex-col">
+              <CardHeader className="flex-shrink-0">
+                <CardTitle>Cadastrar Nova Família Vulnerável</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6 overflow-y-auto flex-1">
               {/* Dados do Responsável */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Dados do Responsável</h3>
@@ -937,7 +938,7 @@ export default function GestaoFamiliasVulneraveis({
                 />
               </div>
 
-              <div className="flex space-x-2 pt-4">
+              <div className="flex space-x-2 pt-4 flex-shrink-0 sticky bottom-0 bg-white border-t -mx-6 px-6 py-4">
                 <Button
                   variant="outline"
                   onClick={() => setShowFamilyForm(false)}
@@ -951,7 +952,8 @@ export default function GestaoFamiliasVulneraveis({
                 </Button>
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </div>
         </div>
       )}
     </div>

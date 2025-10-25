@@ -303,7 +303,6 @@ router.get(
           isActive: true,
           name: {
             contains: search,
-            mode: 'insensitive' as Prisma.QueryMode,
           },
         },
         select: {

@@ -19,7 +19,10 @@ RUN npm install --legacy-peer-deps
 # Copiar código do backend
 COPY digiurban/backend ./
 
-# Gerar Prisma Client
+# Gerar Prisma Client (sem criar banco - apenas gerar tipos)
+# ⚠️ IMPORTANTE: usar DATABASE_URL temporário para evitar criação de banco
+ARG DATABASE_URL=file:/app/data/dev.db
+ENV DATABASE_URL=${DATABASE_URL}
 RUN npx prisma generate
 
 # Build TypeScript

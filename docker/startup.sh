@@ -13,9 +13,15 @@ chmod 777 /app/data /app/uploads /app/logs
 # Ir para diretório do backend
 cd /app/backend
 
-# Gerar Prisma Client (garantir que está correto)
-echo "🔧 Gerando Prisma Client..."
-npx prisma generate || echo "⚠️ Prisma generate falhou"
+# Gerar Prisma Client APENAS se não existir
+# (já foi gerado durante o build do Docker, mas podemos revalidar)
+echo "🔧 Validando Prisma Client..."
+if [ ! -d "node_modules/.prisma/client" ]; then
+    echo "   Gerando Prisma Client..."
+    DATABASE_URL="file:/app/data/dev.db" npx prisma generate || echo "⚠️ Prisma generate falhou"
+else
+    echo "   ✅ Prisma Client já existe"
+fi
 
 # Criar banco de dados se não existir
 if [ ! -f "/app/data/dev.db" ]; then

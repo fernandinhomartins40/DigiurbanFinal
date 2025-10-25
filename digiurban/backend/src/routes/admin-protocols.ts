@@ -293,13 +293,18 @@ router.get(
       const isCpfSearch = searchClean.length >= 3 && /^\d+$/.test(searchClean);
 
       // Buscar cidadãos por nome ou CPF
+      const orConditions: any[] = [
+        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
+      ];
+
+      if (isCpfSearch) {
+        orConditions.push({ cpf: { contains: searchClean } });
+      }
+
       const where = {
         tenantId: user.tenantId,
         isActive: true,
-        OR: [
-          { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-          ...(isCpfSearch ? [{ cpf: { contains: searchClean } }] : []),
-        ],
+        OR: orConditions,
       };
 
       const citizens = await prisma.citizen.findMany({

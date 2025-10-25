@@ -170,7 +170,7 @@ export function AdminSidebar() {
       },
       {
         title: 'Esportes',
-        href: '/admin/secretarias/esporte',
+        href: '/admin/secretarias/esportes',
         icon: Trophy,
         minRole: 'COORDINATOR'
       },

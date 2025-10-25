@@ -9,6 +9,7 @@ import { prisma } from '../lib/prisma';
 import { Prisma, Plan, TenantStatus, InvoiceStatus } from '@prisma/client';
 import { UNASSIGNED_POOL_ID, isUnassignedPool } from '../config/tenants';
 import { autoLinkCitizens } from '../services/citizen-auto-link';
+import { seedInitialServices } from '../../prisma/seeds/initial-services';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -546,34 +547,51 @@ router.post(
       data: tenantData as unknown as Prisma.TenantUncheckedCreateInput,
     });
 
-    // Criar departamentos padrão
+    // Criar departamentos padrão com códigos padronizados
     const defaultDepartments = [
-      'Saúde',
-      'Educação',
-      'Assistência Social',
-      'Cultura',
-      'Segurança Pública',
-      'Planejamento Urbano',
-      'Agricultura',
-      'Esportes',
-      'Turismo',
-      'Habitação',
-      'Meio Ambiente',
-      'Obras Públicas',
-      'Serviços Públicos',
+      { name: 'Secretaria de Saúde', code: 'SAUDE', description: 'Secretaria Municipal de Saúde' },
+      { name: 'Secretaria de Educação', code: 'EDUCACAO', description: 'Secretaria Municipal de Educação' },
+      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Secretaria Municipal de Serviços Públicos' },
+      { name: 'Secretaria de Assistência Social', code: 'ASSISTENCIA_SOCIAL', description: 'Secretaria Municipal de Assistência Social' },
+      { name: 'Secretaria de Cultura', code: 'CULTURA', description: 'Secretaria Municipal de Cultura' },
+      { name: 'Secretaria de Segurança Pública', code: 'SEGURANCA', description: 'Secretaria Municipal de Segurança Pública' },
+      { name: 'Secretaria de Planejamento Urbano', code: 'PLANEJAMENTO', description: 'Secretaria Municipal de Planejamento Urbano' },
+      { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Secretaria Municipal de Agricultura' },
+      { name: 'Secretaria de Esportes', code: 'ESPORTES', description: 'Secretaria Municipal de Esportes' },
+      { name: 'Secretaria de Turismo', code: 'TURISMO', description: 'Secretaria Municipal de Turismo' },
+      { name: 'Secretaria de Habitação', code: 'HABITACAO', description: 'Secretaria Municipal de Habitação' },
+      { name: 'Secretaria de Meio Ambiente', code: 'MEIO_AMBIENTE', description: 'Secretaria Municipal de Meio Ambiente' },
+      { name: 'Secretaria de Obras Públicas', code: 'OBRAS', description: 'Secretaria Municipal de Obras Públicas' },
     ];
 
     await Promise.all(
-      defaultDepartments.map(deptName =>
+      defaultDepartments.map(dept =>
         prisma.department.create({
           data: {
-            name: deptName,
-            description: `Secretaria Municipal de ${deptName}`,
+            name: dept.name,
+            code: dept.code,
+            description: dept.description,
             tenantId: tenant.id,
+            isActive: true,
           },
         })
       )
     );
+
+    // Popular serviços padrão automaticamente (52 serviços padrão)
+    // Saúde: 20 serviços | Educação: 14 serviços | Serviços Públicos: 18 serviços
+    try {
+      const result = await seedInitialServices(tenant.id);
+      console.log(`✅ Serviços padrão criados para tenant ${tenant.name} (${tenant.id}):`, {
+        created: result.created,
+        skipped: result.skipped,
+        errors: result.errors
+      });
+    } catch (error) {
+      console.error(`⚠️ Erro ao popular serviços para tenant ${tenant.id}:`, error);
+      // Não falhar a criação do tenant se os serviços falharem
+      // Serviços podem ser criados manualmente depois
+    }
 
     // Criar usuário administrador se fornecido
     if (data.adminUser) {

@@ -321,16 +321,25 @@ export default function ProtocolsPage() {
                       onValueChange={(value) => setNewProtocol({ ...newProtocol, serviceId: value })}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione um serviço" />
+                        <SelectValue placeholder={services.length === 0 ? "Nenhum serviço disponível" : "Selecione um serviço"} />
                       </SelectTrigger>
                       <SelectContent>
-                        {services.map((service: any) => (
-                          <SelectItem key={service.id} value={service.id}>
-                            {service.name}
-                          </SelectItem>
-                        ))}
+                        {services.length === 0 ? (
+                          <div className="p-4 text-sm text-gray-500 text-center">
+                            Nenhum serviço cadastrado. Vá para Catálogo de Serviços para adicionar.
+                          </div>
+                        ) : (
+                          services.map((service: any) => (
+                            <SelectItem key={service.id} value={service.id}>
+                              {service.name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
+                    {services.length > 0 && (
+                      <p className="text-xs text-gray-500">{services.length} serviços disponíveis</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">

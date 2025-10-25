@@ -1,6 +1,6 @@
 import { PrismaClient, TenantStatus, Plan } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import { seedInitialServices } from '../src/seeds/initial-services';
+import { seedInitialServices } from './seeds/initial-services';
 
 const prisma = new PrismaClient();
 

@@ -1,96 +1,128 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Users, MapPin, FileText, Headphones, TrendingUp, Calendar, AlertCircle, CheckCircle2 } from 'lucide-react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import {
+  Sprout,
+  Users,
+  MapPin,
+  FileText,
+  Headphones,
+  TrendingUp,
+  Calendar,
+  Tractor,
+  Plus
+} from 'lucide-react'
+import Link from 'next/link'
 
 const agriculturaModules = [
   {
     title: 'Produtores Rurais',
-    description: 'Cadastro e gestão de produtores rurais com dados pessoais e tipo de produção',
+    description: 'Cadastro e gestão de produtores rurais',
     href: '/admin/secretarias/agricultura/produtores',
     icon: Users,
     color: 'bg-green-100 text-green-800',
-    stats: {
-      total: 245,
-      ativos: 198,
-      inativos: 47,
-      cadastros_mes: 12
-    }
+    stats: { total: 245, ativos: 198, inativos: 47, cadastros_mes: 12 }
   },
   {
     title: 'Propriedades Rurais',
-    description: 'Registro de propriedades com localização, área, culturas e infraestrutura',
+    description: 'Registro de propriedades com localização e área',
     href: '/admin/secretarias/agricultura/propriedades',
     icon: MapPin,
     color: 'bg-amber-100 text-amber-800',
-    stats: {
-      total: 312,
-      ativas: 287,
-      area_total_ha: 4567,
-      com_irrigacao: 145
-    }
+    stats: { total: 312, ativas: 287, area_total_ha: 4567, com_irrigacao: 145 }
   },
   {
     title: 'Assistência Técnica',
-    description: 'Gestão de assistências técnicas com visitas, diagnósticos e recomendações',
+    description: 'Gestão de assistências com visitas e diagnósticos',
     href: '/admin/secretarias/agricultura/assistencia-tecnica',
     icon: FileText,
     color: 'bg-blue-100 text-blue-800',
-    stats: {
-      agendadas: 23,
-      em_andamento: 15,
-      concluidas_mes: 67,
-      produtores_atendidos: 89
-    }
+    stats: { agendadas: 23, em_andamento: 15, concluidas_mes: 67, produtores_atendidos: 89 }
   },
   {
     title: 'Atendimentos Rurais',
-    description: 'Atendimento aos produtores rurais com orientações e solicitações',
+    description: 'Atendimento aos produtores com orientações',
     href: '/admin/secretarias/agricultura/atendimentos',
     icon: Headphones,
     color: 'bg-purple-100 text-purple-800',
-    stats: {
-      hoje: 8,
-      semana: 34,
-      pendentes: 12,
-      satisfacao: 4.7
-    }
+    stats: { hoje: 8, semana: 34, pendentes: 12, satisfacao: '4.7/5' }
   },
+  {
+    title: 'Calendário Agrícola',
+    description: 'Planejamento de safras e atividades',
+    href: '/admin/secretarias/agricultura/calendario',
+    icon: Calendar,
+    color: 'bg-orange-100 text-orange-800',
+    stats: { safras_andamento: 3, plantios_proximos: 2, colheitas_mes: 4 }
+  },
+  {
+    title: 'Maquinário Agrícola',
+    description: 'Gestão de equipamentos e aluguel',
+    href: '/admin/secretarias/agricultura/maquinario',
+    icon: Tractor,
+    color: 'bg-yellow-100 text-yellow-800',
+    stats: { maquinas_disponiveis: 12, reservas_mes: 45, horas_trabalhadas: 890 }
+  },
+  {
+    title: 'Produção Agrícola',
+    description: 'Indicadores de produção e produtividade',
+    href: '/admin/secretarias/agricultura/producao',
+    icon: TrendingUp,
+    color: 'bg-emerald-100 text-emerald-800',
+    stats: { area_plantada_ha: 3245, produtividade: '+12%', culturas_principais: 8 }
+  },
+  {
+    title: 'Dashboard Agricultura',
+    description: 'Indicadores e métricas do setor',
+    href: '/admin/secretarias/agricultura/dashboard',
+    icon: Sprout,
+    color: 'bg-teal-100 text-teal-800',
+    stats: { produtores_ativos: 198, propriedades: 312, area_total: '4.567 ha' }
+  }
 ]
 
 export default function SecretariaAgriculturaPage() {
   const { user } = useAdminAuth()
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Secretaria de Agricultura</h1>
-        <p className="text-muted-foreground mt-2">
-          Gestão completa da agricultura municipal e desenvolvimento rural
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+            <Sprout className="h-8 w-8 text-green-600 mr-3" />
+            Secretaria Municipal de Agricultura
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Desenvolvimento rural e fortalecimento da agricultura familiar
+          </p>
+        </div>
+        <Badge variant="outline" className="text-green-600 border-green-200">
+          Agricultura Familiar
+        </Badge>
       </div>
 
       {/* Estatísticas Gerais */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Produtores</CardTitle>
+            <CardTitle className="text-sm font-medium">Produtores Ativos</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">245</div>
+            <div className="text-2xl font-bold">198</div>
             <p className="text-xs text-muted-foreground">
-              198 ativos, 47 inativos
+              245 cadastrados
             </p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Propriedades Cadastradas</CardTitle>
+            <CardTitle className="text-sm font-medium">Propriedades</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -100,6 +132,7 @@ export default function SecretariaAgriculturaPage() {
             </p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Assistências Ativas</CardTitle>
@@ -108,51 +141,96 @@ export default function SecretariaAgriculturaPage() {
           <CardContent>
             <div className="text-2xl font-bold">38</div>
             <p className="text-xs text-muted-foreground">
-              23 agendadas, 15 em andamento
+              67 concluídas este mês
             </p>
           </CardContent>
         </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Atendimentos Hoje</CardTitle>
-            <Headphones className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Produtividade</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">+12%</div>
             <p className="text-xs text-muted-foreground">
-              34 esta semana
+              vs ano anterior
             </p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Módulos Especializados */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-6">Módulos Especializados</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {agriculturaModules.map((module) => (
+            <Card key={module.href} className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${module.color}`}>
+                      <module.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{module.title}</CardTitle>
+                    </div>
+                  </div>
+                </div>
+                <CardDescription className="mt-2">
+                  {module.description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  {Object.entries(module.stats).map(([key, value]) => (
+                    <div key={key} className="flex justify-between text-sm">
+                      <span className="text-gray-600 capitalize">{key.replace('_', ' ')}:</span>
+                      <span className="font-medium">{value}</span>
+                    </div>
+                  ))}
+                </div>
+                <Link href={module.href}>
+                  <Button className="w-full" variant="outline">
+                    Acessar Módulo
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
       {/* Indicadores de Produção */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              Produção Rural
-            </CardTitle>
-            <CardDescription>Principais indicadores de produção</CardDescription>
+            <CardTitle>Produção Rural</CardTitle>
+            <CardDescription>
+              Principais indicadores de produção
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm">Culturas Principais</span>
+                <span>Culturas Principais</span>
                 <span className="font-semibold">Milho, Soja, Feijão</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Área Plantada</span>
+                <span>Área Plantada</span>
                 <span className="font-semibold">3.245 ha</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Produtividade Média</span>
+                <span>Produtividade Média</span>
                 <span className="font-semibold text-green-600">+12% vs ano anterior</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm">Propriedades com Irrigação</span>
+                <span>Propriedades com Irrigação</span>
                 <span className="font-semibold">145 (46%)</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Produtores Assistidos</span>
+                <span className="font-semibold">89 este mês</span>
               </div>
             </div>
           </CardContent>
@@ -160,108 +238,65 @@ export default function SecretariaAgriculturaPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-blue-600" />
-              Calendário Agrícola
-            </CardTitle>
-            <CardDescription>Atividades e safras em andamento</CardDescription>
+            <CardTitle>Calendário Agrícola</CardTitle>
+            <CardDescription>
+              Safras e atividades programadas
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="font-medium">Plantio de Milho</p>
-                  <p className="text-sm text-muted-foreground">Concluído - 89% das propriedades</p>
-                </div>
+              <div className="flex justify-between items-center">
+                <span>Plantio de Milho</span>
+                <span className="font-semibold text-green-600">Concluído (89%)</span>
               </div>
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5" />
-                <div>
-                  <p className="font-medium">Colheita de Soja</p>
-                  <p className="text-sm text-muted-foreground">Em andamento - Previsão 15 dias</p>
-                </div>
+              <div className="flex justify-between items-center">
+                <span>Colheita de Soja</span>
+                <span className="font-semibold text-orange-600">Em andamento</span>
               </div>
-              <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <p className="font-medium">Plantio de Feijão</p>
-                  <p className="text-sm text-muted-foreground">Programado - Início em 10 dias</p>
-                </div>
+              <div className="flex justify-between items-center">
+                <span>Plantio de Feijão</span>
+                <span className="font-semibold text-blue-600">Em 10 dias</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Safras Programadas</span>
+                <span className="font-semibold">3 no trimestre</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Assistências Agendadas</span>
+                <span className="font-semibold">23 próximos dias</span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Módulos */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Módulos da Secretaria</CardTitle>
-          <CardDescription>Acesse os sistemas de gestão da agricultura municipal</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {agriculturaModules.map((module) => (
-              <Link key={module.href} href={module.href}>
-                <Card className="hover:shadow-md transition-shadow h-full">
-                  <CardContent className="pt-6">
-                    <div className={`inline-flex p-3 rounded-lg ${module.color} mb-4`}>
-                      <module.icon className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-semibold mb-2">{module.title}</h3>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {module.description}
-                    </p>
-                    <div className="space-y-1 text-xs">
-                      {Object.entries(module.stats).slice(0, 2).map(([key, value]) => (
-                        <div key={key} className="flex justify-between">
-                          <span className="text-muted-foreground capitalize">
-                            {key.replace(/_/g, ' ')}:
-                          </span>
-                          <span className="font-medium">{value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Ações Rápidas */}
       <Card>
         <CardHeader>
           <CardTitle>Ações Rápidas</CardTitle>
-          <CardDescription>Acesso rápido às funcionalidades mais utilizadas</CardDescription>
+          <CardDescription>
+            Acesso direto às funcionalidades mais utilizadas
+          </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-3">
-          <Button asChild>
-            <Link href="/admin/secretarias/agricultura/produtores">
-              <Users className="mr-2 h-4 w-4" />
-              Novo Produtor
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/admin/secretarias/agricultura/propriedades">
-              <MapPin className="mr-2 h-4 w-4" />
-              Cadastrar Propriedade
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/admin/secretarias/agricultura/assistencia-tecnica">
-              <FileText className="mr-2 h-4 w-4" />
-              Agendar Assistência
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/admin/secretarias/agricultura/atendimentos">
-              <Headphones className="mr-2 h-4 w-4" />
-              Novo Atendimento
-            </Link>
-          </Button>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Button className="h-20 flex flex-col" variant="outline">
+              <Plus className="h-6 w-6 mb-2" />
+              <span>Novo Produtor</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <MapPin className="h-6 w-6 mb-2" />
+              <span>Cadastrar Propriedade</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <FileText className="h-6 w-6 mb-2" />
+              <span>Agendar Assistência</span>
+            </Button>
+            <Button className="h-20 flex flex-col" variant="outline">
+              <Headphones className="h-6 w-6 mb-2" />
+              <span>Novo Atendimento</span>
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

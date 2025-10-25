@@ -273,7 +273,10 @@ router.get(
   '/search-citizens',
   requirePermission('protocols:create'),
   handleAsyncRoute(async (req, res) => {
+    console.log('[SEARCH-CITIZENS] Endpoint chamado', { query: req.query });
+
     if (!isAuthenticatedRequest(req)) {
+      console.log('[SEARCH-CITIZENS] Unauthorized');
       res.status(401).json(createErrorResponse('UNAUTHORIZED', 'Acesso não autorizado'));
       return;
     }
@@ -283,7 +286,10 @@ router.get(
       const search = getStringParam(req.query.q) || getStringParam(req.query.search) || '';
       const limit = getNumberParam(req.query.limit) || 10;
 
+      console.log('[SEARCH-CITIZENS] Busca:', { search, limit, tenantId: user.tenantId });
+
       if (search.length < 2) {
+        console.log('[SEARCH-CITIZENS] Busca muito curta');
         res.json(createSuccessResponse({ citizens: [] }, 'Digite pelo menos 2 caracteres'));
         return;
       }
@@ -322,9 +328,11 @@ router.get(
         },
       });
 
+      console.log('[SEARCH-CITIZENS] Resultados:', { count: citizens.length, citizens: citizens.map(c => c.name) });
+
       res.json(createSuccessResponse({ citizens }, 'Cidadãos encontrados'));
     } catch (error: unknown) {
-      console.error('Erro ao buscar cidadãos:', error);
+      console.error('[SEARCH-CITIZENS] Erro ao buscar cidadãos:', error);
       res.status(500).json(createErrorResponse('INTERNAL_ERROR', 'Erro ao buscar cidadãos'));
     }
   })

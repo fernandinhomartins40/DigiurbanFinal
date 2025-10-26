@@ -121,10 +121,11 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     // ============================================
     // BUSCAR TENANT NO BANCO
     // ============================================
-    // Busca simplificada: apenas por ID ou CNPJ
+    // Busca por ID, CNPJ ou Domain (subdomínio)
     const tenant = await prisma.tenant.findFirst({
       where: {
         OR: [
+          { domain: tenantId },
           { id: tenantId },
           { cnpj: tenantId },
         ],

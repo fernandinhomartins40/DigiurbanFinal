@@ -121,17 +121,11 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     // ============================================
     // BUSCAR TENANT NO BANCO
     // ============================================
-    // Busca por ID, CNPJ ou Domain (subdomínio)
-    const tenant = await prisma.tenant.findFirst({
+    // Busca direta por ID (tenantId extraído do JWT é sempre um UUID)
+    // Arquitetura: JWT contém user.tenantId (campo id da tabela Tenant)
+    const tenant = await prisma.tenant.findUnique({
       where: {
-        OR: [
-          { domain: tenantId },
-          { id: tenantId },
-          { cnpj: tenantId },
-        ],
-        status: {
-          in: [TenantStatus.ACTIVE, TenantStatus.TRIAL],
-        },
+        id: tenantId,
       },
       include: {
         _count: {
@@ -144,16 +138,19 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
       },
     });
 
+    // ============================================
+    // VALIDAÇÕES DO TENANT
+    // ============================================
     if (!tenant) {
       return res.status(404).json({
         error: 'Tenant not found',
-        message: 'Município não encontrado ou inativo',
+        message: 'Município não encontrado',
         tenantId: tenantId,
-        hint: 'Faça login novamente',
+        hint: 'Faça login novamente para obter um token válido',
       });
     }
 
-    // Verificar se tenant está suspenso
+    // Validar status do tenant (apenas ACTIVE e TRIAL são permitidos)
     if (tenant.status === TenantStatus.SUSPENDED) {
       return res.status(403).json({
         error: 'Tenant suspended',
@@ -162,7 +159,16 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
       });
     }
 
-    // Verificar se trial expirou (30 dias)
+    if (tenant.status !== TenantStatus.ACTIVE && tenant.status !== TenantStatus.TRIAL) {
+      return res.status(403).json({
+        error: 'Tenant inactive',
+        message: 'Município inativo',
+        status: tenant.status,
+        hint: 'Entre em contato com o suporte',
+      });
+    }
+
+    // Validar expiração do período trial (30 dias)
     if (tenant.status === TenantStatus.TRIAL) {
       const trialDays = Math.floor(
         (Date.now() - tenant.createdAt.getTime()) / (1000 * 60 * 60 * 24)

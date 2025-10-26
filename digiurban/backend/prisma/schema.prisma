@@ -4358,7 +4358,7 @@ model ProtocolLocation {
   locationConfigId String
   locationConfig   ServiceLocation @relation(fields: [locationConfigId], references: [id])
 
-  protocolId  String
+  protocolId  String   // Não é @unique pois um protocolo pode ter múltiplas localizações
   protocol    Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
 
   // Dados de Geolocalização

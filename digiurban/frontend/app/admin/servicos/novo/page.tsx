@@ -82,6 +82,21 @@ export default function NewServicePage() {
     hasNotifications: false,
   })
 
+  const validateBasicStep = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Nome é obrigatório'
+    }
+
+    if (!formData.departmentId) {
+      newErrors.departmentId = 'Departamento é obrigatório'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const steps: WizardStep[] = [
     {
       id: 'basic',
@@ -89,18 +104,7 @@ export default function NewServicePage() {
       description: 'Dados básicos do serviço',
       icon: <FileText className="h-5 w-5" />,
       isValid: () => {
-        const newErrors: Record<string, string> = {}
-
-        if (!formData.name.trim()) {
-          newErrors.name = 'Nome é obrigatório'
-        }
-
-        if (!formData.departmentId) {
-          newErrors.departmentId = 'Departamento é obrigatório'
-        }
-
-        setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
+        return formData.name.trim() !== '' && formData.departmentId !== ''
       },
     },
     {
@@ -161,8 +165,8 @@ export default function NewServicePage() {
   const handleStepChange = (step: number) => {
     // Validar step atual antes de avançar
     if (step > currentStep) {
-      const currentStepData = steps[currentStep]
-      if (currentStepData.isValid && !currentStepData.isValid()) {
+      // Validar step básico
+      if (currentStep === 0 && !validateBasicStep()) {
         toast({
           title: 'Campos obrigatórios',
           description: 'Preencha todos os campos obrigatórios antes de continuar.',

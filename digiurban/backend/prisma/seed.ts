@@ -158,13 +158,22 @@ async function main() {
     });
     console.log('   ✅ Departamento criado:', department.name);
 
-    // ========== 5. CRIAR DEPARTAMENTOS PRINCIPAIS ==========
-    console.log('\n🏢 Criando departamentos principais...');
+    // ========== 5. CRIAR DEPARTAMENTOS PRINCIPAIS (13 SECRETARIAS) ==========
+    console.log('\n🏢 Criando departamentos principais (13 secretarias)...');
 
     const mainDepartments = [
-      { name: 'Secretaria de Saúde', code: 'SAUDE' },
-      { name: 'Secretaria de Educação', code: 'EDUCACAO' },
-      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS' },
+      { name: 'Secretaria de Saúde', code: 'SAUDE', description: 'Gestão de saúde pública, consultas, exames e programas de saúde' },
+      { name: 'Secretaria de Educação', code: 'EDUCACAO', description: 'Gestão educacional, matrículas, transporte escolar e merenda' },
+      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Limpeza urbana, iluminação pública e manutenção de vias' },
+      { name: 'Secretaria de Assistência Social', code: 'ASSISTENCIA_SOCIAL', description: 'Programas sociais, acolhimento e atendimento psicossocial' },
+      { name: 'Secretaria de Cultura', code: 'CULTURA', description: 'Eventos culturais, patrimônio histórico e incentivo à cultura' },
+      { name: 'Secretaria de Esporte e Lazer', code: 'ESPORTE_LAZER', description: 'Gestão de equipamentos esportivos, eventos e programas de esporte' },
+      { name: 'Secretaria de Meio Ambiente', code: 'MEIO_AMBIENTE', description: 'Licenciamento ambiental, fiscalização e educação ambiental' },
+      { name: 'Secretaria de Obras e Infraestrutura', code: 'OBRAS_INFRAESTRUTURA', description: 'Obras públicas, pavimentação, drenagem e fiscalização de obras' },
+      { name: 'Secretaria de Planejamento', code: 'PLANEJAMENTO', description: 'Planejamento urbano, plano diretor e projetos municipais' },
+      { name: 'Secretaria de Fazenda', code: 'FAZENDA', description: 'Arrecadação, IPTU, ISS, certidões e gestão fiscal' },
+      { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Apoio ao produtor rural, assistência técnica e fomento agrícola' },
+      { name: 'Secretaria de Turismo', code: 'TURISMO', description: 'Promoção turística, cadastro de guias e apoio a eventos' },
     ];
 
     for (const dept of mainDepartments) {
@@ -175,10 +184,11 @@ async function main() {
             name: dept.name
           }
         },
-        update: { code: dept.code, isActive: true },
+        update: { code: dept.code, description: dept.description, isActive: true },
         create: {
           name: dept.name,
           code: dept.code,
+          description: dept.description,
           tenantId: demoTenant.id,
           isActive: true
         }

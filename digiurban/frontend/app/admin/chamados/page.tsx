@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { useSearchCitizen, type Citizen } from '@/hooks/useSearchCitizen'
+import { useServices } from '@/hooks/useServices'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -38,6 +39,7 @@ export default function CriarChamadoPage() {
   const router = useRouter()
   const { user } = useAdminAuth()
   const { searchByCPF, loading: searchLoading } = useSearchCitizen()
+  const { services, loading: servicesLoading, getDepartmentByServiceId } = useServices()
 
   const [selectedCitizen, setSelectedCitizen] = useState<Citizen | null>(null)
   const [cpfSearch, setCpfSearch] = useState('')
@@ -47,6 +49,7 @@ export default function CriarChamadoPage() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    serviceId: '',
     category: '',
     priority: '',
     department: ''
@@ -117,7 +120,7 @@ export default function CriarChamadoPage() {
       return
     }
 
-    if (!formData.title || !formData.description || !formData.category || !formData.priority || !formData.department) {
+    if (!formData.serviceId || !formData.title || !formData.description || !formData.category || !formData.priority || !formData.department) {
       alert('Preencha todos os campos obrigatórios')
       return
     }
@@ -134,6 +137,7 @@ export default function CriarChamadoPage() {
         setFormData({
           title: '',
           description: '',
+          serviceId: '',
           category: '',
           priority: '',
           department: ''
@@ -146,6 +150,16 @@ export default function CriarChamadoPage() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleServiceChange = (serviceId: string) => {
+    setFormData(prev => ({ ...prev, serviceId }))
+
+    // Selecionar automaticamente o departamento responsável pelo serviço
+    const department = getDepartmentByServiceId(serviceId)
+    if (department) {
+      setFormData(prev => ({ ...prev, department: department.id }))
+    }
   }
 
   return (
@@ -290,6 +304,32 @@ export default function CriarChamadoPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
+                  <Label htmlFor="service">Serviço Solicitado *</Label>
+                  <Select
+                    value={formData.serviceId}
+                    onValueChange={handleServiceChange}
+                    required
+                  >
+                    <SelectTrigger id="service">
+                      <SelectValue placeholder="Selecione o serviço" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {servicesLoading ? (
+                        <SelectItem value="loading" disabled>Carregando...</SelectItem>
+                      ) : services.length === 0 ? (
+                        <SelectItem value="empty" disabled>Nenhum serviço disponível</SelectItem>
+                      ) : (
+                        services.map((service) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name} - {service.department.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="title">Título do Chamado *</Label>
                   <Input
                     id="title"
@@ -358,27 +398,20 @@ export default function CriarChamadoPage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="department">Departamento *</Label>
-                    <Select
-                      value={formData.department}
-                      onValueChange={(value) => handleInputChange('department', value)}
-                      required
-                    >
-                      <SelectTrigger id="department">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="saude">Secretaria de Saúde</SelectItem>
-                        <SelectItem value="educacao">Secretaria de Educação</SelectItem>
-                        <SelectItem value="assistencia">Secretaria de Assistência Social</SelectItem>
-                        <SelectItem value="obras">Secretaria de Obras</SelectItem>
-                        <SelectItem value="meio-ambiente">Secretaria de Meio Ambiente</SelectItem>
-                        <SelectItem value="habitacao">Secretaria de Habitação</SelectItem>
-                        <SelectItem value="cultura">Secretaria de Cultura</SelectItem>
-                        <SelectItem value="esportes">Secretaria de Esportes</SelectItem>
-                        <SelectItem value="turismo">Secretaria de Turismo</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="department">Departamento Responsável *</Label>
+                    <Input
+                      id="department"
+                      value={
+                        formData.department
+                          ? services.find(s => s.id === formData.serviceId)?.department.name || 'Selecione um serviço'
+                          : 'Selecione um serviço'
+                      }
+                      disabled
+                      className="bg-gray-100 cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-500">
+                      O departamento será selecionado automaticamente ao escolher o serviço
+                    </p>
                   </div>
                 </div>
               </CardContent>

@@ -3418,11 +3418,3 @@ CREATE INDEX idx_services_hasSurvey ON services(hasSurvey) WHERE hasSurvey = tru
 CREATE INDEX idx_services_hasCustomWorkflow ON services(hasCustomWorkflow) WHERE hasCustomWorkflow = true;
 
 -- Comentário sobre compatibilidade
-COMMENT ON COLUMN services.hasCustomForm IS 'Flag opcional: ativa formulário customizado (padrão: false)';
-COMMENT ON COLUMN services.hasLocation IS 'Flag opcional: ativa captura GPS (padrão: false)';
-COMMENT ON COLUMN services.hasScheduling IS 'Flag opcional: ativa agendamento (padrão: false)';
-COMMENT ON COLUMN services.hasSurvey IS 'Flag opcional: ativa pesquisas (padrão: false)';
-COMMENT ON COLUMN services.hasCustomWorkflow IS 'Flag opcional: ativa workflow customizado (padrão: false)';
-COMMENT ON COLUMN services.hasCustomFields IS 'Flag opcional: ativa campos customizados (padrão: false)';
-COMMENT ON COLUMN services.hasAdvancedDocs IS 'Flag opcional: ativa docs avançados com IA (padrão: false)';
-COMMENT ON COLUMN services.hasNotifications IS 'Flag opcional: ativa notificações customizadas (padrão: false)';

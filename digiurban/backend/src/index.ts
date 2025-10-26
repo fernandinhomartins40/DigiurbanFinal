@@ -68,7 +68,6 @@ app.get('/health', (_req, res: express.Response) => {
 });
 
 // Import routes
-import authRoutes from './routes/auth';
 import protocolRoutes from './routes/protocols';
 import serviceRoutes from './routes/services';
 import tenantRoutes from './routes/tenants';
@@ -143,7 +142,6 @@ import publicRoutes from './routes/public';
 app.use('/api/public', publicRoutes);
 
 // Rotas básicas (Fase 1)
-app.use('/api/auth', authRoutes);
 app.use('/api/protocols', protocolRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/tenants', tenantRoutes);

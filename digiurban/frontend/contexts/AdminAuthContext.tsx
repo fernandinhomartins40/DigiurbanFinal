@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
 export type UserRole = 'GUEST' | 'USER' | 'COORDINATOR' | 'MANAGER' | 'ADMIN' | 'SUPER_ADMIN'
@@ -189,7 +189,7 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
   }
 
   // Função para atualizar dados do usuário
-  const refreshUserData = async () => {
+  const refreshUserData = useCallback(async () => {
     try {
       const response = await apiRequest('/admin/auth/me')
       const data = response.data || response
@@ -206,10 +206,11 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
       // Não precisamos limpar aqui, apiRequest já fez isso
       return false
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Função para verificar autenticação ao carregar
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       // Tentar obter dados do usuário (o cookie será enviado automaticamente)
       await refreshUserData()
@@ -219,13 +220,12 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [refreshUserData])
 
   // Hook para verificar autenticação ao montar o componente
   useEffect(() => {
     checkAuth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [checkAuth])
 
   const value: AdminAuthContextType = {
     user,

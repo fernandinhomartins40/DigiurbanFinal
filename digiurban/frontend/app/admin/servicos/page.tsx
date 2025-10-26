@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAdminAuth, useAdminPermissions } from '@/contexts/AdminAuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -71,7 +71,7 @@ export default function ServicesManagementPage() {
   const [selectedService, setSelectedService] = useState<Service | null>(null)
 
   // Carregar serviços
-  const loadServices = async () => {
+  const loadServices = useCallback(async () => {
     try {
       setLoading(true)
       const response = await apiRequest('/api/services')
@@ -86,17 +86,17 @@ export default function ServicesManagementPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [apiRequest, toast])
 
   // Carregar departamentos
-  const loadDepartments = async () => {
+  const loadDepartments = useCallback(async () => {
     try {
       const response = await apiRequest('/api/admin/management/departments')
       setDepartments(response.departments || response.data?.departments || [])
     } catch (error) {
       console.error('Erro ao carregar departamentos:', error)
     }
-  }
+  }, [apiRequest])
 
 
   // Desativar serviço
@@ -130,7 +130,7 @@ export default function ServicesManagementPage() {
       loadServices()
       loadDepartments()
     }
-  }, [authLoading])
+  }, [authLoading, loadServices, loadDepartments])
 
   // Filtros
   const filteredServices = services.filter(service => {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { apiClient } from '@/lib/auth'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 
 interface CriticalPoint {
   id: string

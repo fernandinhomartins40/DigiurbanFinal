@@ -2,10 +2,9 @@ import { Router, Response } from 'express';
 import { prisma } from '../lib/prisma';
 import { Prisma, UserRole } from '@prisma/client';
 import { tenantMiddleware } from '../middleware/tenant';
-import { authenticateToken, requireManager, optionalAuth } from '../middleware/auth';
+import { adminAuthMiddleware, requireMinRole } from '../middleware/admin-auth';
 import {
   AuthenticatedRequest,
-  OptionalAuthRequest,
   SuccessResponse,
   ErrorResponse,
 } from '../types';
@@ -26,14 +25,13 @@ router.use(tenantMiddleware);
 
 /**
  * GET /api/services
- * Listar serviços (catálogo público)
+ * Listar serviços (catálogo público - sem autenticação)
  * Query params opcionais:
  * - includeFeatures: "true" para incluir configurações de features
  */
 router.get(
   '/',
-  optionalAuth,
-  async (req: OptionalAuthRequest, res: Response<SuccessResponse | ErrorResponse>) => {
+  async (req: AuthenticatedRequest, res: Response<SuccessResponse | ErrorResponse>) => {
     try {
       const { departmentId, search, includeFeatures } = req.query;
 
@@ -92,9 +90,9 @@ router.get(
 
 /**
  * GET /api/services/:id
- * Obter serviço específico
+ * Obter serviço específico (público - sem autenticação)
  */
-router.get('/:id', optionalAuth, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -137,7 +135,7 @@ router.get('/:id', optionalAuth, async (req, res) => {
  * Criar novo serviço (apenas MANAGER ou superior)
  * Suporta Feature Flags opcionais para recursos avançados
  */
-router.post('/', authenticateToken, requireManager, async (req, res) => {
+router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (req, res) => {
   try {
     const authReq = req as AuthenticatedRequest;
     const {
@@ -448,7 +446,7 @@ router.post('/', authenticateToken, requireManager, async (req, res) => {
  * PUT /api/services/:id
  * Atualizar serviço (apenas MANAGER ou superior)
  */
-router.put('/:id', authenticateToken, requireManager, async (req, res) => {
+router.put('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (req, res) => {
   try {
     const authReq = req as AuthenticatedRequest;
     const { id } = authReq.params;
@@ -550,7 +548,7 @@ router.put('/:id', authenticateToken, requireManager, async (req, res) => {
  * DELETE /api/services/:id
  * Desativar serviço (soft delete)
  */
-router.delete('/:id', authenticateToken, requireManager, async (req, res) => {
+router.delete('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (req, res) => {
   try {
     const authReq = req as AuthenticatedRequest;
     const { id } = authReq.params;
@@ -614,9 +612,9 @@ router.delete('/:id', authenticateToken, requireManager, async (req, res) => {
 
 /**
  * GET /api/services/department/:departmentId
- * Listar serviços de um departamento específico
+ * Listar serviços de um departamento específico (público - sem autenticação)
  */
-router.get('/department/:departmentId', optionalAuth, async (req, res) => {
+router.get('/department/:departmentId', async (req, res) => {
   try {
     const { departmentId } = req.params;
 

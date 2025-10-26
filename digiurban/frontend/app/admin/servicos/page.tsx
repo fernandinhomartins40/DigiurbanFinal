@@ -86,7 +86,8 @@ export default function ServicesManagementPage() {
     } finally {
       setLoading(false)
     }
-  }, [apiRequest, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiRequest])
 
   // Carregar departamentos
   const loadDepartments = useCallback(async () => {

@@ -452,7 +452,29 @@ router.put('/:id', authenticateToken, requireManager, async (req, res) => {
   try {
     const authReq = req as AuthenticatedRequest;
     const { id } = authReq.params;
-    const { name, description, requiresDocuments, estimatedDays, priority, isActive } = authReq.body;
+    const {
+      // Campos básicos
+      name,
+      description,
+      category,
+      requiresDocuments,
+      requiredDocuments,
+      estimatedDays,
+      priority,
+      isActive,
+      icon,
+      color,
+
+      // Feature Flags
+      hasCustomForm,
+      hasLocation,
+      hasScheduling,
+      hasSurvey,
+      hasCustomWorkflow,
+      hasCustomFields,
+      hasAdvancedDocs,
+      hasNotifications,
+    } = authReq.body;
 
     // Verificar se serviço existe
     const service = await prisma.service.findFirst({
@@ -480,13 +502,26 @@ router.put('/:id', authenticateToken, requireManager, async (req, res) => {
     const updatedService = await prisma.service.update({
       where: { id },
       data: {
-        name: name || service.name,
+        name: name !== undefined ? name : service.name,
         description: description !== undefined ? description : service.description,
-        requiresDocuments:
-          requiresDocuments !== undefined ? requiresDocuments : service.requiresDocuments,
+        category: category !== undefined ? category : service.category,
+        requiresDocuments: requiresDocuments !== undefined ? requiresDocuments : service.requiresDocuments,
+        requiredDocuments: requiredDocuments !== undefined ? requiredDocuments : service.requiredDocuments,
         estimatedDays: estimatedDays !== undefined ? estimatedDays : service.estimatedDays,
         priority: priority !== undefined ? priority : service.priority,
         isActive: isActive !== undefined ? isActive : service.isActive,
+        icon: icon !== undefined ? icon : service.icon,
+        color: color !== undefined ? color : service.color,
+
+        // Feature Flags
+        hasCustomForm: hasCustomForm !== undefined ? hasCustomForm : service.hasCustomForm,
+        hasLocation: hasLocation !== undefined ? hasLocation : service.hasLocation,
+        hasScheduling: hasScheduling !== undefined ? hasScheduling : service.hasScheduling,
+        hasSurvey: hasSurvey !== undefined ? hasSurvey : service.hasSurvey,
+        hasCustomWorkflow: hasCustomWorkflow !== undefined ? hasCustomWorkflow : service.hasCustomWorkflow,
+        hasCustomFields: hasCustomFields !== undefined ? hasCustomFields : service.hasCustomFields,
+        hasAdvancedDocs: hasAdvancedDocs !== undefined ? hasAdvancedDocs : service.hasAdvancedDocs,
+        hasNotifications: hasNotifications !== undefined ? hasNotifications : service.hasNotifications,
       },
       include: {
         department: {

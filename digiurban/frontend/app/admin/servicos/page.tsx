@@ -1,16 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useAdminAuth, useAdminPermissions } from '@/contexts/AdminAuthContext'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { useToast } from '@/hooks/use-toast'
 import {
   Search,
@@ -18,18 +16,13 @@ import {
   Edit,
   Trash2,
   Eye,
-  Filter,
-  Download,
-  Upload,
-  BarChart3,
   Package,
   Clock,
   FileText,
   CheckCircle2,
   XCircle,
-  Settings2,
-  Sparkles
 } from 'lucide-react'
+import Link from 'next/link'
 
 interface Service {
   id: string
@@ -60,6 +53,7 @@ interface Department {
 }
 
 export default function ServicesManagementPage() {
+  const router = useRouter()
   const { apiRequest, loading: authLoading } = useAdminAuth()
   const { hasPermission } = useAdminPermissions()
   const { toast } = useToast()
@@ -72,36 +66,8 @@ export default function ServicesManagementPage() {
   const [departmentFilter, setDepartmentFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
 
-  const [showCreateDialog, setShowCreateDialog] = useState(false)
-  const [showEditDialog, setShowEditDialog] = useState(false)
   const [showViewDialog, setShowViewDialog] = useState(false)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
-
-  const [advancedMode, setAdvancedMode] = useState(false)
-
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    category: '',
-    departmentId: '',
-    requiresDocuments: false,
-    requiredDocuments: [] as string[],
-    estimatedDays: '',
-    priority: 3,
-    icon: '',
-    color: '#3b82f6',
-    // Feature Flags
-    hasCustomForm: false,
-    hasLocation: false,
-    hasScheduling: false,
-    hasSurvey: false,
-    hasCustomWorkflow: false,
-    hasCustomFields: false,
-    hasAdvancedDocs: false,
-    hasNotifications: false
-  })
-
-  const [documentInput, setDocumentInput] = useState('')
 
   // Carregar serviços
   const loadServices = async () => {
@@ -131,108 +97,6 @@ export default function ServicesManagementPage() {
     }
   }
 
-  // Criar serviço
-  const createService = async () => {
-    if (!formData.name || !formData.departmentId) {
-      toast({
-        title: 'Campos obrigatórios',
-        description: 'Nome e departamento são obrigatórios.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    try {
-      await apiRequest('/api/services', {
-        method: 'POST',
-        body: JSON.stringify({
-          name: formData.name,
-          description: formData.description || null,
-          category: formData.category || null,
-          departmentId: formData.departmentId,
-          requiresDocuments: formData.requiresDocuments,
-          requiredDocuments: formData.requiredDocuments,
-          estimatedDays: formData.estimatedDays ? parseInt(formData.estimatedDays) : null,
-          priority: formData.priority,
-          icon: formData.icon || null,
-          color: formData.color || null,
-          // Feature Flags (only if advanced mode is enabled)
-          ...(advancedMode && {
-            hasCustomForm: formData.hasCustomForm,
-            hasLocation: formData.hasLocation,
-            hasScheduling: formData.hasScheduling,
-            hasSurvey: formData.hasSurvey,
-            hasCustomWorkflow: formData.hasCustomWorkflow,
-            hasCustomFields: formData.hasCustomFields,
-            hasAdvancedDocs: formData.hasAdvancedDocs,
-            hasNotifications: formData.hasNotifications
-          })
-        })
-      })
-
-      toast({
-        title: 'Serviço criado',
-        description: 'O serviço foi criado com sucesso.',
-      })
-
-      setShowCreateDialog(false)
-      resetForm()
-      await loadServices()
-    } catch (error: any) {
-      console.error('Erro ao criar serviço:', error)
-      toast({
-        title: 'Erro ao criar serviço',
-        description: error?.message || 'Ocorreu um erro ao criar o serviço.',
-        variant: 'destructive',
-      })
-    }
-  }
-
-  // Atualizar serviço
-  const updateService = async () => {
-    if (!selectedService || !formData.name) {
-      toast({
-        title: 'Campos obrigatórios',
-        description: 'Nome é obrigatório.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    try {
-      await apiRequest(`/api/services/${selectedService.id}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          name: formData.name,
-          description: formData.description || null,
-          category: formData.category || null,
-          requiresDocuments: formData.requiresDocuments,
-          requiredDocuments: formData.requiredDocuments,
-          estimatedDays: formData.estimatedDays ? parseInt(formData.estimatedDays) : null,
-          priority: formData.priority,
-          icon: formData.icon || null,
-          color: formData.color || null,
-        })
-      })
-
-      toast({
-        title: 'Serviço atualizado',
-        description: 'O serviço foi atualizado com sucesso.',
-      })
-
-      setShowEditDialog(false)
-      setSelectedService(null)
-      resetForm()
-      await loadServices()
-    } catch (error: any) {
-      console.error('Erro ao atualizar serviço:', error)
-      toast({
-        title: 'Erro ao atualizar serviço',
-        description: error?.message || 'Ocorreu um erro ao atualizar o serviço.',
-        variant: 'destructive',
-      })
-    }
-  }
 
   // Desativar serviço
   const deleteService = async (serviceId: string) => {
@@ -259,66 +123,6 @@ export default function ServicesManagementPage() {
     }
   }
 
-  // Resetar formulário
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      description: '',
-      category: '',
-      departmentId: '',
-      requiresDocuments: false,
-      requiredDocuments: [],
-      estimatedDays: '',
-      priority: 3,
-      icon: '',
-      color: '#3b82f6',
-      hasCustomForm: false,
-      hasLocation: false,
-      hasScheduling: false,
-      hasSurvey: false,
-      hasCustomWorkflow: false,
-      hasCustomFields: false,
-      hasAdvancedDocs: false,
-      hasNotifications: false
-    })
-    setDocumentInput('')
-    setAdvancedMode(false)
-  }
-
-  // Popular formulário para edição
-  const populateEditForm = (service: Service) => {
-    setFormData({
-      name: service.name,
-      description: service.description || '',
-      category: service.category || '',
-      departmentId: service.departmentId,
-      requiresDocuments: service.requiresDocuments,
-      requiredDocuments: service.requiredDocuments || [],
-      estimatedDays: service.estimatedDays?.toString() || '',
-      priority: service.priority,
-      icon: service.icon || '',
-      color: service.color || '#3b82f6'
-    })
-  }
-
-  // Adicionar documento requerido
-  const addDocument = () => {
-    if (documentInput.trim()) {
-      setFormData({
-        ...formData,
-        requiredDocuments: [...formData.requiredDocuments, documentInput.trim()]
-      })
-      setDocumentInput('')
-    }
-  }
-
-  // Remover documento requerido
-  const removeDocument = (index: number) => {
-    setFormData({
-      ...formData,
-      requiredDocuments: formData.requiredDocuments.filter((_, i) => i !== index)
-    })
-  }
 
   useEffect(() => {
     if (!authLoading) {
@@ -363,10 +167,12 @@ export default function ServicesManagementPage() {
         </div>
         <div className="flex space-x-2">
           {hasPermission('services:create') && (
-            <Button onClick={() => setShowCreateDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Serviço
-            </Button>
+            <Link href="/admin/servicos/novo">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Serviço
+              </Button>
+            </Link>
           )}
         </div>
       </div>
@@ -544,19 +350,16 @@ export default function ServicesManagementPage() {
                     </Button>
 
                     {hasPermission('services:update') && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          setSelectedService(service)
-                          populateEditForm(service)
-                          setShowEditDialog(true)
-                        }}
-                        className="flex-1"
-                      >
-                        <Edit className="h-3 w-3 mr-1" />
-                        Editar
-                      </Button>
+                      <Link href={`/admin/servicos/${service.id}/editar`} className="flex-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full"
+                        >
+                          <Edit className="h-3 w-3 mr-1" />
+                          Editar
+                        </Button>
+                      </Link>
                     )}
 
                     {hasPermission('services:delete') && service.isActive && (
@@ -589,464 +392,6 @@ export default function ServicesManagementPage() {
           </CardContent>
         </Card>
       )}
-
-      {/* Dialog Criar Serviço */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Criar Novo Serviço</DialogTitle>
-            <DialogDescription>
-              Preencha os dados do novo serviço público
-            </DialogDescription>
-          </DialogHeader>
-
-          {/* Toggle Simples/Avançado */}
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
-            <div className="flex items-center gap-2">
-              {advancedMode ? (
-                <Sparkles className="h-5 w-5 text-purple-600" />
-              ) : (
-                <Settings2 className="h-5 w-5 text-gray-600" />
-              )}
-              <div>
-                <p className="font-medium text-sm">
-                  {advancedMode ? 'Modo Avançado' : 'Modo Simples'}
-                </p>
-                <p className="text-xs text-gray-600">
-                  {advancedMode
-                    ? 'Recursos inteligentes ativados'
-                    : 'Criação básica de serviços'}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant={advancedMode ? "default" : "outline"}
-              size="sm"
-              onClick={() => setAdvancedMode(!advancedMode)}
-            >
-              {advancedMode ? 'Voltar ao Simples' : 'Ativar Avançado'}
-            </Button>
-          </div>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Nome do Serviço *</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Ex: Agendamento de Consulta Médica"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description">Descrição</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Descreva o serviço..."
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="category">Categoria</Label>
-                <Input
-                  id="category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Ex: Consultas Médicas"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="departmentId">Departamento *</Label>
-                <Select
-                  value={formData.departmentId}
-                  onValueChange={(value) => setFormData({ ...formData, departmentId: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map((dept) => (
-                      <SelectItem key={dept.id} value={dept.id}>
-                        {dept.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="estimatedDays">Prazo Estimado (dias)</Label>
-                <Input
-                  id="estimatedDays"
-                  type="number"
-                  value={formData.estimatedDays}
-                  onChange={(e) => setFormData({ ...formData, estimatedDays: e.target.value })}
-                  placeholder="Ex: 5"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="priority">Prioridade (1-5)</Label>
-                <Select
-                  value={String(formData.priority)}
-                  onValueChange={(value) => setFormData({ ...formData, priority: parseInt(value) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 - Muito Baixa</SelectItem>
-                    <SelectItem value="2">2 - Baixa</SelectItem>
-                    <SelectItem value="3">3 - Normal</SelectItem>
-                    <SelectItem value="4">4 - Alta</SelectItem>
-                    <SelectItem value="5">5 - Crítica</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="requiresDocuments"
-                checked={formData.requiresDocuments}
-                onCheckedChange={(checked) => setFormData({ ...formData, requiresDocuments: checked as boolean })}
-              />
-              <Label htmlFor="requiresDocuments" className="cursor-pointer">
-                Este serviço requer documentos
-              </Label>
-            </div>
-
-            {formData.requiresDocuments && (
-              <div className="space-y-2">
-                <Label>Documentos Necessários</Label>
-                <div className="flex space-x-2">
-                  <Input
-                    value={documentInput}
-                    onChange={(e) => setDocumentInput(e.target.value)}
-                    placeholder="Ex: RG, CPF, Comprovante de residência"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addDocument())}
-                  />
-                  <Button type="button" onClick={addDocument} size="sm">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {formData.requiredDocuments.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.requiredDocuments.map((doc, index) => (
-                      <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeDocument(index)}>
-                        {doc} <XCircle className="h-3 w-3 ml-1" />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Recursos Inteligentes (Modo Avançado) */}
-            {advancedMode && (
-              <div className="space-y-3 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="h-4 w-4 text-purple-600" />
-                  <Label className="text-purple-900 font-semibold">Recursos Inteligentes</Label>
-                </div>
-                <p className="text-xs text-purple-700 mb-3">
-                  Ative os recursos que deseja para este serviço
-                </p>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasCustomForm"
-                      checked={formData.hasCustomForm}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasCustomForm: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasCustomForm" className="text-sm cursor-pointer">
-                        Formulário Customizado
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        Campos dinâmicos e validações
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasLocation"
-                      checked={formData.hasLocation}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasLocation: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasLocation" className="text-sm cursor-pointer">
-                        Captura GPS
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        Localização geográfica
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasScheduling"
-                      checked={formData.hasScheduling}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasScheduling: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasScheduling" className="text-sm cursor-pointer">
-                        Agendamento
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        Horários e calendário
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasSurvey"
-                      checked={formData.hasSurvey}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasSurvey: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasSurvey" className="text-sm cursor-pointer">
-                        Pesquisa de Satisfação
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        Enquetes e feedback
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasCustomWorkflow"
-                      checked={formData.hasCustomWorkflow}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasCustomWorkflow: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasCustomWorkflow" className="text-sm cursor-pointer">
-                        Workflow Customizado
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        Etapas e aprovações
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasCustomFields"
-                      checked={formData.hasCustomFields}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasCustomFields: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasCustomFields" className="text-sm cursor-pointer">
-                        Campos Customizados
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        Dados adicionais
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasAdvancedDocs"
-                      checked={formData.hasAdvancedDocs}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasAdvancedDocs: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasAdvancedDocs" className="text-sm cursor-pointer">
-                        Documentos Avançados
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        OCR e validação IA
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start space-x-2">
-                    <Checkbox
-                      id="hasNotifications"
-                      checked={formData.hasNotifications}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, hasNotifications: checked as boolean })
-                      }
-                    />
-                    <div className="space-y-0.5">
-                      <Label htmlFor="hasNotifications" className="text-sm cursor-pointer">
-                        Notificações
-                      </Label>
-                      <p className="text-xs text-gray-600">
-                        Email, SMS, WhatsApp
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {(formData.hasCustomForm || formData.hasLocation || formData.hasScheduling ||
-                  formData.hasSurvey || formData.hasCustomWorkflow || formData.hasCustomFields ||
-                  formData.hasAdvancedDocs || formData.hasNotifications) && (
-                  <div className="mt-3 p-2 bg-purple-100 border border-purple-300 rounded text-xs text-purple-800">
-                    💡 Após criar o serviço, configure os recursos ativados na página de edição
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowCreateDialog(false); resetForm(); }}>
-              Cancelar
-            </Button>
-            <Button onClick={createService}>
-              Criar Serviço
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Dialog Editar Serviço */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Editar Serviço</DialogTitle>
-            <DialogDescription>
-              Atualize os dados do serviço
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-name">Nome do Serviço *</Label>
-              <Input
-                id="edit-name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-description">Descrição</Label>
-              <Textarea
-                id="edit-description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-category">Categoria</Label>
-                <Input
-                  id="edit-category"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edit-estimatedDays">Prazo Estimado (dias)</Label>
-                <Input
-                  id="edit-estimatedDays"
-                  type="number"
-                  value={formData.estimatedDays}
-                  onChange={(e) => setFormData({ ...formData, estimatedDays: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="edit-priority">Prioridade (1-5)</Label>
-              <Select
-                value={String(formData.priority)}
-                onValueChange={(value) => setFormData({ ...formData, priority: parseInt(value) })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 - Muito Baixa</SelectItem>
-                  <SelectItem value="2">2 - Baixa</SelectItem>
-                  <SelectItem value="3">3 - Normal</SelectItem>
-                  <SelectItem value="4">4 - Alta</SelectItem>
-                  <SelectItem value="5">5 - Crítica</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="edit-requiresDocuments"
-                checked={formData.requiresDocuments}
-                onCheckedChange={(checked) => setFormData({ ...formData, requiresDocuments: checked as boolean })}
-              />
-              <Label htmlFor="edit-requiresDocuments" className="cursor-pointer">
-                Este serviço requer documentos
-              </Label>
-            </div>
-
-            {formData.requiresDocuments && (
-              <div className="space-y-2">
-                <Label>Documentos Necessários</Label>
-                <div className="flex space-x-2">
-                  <Input
-                    value={documentInput}
-                    onChange={(e) => setDocumentInput(e.target.value)}
-                    placeholder="Ex: RG, CPF"
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addDocument())}
-                  />
-                  <Button type="button" onClick={addDocument} size="sm">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {formData.requiredDocuments.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.requiredDocuments.map((doc, index) => (
-                      <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeDocument(index)}>
-                        {doc} <XCircle className="h-3 w-3 ml-1" />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => { setShowEditDialog(false); setSelectedService(null); resetForm(); }}>
-              Cancelar
-            </Button>
-            <Button onClick={updateService}>
-              Salvar Alterações
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Dialog Ver Detalhes */}
       <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>

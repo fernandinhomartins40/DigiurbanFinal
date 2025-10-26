@@ -31,7 +31,7 @@ router.use(tenantMiddleware);
  */
 router.get(
   '/',
-  async (req: AuthenticatedRequest, res: Response<SuccessResponse | ErrorResponse>) => {
+  async (req, res: Response<SuccessResponse | ErrorResponse>) => {
     try {
       const { departmentId, search, includeFeatures } = req.query;
 

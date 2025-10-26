@@ -492,7 +492,7 @@ model Protocol {
 
   // ========== ENHANCED SERVICES (NOVOS) ==========
   formSubmission      ServiceFormSubmission? // Formulário dinâmico
-  location            ProtocolLocation?      // GPS/Localização
+  locations           ProtocolLocation[]     // GPS/Localização (array - um protocolo pode ter múltiplas localizações)
   appointment         Appointment?           // Agendamento
   surveyResponse      SurveyResponse?        // Pesquisa
   workflowExecution   WorkflowExecution?     // Workflow

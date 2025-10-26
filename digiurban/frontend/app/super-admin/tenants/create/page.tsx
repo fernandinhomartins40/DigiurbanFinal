@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, ArrowRight, Check, Building2, User, Settings,
-  FileCheck, Upload, Globe, Mail, Phone, MapPin
+  FileCheck, Upload, Mail, Phone, MapPin
 } from 'lucide-react';
 import { getFullApiUrl } from '@/lib/api-config';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
@@ -30,7 +30,6 @@ interface TenantData {
   name: string;
   cnpj: string;
   population: number;
-  domain: string;
   municipioId?: string;
   codigoIbge?: string;
   nomeMunicipio?: string;
@@ -95,7 +94,6 @@ export default function CreateTenantPage() {
     name: '',
     cnpj: '',
     population: 0,
-    domain: '',
     plan: 'STARTER',
     trialDays: 30,
     features: [],
@@ -290,7 +288,6 @@ export default function CreateTenantPage() {
         name: formData.name,
         cnpj: formData.cnpj,
         population: formData.population,
-        domain: formData.domain,
         plan: formData.plan
       };
 
@@ -553,24 +550,6 @@ export default function CreateTenantPage() {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Domínio Personalizado (opcional)
-                </label>
-                <div className="flex items-center gap-2">
-                  <Globe size={20} className="text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.domain}
-                    onChange={(e) => updateField('domain', e.target.value)}
-                    placeholder="saopaulo.digiurban.com.br"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Se não informado, será gerado automaticamente
-                </p>
-              </div>
             </div>
           </div>
         )}
@@ -797,12 +776,6 @@ export default function CreateTenantPage() {
                     <dt className="text-gray-600">População:</dt>
                     <dd className="font-medium text-gray-900">{formData.population.toLocaleString('pt-BR')}</dd>
                   </div>
-                  {formData.domain && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-600">Domínio:</dt>
-                      <dd className="font-medium text-gray-900">{formData.domain}</dd>
-                    </div>
-                  )}
                 </dl>
               </div>
 

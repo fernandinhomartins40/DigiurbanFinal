@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Building2, Globe, Loader2 } from 'lucide-react';
+import { ArrowLeft, Save, Building2, Loader2 } from 'lucide-react';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
@@ -12,7 +12,6 @@ interface TenantData {
   id: string;
   name: string;
   cnpj: string;
-  domain?: string;
   plan: 'STARTER' | 'PROFESSIONAL' | 'ENTERPRISE';
   status: 'ACTIVE' | 'TRIAL' | 'SUSPENDED' | 'INACTIVE' | 'CANCELLED';
   population?: number;
@@ -68,7 +67,6 @@ export default function EditTenantPage() {
         setTenant(data.tenant);
         setFormData({
           name: data.tenant.name,
-          domain: data.tenant.domain || '',
           plan: data.tenant.plan,
           status: data.tenant.status,
           population: data.tenant.population || 0,
@@ -118,7 +116,6 @@ export default function EditTenantPage() {
         method: 'PUT',
         body: JSON.stringify({
           name: formData.name,
-          domain: formData.domain,
           plan: formData.plan,
           status: formData.status,
           population: formData.population,
@@ -252,21 +249,6 @@ export default function EditTenantPage() {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Domínio Personalizado
-                </label>
-                <div className="flex items-center gap-2">
-                  <Globe size={20} className="text-gray-400" />
-                  <input
-                    type="text"
-                    value={formData.domain || ''}
-                    onChange={(e) => updateField('domain', e.target.value)}
-                    placeholder="saopaulo.digiurban.com.br"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
             </div>
           </div>
 

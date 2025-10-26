@@ -129,10 +129,12 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
       setError(null)
       setIsRedirecting(false)
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+      // ✅ CORRIGIDO: Usar getFullApiUrl para consistência com outros contextos
+      const { getFullApiUrl } = await import('@/lib/api-config');
+      const loginUrl = getFullApiUrl('/admin/auth/login');
 
       // Login SEM especificar tenant - backend identifica automaticamente
-      const response = await fetch(`${apiUrl}/admin/auth/login`, {
+      const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

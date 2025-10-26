@@ -21,7 +21,8 @@ services:
 
       # Frontend (porta interna 3000)
       - FRONTEND_PORT=3000
-      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      # NEXT_PUBLIC_API_URL é setado em BUILD TIME no Dockerfile (linha 40)
+      # Não precisa ser setado aqui pois já foi injetado no build
 
       # Database
       - DATABASE_URL=${DATABASE_URL:-file:/app/data/dev.db}

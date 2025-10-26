@@ -9,9 +9,10 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   output: 'standalone',
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
-  },
+  // ✅ CORRIGIDO: Não forçar NEXT_PUBLIC_API_URL aqui
+  // A variável deve vir do ambiente ou do build argument no Dockerfile
+  // Em produção: /api (roteado pelo Nginx)
+  // Em desenvolvimento: http://localhost:3001 (definido no .env local)
 }
 
 module.exports = nextConfig

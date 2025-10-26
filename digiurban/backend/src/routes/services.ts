@@ -27,13 +27,15 @@ router.use(tenantMiddleware);
 /**
  * GET /api/services
  * Listar serviços (catálogo público)
+ * Query params opcionais:
+ * - includeFeatures: "true" para incluir configurações de features
  */
 router.get(
   '/',
   optionalAuth,
   async (req: OptionalAuthRequest, res: Response<SuccessResponse | ErrorResponse>) => {
     try {
-      const { departmentId, search } = req.query;
+      const { departmentId, search, includeFeatures } = req.query;
 
       let whereClause: WhereCondition = {
         tenantId: req.tenantId,
@@ -51,6 +53,7 @@ router.get(
         ];
       }
 
+      // Include condicional baseado em flags
       const services = await prisma.service.findMany({
         where: whereClause,
         include: {
@@ -60,6 +63,17 @@ router.get(
               name: true,
             },
           },
+          // ========== INCLUDES CONDICIONAIS (só se includeFeatures=true) ==========
+          ...(includeFeatures === 'true' && {
+            customForm: true,
+            locationConfig: true,
+            scheduling: true,
+            survey: true,
+            workflow: true,
+            customFields: true,
+            documents: true,
+            notifications: true,
+          }),
         },
         orderBy: [{ priority: 'desc' }, { name: 'asc' }],
       });
@@ -121,13 +135,46 @@ router.get('/:id', optionalAuth, async (req, res) => {
 /**
  * POST /api/services
  * Criar novo serviço (apenas MANAGER ou superior)
+ * Suporta Feature Flags opcionais para recursos avançados
  */
 router.post('/', authenticateToken, requireManager, async (req, res) => {
   try {
     const authReq = req as AuthenticatedRequest;
-    const { name, description, departmentId, requiresDocuments, estimatedDays, priority } =
-      authReq.body;
+    const {
+      // Campos básicos (obrigatórios)
+      name,
+      description,
+      departmentId,
+      category,
+      requiresDocuments,
+      requiredDocuments,
+      estimatedDays,
+      priority,
+      icon,
+      color,
 
+      // Feature Flags (opcionais - padrão: false)
+      hasCustomForm,
+      hasLocation,
+      hasScheduling,
+      hasSurvey,
+      hasCustomWorkflow,
+      hasCustomFields,
+      hasAdvancedDocs,
+      hasNotifications,
+
+      // Configurações de Features (opcionais - só se flags = true)
+      customForm,
+      locationConfig,
+      scheduling,
+      survey,
+      workflow,
+      customFields,
+      documents,
+      notifications,
+    } = authReq.body;
+
+    // ========== VALIDAÇÃO BÁSICA ==========
     if (!name || !departmentId) {
       return res.status(400).json({
         error: 'Bad request',
@@ -159,15 +206,31 @@ router.post('/', authenticateToken, requireManager, async (req, res) => {
       });
     }
 
+    // ========== CRIAR SERVIÇO BÁSICO ==========
     const service = await prisma.service.create({
       data: {
+        // Básico
         name,
         description: description || null,
+        category: category || null,
         departmentId,
         tenantId: authReq.tenantId,
         requiresDocuments: requiresDocuments || false,
+        requiredDocuments: requiredDocuments || null,
         estimatedDays: estimatedDays || null,
         priority: priority || 1,
+        icon: icon || null,
+        color: color || null,
+
+        // Feature Flags (padrão: false se não fornecido)
+        hasCustomForm: hasCustomForm || false,
+        hasLocation: hasLocation || false,
+        hasScheduling: hasScheduling || false,
+        hasSurvey: hasSurvey || false,
+        hasCustomWorkflow: hasCustomWorkflow || false,
+        hasCustomFields: hasCustomFields || false,
+        hasAdvancedDocs: hasAdvancedDocs || false,
+        hasNotifications: hasNotifications || false,
       } as unknown as Prisma.ServiceUncheckedCreateInput,
       include: {
         department: {
@@ -179,9 +242,198 @@ router.post('/', authenticateToken, requireManager, async (req, res) => {
       },
     });
 
+    // ========== RECURSOS AVANÇADOS (CONDICIONAIS) ==========
+    const featuresCreated: Record<string, boolean> = {};
+
+    // 1. Formulário Customizado
+    if (hasCustomForm && customForm) {
+      await prisma.serviceForm.create({
+        data: {
+          serviceId: service.id,
+          title: customForm.title,
+          description: customForm.description || null,
+          isRequired: customForm.isRequired || false,
+          fields: customForm.fields,
+          validation: customForm.validation || null,
+          conditional: customForm.conditional || null,
+          isMultiStep: customForm.isMultiStep || false,
+          steps: customForm.steps || null,
+        },
+      });
+      featuresCreated.customForm = true;
+    }
+
+    // 2. Geolocalização
+    if (hasLocation && locationConfig) {
+      await prisma.serviceLocation.create({
+        data: {
+          serviceId: service.id,
+          requiresLocation: locationConfig.requiresLocation || false,
+          locationType: locationConfig.locationType || 'optional',
+          hasGeofencing: locationConfig.hasGeofencing || false,
+          allowedRadius: locationConfig.allowedRadius || null,
+          centerLat: locationConfig.centerLat || null,
+          centerLng: locationConfig.centerLng || null,
+          allowPhotos: locationConfig.allowPhotos || false,
+          maxPhotos: locationConfig.maxPhotos || 3,
+          requireAddress: locationConfig.requireAddress || false,
+          description: locationConfig.description || null,
+          placeholder: locationConfig.placeholder || null,
+          helpText: locationConfig.helpText || null,
+        },
+      });
+      featuresCreated.location = true;
+    }
+
+    // 3. Agendamento
+    if (hasScheduling && scheduling) {
+      await prisma.serviceScheduling.create({
+        data: {
+          serviceId: service.id,
+          allowScheduling: scheduling.allowScheduling !== false,
+          type: scheduling.type || 'appointment',
+          workingHours: scheduling.workingHours,
+          blockouts: scheduling.blockouts || null,
+          slotDuration: scheduling.slotDuration || 30,
+          bufferTime: scheduling.bufferTime || 0,
+          maxPerDay: scheduling.maxPerDay || null,
+          maxPerSlot: scheduling.maxPerSlot || 1,
+          advanceBooking: scheduling.advanceBooking || 30,
+          minAdvance: scheduling.minAdvance || 1,
+          locations: scheduling.locations || null,
+          requiresConfirmation: scheduling.requiresConfirmation || false,
+          sendReminders: scheduling.sendReminders !== false,
+          reminderHours: scheduling.reminderHours || 24,
+          allowReschedule: scheduling.allowReschedule !== false,
+          rescheduleDeadline: scheduling.rescheduleDeadline || 24,
+        },
+      });
+      featuresCreated.scheduling = true;
+    }
+
+    // 4. Pesquisa
+    if (hasSurvey && survey) {
+      await prisma.serviceSurvey.create({
+        data: {
+          serviceId: service.id,
+          title: survey.title,
+          description: survey.description || null,
+          type: survey.type || 'satisfaction',
+          timing: survey.timing || 'after',
+          isRequired: survey.isRequired || false,
+          showAfterDays: survey.showAfterDays || null,
+          questions: survey.questions,
+          allowAnonymous: survey.allowAnonymous !== false,
+          allowComments: survey.allowComments !== false,
+        },
+      });
+      featuresCreated.survey = true;
+    }
+
+    // 5. Workflow
+    if (hasCustomWorkflow && workflow) {
+      await prisma.serviceWorkflow.create({
+        data: {
+          serviceId: service.id,
+          name: workflow.name,
+          description: workflow.description || null,
+          version: workflow.version || '1.0.0',
+          stages: workflow.stages,
+          transitions: workflow.transitions,
+          automations: workflow.automations || null,
+          notifications: workflow.notifications || null,
+          sla: workflow.sla || null,
+          approvals: workflow.approvals || null,
+          isDefault: workflow.isDefault || false,
+        },
+      });
+      featuresCreated.workflow = true;
+    }
+
+    // 6. Campos Customizados
+    if (hasCustomFields && customFields && Array.isArray(customFields)) {
+      await prisma.serviceCustomField.createMany({
+        data: customFields.map((field: any) => ({
+          serviceId: service.id,
+          key: field.key,
+          label: field.label,
+          type: field.type,
+          helpText: field.helpText || null,
+          required: field.required || false,
+          validation: field.validation || null,
+          options: field.options || null,
+          defaultValue: field.defaultValue || null,
+          order: field.order || 0,
+          isVisible: field.isVisible !== false,
+          section: field.section || null,
+        })),
+      });
+      featuresCreated.customFields = true;
+    }
+
+    // 7. Documentos Avançados
+    if (hasAdvancedDocs && documents && Array.isArray(documents)) {
+      await prisma.serviceDocument.createMany({
+        data: documents.map((doc: any) => ({
+          serviceId: service.id,
+          name: doc.name,
+          description: doc.description || null,
+          category: doc.category || null,
+          required: doc.required !== false,
+          multiple: doc.multiple || false,
+          minFiles: doc.minFiles || 1,
+          maxFiles: doc.maxFiles || 1,
+          acceptedTypes: doc.acceptedTypes,
+          maxSize: doc.maxSize || 5242880,
+          minSize: doc.minSize || null,
+          validateWithAI: doc.validateWithAI || false,
+          extractData: doc.extractData || null,
+          aiProvider: doc.aiProvider || null,
+          templateUrl: doc.templateUrl || null,
+          exampleUrl: doc.exampleUrl || null,
+          order: doc.order || 0,
+        })),
+      });
+      featuresCreated.documents = true;
+    }
+
+    // 8. Notificações
+    if (hasNotifications && notifications && Array.isArray(notifications)) {
+      await prisma.serviceNotification.createMany({
+        data: notifications.map((notif: any) => ({
+          serviceId: service.id,
+          name: notif.name,
+          description: notif.description || null,
+          channel: notif.channel,
+          trigger: notif.trigger,
+          triggerData: notif.triggerData || null,
+          conditions: notif.conditions || null,
+          recipients: notif.recipients,
+          subject: notif.subject || null,
+          body: notif.body,
+          variables: notif.variables || null,
+          priority: notif.priority || 3,
+          delay: notif.delay || null,
+          schedule: notif.schedule || null,
+        })),
+      });
+      featuresCreated.notifications = true;
+    }
+
     return res.status(201).json({
       message: 'Serviço criado com sucesso',
       service,
+      featuresEnabled: {
+        customForm: hasCustomForm || false,
+        location: hasLocation || false,
+        scheduling: hasScheduling || false,
+        survey: hasSurvey || false,
+        workflow: hasCustomWorkflow || false,
+        customFields: hasCustomFields || false,
+        advancedDocs: hasAdvancedDocs || false,
+        notifications: hasNotifications || false,
+      },
+      featuresCreated,
     });
   } catch (error) {
     console.error('Create service error:', error);

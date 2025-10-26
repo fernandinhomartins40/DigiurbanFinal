@@ -26,7 +26,9 @@ import {
   Clock,
   FileText,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Settings2,
+  Sparkles
 } from 'lucide-react'
 
 interface Service {
@@ -75,6 +77,8 @@ export default function ServicesManagementPage() {
   const [showViewDialog, setShowViewDialog] = useState(false)
   const [selectedService, setSelectedService] = useState<Service | null>(null)
 
+  const [advancedMode, setAdvancedMode] = useState(false)
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -85,7 +89,16 @@ export default function ServicesManagementPage() {
     estimatedDays: '',
     priority: 3,
     icon: '',
-    color: '#3b82f6'
+    color: '#3b82f6',
+    // Feature Flags
+    hasCustomForm: false,
+    hasLocation: false,
+    hasScheduling: false,
+    hasSurvey: false,
+    hasCustomWorkflow: false,
+    hasCustomFields: false,
+    hasAdvancedDocs: false,
+    hasNotifications: false
   })
 
   const [documentInput, setDocumentInput] = useState('')
@@ -143,6 +156,17 @@ export default function ServicesManagementPage() {
           priority: formData.priority,
           icon: formData.icon || null,
           color: formData.color || null,
+          // Feature Flags (only if advanced mode is enabled)
+          ...(advancedMode && {
+            hasCustomForm: formData.hasCustomForm,
+            hasLocation: formData.hasLocation,
+            hasScheduling: formData.hasScheduling,
+            hasSurvey: formData.hasSurvey,
+            hasCustomWorkflow: formData.hasCustomWorkflow,
+            hasCustomFields: formData.hasCustomFields,
+            hasAdvancedDocs: formData.hasAdvancedDocs,
+            hasNotifications: formData.hasNotifications
+          })
         })
       })
 
@@ -247,9 +271,18 @@ export default function ServicesManagementPage() {
       estimatedDays: '',
       priority: 3,
       icon: '',
-      color: '#3b82f6'
+      color: '#3b82f6',
+      hasCustomForm: false,
+      hasLocation: false,
+      hasScheduling: false,
+      hasSurvey: false,
+      hasCustomWorkflow: false,
+      hasCustomFields: false,
+      hasAdvancedDocs: false,
+      hasNotifications: false
     })
     setDocumentInput('')
+    setAdvancedMode(false)
   }
 
   // Popular formulário para edição
@@ -567,6 +600,34 @@ export default function ServicesManagementPage() {
             </DialogDescription>
           </DialogHeader>
 
+          {/* Toggle Simples/Avançado */}
+          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+            <div className="flex items-center gap-2">
+              {advancedMode ? (
+                <Sparkles className="h-5 w-5 text-purple-600" />
+              ) : (
+                <Settings2 className="h-5 w-5 text-gray-600" />
+              )}
+              <div>
+                <p className="font-medium text-sm">
+                  {advancedMode ? 'Modo Avançado' : 'Modo Simples'}
+                </p>
+                <p className="text-xs text-gray-600">
+                  {advancedMode
+                    ? 'Recursos inteligentes ativados'
+                    : 'Criação básica de serviços'}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant={advancedMode ? "default" : "outline"}
+              size="sm"
+              onClick={() => setAdvancedMode(!advancedMode)}
+            >
+              {advancedMode ? 'Voltar ao Simples' : 'Ativar Avançado'}
+            </Button>
+          </div>
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nome do Serviço *</Label>
@@ -684,6 +745,173 @@ export default function ServicesManagementPage() {
                         {doc} <XCircle className="h-3 w-3 ml-1" />
                       </Badge>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Recursos Inteligentes (Modo Avançado) */}
+            {advancedMode && (
+              <div className="space-y-3 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-purple-600" />
+                  <Label className="text-purple-900 font-semibold">Recursos Inteligentes</Label>
+                </div>
+                <p className="text-xs text-purple-700 mb-3">
+                  Ative os recursos que deseja para este serviço
+                </p>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasCustomForm"
+                      checked={formData.hasCustomForm}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasCustomForm: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasCustomForm" className="text-sm cursor-pointer">
+                        Formulário Customizado
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Campos dinâmicos e validações
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasLocation"
+                      checked={formData.hasLocation}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasLocation: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasLocation" className="text-sm cursor-pointer">
+                        Captura GPS
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Localização geográfica
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasScheduling"
+                      checked={formData.hasScheduling}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasScheduling: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasScheduling" className="text-sm cursor-pointer">
+                        Agendamento
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Horários e calendário
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasSurvey"
+                      checked={formData.hasSurvey}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasSurvey: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasSurvey" className="text-sm cursor-pointer">
+                        Pesquisa de Satisfação
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Enquetes e feedback
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasCustomWorkflow"
+                      checked={formData.hasCustomWorkflow}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasCustomWorkflow: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasCustomWorkflow" className="text-sm cursor-pointer">
+                        Workflow Customizado
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Etapas e aprovações
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasCustomFields"
+                      checked={formData.hasCustomFields}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasCustomFields: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasCustomFields" className="text-sm cursor-pointer">
+                        Campos Customizados
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Dados adicionais
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasAdvancedDocs"
+                      checked={formData.hasAdvancedDocs}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasAdvancedDocs: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasAdvancedDocs" className="text-sm cursor-pointer">
+                        Documentos Avançados
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        OCR e validação IA
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <Checkbox
+                      id="hasNotifications"
+                      checked={formData.hasNotifications}
+                      onCheckedChange={(checked) =>
+                        setFormData({ ...formData, hasNotifications: checked as boolean })
+                      }
+                    />
+                    <div className="space-y-0.5">
+                      <Label htmlFor="hasNotifications" className="text-sm cursor-pointer">
+                        Notificações
+                      </Label>
+                      <p className="text-xs text-gray-600">
+                        Email, SMS, WhatsApp
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {(formData.hasCustomForm || formData.hasLocation || formData.hasScheduling ||
+                  formData.hasSurvey || formData.hasCustomWorkflow || formData.hasCustomFields ||
+                  formData.hasAdvancedDocs || formData.hasNotifications) && (
+                  <div className="mt-3 p-2 bg-purple-100 border border-purple-300 rounded text-xs text-purple-800">
+                    💡 Após criar o serviço, configure os recursos ativados na página de edição
                   </div>
                 )}
               </div>

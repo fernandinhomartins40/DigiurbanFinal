@@ -1,0 +1,637 @@
+// =====================================================
+// ENHANCED SERVICES - RECURSOS OPCIONAIS
+// Sistema de Feature Flags para Serviços Inteligentes
+// =====================================================
+
+// ========== EXTENSÃO DO MODEL SERVICE ==========
+// Adicionar ao model Service existente via migration
+
+// Flags de Recursos (todas false por padrão)
+// hasCustomForm       Boolean @default(false)
+// hasLocation         Boolean @default(false)
+// hasScheduling       Boolean @default(false)
+// hasSurvey           Boolean @default(false)
+// hasCustomWorkflow   Boolean @default(false)
+// hasCustomFields     Boolean @default(false)
+// hasAdvancedDocs     Boolean @default(false)
+// hasNotifications    Boolean @default(false)
+
+// ========== 1. FORMULÁRIOS DINÂMICOS ==========
+
+model ServiceForm {
+  id          String   @id @default(cuid())
+  serviceId   String   @unique
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Configuração do Formulário
+  title       String
+  description String?
+  isActive    Boolean  @default(true)
+  isRequired  Boolean  @default(false)
+
+  // Campos do Formulário (JSON Schema)
+  // Structure: [{ id, type, label, required, validation, options, conditional }]
+  fields      Json
+
+  // Validação Global
+  validation  Json?    // Regras de validação customizadas
+
+  // Lógica Condicional
+  conditional Json?    // Show/hide fields baseado em respostas
+
+  // Multi-step Support
+  isMultiStep Boolean  @default(false)
+  steps       Json?    // [{ title, description, fields: [field_ids] }]
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  submissions ServiceFormSubmission[]
+
+  @@index([serviceId])
+  @@map("service_forms")
+}
+
+// Respostas dos Formulários
+model ServiceFormSubmission {
+  id          String   @id @default(cuid())
+  formId      String
+  form        ServiceForm @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  protocolId  String   @unique
+  protocol    Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  // Dados Submetidos
+  data        Json     // Resposta completa do formulário
+  files       Json?    // URLs de arquivos anexados
+
+  // Metadata
+  isComplete  Boolean  @default(false)
+  submittedAt DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?
+
+  @@index([formId])
+  @@index([protocolId])
+  @@map("service_form_submissions")
+}
+
+// ========== 2. GEOLOCALIZAÇÃO (GPS) ==========
+
+model ServiceLocation {
+  id          String   @id @default(cuid())
+  serviceId   String   @unique
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Configuração de Geolocalização
+  requiresLocation Boolean @default(false)
+  locationType     String  @default("optional") // "required", "optional", "auto"
+
+  // Validação de Área (Geofencing)
+  hasGeofencing    Boolean @default(false)
+  allowedRadius    Float?  // Raio em metros
+  centerLat        Float?  // Centro da área permitida
+  centerLng        Float?  // Centro da área permitida
+
+  // Configuração de Captura
+  allowPhotos      Boolean @default(false)
+  maxPhotos        Int?    @default(3)
+  requireAddress   Boolean @default(false)
+
+  // Textos de Interface
+  description      String? // "Marque o local do buraco na rua"
+  placeholder      String?
+  helpText         String?
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  captures    ProtocolLocation[]
+
+  @@index([serviceId])
+  @@map("service_locations")
+}
+
+// Localização Capturada no Protocolo
+model ProtocolLocation {
+  id          String   @id @default(cuid())
+  locationConfigId String
+  locationConfig   ServiceLocation @relation(fields: [locationConfigId], references: [id])
+
+  protocolId  String
+  protocol    Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  // Dados de Geolocalização
+  latitude    Float
+  longitude   Float
+  accuracy    Float?   // Precisão em metros
+  altitude    Float?
+  heading     Float?   // Direção (0-360)
+  speed       Float?
+
+  // Endereço Reverso (Geocoding)
+  address     String?
+  street      String?
+  number      String?
+  neighborhood String?
+  city        String?
+  state       String?
+  postalCode  String?
+  country     String?  @default("Brasil")
+
+  // Metadata de Captura
+  capturedAt  DateTime @default(now())
+  source      String   @default("gps") // "gps", "manual", "ip"
+  deviceInfo  Json?    // Info do dispositivo/browser
+
+  // Fotos no Local (URLs)
+  photos      Json?    // ["https://...", "https://..."]
+
+  @@index([protocolId])
+  @@map("protocol_locations")
+}
+
+// ========== 3. PESQUISAS E ENQUETES ==========
+
+model ServiceSurvey {
+  id            String   @id @default(cuid())
+  serviceId     String   @unique
+  service       Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Configuração da Pesquisa
+  title         String
+  description   String?
+  type          String   @default("satisfaction") // "satisfaction", "feedback", "nps", "custom"
+
+  // Quando Exibir
+  timing        String   @default("after") // "before", "after", "both"
+  isRequired    Boolean  @default(false)
+  showAfterDays Int?     // Exibir X dias após conclusão
+
+  // Perguntas (JSON Schema)
+  // Structure: [{ id, type, label, required, options, min, max, labels }]
+  questions     Json
+
+  // Configurações
+  allowAnonymous Boolean @default(true)
+  allowComments  Boolean @default(true)
+
+  // Status
+  isActive      Boolean  @default(true)
+
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relacionamentos
+  responses     SurveyResponse[]
+
+  @@index([serviceId])
+  @@map("service_surveys")
+}
+
+// Respostas das Pesquisas
+model SurveyResponse {
+  id          String   @id @default(cuid())
+  surveyId    String
+  survey      ServiceSurvey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  protocolId  String?  @unique
+  protocol    Protocol? @relation(fields: [protocolId], references: [id], onDelete: SetNull)
+
+  citizenId   String?
+  citizen     Citizen?  @relation(fields: [citizenId], references: [id], onDelete: SetNull)
+
+  // Dados da Resposta
+  answers     Json     // { question_id: answer_value }
+  rating      Float?   // Nota geral calculada (0-5)
+  npsScore    Int?     // NPS (0-10)
+  comments    String?  // Comentários adicionais
+
+  // Metadata
+  submittedAt DateTime @default(now())
+  isAnonymous Boolean  @default(false)
+  ipAddress   String?
+
+  @@index([surveyId])
+  @@index([protocolId])
+  @@index([citizenId])
+  @@map("survey_responses")
+}
+
+// ========== 4. AGENDAMENTO E HORÁRIOS ==========
+
+model ServiceScheduling {
+  id            String   @id @default(cuid())
+  serviceId     String   @unique
+  service       Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Configuração
+  allowScheduling Boolean @default(true)
+  type            String  @default("appointment") // "appointment", "time_slot", "date_only"
+
+  // Horários Disponíveis (JSON)
+  // Structure: { "monday": ["08:00-12:00", "14:00-18:00"], "tuesday": [...] }
+  workingHours    Json
+
+  // Bloqueios e Feriados
+  // Structure: [{ date: "2025-12-25", reason: "Natal" }]
+  blockouts       Json?
+
+  // Configurações de Agendamento
+  slotDuration    Int?    @default(30) // Duração do slot em minutos
+  bufferTime      Int?    @default(0)  // Tempo entre agendamentos (minutos)
+  maxPerDay       Int?    // Máximo de agendamentos/dia
+  maxPerSlot      Int?    @default(1)  // Máximo por horário
+  advanceBooking  Int?    @default(30) // Quantos dias antes pode agendar
+  minAdvance      Int?    @default(1)  // Mínimo de dias de antecedência
+
+  // Locais de Atendimento
+  // Structure: [{ id, name, address, capacity }]
+  locations       Json?
+
+  // Confirmação e Lembretes
+  requiresConfirmation Boolean @default(false)
+  sendReminders        Boolean @default(true)
+  reminderHours        Int?    @default(24) // Horas antes
+
+  // Reagendamento
+  allowReschedule      Boolean @default(true)
+  rescheduleDeadline   Int?    @default(24) // Horas antes
+
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relacionamentos
+  appointments    Appointment[]
+
+  @@index([serviceId])
+  @@map("service_scheduling")
+}
+
+// Agendamento Individual
+model Appointment {
+  id              String   @id @default(cuid())
+  schedulingId    String
+  scheduling      ServiceScheduling @relation(fields: [schedulingId], references: [id])
+
+  protocolId      String   @unique
+  protocol        Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  // Data e Hora
+  scheduledDate   DateTime
+  scheduledTime   String   // "09:00"
+  endTime         String?  // "09:30"
+  duration        Int      // Minutos
+
+  // Local (se aplicável)
+  locationId      String?
+  locationName    String?
+  locationAddress String?
+
+  // Status
+  status          String   @default("scheduled") // scheduled, confirmed, cancelled, completed, no_show
+
+  // Confirmação
+  confirmedAt     DateTime?
+  confirmedBy     String?  // "citizen", "admin", "auto"
+
+  // Lembretes
+  reminderSent    Boolean  @default(false)
+  reminderSentAt  DateTime?
+
+  // Cancelamento/Reagendamento
+  cancelledAt     DateTime?
+  cancelReason    String?
+  rescheduledFrom String?  // ID do appointment anterior
+
+  // Notas
+  notes           String?  // Notas administrativas
+
+  // Metadata
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([schedulingId])
+  @@index([protocolId])
+  @@index([scheduledDate])
+  @@index([status])
+  @@map("appointments")
+}
+
+// ========== 5. WORKFLOW CONFIGURÁVEL ==========
+
+model ServiceWorkflow {
+  id          String   @id @default(cuid())
+  serviceId   String   @unique
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Configuração do Workflow
+  name        String
+  description String?
+  version     String   @default("1.0.0")
+
+  // Etapas (Stages)
+  // Structure: [{ id, name, description, sla, actions, permissions }]
+  stages      Json
+
+  // Transições entre Etapas
+  // Structure: { "stage_id": ["next_stage_id1", "next_stage_id2"] }
+  transitions Json
+
+  // Automações por Stage
+  // Structure: { "stage_id": { triggers: [], actions: [] } }
+  automations Json?
+
+  // Notificações por Stage
+  // Structure: { "stage_id": { email: true, sms: false, push: true } }
+  notifications Json?
+
+  // SLA (Service Level Agreement)
+  // Structure: { "stage_id": { hours: 24, businessDays: true } }
+  sla         Json?
+
+  // Aprovações
+  // Structure: { "stage_id": { requiresApproval: true, approvers: ["role"] } }
+  approvals   Json?
+
+  // Status
+  isActive    Boolean  @default(true)
+  isDefault   Boolean  @default(false)
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdBy   String?
+  updatedBy   String?
+
+  // Relacionamentos
+  executions  WorkflowExecution[]
+
+  @@index([serviceId])
+  @@map("service_workflows")
+}
+
+// Execução do Workflow no Protocolo
+model WorkflowExecution {
+  id          String   @id @default(cuid())
+  workflowId  String
+  workflow    ServiceWorkflow @relation(fields: [workflowId], references: [id])
+
+  protocolId  String   @unique
+  protocol    Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  // Estado Atual
+  currentStage String   // ID do stage atual
+  previousStage String? // ID do stage anterior
+
+  // Histórico de Transições
+  // Structure: [{ from, to, timestamp, userId, reason }]
+  history     Json     @default("[]")
+
+  // SLA Tracking
+  // Structure: { "stage_id": { startedAt, deadline, isOverdue } }
+  slaTracking Json?
+
+  // Status
+  status      String   @default("active") // active, completed, cancelled
+
+  // Metadata
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+  updatedAt   DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([protocolId])
+  @@index([currentStage])
+  @@map("workflow_executions")
+}
+
+// ========== 6. NOTIFICAÇÕES CONFIGURÁVEIS ==========
+
+model ServiceNotification {
+  id          String   @id @default(cuid())
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Identificação
+  name        String   // Nome interno
+  description String?
+
+  // Tipo de Notificação
+  channel     String   // "email", "sms", "push", "whatsapp", "all"
+
+  // Trigger (Quando enviar)
+  trigger     String   // "created", "updated", "completed", "stage_change", "deadline_near", "custom"
+  triggerData Json?    // Dados específicos do trigger
+
+  // Condições (Quando aplicar)
+  // Structure: { field: "status", operator: "equals", value: "CONCLUIDO" }
+  conditions  Json?
+
+  // Destinatários
+  // Structure: ["citizen", "admin", "department", { email: "custom@email.com" }]
+  recipients  Json
+
+  // Template da Mensagem
+  subject     String?  // Para email
+  body        String   // Suporta variáveis: {{protocolNumber}}, {{citizenName}}
+  variables   Json?    // Variáveis disponíveis
+
+  // Configurações
+  isActive    Boolean  @default(true)
+  priority    Int      @default(3) // 1-5
+
+  // Agendamento
+  delay       Int?     // Minutos de atraso antes de enviar
+  schedule    String?  // Cron expression para envios agendados
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  logs        NotificationLog[]
+
+  @@index([serviceId])
+  @@index([trigger])
+  @@map("service_notifications")
+}
+
+// Log de Notificações Enviadas
+model NotificationLog {
+  id              String   @id @default(cuid())
+  notificationId  String
+  notification    ServiceNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  protocolId      String
+  protocol        Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  // Dados do Envio
+  channel         String   // email, sms, push
+  recipient       String   // Email ou telefone
+  subject         String?
+  body            String
+
+  // Status
+  status          String   @default("pending") // pending, sent, failed, bounced
+  sentAt          DateTime?
+  errorMessage    String?
+
+  // Resposta do Provedor
+  providerId      String?  // ID do provider (SendGrid, Twilio, etc)
+  providerResponse Json?
+
+  // Metadata
+  createdAt       DateTime @default(now())
+
+  @@index([notificationId])
+  @@index([protocolId])
+  @@index([status])
+  @@map("notification_logs")
+}
+
+// ========== 7. CAMPOS CUSTOMIZADOS ==========
+
+model ServiceCustomField {
+  id          String   @id @default(cuid())
+  serviceId   String
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Definição do Campo
+  key         String   // "numero_processo", "codigo_lote"
+  label       String   // "Número do Processo"
+  type        String   // "text", "number", "date", "select", "checkbox", etc
+  helpText    String?
+
+  // Configuração
+  required    Boolean  @default(false)
+  validation  Json?    // { min, max, pattern, etc }
+  options     Json?    // Para select/radio: [{ value, label }]
+  defaultValue String?
+
+  // Ordem e Visibilidade
+  order       Int      @default(0)
+  isVisible   Boolean  @default(true)
+  section     String?  // Agrupamento de campos
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relacionamentos
+  values      ProtocolCustomFieldValue[]
+
+  @@unique([serviceId, key])
+  @@index([serviceId])
+  @@map("service_custom_fields")
+}
+
+// Valores dos Campos Customizados no Protocolo
+model ProtocolCustomFieldValue {
+  id          String   @id @default(cuid())
+  protocolId  String
+  protocol    Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  fieldId     String
+  field       ServiceCustomField @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  // Valor (flexível)
+  value       Json     // String, number, array, object
+
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([protocolId, fieldId])
+  @@index([protocolId])
+  @@index([fieldId])
+  @@map("protocol_custom_field_values")
+}
+
+// ========== 8. DOCUMENTOS AVANÇADOS ==========
+
+model ServiceDocument {
+  id            String   @id @default(cuid())
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  // Definição do Documento
+  name          String   // "RG", "Comprovante de Residência"
+  description   String?
+  category      String?  // "identificacao", "comprovante", "declaracao"
+
+  // Configuração
+  required      Boolean  @default(true)
+  multiple      Boolean  @default(false) // Permite múltiplos arquivos
+  minFiles      Int?     @default(1)
+  maxFiles      Int?     @default(1)
+
+  // Validação de Arquivo
+  acceptedTypes Json     // [".pdf", ".jpg", ".png"]
+  maxSize       Int      @default(5242880) // 5MB em bytes
+  minSize       Int?
+
+  // Validação Automática (OCR/IA)
+  validateWithAI Boolean @default(false)
+  extractData    Json?   // Campos a extrair: ["cpf", "nome", "data"]
+  aiProvider     String? // "google_vision", "aws_textract", "azure_ocr"
+
+  // Template/Exemplo
+  templateUrl    String?
+  exampleUrl     String?
+
+  // Ordem
+  order         Int      @default(0)
+
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relacionamentos
+  uploads       DocumentUpload[]
+
+  @@index([serviceId])
+  @@map("service_documents")
+}
+
+// Uploads de Documentos
+model DocumentUpload {
+  id              String   @id @default(cuid())
+  documentConfigId String
+  documentConfig   ServiceDocument @relation(fields: [documentConfigId], references: [id], onDelete: Cascade)
+
+  protocolId      String
+  protocol        Protocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  // Arquivo
+  fileName        String
+  fileSize        Int      // Bytes
+  fileType        String   // MIME type
+  fileUrl         String   // URL do arquivo armazenado
+  thumbnailUrl    String?  // Para imagens
+
+  // Validação
+  isValidated     Boolean  @default(false)
+  validatedAt     DateTime?
+  validatedBy     String?  // userId
+  validationStatus String? // "pending", "approved", "rejected"
+  rejectionReason  String?
+
+  // Dados Extraídos (OCR/IA)
+  extractedData   Json?    // { cpf: "123.456.789-00", nome: "João Silva" }
+  ocrConfidence   Float?   // 0-1
+
+  // Metadata
+  uploadedAt      DateTime @default(now())
+  uploadedBy      String?  // citizenId ou userId
+
+  @@index([documentConfigId])
+  @@index([protocolId])
+  @@map("document_uploads")
+}

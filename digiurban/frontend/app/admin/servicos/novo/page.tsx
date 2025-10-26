@@ -126,10 +126,6 @@ export default function NewServicePage() {
   ]
 
   // Carregar departamentos
-  useEffect(() => {
-    loadDepartments()
-  }, [])
-
   const loadDepartments = async () => {
     try {
       const response = await apiRequest('/api/admin/management/departments')
@@ -143,6 +139,11 @@ export default function NewServicePage() {
       })
     }
   }
+
+  useEffect(() => {
+    loadDepartments()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

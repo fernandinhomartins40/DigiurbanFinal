@@ -224,6 +224,7 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
   // Hook para verificar autenticação ao montar o componente
   useEffect(() => {
     checkAuth()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const value: AdminAuthContextType = {

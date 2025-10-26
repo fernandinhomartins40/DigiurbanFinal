@@ -29,12 +29,11 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     }
 
     let tenantId: string | null = null;
-    const host = req.get('host');
 
     // ============================================
-    // ESTRATÉGIA 1: JWT Cookie (PRINCIPAL)
+    // ESTRATÉGIA 1: JWT Cookie (PRINCIPAL - 99% dos casos)
     // ============================================
-    // Para usuários admin logados, tenant vem do JWT
+    // Para usuários admin/cidadão logados, tenant vem do JWT
     if (req.cookies?.digiurban_admin_token) {
       if (isDev) console.log('[Tenant] Verificando JWT cookie admin...');
       try {
@@ -50,32 +49,15 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     }
 
     // ============================================
-    // ESTRATÉGIA 2: Header X-Tenant-ID (APIs)
+    // ESTRATÉGIA 2: Header X-Tenant-ID (APIs externas e dev)
     // ============================================
-    // Para integrações externas/APIs que não usam cookie
+    // Para integrações externas ou desenvolvimento local
     if (!tenantId) {
       const headerTenant = req.get('X-Tenant-ID');
       if (headerTenant) {
         tenantId = headerTenant;
         if (isDev) console.log('[Tenant] ✅ Tenant do header:', tenantId);
       }
-    }
-
-    // ============================================
-    // ESTRATÉGIA 3: Query Param (DEV)
-    // ============================================
-    // Para desenvolvimento e testes
-    if (!tenantId && req.query.tenant) {
-      tenantId = req.query.tenant as string;
-      if (isDev) console.log('[Tenant] ✅ Tenant da query:', tenantId);
-    }
-
-    // ============================================
-    // ESTRATÉGIA 4: Tenant padrão (localhost)
-    // ============================================
-    if (!tenantId && (host?.includes('localhost') || host?.includes('127.0.0.1'))) {
-      tenantId = process.env.DEFAULT_TENANT || 'demo';
-      if (isDev) console.log('[Tenant] ✅ Tenant padrão (dev):', tenantId);
     }
 
     // ============================================
@@ -230,48 +212,9 @@ export const validateUserTenant = (userTenantId: string, requestTenantId: string
   return userTenantId === requestTenantId;
 };
 
-/**
- * Função para validar e extrair limites do JSON do tenant
- */
-function extractTenantLimits(limitsJson: unknown): TenantLimits {
-  // Usar o type guard oficial para validação
-  if (isTenantLimits(limitsJson)) {
-    const defaults = getDefaultLimits();
-    return {
-      ...defaults,
-      ...limitsJson,
-    };
-  }
-
-  // Fallback para valores padrão
-  return getDefaultLimits();
-}
-
-/**
- * Função para validar e extrair estatísticas de uso
- */
-function extractUsageStats(
-  usageStatsJson: unknown,
-  countData?: { users: number; protocols: number; services: number }
-): UsageStats {
-  // Usar o type guard oficial para validação
-  if (isUsageStats(usageStatsJson)) {
-    return usageStatsJson;
-  }
-
-  // Fallback para dados do _count
-  if (countData) {
-    return {
-      users: countData.users,
-      protocols: countData.protocols,
-      services: countData.services,
-      lastUpdated: new Date().toISOString(),
-    };
-  }
-
-  // Fallback final para valores padrão
-  return getDefaultUsageStats();
-}
+// Funções auxiliares simplificadas (inline quando usado 1x)
+// Se precisar extrair limites: tenant.limits || getDefaultLimits()
+// Se precisar extrair usage: tenant.usageStats || getDefaultUsageStats()
 
 /**
  * Middleware para enforcement de limites por plano
@@ -284,15 +227,9 @@ export const planLimitsMiddleware = async (req: Request, res: Response, next: Ne
       return next();
     }
 
-    // Extrair limites de forma segura usando type guards
-    const limits = isTenantLimits(tenant.limits)
-      ? tenant.limits
-      : getDefaultLimits();
-
-    // Extrair estatísticas de uso de forma segura
-    const usageStats = isUsageStats(tenant.usageStats)
-      ? tenant.usageStats
-      : getDefaultUsageStats();
+    // Extrair limites e usage com validação simples
+    const limits = isTenantLimits(tenant.limits) ? tenant.limits : getDefaultLimits();
+    const usageStats = isUsageStats(tenant.usageStats) ? tenant.usageStats : getDefaultUsageStats();
 
     // Verificar limite de usuários
     if (limits.users > 0 && usageStats.users >= limits.users) {

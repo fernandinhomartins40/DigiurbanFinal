@@ -318,6 +318,7 @@ export default function NewServicePage() {
         {/* Step 4: Configurações Avançadas */}
         <AdvancedConfigStep
           formData={formData}
+          onChange={handleFieldChange}
         />
       </ServiceFormWizard>
     </div>

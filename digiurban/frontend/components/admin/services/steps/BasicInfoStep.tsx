@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { IconPicker } from '@/components/ui/icon-picker'
 import { Info } from 'lucide-react'
 
 interface Department {
@@ -142,14 +143,12 @@ export function BasicInfoStep({ formData, departments, onChange, errors }: Basic
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="icon">Ícone (opcional)</Label>
-          <Input
-            id="icon"
+          <IconPicker
+            label="Ícone (opcional)"
             value={formData.icon}
-            onChange={(e) => onChange('icon', e.target.value)}
-            placeholder="Ex: stethoscope, book, building"
+            onChange={(value) => onChange('icon', value)}
+            placeholder="Selecione um ícone"
           />
-          <p className="text-xs text-gray-500">Nome do ícone Lucide React</p>
         </div>
 
         <div className="space-y-2">

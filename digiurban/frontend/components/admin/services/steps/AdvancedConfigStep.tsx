@@ -3,34 +3,84 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Info, Settings } from 'lucide-react'
+import { Info, Settings, FileText, MapPin, Calendar, BarChart, GitBranch, Sliders, FileSearch, Bell } from 'lucide-react'
+
+// Import config components
+import { CustomFormConfig } from '../config/CustomFormConfig'
+import { LocationConfig } from '../config/LocationConfig'
+import { SchedulingConfig } from '../config/SchedulingConfig'
+import { SurveyConfig } from '../config/SurveyConfig'
+import { WorkflowConfig } from '../config/WorkflowConfig'
+import { CustomFieldsConfig } from '../config/CustomFieldsConfig'
+import { AdvancedDocsConfig } from '../config/AdvancedDocsConfig'
+import { NotificationsConfig } from '../config/NotificationsConfig'
 
 interface AdvancedConfigStepProps {
-  formData: {
-    hasCustomForm: boolean
-    hasLocation: boolean
-    hasScheduling: boolean
-    hasSurvey: boolean
-    hasCustomWorkflow: boolean
-    hasCustomFields: boolean
-    hasAdvancedDocs: boolean
-    hasNotifications: boolean
-  }
+  formData: any
+  onChange: (field: string, value: any) => void
 }
 
-export function AdvancedConfigStep({ formData }: AdvancedConfigStepProps) {
-  const activeFeatures = Object.entries(formData).filter(([key, value]) => key.startsWith('has') && value)
+const featureConfigs = [
+  {
+    key: 'hasCustomForm',
+    name: 'Formulário Customizado',
+    icon: FileText,
+    color: 'blue',
+    component: CustomFormConfig,
+  },
+  {
+    key: 'hasLocation',
+    name: 'Captura de Localização',
+    icon: MapPin,
+    color: 'green',
+    component: LocationConfig,
+  },
+  {
+    key: 'hasScheduling',
+    name: 'Sistema de Agendamento',
+    icon: Calendar,
+    color: 'purple',
+    component: SchedulingConfig,
+  },
+  {
+    key: 'hasSurvey',
+    name: 'Pesquisa de Satisfação',
+    icon: BarChart,
+    color: 'orange',
+    component: SurveyConfig,
+  },
+  {
+    key: 'hasCustomWorkflow',
+    name: 'Workflow Customizado',
+    icon: GitBranch,
+    color: 'indigo',
+    component: WorkflowConfig,
+  },
+  {
+    key: 'hasCustomFields',
+    name: 'Campos Personalizados',
+    icon: Sliders,
+    color: 'pink',
+    component: CustomFieldsConfig,
+  },
+  {
+    key: 'hasAdvancedDocs',
+    name: 'Documentos Inteligentes',
+    icon: FileSearch,
+    color: 'teal',
+    component: AdvancedDocsConfig,
+  },
+  {
+    key: 'hasNotifications',
+    name: 'Sistema de Notificações',
+    icon: Bell,
+    color: 'red',
+    component: NotificationsConfig,
+  },
+]
 
-  const featureNames: Record<string, string> = {
-    hasCustomForm: 'Formulário Customizado',
-    hasLocation: 'Captura de Localização',
-    hasScheduling: 'Sistema de Agendamento',
-    hasSurvey: 'Pesquisa de Satisfação',
-    hasCustomWorkflow: 'Workflow Customizado',
-    hasCustomFields: 'Campos Personalizados',
-    hasAdvancedDocs: 'Documentos Inteligentes',
-    hasNotifications: 'Sistema de Notificações',
-  }
+export function AdvancedConfigStep({ formData, onChange }: AdvancedConfigStepProps) {
+  const activeFeatures = featureConfigs.filter((f) => formData[f.key])
 
   if (activeFeatures.length === 0) {
     return (
@@ -64,7 +114,7 @@ export function AdvancedConfigStep({ formData }: AdvancedConfigStepProps) {
           <p className="text-sm font-medium text-purple-900">Configurações Detalhadas</p>
           <p className="text-xs text-purple-700 mt-1">
             Configure os {activeFeatures.length} recurso{activeFeatures.length > 1 ? 's' : ''} ativado{activeFeatures.length > 1 ? 's' : ''}.
-            Estas configurações podem ser editadas posteriormente na página de edição do serviço.
+            Cada recurso possui configurações específicas para personalizar seu funcionamento.
           </p>
         </div>
         <Badge className="bg-purple-600 text-white">
@@ -76,73 +126,53 @@ export function AdvancedConfigStep({ formData }: AdvancedConfigStepProps) {
         <CardHeader>
           <CardTitle className="text-lg">Recursos Ativados</CardTitle>
           <CardDescription>
-            Configuração avançada disponível após a criação do serviço
+            Configure cada recurso usando as abas abaixo
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {activeFeatures.map(([key]) => (
-              <div
-                key={key}
-                className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg"
-              >
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{featureNames[key]}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Configure detalhadamente na página de edição
-                  </p>
-                </div>
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
-                  Ativo
-                </Badge>
-              </div>
-            ))}
-          </div>
+          <Tabs defaultValue={activeFeatures[0]?.key} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-2">
+              {activeFeatures.map((feature) => {
+                const Icon = feature.icon
+                return (
+                  <TabsTrigger
+                    key={feature.key}
+                    value={feature.key}
+                    className="flex items-center gap-2 text-xs"
+                  >
+                    <Icon className="h-3 w-3" />
+                    <span className="hidden sm:inline">{feature.name}</span>
+                  </TabsTrigger>
+                )
+              })}
+            </TabsList>
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-start gap-2">
-              <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-xs font-medium text-blue-900">
-                  Configuração Pós-Criação
-                </p>
-                <p className="text-xs text-blue-700 mt-1">
-                  Para simplificar o processo de criação, as configurações detalhadas de cada recurso
-                  (formulários, workflows, notificações, etc.) estão disponíveis na página de edição
-                  do serviço. Após criar o serviço, você será direcionado para configurar cada recurso
-                  individualmente.
-                </p>
-              </div>
-            </div>
-          </div>
+            {activeFeatures.map((feature) => {
+              const ConfigComponent = feature.component
+              return (
+                <TabsContent key={feature.key} value={feature.key} className="mt-6">
+                  <ConfigComponent formData={formData} onChange={onChange} />
+                </TabsContent>
+              )
+            })}
+          </Tabs>
         </CardContent>
       </Card>
 
-      <Card className="border-amber-200 bg-amber-50">
-        <CardHeader>
-          <CardTitle className="text-base text-amber-900">Próximos Passos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ol className="space-y-2 text-sm text-amber-800">
-            <li className="flex items-start gap-2">
-              <span className="font-semibold">1.</span>
-              <span>Clique em "Criar Serviço" para salvar as informações básicas</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="font-semibold">2.</span>
-              <span>Você será redirecionado para a página de edição do serviço</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="font-semibold">3.</span>
-              <span>Configure detalhadamente cada recurso ativado</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="font-semibold">4.</span>
-              <span>Ative o serviço quando tudo estiver configurado</span>
-            </li>
-          </ol>
-        </CardContent>
-      </Card>
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="flex items-start gap-2">
+          <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-xs font-medium text-blue-900">
+              Dica de Configuração
+            </p>
+            <p className="text-xs text-blue-700 mt-1">
+              As configurações podem ser editadas posteriormente na página de edição do serviço.
+              Não se preocupe em deixar tudo perfeito agora - você poderá refinar depois.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

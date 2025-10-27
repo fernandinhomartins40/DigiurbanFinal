@@ -49,6 +49,16 @@ interface ServiceFormData {
   hasCustomFields: boolean
   hasAdvancedDocs: boolean
   hasNotifications: boolean
+
+  // Configurações dos Recursos
+  customFormConfig?: any
+  locationConfig?: any
+  schedulingConfig?: any
+  surveyConfig?: any
+  workflowConfig?: any
+  customFieldsConfig?: any
+  advancedDocsConfig?: any
+  notificationsConfig?: any
 }
 
 export default function NewServicePage() {

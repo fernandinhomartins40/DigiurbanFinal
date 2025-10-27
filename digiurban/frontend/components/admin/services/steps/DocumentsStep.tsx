@@ -106,27 +106,27 @@ export function DocumentsStep({ formData, onChange }: DocumentsStepProps) {
             </div>
 
             {/* Documentos Comuns */}
-            {formData.requiredDocuments.length === 0 && (
+            {commonDocuments.filter(doc => !formData.requiredDocuments.includes(doc)).length > 0 && (
               <div>
                 <Label className="text-sm font-medium mb-2 block">
                   Documentos Comuns (clique para adicionar)
                 </Label>
                 <div className="flex flex-wrap gap-2">
-                  {commonDocuments.map((doc) => (
-                    <Badge
-                      key={doc}
-                      variant="outline"
-                      className="cursor-pointer hover:bg-amber-50 hover:border-amber-300 transition-colors"
-                      onClick={() => {
-                        if (!formData.requiredDocuments.includes(doc)) {
+                  {commonDocuments
+                    .filter(doc => !formData.requiredDocuments.includes(doc))
+                    .map((doc) => (
+                      <Badge
+                        key={doc}
+                        variant="outline"
+                        className="cursor-pointer hover:bg-amber-50 hover:border-amber-300 transition-colors"
+                        onClick={() => {
                           onChange('requiredDocuments', [...formData.requiredDocuments, doc])
-                        }
-                      }}
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      {doc}
-                    </Badge>
-                  ))}
+                        }}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        {doc}
+                      </Badge>
+                    ))}
                 </div>
               </div>
             )}

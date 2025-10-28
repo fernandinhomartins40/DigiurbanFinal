@@ -1,91 +1,44 @@
-'use client'
+'use client';
 
-import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState } from 'react';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Sprout,
   Users,
   MapPin,
   FileText,
-  Headphones,
   TrendingUp,
-  Calendar,
-  Tractor,
-  Plus
-} from 'lucide-react'
-import Link from 'next/link'
-
-const agriculturaModules = [
-  {
-    title: 'Produtores Rurais',
-    description: 'Cadastro e gestão de produtores rurais',
-    href: '/admin/secretarias/agricultura/produtores',
-    icon: Users,
-    color: 'bg-green-100 text-green-800',
-    stats: { total: 245, ativos: 198, inativos: 47, cadastros_mes: 12 }
-  },
-  {
-    title: 'Propriedades Rurais',
-    description: 'Registro de propriedades com localização e área',
-    href: '/admin/secretarias/agricultura/propriedades',
-    icon: MapPin,
-    color: 'bg-amber-100 text-amber-800',
-    stats: { total: 312, ativas: 287, area_total_ha: 4567, com_irrigacao: 145 }
-  },
-  {
-    title: 'Assistência Técnica',
-    description: 'Gestão de assistências com visitas e diagnósticos',
-    href: '/admin/secretarias/agricultura/assistencia-tecnica',
-    icon: FileText,
-    color: 'bg-blue-100 text-blue-800',
-    stats: { agendadas: 23, em_andamento: 15, concluidas_mes: 67, produtores_atendidos: 89 }
-  },
-  {
-    title: 'Atendimentos Rurais',
-    description: 'Atendimento aos produtores com orientações',
-    href: '/admin/secretarias/agricultura/atendimentos',
-    icon: Headphones,
-    color: 'bg-purple-100 text-purple-800',
-    stats: { hoje: 8, semana: 34, pendentes: 12, satisfacao: '4.7/5' }
-  },
-  {
-    title: 'Calendário Agrícola',
-    description: 'Planejamento de safras e atividades',
-    href: '/admin/secretarias/agricultura/calendario',
-    icon: Calendar,
-    color: 'bg-orange-100 text-orange-800',
-    stats: { safras_andamento: 3, plantios_proximos: 2, colheitas_mes: 4 }
-  },
-  {
-    title: 'Maquinário Agrícola',
-    description: 'Gestão de equipamentos e aluguel',
-    href: '/admin/secretarias/agricultura/maquinario',
-    icon: Tractor,
-    color: 'bg-yellow-100 text-yellow-800',
-    stats: { maquinas_disponiveis: 12, reservas_mes: 45, horas_trabalhadas: 890 }
-  },
-  {
-    title: 'Produção Agrícola',
-    description: 'Indicadores de produção e produtividade',
-    href: '/admin/secretarias/agricultura/producao',
-    icon: TrendingUp,
-    color: 'bg-emerald-100 text-emerald-800',
-    stats: { area_plantada_ha: 3245, produtividade: '+12%', culturas_principais: 8 }
-  },
-  {
-    title: 'Dashboard Agricultura',
-    description: 'Indicadores e métricas do setor',
-    href: '/admin/secretarias/agricultura/dashboard',
-    icon: Sprout,
-    color: 'bg-teal-100 text-teal-800',
-    stats: { produtores_ativos: 198, propriedades: 312, area_total: '4.567 ha' }
-  }
-]
+  Plus,
+  Search,
+  FileBarChart,
+  Loader2,
+  AlertCircle,
+} from 'lucide-react';
+import Link from 'next/link';
+import { useAgricultureServices } from '@/hooks/api/agriculture/useAgricultureServices';
+import { useAgricultureStats } from '@/hooks/api/agriculture/useAgricultureStats';
+import { NewProtocolModal } from '@/components/admin/NewProtocolModal';
+import { useRouter } from 'next/navigation';
 
 export default function SecretariaAgriculturaPage() {
-  const { user } = useAdminAuth()
+  const { user } = useAdminAuth();
+  const router = useRouter();
+  const [showNewProtocolModal, setShowNewProtocolModal] = useState(false);
+
+  // Buscar dados dinâmicos
+  const { data: servicesData, isLoading: servicesLoading, error: servicesError } = useAgricultureServices();
+  const { data: statsData, isLoading: statsLoading, error: statsError } = useAgricultureStats();
+
+  const services = servicesData?.data || [];
+  const stats = statsData?.data;
+
+  // Separar serviços com e sem módulo
+  const servicesWithModule = services.filter((s) => s.moduleType);
+  const allServices = services;
 
   return (
     <div className="space-y-6">
@@ -113,10 +66,16 @@ export default function SecretariaAgriculturaPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">198</div>
-            <p className="text-xs text-muted-foreground">
-              245 cadastrados
-            </p>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats?.producers.active || 0}</div>
+                <p className="text-xs text-muted-foreground">
+                  {stats?.producers.total || 0} cadastrados
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -126,10 +85,16 @@ export default function SecretariaAgriculturaPage() {
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">312</div>
-            <p className="text-xs text-muted-foreground">
-              4.567 hectares totais
-            </p>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats?.properties.total || 0}</div>
+                <p className="text-xs text-muted-foreground">
+                  {stats?.properties.totalArea || 0} hectares totais
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
@@ -139,23 +104,37 @@ export default function SecretariaAgriculturaPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">38</div>
-            <p className="text-xs text-muted-foreground">
-              67 concluídas este mês
-            </p>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">
+                  {stats?.technicalAssistance.totalActive || 0}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {stats?.technicalAssistance.completedThisMonth || 0} concluídas este mês
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produtividade</CardTitle>
+            <CardTitle className="text-sm font-medium">Protocolos Pendentes</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+12%</div>
-            <p className="text-xs text-muted-foreground">
-              vs ano anterior
-            </p>
+            {statsLoading ? (
+              <Skeleton className="h-8 w-20" />
+            ) : (
+              <>
+                <div className="text-2xl font-bold">{stats?.protocols.pending || 0}</div>
+                <p className="text-xs text-muted-foreground">
+                  {stats?.protocols.total || 0} total
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -170,135 +149,226 @@ export default function SecretariaAgriculturaPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Button className="h-20 flex flex-col" variant="outline">
+            <Button
+              className="h-20 flex flex-col"
+              variant="outline"
+              onClick={() => setShowNewProtocolModal(true)}
+            >
               <Plus className="h-6 w-6 mb-2" />
-              <span>Novo Produtor</span>
+              <span>Novo Protocolo</span>
             </Button>
-            <Button className="h-20 flex flex-col" variant="outline">
-              <MapPin className="h-6 w-6 mb-2" />
-              <span>Cadastrar Propriedade</span>
-            </Button>
-            <Button className="h-20 flex flex-col" variant="outline">
+
+            <Button
+              className="h-20 flex flex-col"
+              variant="outline"
+              onClick={() => router.push('/admin/protocolos?departamento=agricultura&status=pending')}
+            >
               <FileText className="h-6 w-6 mb-2" />
-              <span>Agendar Assistência</span>
+              <span>Protocolos Pendentes</span>
+              {stats && stats.protocols.pending > 0 && (
+                <Badge className="mt-1" variant="destructive">
+                  {stats.protocols.pending}
+                </Badge>
+              )}
             </Button>
+
             <Button className="h-20 flex flex-col" variant="outline">
-              <Headphones className="h-6 w-6 mb-2" />
-              <span>Novo Atendimento</span>
+              <Search className="h-6 w-6 mb-2" />
+              <span>Buscar Produtor</span>
+            </Button>
+
+            <Button className="h-20 flex flex-col" variant="outline">
+              <FileBarChart className="h-6 w-6 mb-2" />
+              <span>Relatório Mensal</span>
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Módulos Especializados */}
+      {/* Serviços Disponíveis */}
       <div>
-        <h2 className="text-2xl font-semibold mb-6">Módulos Especializados</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {agriculturaModules.map((module) => (
-            <Card key={module.href} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${module.color}`}>
-                      <module.icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{module.title}</CardTitle>
+        <h2 className="text-2xl font-semibold mb-6">Serviços Disponíveis</h2>
+
+        {servicesLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-48" />
+                  <Skeleton className="h-4 w-full mt-2" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-20 w-full" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : servicesError ? (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="flex items-center gap-3 p-6">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <p className="text-red-800">Erro ao carregar serviços</p>
+            </CardContent>
+          </Card>
+        ) : allServices.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+              <Sprout className="h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Nenhum serviço cadastrado</h3>
+              <p className="text-sm text-muted-foreground">
+                Configure serviços para a Secretaria de Agricultura
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allServices.map((service) => (
+              <Card key={service.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <CardTitle className="text-lg">{service.name}</CardTitle>
+                    {service.moduleType && (
+                      <Badge className="bg-green-600">
+                        Motor
+                      </Badge>
+                    )}
+                  </div>
+                  <CardDescription className="line-clamp-2">
+                    {service.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {service.requiresDocuments && (
+                      <div className="text-sm text-muted-foreground">
+                        📎 Requer documentação
+                      </div>
+                    )}
+                    {service.estimatedDays && (
+                      <div className="text-sm text-muted-foreground">
+                        ⏱️ Prazo: {service.estimatedDays} dias
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setShowNewProtocolModal(true)}
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Criar Protocolo
+                      </Button>
                     </div>
                   </div>
-                </div>
-                <CardDescription className="mt-2">
-                  {module.description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 mb-4">
-                  {Object.entries(module.stats).map(([key, value]) => (
-                    <div key={key} className="flex justify-between text-sm">
-                      <span className="text-gray-600 capitalize">{key.replace('_', ' ')}:</span>
-                      <span className="font-medium">{value}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link href={module.href}>
-                  <Button className="w-full" variant="outline">
-                    Acessar Módulo
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Módulos Especializados */}
+      {servicesWithModule.length > 0 && (
+        <div>
+          <h2 className="text-2xl font-semibold mb-6">Módulos Especializados</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Serviços integrados com o motor de protocolos e tabelas especializadas
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {servicesWithModule.map((service) => (
+              <Card key={service.id} className="border-green-200 bg-green-50/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Sprout className="h-5 w-5 text-green-600" />
+                      {service.name}
+                    </CardTitle>
+                    <Badge className="bg-green-600">
+                      {service.moduleEntity}
+                    </Badge>
+                  </div>
+                  <CardDescription>{service.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {statsLoading ? (
+                      <Skeleton className="h-16 w-full" />
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        {service.moduleEntity === 'TechnicalAssistance' && stats && (
+                          <>
+                            <div>
+                              <span className="text-muted-foreground">Pendentes:</span>
+                              <span className="font-medium ml-2">
+                                {stats.technicalAssistance.pending}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Em andamento:</span>
+                              <span className="font-medium ml-2">
+                                {stats.technicalAssistance.inProgress}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                        {service.moduleEntity === 'SeedDistribution' && stats && (
+                          <>
+                            <div>
+                              <span className="text-muted-foreground">Ativas:</span>
+                              <span className="font-medium ml-2">
+                                {stats.seedDistribution.activeRequests}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Concluídas:</span>
+                              <span className="font-medium ml-2">
+                                {stats.seedDistribution.completedThisMonth}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                        {service.moduleEntity === 'SoilAnalysis' && stats && (
+                          <>
+                            <div>
+                              <span className="text-muted-foreground">Pendentes:</span>
+                              <span className="font-medium ml-2">
+                                {stats.soilAnalysis.pending}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Concluídas:</span>
+                              <span className="font-medium ml-2">
+                                {stats.soilAnalysis.completedThisMonth}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                    <Link href={`/admin/secretarias/agricultura/${service.moduleEntity?.toLowerCase()}`}>
+                      <Button variant="outline" className="w-full">
+                        Acessar Dashboard
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Indicadores de Produção */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Produção Rural</CardTitle>
-            <CardDescription>
-              Principais indicadores de produção
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span>Culturas Principais</span>
-                <span className="font-semibold">Milho, Soja, Feijão</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Área Plantada</span>
-                <span className="font-semibold">3.245 ha</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Produtividade Média</span>
-                <span className="font-semibold text-green-600">+12% vs ano anterior</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Propriedades com Irrigação</span>
-                <span className="font-semibold">145 (46%)</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Produtores Assistidos</span>
-                <span className="font-semibold">89 este mês</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Calendário Agrícola</CardTitle>
-            <CardDescription>
-              Safras e atividades programadas
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span>Plantio de Milho</span>
-                <span className="font-semibold text-green-600">Concluído (89%)</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Colheita de Soja</span>
-                <span className="font-semibold text-orange-600">Em andamento</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Plantio de Feijão</span>
-                <span className="font-semibold text-blue-600">Em 10 dias</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Safras Programadas</span>
-                <span className="font-semibold">3 no trimestre</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span>Assistências Agendadas</span>
-                <span className="font-semibold">23 próximos dias</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Modal de Novo Protocolo */}
+      <NewProtocolModal
+        open={showNewProtocolModal}
+        onOpenChange={setShowNewProtocolModal}
+        services={services}
+        onSuccess={() => {
+          // Recarregar estatísticas após criar protocolo
+          window.location.reload();
+        }}
+      />
     </div>
-  )
+  );
 }

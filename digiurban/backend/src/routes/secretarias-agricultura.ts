@@ -2,15 +2,15 @@
 // SECRETARIAS-AGRICULTURA.TS - Rotas da Secretaria de Agricultura
 // ============================================================================
 
-import { Router, Response } from 'express';
+import { Router } from 'express';
 import { prisma } from '../lib/prisma';
 import {
   adminAuthMiddleware,
   requireMinRole,
 } from '../middleware/admin-auth';
 import { tenantMiddleware } from '../middleware/tenant';
-import { UserRole } from '@prisma/client';
-import { AuthenticatedRequest, SuccessResponse, ErrorResponse } from '../types';
+import { UserRole, ProtocolStatus } from '@prisma/client';
+import { AuthenticatedRequest } from '../types';
 
 const router = Router();
 
@@ -24,10 +24,11 @@ router.use(adminAuthMiddleware);
  */
 router.get(
   '/stats',
-  requireMinRole(UserRole.OPERATOR),
-  async (req: AuthenticatedRequest, res: Response<SuccessResponse | ErrorResponse>) => {
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
     try {
-      const tenantId = req.tenantId!;
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
 
       // Buscar departamento de agricultura
       const agricultureDept = await prisma.department.findFirst({
@@ -75,7 +76,6 @@ router.get(
           by: ['status'],
           where: { tenantId },
           _count: { id: true },
-          _sum: { quantity: true },
         }),
 
         // 4. Estatísticas de Análise de Solo
@@ -105,7 +105,7 @@ router.get(
       };
 
       technicalAssistanceStats.forEach((item) => {
-        const count = item._count.id;
+        const count = item._count?.id || 0;
         switch (item.status) {
           case 'pending':
             assistanceData.pending = count;
@@ -135,18 +135,14 @@ router.get(
       };
 
       protocolStats.forEach((item) => {
-        const count = item._count.id;
+        const count = item._count?.id || 0;
         protocolData.total += count;
-        switch (item.status) {
-          case 'pending':
-            protocolData.pending = count;
-            break;
-          case 'approved':
-            protocolData.approved = count;
-            break;
-          case 'rejected':
-            protocolData.rejected = count;
-            break;
+
+        // Usar os valores corretos do enum ProtocolStatus
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          protocolData.pending += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          protocolData.approved += count;
         }
       });
 
@@ -158,14 +154,12 @@ router.get(
       };
 
       seedDistributionStats.forEach((item) => {
-        const count = item._count.id;
-        const quantity = item._sum.quantity || 0;
+        const count = item._count?.id || 0;
 
         if (item.status === 'pending' || item.status === 'approved') {
           seedData.activeRequests += count;
         } else if (item.status === 'delivered') {
           seedData.completedThisMonth = count;
-          seedData.totalKgDistributed += quantity;
         }
       });
 
@@ -177,7 +171,7 @@ router.get(
       };
 
       soilAnalysisStats.forEach((item) => {
-        const count = item._count.id;
+        const count = item._count?.id || 0;
         switch (item.status) {
           case 'pending':
             soilData.pending = count;
@@ -223,18 +217,18 @@ router.get(
         seedDistribution: seedData,
         soilAnalysis: soilData,
         farmerMarket: {
-          activeStands: farmerMarketStats._count.id,
-          totalFarmers: farmerMarketStats._count.id,
+          activeStands: farmerMarketStats._count?.id || 0,
+          totalFarmers: farmerMarketStats._count?.id || 0,
         },
       };
 
-      res.json({
+      return res.json({
         success: true,
         data: stats,
       });
     } catch (error) {
       console.error('Agriculture stats error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         error: 'Internal server error',
         message: 'Erro ao buscar estatísticas da agricultura',

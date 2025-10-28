@@ -237,4 +237,218 @@ router.get(
   }
 );
 
+/**
+ * POST /api/admin/secretarias/agricultura/protocols
+ * Criar novo protocolo com integração ao Module Handler
+ */
+router.post('/protocols', requireMinRole(UserRole.USER), async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const tenantId = authReq.tenantId;
+    const userId = authReq.userId;
+
+    const { serviceId, citizenData, formData } = req.body;
+
+    // Validações
+    if (!serviceId || !citizenData || !formData) {
+      return res.status(400).json({
+        success: false,
+        error: 'Bad request',
+        message: 'serviceId, citizenData e formData são obrigatórios',
+      });
+    }
+
+    // Buscar serviço
+    const service = await prisma.service.findFirst({
+      where: {
+        id: serviceId,
+        tenantId,
+        isActive: true,
+      },
+    });
+
+    if (!service) {
+      return res.status(404).json({
+        success: false,
+        error: 'Not found',
+        message: 'Serviço não encontrado',
+      });
+    }
+
+    // Buscar ou criar cidadão
+    let citizen = await prisma.citizen.findFirst({
+      where: {
+        tenantId,
+        cpf: citizenData.cpf,
+      },
+    });
+
+    if (!citizen) {
+      // Criar cidadão temporário
+      citizen = await prisma.citizen.create({
+        data: {
+          tenantId,
+          cpf: citizenData.cpf,
+          name: citizenData.name,
+          email: citizenData.email || `temp_${citizenData.cpf}@temp.com`,
+          phone: citizenData.phone,
+          password: 'TEMP_PASSWORD', // Será forçado a trocar no primeiro login
+          registrationSource: 'ADMIN',
+        },
+      });
+    }
+
+    // Iniciar transação para criar protocolo + entidade especializada
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Gerar número de protocolo
+      const protocolCount = await tx.protocol.count({
+        where: { tenantId },
+      });
+      const protocolNumber = `${new Date().getFullYear()}${String(
+        protocolCount + 1
+      ).padStart(6, '0')}`;
+
+      // 2. Criar protocolo
+      const protocol = await tx.protocol.create({
+        data: {
+          number: protocolNumber,
+          serviceId: service.id,
+          citizenId: citizen.id,
+          tenantId,
+          departmentId: service.departmentId,
+          status: 'VINCULADO',
+          data: formData,
+          createdById: userId,
+        },
+      });
+
+      // 3. Se service tem moduleType, executar handler
+      let entityId = null;
+      let entityType = null;
+
+      if (service.moduleType && service.moduleEntity) {
+        // Executar handler apropriado
+        if (service.moduleEntity === 'TechnicalAssistance') {
+          const assistance = await tx.technicalAssistance.create({
+            data: {
+              tenantId,
+              protocol: protocol.number,
+              serviceId: service.id,
+              source: 'service',
+              producerName: formData.producerName,
+              producerCpf: formData.producerCpf,
+              producerPhone: formData.producerPhone,
+              propertyName: formData.propertyName || formData.producerName,
+              propertyLocation: formData.propertyLocation,
+              propertyArea: formData.propertyArea
+                ? parseFloat(formData.propertyArea)
+                : null,
+              propertySize: formData.propertyArea
+                ? parseFloat(formData.propertyArea)
+                : 0,
+              location: formData.propertyLocation,
+              assistanceType: formData.assistanceType,
+              subject: formData.assistanceType,
+              description: formData.description,
+              cropTypes: formData.cropTypes || null,
+              status: 'pending',
+              priority: 'normal',
+              technician: 'Não designado',
+              visitDate: new Date(),
+              recommendations: '',
+              requestDate: new Date(),
+            },
+          });
+          entityId = assistance.id;
+          entityType = 'TechnicalAssistance';
+        } else if (service.moduleEntity === 'SeedDistribution') {
+          const distribution = await tx.seedDistribution.create({
+            data: {
+              tenantId,
+              protocol: protocol.number,
+              serviceId: service.id,
+              source: 'service',
+              producerName: formData.producerName,
+              producerCpf: formData.producerCpf,
+              producerPhone: formData.producerPhone,
+              seedType: formData.seedType,
+              requestedAmount: parseFloat(formData.requestedAmount),
+              purpose: formData.purpose,
+              plantingArea: parseFloat(formData.plantingArea),
+              status: 'pending',
+              requestDate: new Date(),
+            },
+          });
+          entityId = distribution.id;
+          entityType = 'SeedDistribution';
+        } else if (service.moduleEntity === 'SoilAnalysis') {
+          const analysis = await tx.soilAnalysis.create({
+            data: {
+              tenantId,
+              protocol: protocol.number,
+              serviceId: service.id,
+              source: 'service',
+              producerName: formData.producerName,
+              producerCpf: formData.producerCpf,
+              propertyLocation: formData.propertyLocation,
+              sampleArea: parseFloat(formData.sampleArea),
+              analysisType: formData.analysisType,
+              intendedCrop: formData.intendedCrop || null,
+              status: 'pending',
+              requestDate: new Date(),
+            },
+          });
+          entityId = analysis.id;
+          entityType = 'SoilAnalysis';
+        } else if (service.moduleEntity === 'FarmerMarketRegistration') {
+          const registration = await tx.farmerMarketRegistration.create({
+            data: {
+              tenantId,
+              protocol: protocol.number,
+              serviceId: service.id,
+              source: 'service',
+              producerName: formData.producerName,
+              producerCpf: formData.producerCpf,
+              producerPhone: formData.producerPhone,
+              productTypes: formData.productTypes,
+              standSize: formData.standSize,
+              preferredDay: formData.preferredDay,
+              status: 'active',
+              registrationDate: new Date(),
+            },
+          });
+          entityId = registration.id;
+          entityType = 'FarmerMarketRegistration';
+        }
+      }
+
+      return {
+        protocol,
+        entityId,
+        entityType,
+        citizen,
+      };
+    });
+
+    return res.json({
+      success: true,
+      data: {
+        protocol: result.protocol,
+        entityId: result.entityId,
+        entityType: result.entityType,
+        message: service.moduleType
+          ? `Protocolo ${result.protocol.number} criado e vinculado ao módulo ${result.entityType}`
+          : `Protocolo ${result.protocol.number} criado`,
+      },
+    });
+  } catch (error) {
+    console.error('Create protocol error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: 'Erro ao criar protocolo',
+    });
+  }
+});
+
 export default router;

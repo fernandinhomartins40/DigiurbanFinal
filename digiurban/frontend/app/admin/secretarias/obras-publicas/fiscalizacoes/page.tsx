@@ -187,7 +187,7 @@ export default function FiscalizacoesObrasPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/public-works/inspections"
+        endpoint="/api/secretarias/public-works/inspections"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

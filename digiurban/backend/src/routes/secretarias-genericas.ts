@@ -12,6 +12,7 @@ import {
 } from '../middleware/admin-auth';
 import { tenantMiddleware } from '../middleware/tenant';
 import { Prisma } from '@prisma/client'; // CRIADO: namespace Prisma para InputJsonValue
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -273,21 +274,7 @@ router.post('/:secretaria/:pageCode/protocols', authenticateToken, handleAsyncRo
   }
 
   // Gerar número do protocolo
-  const year = new Date().getFullYear();
-  const lastProtocol = await prisma.protocol.findFirst({
-    where: {
-      tenantId: (req.tenantId || req.tenant?.id)!,
-    },
-    orderBy: { number: 'desc' },
-  });
-
-  let nextNumber = 1;
-  if (lastProtocol && lastProtocol.number) {
-    const lastNumber = parseInt(lastProtocol.number.split('-')[1]);
-    nextNumber = lastNumber + 1;
-  }
-
-  const protocolNumber = `${year}-${nextNumber.toString().padStart(6, '0')}`;
+  const protocolNumber = await getNextProtocolNumber((req.tenantId || req.tenant?.id)!);
 
   const protocol = await prisma.protocol.create({
     data: {

@@ -8,6 +8,7 @@ import {
   addDataFilter,
 } from '../middleware/admin-auth';
 import { tenantMiddleware } from '../middleware/tenant';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -1072,9 +1073,7 @@ router.post(
       }
 
       // Gerar número do protocolo
-      const protocolNumber = `ADM${Date.now().toString().slice(-8)}${Math.floor(Math.random() * 100)
-        .toString()
-        .padStart(2, '0')}`;
+      const protocolNumber = await getNextProtocolNumber(user.tenantId);
 
       // Gerar título se não fornecido
       const title = data.title || `Solicitação de ${service.name} - ${citizen.name}`;

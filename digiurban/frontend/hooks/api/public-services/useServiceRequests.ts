@@ -104,7 +104,7 @@ export function useServiceRequests(initialFilters?: ServiceRequestFilters): UseS
       if (filters?.location) queryParams.append('location', filters.location)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/public-services/service-requests${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/public-services/service-requests${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setServiceRequests(data.serviceRequests || [])
     } catch (err) {
@@ -117,7 +117,7 @@ export function useServiceRequests(initialFilters?: ServiceRequestFilters): UseS
   const createServiceRequest = useCallback(async (data: CreateServiceRequestData): Promise<ServiceRequest> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/public-services/service-requests', data)
+      const response = await apiClient.post('/api/secretarias/public-services/service-requests', data)
       const newRequest = response.serviceRequest
       setServiceRequests(prev => [newRequest, ...prev])
       return newRequest
@@ -131,7 +131,7 @@ export function useServiceRequests(initialFilters?: ServiceRequestFilters): UseS
   const updateServiceRequest = useCallback(async (id: string, data: UpdateServiceRequestData): Promise<ServiceRequest> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/service-requests/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/public-services/service-requests/${id}`, data)
       const updatedRequest = response.serviceRequest
       setServiceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -157,7 +157,7 @@ export function useServiceRequests(initialFilters?: ServiceRequestFilters): UseS
   const deleteServiceRequest = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/public-services/service-requests/${id}`)
+      await apiClient.delete(`/api/secretarias/public-services/service-requests/${id}`)
       setServiceRequests(prev => prev.filter(req => req.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir solicitação'

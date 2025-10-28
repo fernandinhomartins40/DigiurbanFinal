@@ -183,7 +183,7 @@ export default function VacinacoesPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/health/vaccinations"
+        endpoint="/api/secretarias/health/vaccinations"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

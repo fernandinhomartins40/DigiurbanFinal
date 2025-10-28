@@ -1,6 +1,6 @@
 import { api, createCRUDService } from './api'
 
-const BASE_PATH = '/api/specialized/security'
+const BASE_PATH = '/api/secretarias/security'
 
 export const securityService = {
   occurrences: createCRUDService(`${BASE_PATH}/occurrences`),

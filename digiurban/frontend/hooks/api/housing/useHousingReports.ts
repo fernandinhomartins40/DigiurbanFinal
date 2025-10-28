@@ -376,7 +376,7 @@ export function useHousingReports(): UseHousingReportsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/housing/reports')
+      const data = await apiClient.get('/api/secretarias/housing/reports')
       setReports(data.reports || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar relatórios habitacionais')
@@ -388,7 +388,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const createReport = useCallback(async (data: CreateHousingReportData): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/housing/reports', data)
+      const response = await apiClient.post('/api/secretarias/housing/reports', data)
       const newReport = response.report
       setReports(prev => [newReport, ...prev])
       return newReport
@@ -402,7 +402,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const generateReport = useCallback(async (data: CreateHousingReportData): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/housing/reports/generate', data)
+      const response = await apiClient.post('/api/secretarias/housing/reports/generate', data)
       const newReport = response.report
       setReports(prev => [newReport, ...prev])
       return newReport
@@ -416,7 +416,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const updateReport = useCallback(async (id: string, data: Partial<CreateHousingReportData>): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/reports/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/housing/reports/${id}`, data)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -430,7 +430,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const addData = useCallback(async (id: string, category: string, data: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/data/${category}`, data)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/data/${category}`, data)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -444,7 +444,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const updateAnalysis = useCallback(async (id: string, analysis: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/reports/${id}/analysis`, analysis)
+      const response = await apiClient.put(`/api/secretarias/housing/reports/${id}/analysis`, analysis)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -458,7 +458,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const addIndicator = useCallback(async (id: string, indicator: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/indicators`, indicator)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/indicators`, indicator)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -472,7 +472,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const updateIndicator = useCallback(async (id: string, indicatorId: string, value: number): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/reports/${id}/indicators/${indicatorId}`, { value })
+      const response = await apiClient.put(`/api/secretarias/housing/reports/${id}/indicators/${indicatorId}`, { value })
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -486,7 +486,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const addRecommendation = useCallback(async (id: string, recommendation: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/recommendations`, recommendation)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/recommendations`, recommendation)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -500,7 +500,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const addVisualization = useCallback(async (id: string, visualization: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/visualizations`, visualization)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/visualizations`, visualization)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -514,7 +514,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const updateMethodology = useCallback(async (id: string, methodology: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/reports/${id}/methodology`, methodology)
+      const response = await apiClient.put(`/api/secretarias/housing/reports/${id}/methodology`, methodology)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -528,7 +528,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const addAuthor = useCallback(async (id: string, author: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/authors`, author)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/authors`, author)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -542,7 +542,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const addReviewer = useCallback(async (id: string, reviewer: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/reviewers`, reviewer)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/reviewers`, reviewer)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -556,7 +556,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const submitForReview = useCallback(async (id: string): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/submit`)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/submit`)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -570,7 +570,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const approveReport = useCallback(async (id: string): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/approve`)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/approve`)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -584,7 +584,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const publishReport = useCallback(async (id: string): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/publish`)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/publish`)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -598,7 +598,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const distributeReport = useCallback(async (id: string, distribution: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/distribute`, distribution)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/distribute`, distribution)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -612,7 +612,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const addActionPlan = useCallback(async (id: string, actionPlan: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/action-plans`, actionPlan)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/action-plans`, actionPlan)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -626,7 +626,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const updateActionStatus = useCallback(async (id: string, actionId: string, status: string): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/reports/${id}/action-plans/${actionId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/housing/reports/${id}/action-plans/${actionId}`, { status })
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -640,7 +640,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const scheduleNextReport = useCallback(async (id: string, nextReport: any): Promise<HousingReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/schedule-next`, nextReport)
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/schedule-next`, nextReport)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -654,7 +654,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const exportReport = useCallback(async (id: string, format: 'PDF' | 'EXCEL' | 'WORD'): Promise<string> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/reports/${id}/export`, { format })
+      const response = await apiClient.post(`/api/secretarias/housing/reports/${id}/export`, { format })
       return response.downloadUrl
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao exportar relatório'
@@ -670,7 +670,7 @@ export function useHousingReports(): UseHousingReportsReturn {
   const deleteReport = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/housing/reports/${id}`)
+      await apiClient.delete(`/api/secretarias/housing/reports/${id}`)
       setReports(prev => prev.filter(report => report.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir relatório'

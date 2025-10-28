@@ -97,7 +97,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/events')
+      const data = await apiClient.get('/api/secretarias/sports/events')
       setSportsEvents(data.events || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar eventos esportivos')
@@ -109,7 +109,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
   const createEvent = useCallback(async (data: CreateSportsEventData): Promise<SportsEvent> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/events', data)
+      const response = await apiClient.post('/api/secretarias/sports/events', data)
       const newEvent = response.event
       setSportsEvents(prev => [newEvent, ...prev])
       return newEvent
@@ -123,7 +123,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
   const updateEvent = useCallback(async (id: string, data: Partial<CreateSportsEventData>): Promise<SportsEvent> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/events/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/events/${id}`, data)
       const updatedEvent = response.event
       setSportsEvents(prev => prev.map(event => event.id === id ? updatedEvent : event))
       return updatedEvent
@@ -137,7 +137,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
   const registerParticipant = useCallback(async (eventId: string, participant: any): Promise<SportsEvent> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/events/${eventId}/participants`, participant)
+      const response = await apiClient.post(`/api/secretarias/sports/events/${eventId}/participants`, participant)
       const updatedEvent = response.event
       setSportsEvents(prev => prev.map(event => event.id === eventId ? updatedEvent : event))
       return updatedEvent
@@ -151,7 +151,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
   const unregisterParticipant = useCallback(async (eventId: string, participantId: string): Promise<SportsEvent> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/sports/events/${eventId}/participants/${participantId}`)
+      const response = await apiClient.delete(`/api/secretarias/sports/events/${eventId}/participants/${participantId}`)
       const updatedEvent = response.event
       setSportsEvents(prev => prev.map(event => event.id === eventId ? updatedEvent : event))
       return updatedEvent
@@ -165,7 +165,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
   const markAttendance = useCallback(async (eventId: string, participantId: string, attended: boolean): Promise<SportsEvent> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/events/${eventId}/participants/${participantId}/attendance`, { attended })
+      const response = await apiClient.put(`/api/secretarias/sports/events/${eventId}/participants/${participantId}/attendance`, { attended })
       const updatedEvent = response.event
       setSportsEvents(prev => prev.map(event => event.id === eventId ? updatedEvent : event))
       return updatedEvent
@@ -191,7 +191,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
   const addFeedback = useCallback(async (eventId: string, feedback: any): Promise<SportsEvent> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/events/${eventId}/feedback`, feedback)
+      const response = await apiClient.post(`/api/secretarias/sports/events/${eventId}/feedback`, feedback)
       const updatedEvent = response.event
       setSportsEvents(prev => prev.map(event => event.id === eventId ? updatedEvent : event))
       return updatedEvent
@@ -205,7 +205,7 @@ export function useSportsEvents(): UseSportsEventsReturn {
   const deleteEvent = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/events/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/events/${id}`)
       setSportsEvents(prev => prev.filter(event => event.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir evento'

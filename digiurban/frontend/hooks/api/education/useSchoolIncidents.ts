@@ -131,7 +131,7 @@ export function useSchoolIncidents(initialFilters?: IncidentFilters): UseSchoolI
       if (filters?.followUpRequired !== undefined) queryParams.append('followUpRequired', filters.followUpRequired.toString())
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/education/incidents${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/education/incidents${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setIncidents(data.incidents || [])
@@ -145,7 +145,7 @@ export function useSchoolIncidents(initialFilters?: IncidentFilters): UseSchoolI
   const createIncident = useCallback(async (data: CreateSchoolIncidentData): Promise<SchoolIncident> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/incidents', data)
+      const response = await apiClient.post('/api/secretarias/education/incidents', data)
       const newIncident = response.incident
       setIncidents(prev => [newIncident, ...prev])
       return newIncident
@@ -159,7 +159,7 @@ export function useSchoolIncidents(initialFilters?: IncidentFilters): UseSchoolI
   const updateIncident = useCallback(async (id: string, data: UpdateSchoolIncidentData): Promise<SchoolIncident> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/incidents/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/incidents/${id}`, data)
       const updatedIncident = response.incident
       setIncidents(prev => prev.map(incident =>
         incident.id === id ? updatedIncident : incident
@@ -182,7 +182,7 @@ export function useSchoolIncidents(initialFilters?: IncidentFilters): UseSchoolI
   const deleteIncident = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/incidents/${id}`)
+      await apiClient.delete(`/api/secretarias/education/incidents/${id}`)
       setIncidents(prev => prev.filter(incident => incident.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir ocorrência'

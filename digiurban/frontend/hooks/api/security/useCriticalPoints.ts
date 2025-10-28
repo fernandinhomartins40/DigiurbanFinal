@@ -61,7 +61,7 @@ export function useCriticalPoints(): UseCriticalPointsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/security/critical-points')
+      const data = await apiClient.get('/api/secretarias/security/critical-points')
       setCriticalPoints(data.criticalPoints || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar pontos críticos')
@@ -73,7 +73,7 @@ export function useCriticalPoints(): UseCriticalPointsReturn {
   const createCriticalPoint = useCallback(async (data: CreateCriticalPointData): Promise<CriticalPoint> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/security/critical-points', data)
+      const response = await apiClient.post('/api/secretarias/security/critical-points', data)
       const newPoint = response.criticalPoint
       setCriticalPoints(prev => [newPoint, ...prev])
       return newPoint
@@ -87,7 +87,7 @@ export function useCriticalPoints(): UseCriticalPointsReturn {
   const updateCriticalPoint = useCallback(async (id: string, data: Partial<CreateCriticalPointData>): Promise<CriticalPoint> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/critical-points/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/security/critical-points/${id}`, data)
       const updatedPoint = response.criticalPoint
       setCriticalPoints(prev => prev.map(point => point.id === id ? updatedPoint : point))
       return updatedPoint
@@ -101,7 +101,7 @@ export function useCriticalPoints(): UseCriticalPointsReturn {
   const addIncident = useCallback(async (id: string, incident: { type: string; description: string }): Promise<CriticalPoint> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/security/critical-points/${id}/incidents`, incident)
+      const response = await apiClient.post(`/api/secretarias/security/critical-points/${id}/incidents`, incident)
       const updatedPoint = response.criticalPoint
       setCriticalPoints(prev => prev.map(point => point.id === id ? updatedPoint : point))
       return updatedPoint
@@ -119,7 +119,7 @@ export function useCriticalPoints(): UseCriticalPointsReturn {
   const deleteCriticalPoint = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/security/critical-points/${id}`)
+      await apiClient.delete(`/api/secretarias/security/critical-points/${id}`)
       setCriticalPoints(prev => prev.filter(point => point.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir ponto crítico'

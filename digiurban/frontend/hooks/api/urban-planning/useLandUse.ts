@@ -202,7 +202,7 @@ export function useLandUse(): UseLandUseReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/land-use')
+      const data = await apiClient.get('/api/secretarias/urban-planning/land-use')
       setLandUsePlots(data.plots || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar dados de uso do solo')
@@ -214,7 +214,7 @@ export function useLandUse(): UseLandUseReturn {
   const createLandUsePlot = useCallback(async (data: CreateLandUsePlotData): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/land-use', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/land-use', data)
       const newPlot = response.plot
       setLandUsePlots(prev => [newPlot, ...prev])
       return newPlot
@@ -228,7 +228,7 @@ export function useLandUse(): UseLandUseReturn {
   const updateLandUsePlot = useCallback(async (id: string, data: Partial<CreateLandUsePlotData>): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}`, data)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -242,7 +242,7 @@ export function useLandUse(): UseLandUseReturn {
   const updateCurrentUse = useCallback(async (id: string, currentUse: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/current-use`, currentUse)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/current-use`, currentUse)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -256,7 +256,7 @@ export function useLandUse(): UseLandUseReturn {
   const updatePhysicalCharacteristics = useCallback(async (id: string, characteristics: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/physical`, characteristics)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/physical`, characteristics)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -270,7 +270,7 @@ export function useLandUse(): UseLandUseReturn {
   const updateInfrastructure = useCallback(async (id: string, infrastructure: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/infrastructure`, infrastructure)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/infrastructure`, infrastructure)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -284,7 +284,7 @@ export function useLandUse(): UseLandUseReturn {
   const updateEnvironmental = useCallback(async (id: string, environmental: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/environmental`, environmental)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/environmental`, environmental)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -298,7 +298,7 @@ export function useLandUse(): UseLandUseReturn {
   const updateLegal = useCallback(async (id: string, legal: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/legal`, legal)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/legal`, legal)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -312,7 +312,7 @@ export function useLandUse(): UseLandUseReturn {
   const updateEconomic = useCallback(async (id: string, economic: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/economic`, economic)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/economic`, economic)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -326,7 +326,7 @@ export function useLandUse(): UseLandUseReturn {
   const addInspection = useCallback(async (id: string, inspection: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/land-use/${id}/inspections`, inspection)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/land-use/${id}/inspections`, inspection)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -340,7 +340,7 @@ export function useLandUse(): UseLandUseReturn {
   const updateInspection = useCallback(async (id: string, inspectionId: string, data: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/inspections/${inspectionId}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/inspections/${inspectionId}`, data)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -354,7 +354,7 @@ export function useLandUse(): UseLandUseReturn {
   const scheduleInspection = useCallback(async (id: string, date: string, type: string): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/land-use/${id}/schedule-inspection`, { date, type })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/land-use/${id}/schedule-inspection`, { date, type })
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -368,7 +368,7 @@ export function useLandUse(): UseLandUseReturn {
   const addPermit = useCallback(async (id: string, permit: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/land-use/${id}/permits`, permit)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/land-use/${id}/permits`, permit)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -382,7 +382,7 @@ export function useLandUse(): UseLandUseReturn {
   const updatePermitStatus = useCallback(async (id: string, permitNumber: string, status: string): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/land-use/${id}/permits/${permitNumber}`, { status })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/land-use/${id}/permits/${permitNumber}`, { status })
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -396,7 +396,7 @@ export function useLandUse(): UseLandUseReturn {
   const proposeDevelopment = useCallback(async (id: string, proposal: any): Promise<LandUsePlot> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/land-use/${id}/development`, proposal)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/land-use/${id}/development`, proposal)
       const updatedPlot = response.plot
       setLandUsePlots(prev => prev.map(plot => plot.id === id ? updatedPlot : plot))
       return updatedPlot
@@ -410,7 +410,7 @@ export function useLandUse(): UseLandUseReturn {
   const deleteLandUsePlot = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/land-use/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/land-use/${id}`)
       setLandUsePlots(prev => prev.filter(plot => plot.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir lote'

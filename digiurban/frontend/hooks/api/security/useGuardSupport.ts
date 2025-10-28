@@ -52,7 +52,7 @@ export function useGuardSupport(): UseGuardSupportReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/security/guard-support')
+      const data = await apiClient.get('/api/secretarias/security/guard-support')
       setSupportRequests(data.supportRequests || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar solicitações de apoio')
@@ -64,7 +64,7 @@ export function useGuardSupport(): UseGuardSupportReturn {
   const createSupportRequest = useCallback(async (data: CreateGuardSupportRequestData): Promise<GuardSupportRequest> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/security/guard-support', data)
+      const response = await apiClient.post('/api/secretarias/security/guard-support', data)
       const newRequest = response.supportRequest
       setSupportRequests(prev => [newRequest, ...prev])
       return newRequest
@@ -78,7 +78,7 @@ export function useGuardSupport(): UseGuardSupportReturn {
   const assignUnits = useCallback(async (id: string, units: { unitId: string; officerCount: number }[]): Promise<GuardSupportRequest> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/guard-support/${id}/assign`, { units })
+      const response = await apiClient.put(`/api/secretarias/security/guard-support/${id}/assign`, { units })
       const updatedRequest = response.supportRequest
       setSupportRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -92,7 +92,7 @@ export function useGuardSupport(): UseGuardSupportReturn {
   const updateStatus = useCallback(async (id: string, status: string): Promise<GuardSupportRequest> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/guard-support/${id}/status`, { status })
+      const response = await apiClient.put(`/api/secretarias/security/guard-support/${id}/status`, { status })
       const updatedRequest = response.supportRequest
       setSupportRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -106,7 +106,7 @@ export function useGuardSupport(): UseGuardSupportReturn {
   const completeSupportRequest = useCallback(async (id: string, outcome: string): Promise<GuardSupportRequest> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/guard-support/${id}/complete`, { outcome })
+      const response = await apiClient.put(`/api/secretarias/security/guard-support/${id}/complete`, { outcome })
       const updatedRequest = response.supportRequest
       setSupportRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest

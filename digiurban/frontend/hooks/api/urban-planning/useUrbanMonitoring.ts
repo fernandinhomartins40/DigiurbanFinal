@@ -306,7 +306,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/monitoring')
+      const data = await apiClient.get('/api/secretarias/urban-planning/monitoring')
       setMonitoringSystems(data.systems || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar sistemas de monitoramento')
@@ -318,7 +318,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const createMonitoringSystem = useCallback(async (data: CreateUrbanMonitoringData): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/monitoring', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/monitoring', data)
       const newSystem = response.system
       setMonitoringSystems(prev => [newSystem, ...prev])
       return newSystem
@@ -332,7 +332,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const updateMonitoringSystem = useCallback(async (id: string, data: Partial<CreateUrbanMonitoringData>): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}`, data)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -346,7 +346,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const addSensor = useCallback(async (id: string, sensor: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/sensors`, sensor)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/sensors`, sensor)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -360,7 +360,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const updateSensorStatus = useCallback(async (id: string, sensorId: string, status: string): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/sensors/${sensorId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/sensors/${sensorId}`, { status })
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -374,7 +374,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const addParameter = useCallback(async (id: string, parameter: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/parameters`, parameter)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/parameters`, parameter)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -388,7 +388,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const updateParameterThresholds = useCallback(async (id: string, parameterId: string, thresholds: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/parameters/${parameterId}/thresholds`, thresholds)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/parameters/${parameterId}/thresholds`, thresholds)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -402,7 +402,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const updateCurrentData = useCallback(async (id: string, data: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/current-data`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/current-data`, data)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -416,7 +416,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const createAlert = useCallback(async (id: string, alert: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/alerts`, alert)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/alerts`, alert)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -430,7 +430,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const acknowledgeAlert = useCallback(async (id: string, alertId: string): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/alerts/${alertId}/acknowledge`, {})
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/alerts/${alertId}/acknowledge`, {})
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -444,7 +444,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const resolveAlert = useCallback(async (id: string, alertId: string, resolution: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/alerts/${alertId}/resolve`, resolution)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/alerts/${alertId}/resolve`, resolution)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -458,7 +458,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const addAnalytics = useCallback(async (id: string, analytics: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/analytics`, analytics)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/analytics`, analytics)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -472,7 +472,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const generateReport = useCallback(async (id: string, reportType: string, period: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/reports`, { type: reportType, period })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/reports`, { type: reportType, period })
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -486,7 +486,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const updateCompliance = useCallback(async (id: string, compliance: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/compliance`, compliance)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/compliance`, compliance)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -500,7 +500,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const scheduleMaintenance = useCallback(async (id: string, maintenance: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/maintenance/schedule`, maintenance)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/maintenance/schedule`, maintenance)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -514,7 +514,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const addMaintenanceRecord = useCallback(async (id: string, record: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/maintenance/history`, record)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/maintenance/history`, record)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -528,7 +528,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const updateIntegration = useCallback(async (id: string, integration: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/integration`, integration)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/integration`, integration)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -542,7 +542,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const addStakeholder = useCallback(async (id: string, stakeholder: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/stakeholders`, stakeholder)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/stakeholders`, stakeholder)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -556,7 +556,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const updatePerformance = useCallback(async (id: string, performance: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/monitoring/${id}/performance`, performance)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/monitoring/${id}/performance`, performance)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -570,7 +570,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const planExpansion = useCallback(async (id: string, plan: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/future/expansion`, plan)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/future/expansion`, plan)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -584,7 +584,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const scheduleUpgrade = useCallback(async (id: string, upgrade: any): Promise<UrbanMonitoring> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/monitoring/${id}/future/upgrades`, upgrade)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/monitoring/${id}/future/upgrades`, upgrade)
       const updatedSystem = response.system
       setMonitoringSystems(prev => prev.map(system => system.id === id ? updatedSystem : system))
       return updatedSystem
@@ -606,7 +606,7 @@ export function useUrbanMonitoring(): UseUrbanMonitoringReturn {
   const deleteMonitoringSystem = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/monitoring/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/monitoring/${id}`)
       setMonitoringSystems(prev => prev.filter(system => system.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir sistema de monitoramento'

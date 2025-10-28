@@ -267,7 +267,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/housing/maintenance')
+      const data = await apiClient.get('/api/secretarias/housing/maintenance')
       setMaintenanceRequests(data.requests || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar solicitações de manutenção')
@@ -279,7 +279,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const createMaintenanceRequest = useCallback(async (data: CreateHousingMaintenanceData): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/housing/maintenance', data)
+      const response = await apiClient.post('/api/secretarias/housing/maintenance', data)
       const newRequest = response.request
       setMaintenanceRequests(prev => [newRequest, ...prev])
       return newRequest
@@ -293,7 +293,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const updateMaintenanceRequest = useCallback(async (id: string, data: Partial<CreateHousingMaintenanceData>): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/maintenance/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/housing/maintenance/${id}`, data)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -307,7 +307,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const addPhotos = useCallback(async (id: string, photos: any[]): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/photos`, { photos })
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/photos`, { photos })
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -321,7 +321,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const scheduleAssessment = useCallback(async (id: string, inspection: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/schedule-assessment`, inspection)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/schedule-assessment`, inspection)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -335,7 +335,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const performAssessment = useCallback(async (id: string, assessment: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/assessment`, assessment)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/assessment`, assessment)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -349,7 +349,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const updateEstimate = useCallback(async (id: string, estimate: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/maintenance/${id}/estimate`, estimate)
+      const response = await apiClient.put(`/api/secretarias/housing/maintenance/${id}/estimate`, estimate)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -363,7 +363,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const requestApproval = useCallback(async (id: string): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/request-approval`)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/request-approval`)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -377,7 +377,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const approveRequest = useCallback(async (id: string, approval: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/approve`, approval)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/approve`, approval)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -391,7 +391,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const rejectRequest = useCallback(async (id: string, reason: string): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/reject`, { reason })
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/reject`, { reason })
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -405,7 +405,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const assignContractor = useCallback(async (id: string, contractor: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/assign`, contractor)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/assign`, contractor)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -419,7 +419,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const startWork = useCallback(async (id: string): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/start`)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/start`)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -433,7 +433,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const updateProgress = useCallback(async (id: string, progress: number): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/maintenance/${id}/progress`, { progress })
+      const response = await apiClient.put(`/api/secretarias/housing/maintenance/${id}/progress`, { progress })
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -447,7 +447,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const addDailyReport = useCallback(async (id: string, report: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/daily-reports`, report)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/daily-reports`, report)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -461,7 +461,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const performQualityCheck = useCallback(async (id: string, qualityCheck: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/quality-checks`, qualityCheck)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/quality-checks`, qualityCheck)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -475,7 +475,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const completeWork = useCallback(async (id: string): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/complete`)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/complete`)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -489,7 +489,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const performFinalInspection = useCallback(async (id: string, inspection: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/final-inspection`, inspection)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/final-inspection`, inspection)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -503,7 +503,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const issueCertificate = useCallback(async (id: string): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/issue-certificate`)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/issue-certificate`)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -517,7 +517,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const recordSatisfaction = useCallback(async (id: string, satisfaction: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/satisfaction`, satisfaction)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/satisfaction`, satisfaction)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -531,7 +531,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const addPayment = useCallback(async (id: string, payment: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/payments`, payment)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/payments`, payment)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -545,7 +545,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const sendNotification = useCallback(async (id: string, notification: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/notifications`, notification)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/notifications`, notification)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -559,7 +559,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const scheduleMeeting = useCallback(async (id: string, meeting: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/meetings`, meeting)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/meetings`, meeting)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -573,7 +573,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const addFollowUpVisit = useCallback(async (id: string, visit: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/follow-up-visits`, visit)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/follow-up-visits`, visit)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -587,7 +587,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const submitWarrantyRequest = useCallback(async (id: string, warrantyRequest: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/warranty-requests`, warrantyRequest)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/warranty-requests`, warrantyRequest)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -601,7 +601,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const addDocument = useCallback(async (id: string, document: any): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/documents`, document)
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/documents`, document)
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -615,7 +615,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const holdRequest = useCallback(async (id: string, reason: string): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/hold`, { reason })
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/hold`, { reason })
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -629,7 +629,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const cancelRequest = useCallback(async (id: string, reason: string): Promise<HousingMaintenance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/maintenance/${id}/cancel`, { reason })
+      const response = await apiClient.post(`/api/secretarias/housing/maintenance/${id}/cancel`, { reason })
       const updatedRequest = response.request
       setMaintenanceRequests(prev => prev.map(req => req.id === id ? updatedRequest : req))
       return updatedRequest
@@ -643,7 +643,7 @@ export function useHousingMaintenance(): UseHousingMaintenanceReturn {
   const deleteMaintenanceRequest = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/housing/maintenance/${id}`)
+      await apiClient.delete(`/api/secretarias/housing/maintenance/${id}`)
       setMaintenanceRequests(prev => prev.filter(req => req.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir solicitação'

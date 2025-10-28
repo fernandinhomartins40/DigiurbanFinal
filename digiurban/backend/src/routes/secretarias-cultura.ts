@@ -5,6 +5,7 @@ import { tenantMiddleware } from '../middleware/tenant';
 import { authenticateToken, requireManager } from '../middleware/auth';
 import { AuthenticatedRequest, SuccessResponse, ErrorResponse } from '../types';
 import { asyncHandler } from '../utils/express-helpers';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ===== TIPOS LOCAIS ISOLADOS - SEM DEPENDÊNCIAS CENTRALIZADAS =====
 
@@ -135,7 +136,7 @@ router.use(tenantMiddleware);
 
 // Validation schemas
 const culturalAttendanceSchema = z.object({
-  protocol: z.string().min(1),
+  protocol: z.string().min(1).optional(), // Agora opcional, será gerado automaticamente
   citizenName: z.string().min(1),
   contact: z.string().min(1),
   type: z.enum([
@@ -314,25 +315,59 @@ router.post('/cultural-attendances', authenticateToken, requireManager, asyncHan
       return;
     }
 
-    const attendance = await prisma.culturalAttendance.create({
-      data: {
-        protocol: validatedData.protocol,
-        citizenName: validatedData.citizenName,
-        contact: validatedData.contact,
-        type: validatedData.type,
-        status: validatedData.status as any,
-        description: validatedData.description,
-        observations: validatedData.observations,
-        eventDate: validatedData.eventDate ? new Date(validatedData.eventDate) : new Date(),
-        category: validatedData.category,
-        priority: validatedData.priority,
-        attachments: validatedData.attachments,
-        requestedBudget: validatedData.requestedBudget,
-        tenantId: req.tenantId!,
-      },
+    const result = await prisma.$transaction(async (tx) => {
+      // Gerar número do protocolo
+      const protocolNumber = await getNextProtocolNumber(req.tenantId);
+
+      // Buscar cidadão pelo nome (cultura não usa CPF)
+      const citizen = await tx.citizen.findFirst({
+        where: { name: validatedData.citizenName, tenantId: req.tenantId }
+      });
+      const citizenId = citizen?.id || validatedData.citizenName; // fallback para nome
+
+      // Criar protocolo
+      const protocol = await tx.protocol.create({
+        data: {
+          tenantId: req.tenantId,
+          citizenId,
+          number: protocolNumber,
+          title: validatedData.description.substring(0, 100),
+          description: validatedData.description,
+          status: 'VINCULADO' as any,
+          priority: 3,
+        },
+      });
+
+      // Criar attendance vinculado ao protocolo
+      const attendance = await tx.culturalAttendance.create({
+        data: {
+          protocol: protocolNumber,
+          citizenName: validatedData.citizenName,
+          contact: validatedData.contact,
+          type: validatedData.type,
+          status: validatedData.status as any,
+          description: validatedData.description,
+          observations: validatedData.observations,
+          eventDate: validatedData.eventDate ? new Date(validatedData.eventDate) : new Date(),
+          category: validatedData.category,
+          priority: validatedData.priority,
+          attachments: validatedData.attachments,
+          requestedBudget: validatedData.requestedBudget,
+          tenantId: req.tenantId!,
+        },
+      });
+
+      return { protocol, attendance };
     });
 
-    res.status(201).json(attendance);
+    res.status(201).json({
+      success: true,
+      message: 'Atendimento cultural criado com sucesso',
+      data: {
+        protocol: result.protocol,
+        attendance: result.attendance,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       res.status(400).json({ error: 'Validation error', details: error.issues });

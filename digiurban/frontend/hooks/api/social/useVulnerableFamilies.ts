@@ -168,7 +168,7 @@ export function useVulnerableFamilies(initialFilters?: FamilyFilters): UseVulner
       if (filters?.search) queryParams.append('search', filters.search)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/families${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/families${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setFamilies(data.families || [])
@@ -182,7 +182,7 @@ export function useVulnerableFamilies(initialFilters?: FamilyFilters): UseVulner
   const createFamily = useCallback(async (data: CreateVulnerableFamilyData): Promise<VulnerableFamily> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/families', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/families', data)
       const newFamily = response.family
       setFamilies(prev => [newFamily, ...prev])
       return newFamily
@@ -196,7 +196,7 @@ export function useVulnerableFamilies(initialFilters?: FamilyFilters): UseVulner
   const updateFamily = useCallback(async (id: string, data: UpdateVulnerableFamilyData): Promise<VulnerableFamily> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/families/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/families/${id}`, data)
       const updatedFamily = response.family
       setFamilies(prev => prev.map(family =>
         family.id === id ? updatedFamily : family
@@ -212,7 +212,7 @@ export function useVulnerableFamilies(initialFilters?: FamilyFilters): UseVulner
   const deleteFamily = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/families/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/families/${id}`)
       setFamilies(prev => prev.filter(family => family.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir família'
@@ -224,7 +224,7 @@ export function useVulnerableFamilies(initialFilters?: FamilyFilters): UseVulner
   const addFamilyMember = useCallback(async (familyId: string, member: any): Promise<VulnerableFamily> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/social-assistance/families/${familyId}/members`, member)
+      const response = await apiClient.post(`/api/secretarias/social-assistance/families/${familyId}/members`, member)
       const updatedFamily = response.family
       setFamilies(prev => prev.map(family =>
         family.id === familyId ? updatedFamily : family
@@ -240,7 +240,7 @@ export function useVulnerableFamilies(initialFilters?: FamilyFilters): UseVulner
   const removeFamilyMember = useCallback(async (familyId: string, memberId: string): Promise<VulnerableFamily> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/social-assistance/families/${familyId}/members/${memberId}`)
+      const response = await apiClient.delete(`/api/secretarias/social-assistance/families/${familyId}/members/${memberId}`)
       const updatedFamily = response.family
       setFamilies(prev => prev.map(family =>
         family.id === familyId ? updatedFamily : family

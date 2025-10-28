@@ -35,6 +35,7 @@ interface ServiceFormData {
   priority: number
   icon: string
   color: string
+  serviceType: 'REQUEST' | 'REGISTRATION' | 'CONSULTATION' | 'BOTH'
 
   // Documentos
   requiresDocuments: boolean
@@ -80,6 +81,7 @@ export default function NewServicePage() {
     priority: 3,
     icon: '',
     color: '#3b82f6',
+    serviceType: 'REQUEST',
     requiresDocuments: false,
     requiredDocuments: [],
     hasCustomForm: false,
@@ -211,6 +213,7 @@ export default function NewServicePage() {
           description: formData.description || null,
           category: formData.category || null,
           departmentId: formData.departmentId,
+          serviceType: formData.serviceType,
           requiresDocuments: formData.requiresDocuments,
           requiredDocuments: formData.requiredDocuments.length > 0 ? formData.requiredDocuments : null,
           estimatedDays: formData.estimatedDays ? parseInt(formData.estimatedDays) : null,
@@ -227,6 +230,16 @@ export default function NewServicePage() {
           hasCustomFields: formData.hasCustomFields,
           hasAdvancedDocs: formData.hasAdvancedDocs,
           hasNotifications: formData.hasNotifications,
+
+          // Configurações dos Recursos (enviadas apenas se flag ativa)
+          customForm: formData.hasCustomForm ? formData.customFormConfig : undefined,
+          locationConfig: formData.hasLocation ? formData.locationConfig : undefined,
+          scheduling: formData.hasScheduling ? formData.schedulingConfig : undefined,
+          survey: formData.hasSurvey ? formData.surveyConfig : undefined,
+          workflow: formData.hasCustomWorkflow ? formData.workflowConfig : undefined,
+          customFields: formData.hasCustomFields ? formData.customFieldsConfig : undefined,
+          documents: formData.hasAdvancedDocs ? formData.advancedDocsConfig : undefined,
+          notifications: formData.hasNotifications ? formData.notificationsConfig : undefined,
         }),
       })
 

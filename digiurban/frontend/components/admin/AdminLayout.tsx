@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import { useAdminAuth, useAdminPermissions } from '@/contexts/AdminAuthContext'
+import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { AdminSidebar } from './AdminSidebar'
 import { AdminHeader } from './AdminHeader'
 import { Loader2 } from 'lucide-react'
@@ -15,11 +15,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { user, loading } = useAdminAuth()
   const pathname = usePathname()
   const router = useRouter()
+  const hasRedirected = useRef(false)
 
   // Verificar se o usuário está autenticado
   useEffect(() => {
-    if (!loading && !user && pathname !== '/admin/login') {
-      router.push('/admin/login')
+    if (!loading && !user && pathname !== '/admin/login' && !hasRedirected.current) {
+      hasRedirected.current = true
+      router.replace('/admin/login')
     }
   }, [user, loading, pathname, router])
 

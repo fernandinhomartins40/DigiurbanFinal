@@ -105,7 +105,7 @@ export function useSchoolTransport(): UseSchoolTransportReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/education/school-transport')
+      const data = await apiClient.get('/api/secretarias/education/school-transport')
       setTransports(data.transports || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar transporte escolar')
@@ -116,7 +116,7 @@ export function useSchoolTransport(): UseSchoolTransportReturn {
 
   const fetchTransportStudents = useCallback(async () => {
     try {
-      const data = await apiClient.get('/api/specialized/education/school-transport/students')
+      const data = await apiClient.get('/api/secretarias/education/school-transport/students')
       setTransportStudents(data.transportStudents || [])
     } catch (err) {
       console.error('Erro ao carregar alunos do transporte:', err)
@@ -126,7 +126,7 @@ export function useSchoolTransport(): UseSchoolTransportReturn {
   const createTransport = useCallback(async (data: CreateSchoolTransportData): Promise<SchoolTransport> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/school-transport', data)
+      const response = await apiClient.post('/api/secretarias/education/school-transport', data)
       const newTransport = response.transport
       setTransports(prev => [newTransport, ...prev])
       return newTransport
@@ -140,7 +140,7 @@ export function useSchoolTransport(): UseSchoolTransportReturn {
   const updateTransport = useCallback(async (id: string, data: UpdateSchoolTransportData): Promise<SchoolTransport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/school-transport/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/school-transport/${id}`, data)
       const updatedTransport = response.transport
       setTransports(prev => prev.map(transport =>
         transport.id === id ? updatedTransport : transport
@@ -156,7 +156,7 @@ export function useSchoolTransport(): UseSchoolTransportReturn {
   const deleteTransport = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/school-transport/${id}`)
+      await apiClient.delete(`/api/secretarias/education/school-transport/${id}`)
       setTransports(prev => prev.filter(transport => transport.id !== id))
       // Remove students from this transport
       setTransportStudents(prev => prev.filter(ts => ts.transportId !== id))
@@ -170,7 +170,7 @@ export function useSchoolTransport(): UseSchoolTransportReturn {
   const addStudentToTransport = useCallback(async (transportId: string, data: AddStudentToTransportData): Promise<TransportStudent> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/education/school-transport/${transportId}/students`, data)
+      const response = await apiClient.post(`/api/secretarias/education/school-transport/${transportId}/students`, data)
       const transportStudent = response.transportStudent
       setTransportStudents(prev => [transportStudent, ...prev])
       return transportStudent
@@ -184,7 +184,7 @@ export function useSchoolTransport(): UseSchoolTransportReturn {
   const removeStudentFromTransport = useCallback(async (transportId: string, studentId: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/school-transport/${transportId}/students/${studentId}`)
+      await apiClient.delete(`/api/secretarias/education/school-transport/${transportId}/students/${studentId}`)
       setTransportStudents(prev => prev.filter(ts =>
         !(ts.transportId === transportId && ts.studentId === studentId)
       ))

@@ -111,7 +111,7 @@ export function usePublicServicesAttendances(initialFilters?: AttendanceFilters)
       if (filters?.dateTo) queryParams.append('dateTo', filters.dateTo)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/public-services/attendances${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/public-services/attendances${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setAttendances(data.attendances || [])
     } catch (err) {
@@ -124,7 +124,7 @@ export function usePublicServicesAttendances(initialFilters?: AttendanceFilters)
   const createAttendance = useCallback(async (data: CreatePublicServiceAttendanceData): Promise<PublicServiceAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/public-services/attendances', data)
+      const response = await apiClient.post('/api/secretarias/public-services/attendances', data)
       const newAttendance = response.attendance
       setAttendances(prev => [newAttendance, ...prev])
       return newAttendance
@@ -138,7 +138,7 @@ export function usePublicServicesAttendances(initialFilters?: AttendanceFilters)
   const updateAttendance = useCallback(async (id: string, data: Partial<CreatePublicServiceAttendanceData>): Promise<PublicServiceAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/attendances/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/public-services/attendances/${id}`, data)
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(att => att.id === id ? updatedAttendance : att))
       return updatedAttendance
@@ -181,7 +181,7 @@ export function usePublicServicesAttendances(initialFilters?: AttendanceFilters)
   const deleteAttendance = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/public-services/attendances/${id}`)
+      await apiClient.delete(`/api/secretarias/public-services/attendances/${id}`)
       setAttendances(prev => prev.filter(att => att.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir atendimento'

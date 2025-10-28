@@ -73,7 +73,7 @@ export function useProgramEnrollments(initialFilters?: EnrollmentFilters): UsePr
       if (filters?.status) queryParams.append('status', filters.status)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/enrollments${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/enrollments${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setEnrollments(data.enrollments || [])
     } catch (err) {
@@ -86,7 +86,7 @@ export function useProgramEnrollments(initialFilters?: EnrollmentFilters): UsePr
   const createEnrollment = useCallback(async (data: CreateProgramEnrollmentData): Promise<ProgramEnrollment> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/enrollments', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/enrollments', data)
       const newEnrollment = response.enrollment
       setEnrollments(prev => [newEnrollment, ...prev])
       return newEnrollment
@@ -100,7 +100,7 @@ export function useProgramEnrollments(initialFilters?: EnrollmentFilters): UsePr
   const updateEnrollment = useCallback(async (id: string, data: UpdateProgramEnrollmentData): Promise<ProgramEnrollment> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/enrollments/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/enrollments/${id}`, data)
       const updatedEnrollment = response.enrollment
       setEnrollments(prev => prev.map(enrollment => enrollment.id === id ? updatedEnrollment : enrollment))
       return updatedEnrollment
@@ -114,7 +114,7 @@ export function useProgramEnrollments(initialFilters?: EnrollmentFilters): UsePr
   const addProgressNote = useCallback(async (id: string, note: string): Promise<ProgramEnrollment> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/social-assistance/enrollments/${id}/notes`, { note })
+      const response = await apiClient.post(`/api/secretarias/social-assistance/enrollments/${id}/notes`, { note })
       const updatedEnrollment = response.enrollment
       setEnrollments(prev => prev.map(enrollment => enrollment.id === id ? updatedEnrollment : enrollment))
       return updatedEnrollment
@@ -128,7 +128,7 @@ export function useProgramEnrollments(initialFilters?: EnrollmentFilters): UsePr
   const addEvaluation = useCallback(async (id: string, score: number, observations: string): Promise<ProgramEnrollment> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/social-assistance/enrollments/${id}/evaluations`, { score, observations })
+      const response = await apiClient.post(`/api/secretarias/social-assistance/enrollments/${id}/evaluations`, { score, observations })
       const updatedEnrollment = response.enrollment
       setEnrollments(prev => prev.map(enrollment => enrollment.id === id ? updatedEnrollment : enrollment))
       return updatedEnrollment
@@ -150,7 +150,7 @@ export function useProgramEnrollments(initialFilters?: EnrollmentFilters): UsePr
   const deleteEnrollment = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/enrollments/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/enrollments/${id}`)
       setEnrollments(prev => prev.filter(enrollment => enrollment.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir inscrição'

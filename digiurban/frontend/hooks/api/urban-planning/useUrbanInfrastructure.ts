@@ -322,7 +322,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/infrastructure')
+      const data = await apiClient.get('/api/secretarias/urban-planning/infrastructure')
       setInfrastructure(data.infrastructure || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar infraestrutura urbana')
@@ -334,7 +334,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const createInfrastructure = useCallback(async (data: CreateUrbanInfrastructureData): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/infrastructure', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/infrastructure', data)
       const newInfrastructure = response.infrastructure
       setInfrastructure(prev => [newInfrastructure, ...prev])
       return newInfrastructure
@@ -348,7 +348,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateInfrastructure = useCallback(async (id: string, data: Partial<CreateUrbanInfrastructureData>): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}`, data)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -362,7 +362,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateSpecifications = useCallback(async (id: string, specifications: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/specifications`, specifications)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/specifications`, specifications)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -376,7 +376,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateConstructionStatus = useCallback(async (id: string, status: string): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/construction/status`, { status })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/construction/status`, { status })
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -390,7 +390,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const addConstructionPhase = useCallback(async (id: string, phase: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/infrastructure/${id}/construction/phases`, phase)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/infrastructure/${id}/construction/phases`, phase)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -404,7 +404,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updatePhaseProgress = useCallback(async (id: string, phaseId: string, progress: number): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/construction/phases/${phaseId}`, { progress })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/construction/phases/${phaseId}`, { progress })
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -418,7 +418,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const assignContractor = useCallback(async (id: string, contractor: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/construction/contractor`, contractor)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/construction/contractor`, contractor)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -432,7 +432,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const addPermit = useCallback(async (id: string, permit: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/infrastructure/${id}/construction/permits`, permit)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/infrastructure/${id}/construction/permits`, permit)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -446,7 +446,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updatePermitStatus = useCallback(async (id: string, permitId: string, status: string): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/construction/permits/${permitId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/construction/permits/${permitId}`, { status })
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -460,7 +460,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const assignOperator = useCallback(async (id: string, operator: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/operation/operator`, operator)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/operation/operator`, operator)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -474,7 +474,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updatePerformance = useCallback(async (id: string, performance: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/operation/performance`, performance)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/operation/performance`, performance)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -488,7 +488,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateUserData = useCallback(async (id: string, users: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/operation/users`, users)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/operation/users`, users)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -502,7 +502,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const scheduleMaintenance = useCallback(async (id: string, maintenance: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/infrastructure/${id}/maintenance/schedule`, maintenance)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/infrastructure/${id}/maintenance/schedule`, maintenance)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -516,7 +516,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const addMaintenanceRecord = useCallback(async (id: string, record: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/infrastructure/${id}/maintenance/history`, record)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/infrastructure/${id}/maintenance/history`, record)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -530,7 +530,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateCondition = useCallback(async (id: string, condition: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/maintenance/condition`, condition)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/maintenance/condition`, condition)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -544,7 +544,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateFinancial = useCallback(async (id: string, financial: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/financial`, financial)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/financial`, financial)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -558,7 +558,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateEnvironmental = useCallback(async (id: string, environmental: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/environmental`, environmental)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/environmental`, environmental)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -572,7 +572,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const addRisk = useCallback(async (id: string, category: string, risk: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/infrastructure/${id}/risks/${category}`, risk)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/infrastructure/${id}/risks/${category}`, risk)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -586,7 +586,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const updateRisk = useCallback(async (id: string, riskId: string, data: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/infrastructure/${id}/risks/${riskId}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/infrastructure/${id}/risks/${riskId}`, data)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -600,7 +600,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const addInspection = useCallback(async (id: string, inspection: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/infrastructure/${id}/inspections`, inspection)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/infrastructure/${id}/inspections`, inspection)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -614,7 +614,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const planUpgrade = useCallback(async (id: string, upgrade: any): Promise<UrbanInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/infrastructure/${id}/planning/upgrades`, upgrade)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/infrastructure/${id}/planning/upgrades`, upgrade)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -628,7 +628,7 @@ export function useUrbanInfrastructure(): UseUrbanInfrastructureReturn {
   const deleteInfrastructure = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/infrastructure/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/infrastructure/${id}`)
       setInfrastructure(prev => prev.filter(infra => infra.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir infraestrutura'

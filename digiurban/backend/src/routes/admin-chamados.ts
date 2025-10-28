@@ -12,6 +12,7 @@ import {
   addDataFilter,
 } from '../middleware/admin-auth';
 import { tenantMiddleware } from '../middleware/tenant';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -127,11 +128,7 @@ function getNumberParam(param: string | string[] | undefined): number {
 
 
 
-function generateProtocolNumber(): string {
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  return `${timestamp}-${random}`;
-}
+// Função removida - usar getNextProtocolNumber() de protocol-helpers
 
 
 // ====================== MIDDLEWARE FUNCTIONS ======================
@@ -245,8 +242,8 @@ router.post(
       }
     }
 
-    // Gerar número do protocolo com prefixo especial para chamados
-    const protocolNumber = `CHM${generateProtocolNumber()}`;
+    // Gerar número do protocolo
+    const protocolNumber = await getNextProtocolNumber(user.tenantId);
 
     // Criar protocolo automaticamente (FLUXO 1)
     const protocolData = {
@@ -384,7 +381,6 @@ router.get(
     const where: Record<string, unknown> = {
       tenantId: user.tenantId,
       createdById: { not: null }, // Protocolos criados por usuários admin
-      number: { startsWith: 'CHM' }, // Prefixo específico de chamados
     };
 
     if (status) {

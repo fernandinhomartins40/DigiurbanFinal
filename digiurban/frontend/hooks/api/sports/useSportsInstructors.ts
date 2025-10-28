@@ -174,7 +174,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/instructors')
+      const data = await apiClient.get('/api/secretarias/sports/instructors')
       setInstructors(data.instructors || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar instrutores')
@@ -186,7 +186,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const createInstructor = useCallback(async (data: CreateSportsInstructorData): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/instructors', data)
+      const response = await apiClient.post('/api/secretarias/sports/instructors', data)
       const newInstructor = response.instructor
       setInstructors(prev => [newInstructor, ...prev])
       return newInstructor
@@ -200,7 +200,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const updateInstructor = useCallback(async (id: string, data: Partial<CreateSportsInstructorData>): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/instructors/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/instructors/${id}`, data)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -214,7 +214,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const addCertification = useCallback(async (id: string, certification: any): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/instructors/${id}/certifications`, certification)
+      const response = await apiClient.post(`/api/secretarias/sports/instructors/${id}/certifications`, certification)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -228,7 +228,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const addGraduation = useCallback(async (id: string, graduation: any): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/instructors/${id}/graduations`, graduation)
+      const response = await apiClient.post(`/api/secretarias/sports/instructors/${id}/graduations`, graduation)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -242,7 +242,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const assignToProgram = useCallback(async (id: string, assignment: any): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/instructors/${id}/programs`, assignment)
+      const response = await apiClient.post(`/api/secretarias/sports/instructors/${id}/programs`, assignment)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -256,7 +256,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const assignToTeam = useCallback(async (id: string, assignment: any): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/instructors/${id}/teams`, assignment)
+      const response = await apiClient.post(`/api/secretarias/sports/instructors/${id}/teams`, assignment)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -270,7 +270,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const removeFromProgram = useCallback(async (id: string, programId: string): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/sports/instructors/${id}/programs/${programId}`)
+      const response = await apiClient.delete(`/api/secretarias/sports/instructors/${id}/programs/${programId}`)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -284,7 +284,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const removeFromTeam = useCallback(async (id: string, teamId: string): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/sports/instructors/${id}/teams/${teamId}`)
+      const response = await apiClient.delete(`/api/secretarias/sports/instructors/${id}/teams/${teamId}`)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -298,7 +298,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const addEvaluation = useCallback(async (id: string, evaluation: any): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/instructors/${id}/evaluations`, evaluation)
+      const response = await apiClient.post(`/api/secretarias/sports/instructors/${id}/evaluations`, evaluation)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -312,7 +312,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const addAchievement = useCallback(async (id: string, achievement: any): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/instructors/${id}/achievements`, achievement)
+      const response = await apiClient.post(`/api/secretarias/sports/instructors/${id}/achievements`, achievement)
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -326,7 +326,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const updateSchedule = useCallback(async (id: string, schedule: any): Promise<SportsInstructor> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/instructors/${id}/schedule`, { schedule })
+      const response = await apiClient.put(`/api/secretarias/sports/instructors/${id}/schedule`, { schedule })
       const updatedInstructor = response.instructor
       setInstructors(prev => prev.map(instructor => instructor.id === id ? updatedInstructor : instructor))
       return updatedInstructor
@@ -344,7 +344,7 @@ export function useSportsInstructors(): UseSportsInstructorsReturn {
   const deleteInstructor = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/instructors/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/instructors/${id}`)
       setInstructors(prev => prev.filter(instructor => instructor.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir instrutor'

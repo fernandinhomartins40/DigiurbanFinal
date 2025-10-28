@@ -85,7 +85,7 @@ export function useStreetLighting(): UseStreetLightingReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/public-services/street-lighting')
+      const data = await apiClient.get('/api/secretarias/public-services/street-lighting')
       setStreetLights(data.streetLights || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar iluminação pública')
@@ -97,7 +97,7 @@ export function useStreetLighting(): UseStreetLightingReturn {
   const createStreetLight = useCallback(async (data: CreateStreetLightData): Promise<StreetLight> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/public-services/street-lighting', data)
+      const response = await apiClient.post('/api/secretarias/public-services/street-lighting', data)
       const newLight = response.streetLight
       setStreetLights(prev => [newLight, ...prev])
       return newLight
@@ -111,7 +111,7 @@ export function useStreetLighting(): UseStreetLightingReturn {
   const updateStreetLight = useCallback(async (id: string, data: Partial<CreateStreetLightData>): Promise<StreetLight> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/street-lighting/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/public-services/street-lighting/${id}`, data)
       const updatedLight = response.streetLight
       setStreetLights(prev => prev.map(light => light.id === id ? updatedLight : light))
       return updatedLight
@@ -125,7 +125,7 @@ export function useStreetLighting(): UseStreetLightingReturn {
   const reportIssue = useCallback(async (id: string, issue: ReportIssueData): Promise<StreetLight> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/public-services/street-lighting/${id}/issues`, issue)
+      const response = await apiClient.post(`/api/secretarias/public-services/street-lighting/${id}/issues`, issue)
       const updatedLight = response.streetLight
       setStreetLights(prev => prev.map(light => light.id === id ? updatedLight : light))
       return updatedLight
@@ -139,7 +139,7 @@ export function useStreetLighting(): UseStreetLightingReturn {
   const addMaintenance = useCallback(async (id: string, maintenance: MaintenanceData): Promise<StreetLight> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/public-services/street-lighting/${id}/maintenance`, maintenance)
+      const response = await apiClient.post(`/api/secretarias/public-services/street-lighting/${id}/maintenance`, maintenance)
       const updatedLight = response.streetLight
       setStreetLights(prev => prev.map(light => light.id === id ? updatedLight : light))
       return updatedLight
@@ -157,7 +157,7 @@ export function useStreetLighting(): UseStreetLightingReturn {
   const deleteStreetLight = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/public-services/street-lighting/${id}`)
+      await apiClient.delete(`/api/secretarias/public-services/street-lighting/${id}`)
       setStreetLights(prev => prev.filter(light => light.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir ponto de luz'

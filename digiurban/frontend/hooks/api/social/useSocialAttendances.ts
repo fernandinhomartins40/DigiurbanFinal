@@ -41,7 +41,7 @@ export function useSocialAttendances(initialFilters?: AttendanceFilters): UseSoc
       if (filters?.dateTo) queryParams.append('dateTo', filters.dateTo)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/attendances${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/attendances${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setAttendances(data.attendances || [])
     } catch (err) {
@@ -54,7 +54,7 @@ export function useSocialAttendances(initialFilters?: AttendanceFilters): UseSoc
   const createAttendance = useCallback(async (data: CreateSocialAttendanceData): Promise<SocialAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/attendances', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/attendances', data)
       const newAttendance = response.attendance
       setAttendances(prev => [newAttendance, ...prev])
       return newAttendance
@@ -68,7 +68,7 @@ export function useSocialAttendances(initialFilters?: AttendanceFilters): UseSoc
   const updateAttendance = useCallback(async (id: string, data: UpdateSocialAttendanceData): Promise<SocialAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/attendances/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/attendances/${id}`, data)
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(attendance => attendance.id === id ? updatedAttendance : attendance))
       return updatedAttendance
@@ -82,7 +82,7 @@ export function useSocialAttendances(initialFilters?: AttendanceFilters): UseSoc
   const deleteAttendance = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/attendances/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/attendances/${id}`)
       setAttendances(prev => prev.filter(attendance => attendance.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir atendimento'

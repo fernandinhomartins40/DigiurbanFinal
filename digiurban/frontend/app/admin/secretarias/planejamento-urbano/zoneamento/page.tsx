@@ -174,7 +174,7 @@ export default function ZoneamentoPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/urban-planning/zoning"
+        endpoint="/api/secretarias/urban-planning/zoning"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

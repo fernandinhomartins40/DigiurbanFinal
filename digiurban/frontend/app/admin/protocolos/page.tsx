@@ -69,6 +69,19 @@ interface Protocol {
   }
 }
 
+interface Service {
+  id: string
+  name: string
+  description?: string
+  category?: string
+  departmentId?: string
+  department?: {
+    id: string
+    name: string
+  }
+  isActive: boolean
+}
+
 const statusLabels = {
   VINCULADO: 'Vinculado',
   PROGRESSO: 'Em Progresso',
@@ -101,7 +114,7 @@ export default function ProtocolsPage() {
   const [assignComment, setAssignComment] = useState('')
   const [selectedAssignee, setSelectedAssignee] = useState('')
   const [showNewProtocolDialog, setShowNewProtocolDialog] = useState(false)
-  const [services, setServices] = useState([])
+  const [services, setServices] = useState<Service[]>([])
   const [departments, setDepartments] = useState([])
   const [selectedCitizen, setSelectedCitizen] = useState<any>(null)
   const [newProtocol, setNewProtocol] = useState({
@@ -182,11 +195,13 @@ export default function ProtocolsPage() {
     }
   }
 
-  // Carregar serviços
+  // Carregar serviços ativos
   const loadServices = async () => {
     try {
-      const data = await apiRequest('/api/services')
-      setServices(data.data || [])
+      const data = await apiRequest('/api/services?isActive=true')
+      // Filtrar apenas serviços ativos
+      const activeServices = (data.data || []).filter((service: any) => service.isActive)
+      setServices(activeServices)
     } catch (error) {
       console.error('Erro ao carregar serviços:', error)
     }
@@ -318,7 +333,17 @@ export default function ProtocolsPage() {
                     <Label htmlFor="serviceId">Serviço *</Label>
                     <Select
                       value={newProtocol.serviceId}
-                      onValueChange={(value) => setNewProtocol({ ...newProtocol, serviceId: value })}
+                      onValueChange={(value) => {
+                        // Encontrar o serviço selecionado
+                        const selectedService = services.find((s: any) => s.id === value)
+                        // Auto-preencher o departamento com o departamento do serviço
+                        const deptId = selectedService?.department?.id || selectedService?.departmentId
+                        setNewProtocol({
+                          ...newProtocol,
+                          serviceId: value,
+                          departmentId: deptId || newProtocol.departmentId
+                        })
+                      }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder={services.length === 0 ? "Nenhum serviço disponível" : "Selecione um serviço"} />
@@ -338,7 +363,7 @@ export default function ProtocolsPage() {
                       </SelectContent>
                     </Select>
                     {services.length > 0 && (
-                      <p className="text-xs text-gray-500">{services.length} serviços disponíveis</p>
+                      <p className="text-xs text-gray-500">{services.length} serviços ativos disponíveis</p>
                     )}
                   </div>
 

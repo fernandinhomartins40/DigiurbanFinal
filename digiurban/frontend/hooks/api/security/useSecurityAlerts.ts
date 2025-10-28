@@ -58,7 +58,7 @@ export function useSecurityAlerts(): UseSecurityAlertsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/security/alerts')
+      const data = await apiClient.get('/api/secretarias/security/alerts')
       setAlerts(data.alerts || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar alertas')
@@ -70,7 +70,7 @@ export function useSecurityAlerts(): UseSecurityAlertsReturn {
   const createAlert = useCallback(async (data: CreateSecurityAlertData): Promise<SecurityAlert> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/security/alerts', data)
+      const response = await apiClient.post('/api/secretarias/security/alerts', data)
       const newAlert = response.alert
       setAlerts(prev => [newAlert, ...prev])
       return newAlert
@@ -84,7 +84,7 @@ export function useSecurityAlerts(): UseSecurityAlertsReturn {
   const updateAlert = useCallback(async (id: string, data: Partial<CreateSecurityAlertData>): Promise<SecurityAlert> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/alerts/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/security/alerts/${id}`, data)
       const updatedAlert = response.alert
       setAlerts(prev => prev.map(alert => alert.id === id ? updatedAlert : alert))
       return updatedAlert
@@ -102,7 +102,7 @@ export function useSecurityAlerts(): UseSecurityAlertsReturn {
   const acknowledgeAlert = useCallback(async (id: string): Promise<SecurityAlert> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/security/alerts/${id}/acknowledge`)
+      const response = await apiClient.post(`/api/secretarias/security/alerts/${id}/acknowledge`)
       const updatedAlert = response.alert
       setAlerts(prev => prev.map(alert => alert.id === id ? updatedAlert : alert))
       return updatedAlert
@@ -116,7 +116,7 @@ export function useSecurityAlerts(): UseSecurityAlertsReturn {
   const deleteAlert = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/security/alerts/${id}`)
+      await apiClient.delete(`/api/secretarias/security/alerts/${id}`)
       setAlerts(prev => prev.filter(alert => alert.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir alerta'

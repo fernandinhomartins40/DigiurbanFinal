@@ -1,0 +1,230 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: digiurban/backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./digiurban/backend
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: ./digiurban/backend
+        run: npm run test:unit
+
+      - name: Upload coverage
+        if: matrix.node-version == '20.x'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./digiurban/backend/coverage/lcov.info
+          flags: unit
+          name: unit-tests
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: digiurban_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: digiurban/backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./digiurban/backend
+        run: npm ci
+
+      - name: Setup database
+        working-directory: ./digiurban/backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/digiurban_test
+        run: |
+          npx prisma migrate deploy
+          npx prisma db seed
+
+      - name: Run integration tests
+        working-directory: ./digiurban/backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/digiurban_test
+          JWT_SECRET: test-jwt-secret
+          NODE_ENV: test
+        run: npm run test:integration
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./digiurban/backend/coverage/lcov.info
+          flags: integration
+          name: integration-tests
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: digiurban_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: digiurban/backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./digiurban/backend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: ./digiurban/backend
+        run: npx playwright install --with-deps chromium
+
+      - name: Setup database
+        working-directory: ./digiurban/backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/digiurban_test
+        run: |
+          npx prisma migrate deploy
+          npx prisma db seed
+
+      - name: Run E2E tests
+        working-directory: ./digiurban/backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/digiurban_test
+          JWT_SECRET: test-jwt-secret
+          NODE_ENV: test
+          BASE_URL: http://localhost:3001
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: digiurban/backend/playwright-report/
+          retention-days: 30
+
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: digiurban/backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./digiurban/backend
+        run: npm ci
+
+      - name: Run linter
+        working-directory: ./digiurban/backend
+        run: npm run lint
+
+      - name: Check formatting
+        working-directory: ./digiurban/backend
+        run: npm run format:check
+
+      - name: Type check
+        working-directory: ./digiurban/backend
+        run: npm run type-check
+
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: [unit-tests, integration-tests]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: digiurban/backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./digiurban/backend
+        run: npm ci
+
+      - name: Generate full coverage report
+        working-directory: ./digiurban/backend
+        run: npm run test:coverage
+
+      - name: Coverage summary
+        working-directory: ./digiurban/backend
+        run: |
+          echo "## Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat coverage/coverage-summary.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: digiurban/backend/coverage/
+          retention-days: 30

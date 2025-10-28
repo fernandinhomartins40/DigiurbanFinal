@@ -33,7 +33,7 @@ export function useSocialAttendanceStats(
       if (filters?.dateTo) queryParams.append('dateTo', filters.dateTo)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/attendances/stats${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/attendances/stats${query ? `?${query}` : ''}`
 
       const response = await apiClient.get(endpoint)
 

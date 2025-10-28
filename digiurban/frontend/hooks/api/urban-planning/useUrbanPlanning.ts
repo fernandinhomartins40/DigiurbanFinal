@@ -168,7 +168,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/plans')
+      const data = await apiClient.get('/api/secretarias/urban-planning/plans')
       setUrbanPlans(data.plans || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar planos urbanos')
@@ -180,7 +180,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const createUrbanPlan = useCallback(async (data: CreateUrbanPlanData): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/plans', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/plans', data)
       const newPlan = response.plan
       setUrbanPlans(prev => [newPlan, ...prev])
       return newPlan
@@ -194,7 +194,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const updateUrbanPlan = useCallback(async (id: string, data: Partial<CreateUrbanPlanData>): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/plans/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/plans/${id}`, data)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -208,7 +208,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const addPhase = useCallback(async (id: string, phase: any): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/plans/${id}/phases`, phase)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/plans/${id}/phases`, phase)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -222,7 +222,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const updatePhaseStatus = useCallback(async (id: string, phaseId: string, status: string): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/plans/${id}/phases/${phaseId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/plans/${id}/phases/${phaseId}`, { status })
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -236,7 +236,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const updatePopulationData = useCallback(async (id: string, population: any): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/plans/${id}/population`, population)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/plans/${id}/population`, population)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -250,7 +250,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const updateLandUse = useCallback(async (id: string, landUse: any): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/plans/${id}/land-use`, landUse)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/plans/${id}/land-use`, landUse)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -264,7 +264,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const updateInfrastructure = useCallback(async (id: string, infrastructure: any): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/plans/${id}/infrastructure`, infrastructure)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/plans/${id}/infrastructure`, infrastructure)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -278,7 +278,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const updateEnvironmental = useCallback(async (id: string, environmental: any): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/plans/${id}/environmental`, environmental)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/plans/${id}/environmental`, environmental)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -292,7 +292,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const startPublicConsultation = useCallback(async (id: string, consultation: any): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/plans/${id}/consultation/start`, consultation)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/plans/${id}/consultation/start`, consultation)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -306,7 +306,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const endPublicConsultation = useCallback(async (id: string): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/plans/${id}/consultation/end`, {})
+      const response = await apiClient.post(`/api/secretarias/urban-planning/plans/${id}/consultation/end`, {})
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -320,7 +320,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const addConsultationSession = useCallback(async (id: string, session: any): Promise<UrbanPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/plans/${id}/consultation/sessions`, session)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/plans/${id}/consultation/sessions`, session)
       const updatedPlan = response.plan
       setUrbanPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -342,7 +342,7 @@ export function useUrbanPlanning(): UseUrbanPlanningReturn {
   const deleteUrbanPlan = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/plans/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/plans/${id}`)
       setUrbanPlans(prev => prev.filter(plan => plan.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir plano urbano'

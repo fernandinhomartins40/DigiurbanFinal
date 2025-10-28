@@ -127,7 +127,7 @@ export default function ProfissionaisPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/health/professionals"
+        endpoint="/api/secretarias/health/professionals"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

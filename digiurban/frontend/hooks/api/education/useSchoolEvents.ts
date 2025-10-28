@@ -142,7 +142,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
       if (filters?.registrationRequired !== undefined) queryParams.append('registrationRequired', filters.registrationRequired.toString())
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/education/events${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/education/events${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setEvents(data.events || [])
@@ -155,7 +155,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
 
   const fetchEventRegistrations = useCallback(async () => {
     try {
-      const data = await apiClient.get('/api/specialized/education/events/registrations')
+      const data = await apiClient.get('/api/secretarias/education/events/registrations')
       setEventRegistrations(data.registrations || [])
     } catch (err) {
       console.error('Erro ao carregar inscrições de eventos:', err)
@@ -165,7 +165,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
   const createEvent = useCallback(async (data: CreateSchoolEventData): Promise<SchoolEvent> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/events', data)
+      const response = await apiClient.post('/api/secretarias/education/events', data)
       const newEvent = response.event
       setEvents(prev => [newEvent, ...prev])
       return newEvent
@@ -179,7 +179,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
   const updateEvent = useCallback(async (id: string, data: UpdateSchoolEventData): Promise<SchoolEvent> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/events/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/events/${id}`, data)
       const updatedEvent = response.event
       setEvents(prev => prev.map(event =>
         event.id === id ? updatedEvent : event
@@ -210,7 +210,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
   const deleteEvent = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/events/${id}`)
+      await apiClient.delete(`/api/secretarias/education/events/${id}`)
       setEvents(prev => prev.filter(event => event.id !== id))
       setEventRegistrations(prev => prev.filter(reg => reg.eventId !== id))
     } catch (err) {
@@ -223,7 +223,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
   const registerStudentForEvent = useCallback(async (eventId: string, studentId: string): Promise<EventRegistration> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/education/events/${eventId}/register`, { studentId })
+      const response = await apiClient.post(`/api/secretarias/education/events/${eventId}/register`, { studentId })
       const registration = response.registration
       setEventRegistrations(prev => [registration, ...prev])
       return registration
@@ -237,7 +237,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
   const unregisterStudentFromEvent = useCallback(async (eventId: string, studentId: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/events/${eventId}/register/${studentId}`)
+      await apiClient.delete(`/api/secretarias/education/events/${eventId}/register/${studentId}`)
       setEventRegistrations(prev => prev.filter(reg =>
         !(reg.eventId === eventId && reg.studentId === studentId)
       ))
@@ -251,7 +251,7 @@ export function useSchoolEvents(initialFilters?: EventFilters): UseSchoolEventsR
   const markEventAttendance = useCallback(async (eventId: string, studentId: string, attended: boolean): Promise<EventRegistration> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/events/${eventId}/attendance`, {
+      const response = await apiClient.put(`/api/secretarias/education/events/${eventId}/attendance`, {
         studentId,
         status: attended ? 'ATTENDED' : 'ABSENT'
       })

@@ -264,7 +264,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/housing/applications')
+      const data = await apiClient.get('/api/secretarias/housing/applications')
       setApplications(data.applications || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar inscrições habitacionais')
@@ -276,7 +276,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const createApplication = useCallback(async (data: CreateHousingApplicationData): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/housing/applications', data)
+      const response = await apiClient.post('/api/secretarias/housing/applications', data)
       const newApplication = response.application
       setApplications(prev => [newApplication, ...prev])
       return newApplication
@@ -290,7 +290,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const updateApplication = useCallback(async (id: string, data: Partial<CreateHousingApplicationData>): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/applications/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/housing/applications/${id}`, data)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -304,7 +304,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const updateApplicant = useCallback(async (id: string, applicant: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/applications/${id}/applicant`, applicant)
+      const response = await apiClient.put(`/api/secretarias/housing/applications/${id}/applicant`, applicant)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -318,7 +318,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const updateFamily = useCallback(async (id: string, family: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/applications/${id}/family`, family)
+      const response = await apiClient.put(`/api/secretarias/housing/applications/${id}/family`, family)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -332,7 +332,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const addFamilyMember = useCallback(async (id: string, member: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/family/members`, member)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/family/members`, member)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -346,7 +346,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const removeFamilyMember = useCallback(async (id: string, memberCpf: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/housing/applications/${id}/family/members/${memberCpf}`)
+      const response = await apiClient.delete(`/api/secretarias/housing/applications/${id}/family/members/${memberCpf}`)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -360,7 +360,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const updateCurrentHousing = useCallback(async (id: string, housing: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/applications/${id}/current-housing`, housing)
+      const response = await apiClient.put(`/api/secretarias/housing/applications/${id}/current-housing`, housing)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -374,7 +374,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const checkEligibility = useCallback(async (id: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/check-eligibility`, {})
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/check-eligibility`, {})
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -388,7 +388,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const submitDocument = useCallback(async (id: string, document: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/documents`, document)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/documents`, document)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -402,7 +402,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const verifyDocument = useCallback(async (id: string, documentType: string, verified: boolean): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/applications/${id}/documents/${documentType}/verify`, { verified })
+      const response = await apiClient.put(`/api/secretarias/housing/applications/${id}/documents/${documentType}/verify`, { verified })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -416,7 +416,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const submitApplication = useCallback(async (id: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/submit`, {})
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/submit`, {})
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -430,7 +430,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const scheduleEvaluation = useCallback(async (id: string, date: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/schedule-evaluation`, { date })
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/schedule-evaluation`, { date })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -444,7 +444,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const conductSocialVisit = useCallback(async (id: string, visit: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/social-visit`, visit)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/social-visit`, visit)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -458,7 +458,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const performTechnicalAnalysis = useCallback(async (id: string, analysis: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/technical-analysis`, analysis)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/technical-analysis`, analysis)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -472,7 +472,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const calculateScore = useCallback(async (id: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/calculate-score`, {})
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/calculate-score`, {})
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -486,7 +486,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const approveApplication = useCallback(async (id: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/approve`, {})
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/approve`, {})
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -500,7 +500,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const rejectApplication = useCallback(async (id: string, reasons: string[], details: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/reject`, { reasons, details })
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/reject`, { reasons, details })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -514,7 +514,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const addToWaitingList = useCallback(async (id: string, position: number): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/waiting-list`, { position })
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/waiting-list`, { position })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -528,7 +528,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const updateWaitingListPosition = useCallback(async (id: string, newPosition: number): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/applications/${id}/waiting-list/position`, { position: newPosition })
+      const response = await apiClient.put(`/api/secretarias/housing/applications/${id}/waiting-list/position`, { position: newPosition })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -542,7 +542,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const allocateUnit = useCallback(async (id: string, unitId: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/allocate`, { unitId })
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/allocate`, { unitId })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -556,7 +556,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const acceptAllocation = useCallback(async (id: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/accept-allocation`, {})
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/accept-allocation`, {})
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -570,7 +570,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const rejectAllocation = useCallback(async (id: string, reason: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/reject-allocation`, { reason })
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/reject-allocation`, { reason })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -584,7 +584,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const submitAppeal = useCallback(async (id: string, appeal: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/appeal`, appeal)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/appeal`, appeal)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -598,7 +598,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const processAppeal = useCallback(async (id: string, decision: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/appeal/process`, decision)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/appeal/process`, decision)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -612,7 +612,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const sendNotification = useCallback(async (id: string, notification: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/notifications`, notification)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/notifications`, notification)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -626,7 +626,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const scheduleMeeting = useCallback(async (id: string, meeting: any): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/meetings`, meeting)
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/meetings`, meeting)
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -640,7 +640,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const addObservation = useCallback(async (id: string, observation: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/observations`, { observation })
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/observations`, { observation })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -654,7 +654,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const cancelApplication = useCallback(async (id: string, reason: string): Promise<HousingApplication> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/applications/${id}/cancel`, { reason })
+      const response = await apiClient.post(`/api/secretarias/housing/applications/${id}/cancel`, { reason })
       const updatedApplication = response.application
       setApplications(prev => prev.map(app => app.id === id ? updatedApplication : app))
       return updatedApplication
@@ -668,7 +668,7 @@ export function useHousingApplications(): UseHousingApplicationsReturn {
   const deleteApplication = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/housing/applications/${id}`)
+      await apiClient.delete(`/api/secretarias/housing/applications/${id}`)
       setApplications(prev => prev.filter(app => app.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir inscrição'

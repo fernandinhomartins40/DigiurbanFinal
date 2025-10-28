@@ -74,7 +74,7 @@ export function useServiceUnits(): UseServiceUnitsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/social-assistance/service-units')
+      const data = await apiClient.get('/api/secretarias/social-assistance/service-units')
       setServiceUnits(data.serviceUnits || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar unidades de serviço')
@@ -86,7 +86,7 @@ export function useServiceUnits(): UseServiceUnitsReturn {
   const createServiceUnit = useCallback(async (data: CreateServiceUnitData): Promise<ServiceUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/service-units', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/service-units', data)
       const newServiceUnit = response.serviceUnit
       setServiceUnits(prev => [newServiceUnit, ...prev])
       return newServiceUnit
@@ -100,7 +100,7 @@ export function useServiceUnits(): UseServiceUnitsReturn {
   const updateServiceUnit = useCallback(async (id: string, data: UpdateServiceUnitData): Promise<ServiceUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/service-units/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/service-units/${id}`, data)
       const updatedServiceUnit = response.serviceUnit
       setServiceUnits(prev => prev.map(unit => unit.id === id ? updatedServiceUnit : unit))
       return updatedServiceUnit
@@ -114,7 +114,7 @@ export function useServiceUnits(): UseServiceUnitsReturn {
   const deleteServiceUnit = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/service-units/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/service-units/${id}`)
       setServiceUnits(prev => prev.filter(unit => unit.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir unidade de serviço'

@@ -156,7 +156,7 @@ export default function ProdutoresPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/agriculture/producers"
+        endpoint="/api/secretarias/agriculture/producers"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

@@ -52,7 +52,7 @@ export function useSchools(): UseSchoolsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/education/schools')
+      const data = await apiClient.get('/api/secretarias/education/schools')
       setSchools(data.schools || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar escolas')
@@ -64,7 +64,7 @@ export function useSchools(): UseSchoolsReturn {
   const createSchool = useCallback(async (data: CreateSchoolData): Promise<School> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/schools', data)
+      const response = await apiClient.post('/api/secretarias/education/schools', data)
       const newSchool = response.school
       setSchools(prev => [newSchool, ...prev])
       return newSchool
@@ -78,7 +78,7 @@ export function useSchools(): UseSchoolsReturn {
   const updateSchool = useCallback(async (id: string, data: UpdateSchoolData): Promise<School> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/schools/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/schools/${id}`, data)
       const updatedSchool = response.school
       setSchools(prev => prev.map(school =>
         school.id === id ? updatedSchool : school
@@ -94,7 +94,7 @@ export function useSchools(): UseSchoolsReturn {
   const deleteSchool = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/schools/${id}`)
+      await apiClient.delete(`/api/secretarias/education/schools/${id}`)
       setSchools(prev => prev.filter(school => school.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir escola'

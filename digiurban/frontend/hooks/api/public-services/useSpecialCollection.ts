@@ -78,7 +78,7 @@ export function useSpecialCollection(): UseSpecialCollectionReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/public-services/special-collection')
+      const data = await apiClient.get('/api/secretarias/public-services/special-collection')
       setSpecialCollections(data.collections || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar coletas especiais')
@@ -90,7 +90,7 @@ export function useSpecialCollection(): UseSpecialCollectionReturn {
   const createCollection = useCallback(async (data: CreateSpecialCollectionData): Promise<SpecialCollection> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/public-services/special-collection', data)
+      const response = await apiClient.post('/api/secretarias/public-services/special-collection', data)
       const newCollection = response.collection
       setSpecialCollections(prev => [newCollection, ...prev])
       return newCollection
@@ -104,7 +104,7 @@ export function useSpecialCollection(): UseSpecialCollectionReturn {
   const updateCollection = useCallback(async (id: string, data: Partial<CreateSpecialCollectionData>): Promise<SpecialCollection> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/special-collection/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/public-services/special-collection/${id}`, data)
       const updatedCollection = response.collection
       setSpecialCollections(prev => prev.map(collection => collection.id === id ? updatedCollection : collection))
       return updatedCollection
@@ -142,7 +142,7 @@ export function useSpecialCollection(): UseSpecialCollectionReturn {
   const deleteCollection = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/public-services/special-collection/${id}`)
+      await apiClient.delete(`/api/secretarias/public-services/special-collection/${id}`)
       setSpecialCollections(prev => prev.filter(collection => collection.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir coleta'

@@ -79,7 +79,7 @@ export function useFamilyBenefits(initialFilters?: BenefitFilters): UseFamilyBen
       if (filters?.frequency) queryParams.append('frequency', filters.frequency)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/benefits${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/benefits${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setBenefits(data.benefits || [])
     } catch (err) {
@@ -92,7 +92,7 @@ export function useFamilyBenefits(initialFilters?: BenefitFilters): UseFamilyBen
   const createBenefit = useCallback(async (data: CreateFamilyBenefitData): Promise<FamilyBenefit> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/benefits', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/benefits', data)
       const newBenefit = response.benefit
       setBenefits(prev => [newBenefit, ...prev])
       return newBenefit
@@ -106,7 +106,7 @@ export function useFamilyBenefits(initialFilters?: BenefitFilters): UseFamilyBen
   const updateBenefit = useCallback(async (id: string, data: UpdateFamilyBenefitData): Promise<FamilyBenefit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/benefits/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/benefits/${id}`, data)
       const updatedBenefit = response.benefit
       setBenefits(prev => prev.map(benefit => benefit.id === id ? updatedBenefit : benefit))
       return updatedBenefit
@@ -128,7 +128,7 @@ export function useFamilyBenefits(initialFilters?: BenefitFilters): UseFamilyBen
   const deleteBenefit = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/benefits/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/benefits/${id}`)
       setBenefits(prev => prev.filter(benefit => benefit.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir benefício'

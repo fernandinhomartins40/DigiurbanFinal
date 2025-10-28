@@ -144,6 +144,7 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
       description,
       departmentId,
       category,
+      serviceType,
       requiresDocuments,
       requiredDocuments,
       estimatedDays,
@@ -204,48 +205,50 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
       });
     }
 
-    // ========== CRIAR SERVIÇO BÁSICO ==========
-    const service = await prisma.service.create({
-      data: {
-        // Básico
-        name,
-        description: description || null,
-        category: category || null,
-        departmentId,
-        tenantId: authReq.tenantId,
-        requiresDocuments: requiresDocuments || false,
-        requiredDocuments: requiredDocuments || null,
-        estimatedDays: estimatedDays || null,
-        priority: priority || 1,
-        icon: icon || null,
-        color: color || null,
+    // ========== CRIAR SERVIÇO E FEATURES EM TRANSAÇÃO ==========
+    const result = await prisma.$transaction(async (tx) => {
+      // Criar serviço básico
+      const service = await tx.service.create({
+        data: {
+          // Básico
+          name,
+          description: description || null,
+          category: category || null,
+          departmentId,
+          tenantId: authReq.tenantId,
+          serviceType: serviceType || 'REQUEST',
+          requiresDocuments: requiresDocuments || false,
+          requiredDocuments: requiredDocuments || null,
+          estimatedDays: estimatedDays || null,
+          priority: priority || 1,
+          icon: icon || null,
+          color: color || null,
 
-        // Feature Flags (padrão: false se não fornecido)
-        hasCustomForm: hasCustomForm || false,
-        hasLocation: hasLocation || false,
-        hasScheduling: hasScheduling || false,
-        hasSurvey: hasSurvey || false,
-        hasCustomWorkflow: hasCustomWorkflow || false,
-        hasCustomFields: hasCustomFields || false,
-        hasAdvancedDocs: hasAdvancedDocs || false,
-        hasNotifications: hasNotifications || false,
-      } as unknown as Prisma.ServiceUncheckedCreateInput,
-      include: {
-        department: {
-          select: {
-            id: true,
-            name: true,
+          // Feature Flags (padrão: false se não fornecido)
+          hasCustomForm: hasCustomForm || false,
+          hasLocation: hasLocation || false,
+          hasScheduling: hasScheduling || false,
+          hasSurvey: hasSurvey || false,
+          hasCustomWorkflow: hasCustomWorkflow || false,
+          hasCustomFields: hasCustomFields || false,
+          hasAdvancedDocs: hasAdvancedDocs || false,
+          hasNotifications: hasNotifications || false,
+        } as unknown as Prisma.ServiceUncheckedCreateInput,
+        include: {
+          department: {
+            select: {
+              id: true,
+              name: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    // ========== RECURSOS AVANÇADOS (CONDICIONAIS) ==========
-    const featuresCreated: Record<string, boolean> = {};
+      const featuresCreated: Record<string, boolean> = {};
 
-    // 1. Formulário Customizado
-    if (hasCustomForm && customForm) {
-      await prisma.serviceForm.create({
+      // 1. Formulário Customizado
+      if (hasCustomForm && customForm) {
+        await tx.serviceForm.create({
         data: {
           serviceId: service.id,
           title: customForm.title,
@@ -257,13 +260,13 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
           isMultiStep: customForm.isMultiStep || false,
           steps: customForm.steps || null,
         },
-      });
-      featuresCreated.customForm = true;
-    }
+        });
+        featuresCreated.customForm = true;
+      }
 
-    // 2. Geolocalização
-    if (hasLocation && locationConfig) {
-      await prisma.serviceLocation.create({
+      // 2. Geolocalização
+      if (hasLocation && locationConfig) {
+        await tx.serviceLocation.create({
         data: {
           serviceId: service.id,
           requiresLocation: locationConfig.requiresLocation || false,
@@ -272,20 +275,16 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
           allowedRadius: locationConfig.allowedRadius || null,
           centerLat: locationConfig.centerLat || null,
           centerLng: locationConfig.centerLng || null,
-          allowPhotos: locationConfig.allowPhotos || false,
-          maxPhotos: locationConfig.maxPhotos || 3,
           requireAddress: locationConfig.requireAddress || false,
-          description: locationConfig.description || null,
-          placeholder: locationConfig.placeholder || null,
-          helpText: locationConfig.helpText || null,
+          requireReference: locationConfig.requireReference || false,
         },
-      });
-      featuresCreated.location = true;
-    }
+        });
+        featuresCreated.location = true;
+      }
 
-    // 3. Agendamento
-    if (hasScheduling && scheduling) {
-      await prisma.serviceScheduling.create({
+      // 3. Agendamento
+      if (hasScheduling && scheduling) {
+        await tx.serviceScheduling.create({
         data: {
           serviceId: service.id,
           allowScheduling: scheduling.allowScheduling !== false,
@@ -297,21 +296,20 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
           maxPerDay: scheduling.maxPerDay || null,
           maxPerSlot: scheduling.maxPerSlot || 1,
           advanceBooking: scheduling.advanceBooking || 30,
-          minAdvance: scheduling.minAdvance || 1,
-          locations: scheduling.locations || null,
-          requiresConfirmation: scheduling.requiresConfirmation || false,
-          sendReminders: scheduling.sendReminders !== false,
+          minAdvanceDays: scheduling.minAdvance || 1,
+          maxAdvanceDays: scheduling.maxAdvanceDays || 30,
+          availableDays: scheduling.availableDays || JSON.stringify(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
+          timeSlots: scheduling.timeSlots || JSON.stringify([]),
+          sendReminder: scheduling.sendReminders !== false,
           reminderHours: scheduling.reminderHours || 24,
-          allowReschedule: scheduling.allowReschedule !== false,
-          rescheduleDeadline: scheduling.rescheduleDeadline || 24,
         },
-      });
-      featuresCreated.scheduling = true;
-    }
+        });
+        featuresCreated.scheduling = true;
+      }
 
-    // 4. Pesquisa
-    if (hasSurvey && survey) {
-      await prisma.serviceSurvey.create({
+      // 4. Pesquisa
+      if (hasSurvey && survey) {
+        await tx.serviceSurvey.create({
         data: {
           serviceId: service.id,
           title: survey.title,
@@ -319,38 +317,33 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
           type: survey.type || 'satisfaction',
           timing: survey.timing || 'after',
           isRequired: survey.isRequired || false,
-          showAfterDays: survey.showAfterDays || null,
+          showAfter: survey.showAfter || 'completion',
+          daysAfter: survey.daysAfter || null,
           questions: survey.questions,
-          allowAnonymous: survey.allowAnonymous !== false,
-          allowComments: survey.allowComments !== false,
         },
-      });
-      featuresCreated.survey = true;
-    }
+        });
+        featuresCreated.survey = true;
+      }
 
-    // 5. Workflow
-    if (hasCustomWorkflow && workflow) {
-      await prisma.serviceWorkflow.create({
+      // 5. Workflow
+      if (hasCustomWorkflow && workflow) {
+        await tx.serviceWorkflow.create({
         data: {
           serviceId: service.id,
           name: workflow.name,
           description: workflow.description || null,
-          version: workflow.version || '1.0.0',
-          stages: workflow.stages,
-          transitions: workflow.transitions,
-          automations: workflow.automations || null,
-          notifications: workflow.notifications || null,
-          sla: workflow.sla || null,
-          approvals: workflow.approvals || null,
-          isDefault: workflow.isDefault || false,
+          version: workflow.version ? parseInt(workflow.version) : 1,
+          steps: workflow.stages || workflow.steps, // 'steps' é o campo correto no schema
+          rules: workflow.transitions || workflow.rules,
+          isActive: workflow.isActive !== false,
         },
-      });
-      featuresCreated.workflow = true;
-    }
+        });
+        featuresCreated.workflow = true;
+      }
 
-    // 6. Campos Customizados
-    if (hasCustomFields && customFields && Array.isArray(customFields)) {
-      await prisma.serviceCustomField.createMany({
+      // 6. Campos Customizados
+      if (hasCustomFields && customFields && Array.isArray(customFields)) {
+        await tx.serviceCustomField.createMany({
         data: customFields.map((field: any) => ({
           serviceId: service.id,
           key: field.key,
@@ -365,13 +358,13 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
           isVisible: field.isVisible !== false,
           section: field.section || null,
         })),
-      });
-      featuresCreated.customFields = true;
-    }
+        });
+        featuresCreated.customFields = true;
+      }
 
-    // 7. Documentos Avançados
-    if (hasAdvancedDocs && documents && Array.isArray(documents)) {
-      await prisma.serviceDocument.createMany({
+      // 7. Documentos Avançados
+      if (hasAdvancedDocs && documents && Array.isArray(documents)) {
+        await tx.serviceDocument.createMany({
         data: documents.map((doc: any) => ({
           serviceId: service.id,
           name: doc.name,
@@ -391,36 +384,32 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
           exampleUrl: doc.exampleUrl || null,
           order: doc.order || 0,
         })),
-      });
-      featuresCreated.documents = true;
-    }
+        });
+        featuresCreated.documents = true;
+      }
 
-    // 8. Notificações
-    if (hasNotifications && notifications && Array.isArray(notifications)) {
-      await prisma.serviceNotification.createMany({
-        data: notifications.map((notif: any) => ({
-          serviceId: service.id,
-          name: notif.name,
-          description: notif.description || null,
-          channel: notif.channel,
-          trigger: notif.trigger,
-          triggerData: notif.triggerData || null,
-          conditions: notif.conditions || null,
-          recipients: notif.recipients,
-          subject: notif.subject || null,
-          body: notif.body,
-          variables: notif.variables || null,
-          priority: notif.priority || 3,
-          delay: notif.delay || null,
-          schedule: notif.schedule || null,
-        })),
-      });
-      featuresCreated.notifications = true;
-    }
+      // 8. Notificações
+      if (hasNotifications && notifications) {
+        await tx.serviceNotification.create({
+          data: {
+            serviceId: service.id,
+            enabled: true,
+            templates: Array.isArray(notifications) ? notifications : [],
+            triggers: Array.isArray(notifications)
+              ? notifications.map((n: any) => ({ trigger: n.trigger, conditions: n.conditions }))
+              : [],
+          }
+        });
+        featuresCreated.notifications = true;
+      }
+
+      // Retornar serviço e features criados
+      return { service, featuresCreated };
+    });
 
     return res.status(201).json({
       message: 'Serviço criado com sucesso',
-      service,
+      service: result.service,
       featuresEnabled: {
         customForm: hasCustomForm || false,
         location: hasLocation || false,
@@ -431,7 +420,7 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
         advancedDocs: hasAdvancedDocs || false,
         notifications: hasNotifications || false,
       },
-      featuresCreated,
+      featuresCreated: result.featuresCreated,
     });
   } catch (error) {
     console.error('Create service error:', error);

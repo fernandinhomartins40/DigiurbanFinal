@@ -201,7 +201,7 @@ export default function PatrulhasPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/security/patrols"
+        endpoint="/api/secretarias/security/patrols"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

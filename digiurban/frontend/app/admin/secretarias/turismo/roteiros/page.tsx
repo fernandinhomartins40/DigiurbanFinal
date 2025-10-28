@@ -180,7 +180,7 @@ export default function RoteirosPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/tourism/routes"
+        endpoint="/api/secretarias/tourism/routes"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

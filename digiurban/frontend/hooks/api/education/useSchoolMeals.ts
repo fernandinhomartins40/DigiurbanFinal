@@ -132,7 +132,7 @@ export function useSchoolMeals(initialFilters?: MealFilters): UseSchoolMealsRetu
       if (filters?.isActive !== undefined) queryParams.append('isActive', filters.isActive.toString())
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/education/school-meals${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/education/school-meals${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setMeals(data.meals || [])
@@ -145,7 +145,7 @@ export function useSchoolMeals(initialFilters?: MealFilters): UseSchoolMealsRetu
 
   const fetchMealPlans = useCallback(async () => {
     try {
-      const data = await apiClient.get('/api/specialized/education/school-meals/plans')
+      const data = await apiClient.get('/api/secretarias/education/school-meals/plans')
       setMealPlans(data.mealPlans || [])
     } catch (err) {
       console.error('Erro ao carregar planos de merenda:', err)
@@ -155,7 +155,7 @@ export function useSchoolMeals(initialFilters?: MealFilters): UseSchoolMealsRetu
   const createMeal = useCallback(async (data: CreateSchoolMealData): Promise<SchoolMeal> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/school-meals', data)
+      const response = await apiClient.post('/api/secretarias/education/school-meals', data)
       const newMeal = response.meal
       setMeals(prev => [newMeal, ...prev])
       return newMeal
@@ -169,7 +169,7 @@ export function useSchoolMeals(initialFilters?: MealFilters): UseSchoolMealsRetu
   const updateMeal = useCallback(async (id: string, data: UpdateSchoolMealData): Promise<SchoolMeal> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/school-meals/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/school-meals/${id}`, data)
       const updatedMeal = response.meal
       setMeals(prev => prev.map(meal =>
         meal.id === id ? updatedMeal : meal
@@ -185,7 +185,7 @@ export function useSchoolMeals(initialFilters?: MealFilters): UseSchoolMealsRetu
   const deleteMeal = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/school-meals/${id}`)
+      await apiClient.delete(`/api/secretarias/education/school-meals/${id}`)
       setMeals(prev => prev.filter(meal => meal.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir merenda'
@@ -197,7 +197,7 @@ export function useSchoolMeals(initialFilters?: MealFilters): UseSchoolMealsRetu
   const createMealPlan = useCallback(async (data: CreateMealPlanData): Promise<MealPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/school-meals/plans', data)
+      const response = await apiClient.post('/api/secretarias/education/school-meals/plans', data)
       const newMealPlan = response.mealPlan
       setMealPlans(prev => [newMealPlan, ...prev])
       return newMealPlan
@@ -211,7 +211,7 @@ export function useSchoolMeals(initialFilters?: MealFilters): UseSchoolMealsRetu
   const approveMealPlan = useCallback(async (id: string): Promise<MealPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/school-meals/plans/${id}/approve`, {})
+      const response = await apiClient.put(`/api/secretarias/education/school-meals/plans/${id}/approve`, {})
       const approvedMealPlan = response.mealPlan
       setMealPlans(prev => prev.map(plan =>
         plan.id === id ? approvedMealPlan : plan

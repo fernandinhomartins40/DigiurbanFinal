@@ -94,7 +94,7 @@ export function useSecurityOccurrences(initialFilters?: OccurrenceFilters): UseS
       if (filters?.assignedOfficer) queryParams.append('assignedOfficer', filters.assignedOfficer)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/security/occurrences${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/security/occurrences${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setOccurrences(data.occurrences || [])
     } catch (err) {
@@ -107,7 +107,7 @@ export function useSecurityOccurrences(initialFilters?: OccurrenceFilters): UseS
   const createOccurrence = useCallback(async (data: CreateSecurityOccurrenceData): Promise<SecurityOccurrence> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/security/occurrences', data)
+      const response = await apiClient.post('/api/secretarias/security/occurrences', data)
       const newOccurrence = response.occurrence
       setOccurrences(prev => [newOccurrence, ...prev])
       return newOccurrence
@@ -121,7 +121,7 @@ export function useSecurityOccurrences(initialFilters?: OccurrenceFilters): UseS
   const updateOccurrence = useCallback(async (id: string, data: UpdateSecurityOccurrenceData): Promise<SecurityOccurrence> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/occurrences/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/security/occurrences/${id}`, data)
       const updatedOccurrence = response.occurrence
       setOccurrences(prev => prev.map(occ => occ.id === id ? updatedOccurrence : occ))
       return updatedOccurrence
@@ -143,7 +143,7 @@ export function useSecurityOccurrences(initialFilters?: OccurrenceFilters): UseS
   const deleteOccurrence = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/security/occurrences/${id}`)
+      await apiClient.delete(`/api/secretarias/security/occurrences/${id}`)
       setOccurrences(prev => prev.filter(occ => occ.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir ocorrência'

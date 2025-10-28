@@ -1,6 +1,6 @@
 import { api, createCRUDService } from './api'
 
-const BASE_PATH = '/api/specialized/public-works'
+const BASE_PATH = '/api/secretarias/public-works'
 
 export const publicWorksService = {
   works: createCRUDService(`${BASE_PATH}/works`),

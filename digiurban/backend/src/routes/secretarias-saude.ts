@@ -5,6 +5,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 import {
   adminAuthMiddleware,
@@ -216,7 +217,7 @@ router.use(authenticateToken);
 
 // Validation schemas (migrados do arquivo -new)
 const healthAttendanceSchema = z.object({
-  protocol: z.string().min(1),
+  protocol: z.string().min(1).optional(), // Agora opcional, será gerado automaticamente
   citizenName: z.string().min(1),
   citizenCPF: z.string().min(11).max(11),
   contact: z.string().min(1),
@@ -745,28 +746,67 @@ router.post('/health-attendances', authenticateToken, requireManager, handleAsyn
   const validatedData = validateSchemaAndRespond(healthAttendanceSchema, req.body, res);
   if (!validatedData) return;
 
-  const attendance = await prisma.healthAttendance.create({
-    data: {
-      protocol: validatedData.protocol,
-      citizenName: validatedData.citizenName,
-      citizenCPF: validatedData.citizenCPF,
-      contact: validatedData.contact,
-      type: validatedData.type,
-      status: validatedData.status || 'PENDING',
-      description: validatedData.description,
-      observations: validatedData.observations,
-      responsible: validatedData.responsible,
-      attachments: validatedData.attachments ? (JSON.stringify(validatedData.attachments) as any) : undefined,
-      urgency: validatedData.urgency || 'NORMAL',
-      medicalUnit: validatedData.medicalUnit,
-      appointmentDate: validatedData.appointmentDate ? new Date(validatedData.appointmentDate) : undefined,
-      symptoms: validatedData.symptoms,
-      priority: validatedData.priority,
-      tenantId: req.tenantId,
-    },
-  });
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // Gerar número do protocolo
+      const protocolNumber = await getNextProtocolNumber(req.tenantId);
 
-  res.status(201).json(createSuccessResponse(attendance, 'Atendimento criado com sucesso'));
+      // Buscar cidadão pelo CPF
+      const citizen = await tx.citizen.findFirst({
+        where: { cpf: validatedData.citizenCPF, tenantId: req.tenantId }
+      });
+      const citizenId = citizen?.id || validatedData.citizenCPF; // fallback para CPF
+
+      // Criar protocolo
+      const protocol = await tx.protocol.create({
+        data: {
+          tenantId: req.tenantId,
+          citizenId,
+          number: protocolNumber,
+          title: validatedData.description.substring(0, 100),
+          description: validatedData.description,
+          status: 'VINCULADO' as any,
+          priority: 3,
+        },
+      });
+
+      // Criar attendance vinculado ao protocolo
+      const attendance = await tx.healthAttendance.create({
+        data: {
+          protocol: protocolNumber,
+          citizenName: validatedData.citizenName,
+          citizenCPF: validatedData.citizenCPF,
+          contact: validatedData.contact,
+          type: validatedData.type,
+          status: validatedData.status || 'PENDING',
+          description: validatedData.description,
+          observations: validatedData.observations,
+          responsible: validatedData.responsible,
+          attachments: validatedData.attachments ? (JSON.stringify(validatedData.attachments) as any) : undefined,
+          urgency: validatedData.urgency || 'NORMAL',
+          medicalUnit: validatedData.medicalUnit,
+          appointmentDate: validatedData.appointmentDate ? new Date(validatedData.appointmentDate) : undefined,
+          symptoms: validatedData.symptoms,
+          priority: validatedData.priority,
+          tenantId: req.tenantId,
+        },
+      });
+
+      return { protocol, attendance };
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Atendimento criado com sucesso',
+      data: {
+        protocol: result.protocol,
+        attendance: result.attendance,
+      },
+    });
+  } catch (error) {
+    console.error('Error creating health attendance with protocol:', error);
+    res.status(500).json(createErrorResponse('INTERNAL_ERROR', 'Erro ao criar atendimento'));
+  }
 }));
 
 router.get('/health-attendances/:id', authenticateToken, requireManager, handleAsyncRoute(async (req, res) => {

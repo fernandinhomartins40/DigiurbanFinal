@@ -2,6 +2,7 @@ import { Router, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 import {
   adminAuthMiddleware,
   requirePermission,
@@ -195,7 +196,7 @@ router.use(requireManager);
 
 // Validation schemas
 const housingAttendanceSchema = z.object({
-  protocol: z.string().min(1),
+  protocol: z.string().min(1).optional(), // Agora opcional, será gerado automaticamente
   citizenName: z.string().min(1),
   citizenCPF: z.string().min(11).max(11),
   contact: z.string().min(1),
@@ -332,30 +333,64 @@ router.post('/housing-attendances', handleAsyncRoute(async (req, res) => {
   try {
     const validatedData = housingAttendanceSchema.parse(req.body);
 
-    const createData = {
-      tenantId: req.tenantId,
-      protocol: validatedData.protocol,
-      citizenName: validatedData.citizenName,
-      citizenCPF: validatedData.citizenCPF,
-      contact: validatedData.contact,
-      type: validatedData.type,
-      description: validatedData.description,
-      attachments: (validatedData.attachments || null) as Prisma.InputJsonValue,
-      status: validatedData.status,
-      observations: validatedData.observations,
-      responsible: validatedData.responsible,
-      propertyAddress: validatedData.propertyAddress,
-      familyIncome: validatedData.familyIncome,
-      familySize: validatedData.familySize,
-      currentHousing: validatedData.currentHousing,
-      priority: validatedData.priority,
-    } as Prisma.HousingAttendanceUncheckedCreateInput;
+    const result = await prisma.$transaction(async (tx) => {
+      // Gerar número do protocolo
+      const protocolNumber = await getNextProtocolNumber(req.tenantId);
 
-    const attendance = await prisma.housingAttendance.create({
-      data: createData,
+      // Buscar cidadão pelo CPF (note: campo é citizenCPF, não citizenCpf)
+      const citizen = await tx.citizen.findFirst({
+        where: { cpf: validatedData.citizenCPF, tenantId: req.tenantId }
+      });
+      const citizenId = citizen?.id || validatedData.citizenCPF; // fallback para CPF
+
+      // Criar protocolo
+      const protocol = await tx.protocol.create({
+        data: {
+          tenantId: req.tenantId,
+          citizenId,
+          number: protocolNumber,
+          title: validatedData.description.substring(0, 100),
+          description: validatedData.description,
+          status: 'VINCULADO' as any,
+          priority: 3,
+        },
+      });
+
+      // Criar attendance vinculado ao protocolo
+      const createData = {
+        tenantId: req.tenantId,
+        protocol: protocolNumber,
+        citizenName: validatedData.citizenName,
+        citizenCPF: validatedData.citizenCPF,
+        contact: validatedData.contact,
+        type: validatedData.type,
+        description: validatedData.description,
+        attachments: (validatedData.attachments || null) as Prisma.InputJsonValue,
+        status: validatedData.status,
+        observations: validatedData.observations,
+        responsible: validatedData.responsible,
+        propertyAddress: validatedData.propertyAddress,
+        familyIncome: validatedData.familyIncome,
+        familySize: validatedData.familySize,
+        currentHousing: validatedData.currentHousing,
+        priority: validatedData.priority,
+      } as Prisma.HousingAttendanceUncheckedCreateInput;
+
+      const attendance = await tx.housingAttendance.create({
+        data: createData,
+      });
+
+      return { protocol, attendance };
     });
 
-    res.status(201).json(createSuccessResponse(attendance, 'Atendimento de habitação criado com sucesso'));
+    res.status(201).json({
+      success: true,
+      message: 'Atendimento de habitação criado com sucesso',
+      data: {
+        protocol: result.protocol,
+        attendance: result.attendance,
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       const errors = error.issues.map(err => ({

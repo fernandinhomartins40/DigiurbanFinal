@@ -21,7 +21,7 @@ export interface UseSecretariaReturn<T> {
  *
  * @example
  * const { data, loading, error, refetch } = useSecretaria<AgricultureStats>({
- *   endpoint: '/api/specialized/agriculture/stats',
+ *   endpoint: '/api/secretarias/agriculture/stats',
  *   autoFetch: true
  * })
  */

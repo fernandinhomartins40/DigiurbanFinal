@@ -97,21 +97,8 @@ export function AdminAuthProvider({ children }: AdminAuthProviderProps) {
         setStats(null)
         setPermissions([])
 
-        // Redirecionar apenas se:
-        // 1. Não estiver na página de login
-        // 2. Não estiver já redirecionando
-        // 3. Não for a primeira verificação (checkAuth inicial)
-        const currentPath = typeof window !== 'undefined' ? window.location.pathname : ''
-        const isLoginPage = currentPath.includes('/login')
-        const isProtectedPage = currentPath.startsWith('/admin') && !isLoginPage
-
-        if (isProtectedPage && !isRedirecting) {
-          setIsRedirecting(true)
-          console.log('[Auth] Redirecionando para login após 401 em página protegida...')
-          setTimeout(() => {
-            window.location.href = '/admin/login'
-          }, 500)
-        }
+        // NÃO redirecionar aqui - deixar o AdminLayout fazer isso
+        // Isso evita múltiplos redirects e erros 301
 
         throw new Error(errorData.code === 'TOKEN_EXPIRED' ? 'Token expirado' : 'Não autenticado')
       }

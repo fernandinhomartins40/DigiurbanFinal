@@ -93,7 +93,7 @@ export function useStudents(initialFilters?: StudentFilters): UseStudentsReturn 
       if (filters?.search) queryParams.append('search', filters.search)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/education/students${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/education/students${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setStudents(data.students || [])
@@ -107,7 +107,7 @@ export function useStudents(initialFilters?: StudentFilters): UseStudentsReturn 
   const createStudent = useCallback(async (data: CreateStudentData): Promise<Student> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/students', data)
+      const response = await apiClient.post('/api/secretarias/education/students', data)
       const newStudent = response.student
       setStudents(prev => [newStudent, ...prev])
       return newStudent
@@ -121,7 +121,7 @@ export function useStudents(initialFilters?: StudentFilters): UseStudentsReturn 
   const updateStudent = useCallback(async (id: string, data: UpdateStudentData): Promise<Student> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/students/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/students/${id}`, data)
       const updatedStudent = response.student
       setStudents(prev => prev.map(student =>
         student.id === id ? updatedStudent : student
@@ -137,7 +137,7 @@ export function useStudents(initialFilters?: StudentFilters): UseStudentsReturn 
   const deleteStudent = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/students/${id}`)
+      await apiClient.delete(`/api/secretarias/education/students/${id}`)
       setStudents(prev => prev.filter(student => student.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir aluno'

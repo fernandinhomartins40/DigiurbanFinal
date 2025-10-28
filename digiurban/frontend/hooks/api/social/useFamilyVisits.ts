@@ -186,7 +186,7 @@ export function useFamilyVisits(initialFilters?: VisitFilters): UseFamilyVisitsR
       if (filters?.priority) queryParams.append('priority', filters.priority)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/visits${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/visits${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setVisits(data.visits || [])
@@ -200,7 +200,7 @@ export function useFamilyVisits(initialFilters?: VisitFilters): UseFamilyVisitsR
   const createVisit = useCallback(async (data: CreateFamilyVisitData): Promise<FamilyVisit> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/visits', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/visits', data)
       const newVisit = response.visit
       setVisits(prev => [newVisit, ...prev])
       return newVisit
@@ -214,7 +214,7 @@ export function useFamilyVisits(initialFilters?: VisitFilters): UseFamilyVisitsR
   const updateVisit = useCallback(async (id: string, data: UpdateFamilyVisitData): Promise<FamilyVisit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/visits/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/visits/${id}`, data)
       const updatedVisit = response.visit
       setVisits(prev => prev.map(visit =>
         visit.id === id ? updatedVisit : visit
@@ -252,7 +252,7 @@ export function useFamilyVisits(initialFilters?: VisitFilters): UseFamilyVisitsR
   const deleteVisit = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/visits/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/visits/${id}`)
       setVisits(prev => prev.filter(visit => visit.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir visita'

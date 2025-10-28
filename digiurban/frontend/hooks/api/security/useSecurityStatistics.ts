@@ -38,7 +38,7 @@ export function useSecurityStatistics(period: string = 'month'): UseSecurityStat
       if (timePeriod) queryParams.append('period', timePeriod)
       
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/security/statistics${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/security/statistics${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setStatistics(data.statistics)
     } catch (err) {

@@ -364,7 +364,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/reports')
+      const data = await apiClient.get('/api/secretarias/urban-planning/reports')
       setReports(data.reports || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar relatórios urbanos')
@@ -376,7 +376,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const createReport = useCallback(async (data: CreateUrbanReportData): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/reports', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/reports', data)
       const newReport = response.report
       setReports(prev => [newReport, ...prev])
       return newReport
@@ -390,7 +390,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const updateReport = useCallback(async (id: string, data: Partial<CreateUrbanReportData>): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/reports/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/reports/${id}`, data)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -404,7 +404,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addData = useCallback(async (id: string, category: string, data: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/data/${category}`, data)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/data/${category}`, data)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -418,7 +418,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const updateData = useCallback(async (id: string, category: string, data: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/reports/${id}/data/${category}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/reports/${id}/data/${category}`, data)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -432,7 +432,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addAnalysis = useCallback(async (id: string, analysis: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/analysis`, analysis)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/analysis`, analysis)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -446,7 +446,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addIndicator = useCallback(async (id: string, category: string, indicator: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/indicators/${category}`, indicator)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/indicators/${category}`, indicator)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -460,7 +460,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const updateIndicator = useCallback(async (id: string, indicatorId: string, value: number): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/reports/${id}/indicators/${indicatorId}`, { value })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/reports/${id}/indicators/${indicatorId}`, { value })
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -474,7 +474,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addChallenge = useCallback(async (id: string, challenge: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/challenges`, challenge)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/challenges`, challenge)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -488,7 +488,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addRecommendation = useCallback(async (id: string, recommendation: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/recommendations`, recommendation)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/recommendations`, recommendation)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -502,7 +502,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const updateMethodology = useCallback(async (id: string, methodology: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/reports/${id}/methodology`, methodology)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/reports/${id}/methodology`, methodology)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -516,7 +516,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addVisualization = useCallback(async (id: string, visualization: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/visualizations`, visualization)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/visualizations`, visualization)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -530,7 +530,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addAppendix = useCallback(async (id: string, appendix: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/appendices`, appendix)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/appendices`, appendix)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -544,7 +544,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const updateMetadata = useCallback(async (id: string, metadata: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/reports/${id}/metadata`, metadata)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/reports/${id}/metadata`, metadata)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -558,7 +558,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addAuthor = useCallback(async (id: string, author: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/authors`, author)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/authors`, author)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -572,7 +572,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addReviewer = useCallback(async (id: string, reviewer: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/reviewers`, reviewer)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/reviewers`, reviewer)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -586,7 +586,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const submitForReview = useCallback(async (id: string): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/submit`, {})
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/submit`, {})
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -600,7 +600,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const approveReport = useCallback(async (id: string): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/approve`, {})
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/approve`, {})
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -614,7 +614,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const publishReport = useCallback(async (id: string): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/publish`, {})
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/publish`, {})
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -628,7 +628,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const distributeReport = useCallback(async (id: string, distribution: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/distribute`, distribution)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/distribute`, distribution)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -642,7 +642,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const addImpact = useCallback(async (id: string, impact: any): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/reports/${id}/impact`, impact)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/reports/${id}/impact`, impact)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -656,7 +656,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const scheduleUpdate = useCallback(async (id: string, schedule: string): Promise<UrbanReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/reports/${id}/schedule`, { schedule })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/reports/${id}/schedule`, { schedule })
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -674,7 +674,7 @@ export function useUrbanReports(): UseUrbanReportsReturn {
   const deleteReport = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/reports/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/reports/${id}`)
       setReports(prev => prev.filter(report => report.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir relatório'

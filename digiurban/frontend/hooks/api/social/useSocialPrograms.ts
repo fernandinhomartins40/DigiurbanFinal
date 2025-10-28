@@ -244,7 +244,7 @@ export function useSocialPrograms(initialFilters?: ProgramFilters): UseSocialPro
       if (filters?.search) queryParams.append('search', filters.search)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/programs${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/programs${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setPrograms(data.programs || [])
@@ -258,7 +258,7 @@ export function useSocialPrograms(initialFilters?: ProgramFilters): UseSocialPro
   const createProgram = useCallback(async (data: CreateSocialProgramData): Promise<SocialProgram> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/programs', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/programs', data)
       const newProgram = response.program
       setPrograms(prev => [newProgram, ...prev])
       return newProgram
@@ -272,7 +272,7 @@ export function useSocialPrograms(initialFilters?: ProgramFilters): UseSocialPro
   const updateProgram = useCallback(async (id: string, data: UpdateSocialProgramData): Promise<SocialProgram> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/programs/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/programs/${id}`, data)
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program =>
         program.id === id ? updatedProgram : program
@@ -300,7 +300,7 @@ export function useSocialPrograms(initialFilters?: ProgramFilters): UseSocialPro
   const deleteProgram = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/programs/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/programs/${id}`)
       setPrograms(prev => prev.filter(program => program.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir programa'

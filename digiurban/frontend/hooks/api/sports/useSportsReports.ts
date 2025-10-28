@@ -154,7 +154,7 @@ export function useSportsReports(): UseSportsReportsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/reports')
+      const data = await apiClient.get('/api/secretarias/sports/reports')
       setReports(data.reports || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar relatórios')
@@ -166,7 +166,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const createReport = useCallback(async (data: CreateSportsReportData): Promise<SportsReport> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/reports', data)
+      const response = await apiClient.post('/api/secretarias/sports/reports', data)
       const newReport = response.report
       setReports(prev => [newReport, ...prev])
       return newReport
@@ -180,7 +180,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const generateReport = useCallback(async (data: CreateSportsReportData): Promise<SportsReport> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/reports/generate', data)
+      const response = await apiClient.post('/api/secretarias/sports/reports/generate', data)
       const newReport = response.report
       setReports(prev => [newReport, ...prev])
       return newReport
@@ -194,7 +194,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const updateReport = useCallback(async (id: string, data: Partial<SportsReport>): Promise<SportsReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/reports/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/reports/${id}`, data)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -208,7 +208,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const approveReport = useCallback(async (id: string): Promise<SportsReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/reports/${id}/approve`)
+      const response = await apiClient.put(`/api/secretarias/sports/reports/${id}/approve`)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -222,7 +222,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const publishReport = useCallback(async (id: string): Promise<SportsReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/reports/${id}/publish`)
+      const response = await apiClient.put(`/api/secretarias/sports/reports/${id}/publish`)
       const updatedReport = response.report
       setReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -236,7 +236,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const exportReport = useCallback(async (id: string, format: 'PDF' | 'EXCEL' | 'CSV'): Promise<string> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/reports/${id}/export`, { format })
+      const response = await apiClient.post(`/api/secretarias/sports/reports/${id}/export`, { format })
       return response.downloadUrl
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao exportar relatório'
@@ -248,7 +248,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const shareReport = useCallback(async (id: string, recipients: string[]): Promise<void> => {
     try {
       setError(null)
-      await apiClient.post(`/api/specialized/sports/reports/${id}/share`, { recipients })
+      await apiClient.post(`/api/secretarias/sports/reports/${id}/share`, { recipients })
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao compartilhar relatório'
       setError(errorMessage)
@@ -259,7 +259,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const deleteReport = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/reports/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/reports/${id}`)
       setReports(prev => prev.filter(report => report.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir relatório'
@@ -286,7 +286,7 @@ export function useSportsReports(): UseSportsReportsReturn {
   const getReportStats = useCallback(async (): Promise<ReportStats> => {
     try {
       setError(null)
-      const response = await apiClient.get('/api/specialized/sports/reports/stats')
+      const response = await apiClient.get('/api/secretarias/sports/reports/stats')
       return response.stats
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar estatísticas'

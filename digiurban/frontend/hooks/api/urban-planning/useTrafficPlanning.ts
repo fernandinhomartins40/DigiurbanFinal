@@ -332,7 +332,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/traffic-planning')
+      const data = await apiClient.get('/api/secretarias/urban-planning/traffic-planning')
       setTrafficPlans(data.plans || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar planos de trânsito')
@@ -344,7 +344,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const createTrafficPlan = useCallback(async (data: CreateTrafficPlanData): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/traffic-planning', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/traffic-planning', data)
       const newPlan = response.plan
       setTrafficPlans(prev => [newPlan, ...prev])
       return newPlan
@@ -358,7 +358,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const updateTrafficPlan = useCallback(async (id: string, data: Partial<CreateTrafficPlanData>): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/traffic-planning/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/traffic-planning/${id}`, data)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -372,7 +372,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const updateCurrentSituation = useCallback(async (id: string, situation: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/traffic-planning/${id}/current-situation`, situation)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/traffic-planning/${id}/current-situation`, situation)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -386,7 +386,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addProposal = useCallback(async (id: string, category: string, proposal: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/proposals/${category}`, proposal)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/proposals/${category}`, proposal)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -400,7 +400,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const updateProposal = useCallback(async (id: string, category: string, proposalId: string, data: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/traffic-planning/${id}/proposals/${category}/${proposalId}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/traffic-planning/${id}/proposals/${category}/${proposalId}`, data)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -414,7 +414,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addImplementationPhase = useCallback(async (id: string, phase: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/implementation/phases`, phase)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/implementation/phases`, phase)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -428,7 +428,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const updatePhaseStatus = useCallback(async (id: string, phaseId: string, status: string): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/traffic-planning/${id}/implementation/phases/${phaseId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/traffic-planning/${id}/implementation/phases/${phaseId}`, { status })
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -442,7 +442,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const updateBudget = useCallback(async (id: string, budget: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/traffic-planning/${id}/budget`, budget)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/traffic-planning/${id}/budget`, budget)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -456,7 +456,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addIndicator = useCallback(async (id: string, indicator: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/monitoring/indicators`, indicator)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/monitoring/indicators`, indicator)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -470,7 +470,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const updateIndicator = useCallback(async (id: string, indicatorId: string, current: number): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/traffic-planning/${id}/monitoring/indicators/${indicatorId}`, { current })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/traffic-planning/${id}/monitoring/indicators/${indicatorId}`, { current })
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -484,7 +484,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addStudy = useCallback(async (id: string, study: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/monitoring/studies`, study)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/monitoring/studies`, study)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -498,7 +498,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addEvaluation = useCallback(async (id: string, evaluation: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/monitoring/evaluations`, evaluation)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/monitoring/evaluations`, evaluation)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -512,7 +512,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addStakeholder = useCallback(async (id: string, category: string, stakeholder: string): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/stakeholders/${category}`, { stakeholder })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/stakeholders/${category}`, { stakeholder })
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -526,7 +526,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const startPublicConsultation = useCallback(async (id: string): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/consultation/start`, {})
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/consultation/start`, {})
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -540,7 +540,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addConsultationSession = useCallback(async (id: string, session: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/consultation/sessions`, session)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/consultation/sessions`, session)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -554,7 +554,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const addConsultationFeedback = useCallback(async (id: string, feedback: string): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/traffic-planning/${id}/consultation/feedback`, { feedback })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/traffic-planning/${id}/consultation/feedback`, { feedback })
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -568,7 +568,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const updateEnvironmentalImpact = useCallback(async (id: string, environmental: any): Promise<TrafficPlan> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/traffic-planning/${id}/environmental`, environmental)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/traffic-planning/${id}/environmental`, environmental)
       const updatedPlan = response.plan
       setTrafficPlans(prev => prev.map(plan => plan.id === id ? updatedPlan : plan))
       return updatedPlan
@@ -594,7 +594,7 @@ export function useTrafficPlanning(): UseTrafficPlanningReturn {
   const deleteTrafficPlan = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/traffic-planning/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/traffic-planning/${id}`)
       setTrafficPlans(prev => prev.filter(plan => plan.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir plano de trânsito'

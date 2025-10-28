@@ -197,7 +197,7 @@ export default function SolicitacoesPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/public-services/requests"
+        endpoint="/api/secretarias/public-services/requests"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

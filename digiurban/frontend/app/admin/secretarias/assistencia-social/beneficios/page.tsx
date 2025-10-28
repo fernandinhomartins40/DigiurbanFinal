@@ -162,7 +162,7 @@ export default function BeneficiosPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/social-assistance/benefit-requests"
+        endpoint="/api/secretarias/social-assistance/benefit-requests"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

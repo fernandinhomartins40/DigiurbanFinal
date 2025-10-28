@@ -129,7 +129,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/infrastructure')
+      const data = await apiClient.get('/api/secretarias/sports/infrastructure')
       setInfrastructure(data.infrastructure || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar infraestrutura esportiva')
@@ -141,7 +141,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const createInfrastructure = useCallback(async (data: CreateSportsInfrastructureData): Promise<SportsInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/infrastructure', data)
+      const response = await apiClient.post('/api/secretarias/sports/infrastructure', data)
       const newInfrastructure = response.infrastructure
       setInfrastructure(prev => [newInfrastructure, ...prev])
       return newInfrastructure
@@ -155,7 +155,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const updateInfrastructure = useCallback(async (id: string, data: Partial<CreateSportsInfrastructureData>): Promise<SportsInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/infrastructure/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/infrastructure/${id}`, data)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -169,7 +169,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const addFacility = useCallback(async (id: string, facility: any): Promise<SportsInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/infrastructure/${id}/facilities`, facility)
+      const response = await apiClient.post(`/api/secretarias/sports/infrastructure/${id}/facilities`, facility)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -183,7 +183,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const addEquipment = useCallback(async (id: string, equipment: any): Promise<SportsInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/infrastructure/${id}/equipment`, equipment)
+      const response = await apiClient.post(`/api/secretarias/sports/infrastructure/${id}/equipment`, equipment)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -197,7 +197,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const scheduleMaintenance = useCallback(async (id: string, maintenance: any): Promise<SportsInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/infrastructure/${id}/maintenance`, maintenance)
+      const response = await apiClient.post(`/api/secretarias/sports/infrastructure/${id}/maintenance`, maintenance)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -211,7 +211,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const addBooking = useCallback(async (id: string, booking: any): Promise<SportsInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/infrastructure/${id}/bookings`, booking)
+      const response = await apiClient.post(`/api/secretarias/sports/infrastructure/${id}/bookings`, booking)
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -225,7 +225,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const updateMaintenanceStatus = useCallback(async (id: string, maintenanceId: string, status: string): Promise<SportsInfrastructure> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/infrastructure/${id}/maintenance/${maintenanceId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/sports/infrastructure/${id}/maintenance/${maintenanceId}`, { status })
       const updatedInfrastructure = response.infrastructure
       setInfrastructure(prev => prev.map(infra => infra.id === id ? updatedInfrastructure : infra))
       return updatedInfrastructure
@@ -239,7 +239,7 @@ export function useSportsInfrastructure(): UseSportsInfrastructureReturn {
   const deleteInfrastructure = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/infrastructure/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/infrastructure/${id}`)
       setInfrastructure(prev => prev.filter(infra => infra.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir infraestrutura'

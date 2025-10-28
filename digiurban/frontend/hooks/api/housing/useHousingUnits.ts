@@ -305,7 +305,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/housing/units')
+      const data = await apiClient.get('/api/secretarias/housing/units')
       setHousingUnits(data.units || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar unidades habitacionais')
@@ -317,7 +317,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const createUnit = useCallback(async (data: CreateHousingUnitData): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/housing/units', data)
+      const response = await apiClient.post('/api/secretarias/housing/units', data)
       const newUnit = response.unit
       setHousingUnits(prev => [newUnit, ...prev])
       return newUnit
@@ -331,7 +331,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateUnit = useCallback(async (id: string, data: Partial<CreateHousingUnitData>): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}`, data)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -345,7 +345,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateSpecifications = useCallback(async (id: string, specifications: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/specifications`, specifications)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/specifications`, specifications)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -359,7 +359,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateInfrastructure = useCallback(async (id: string, infrastructure: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/infrastructure`, infrastructure)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/infrastructure`, infrastructure)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -373,7 +373,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateFinancial = useCallback(async (id: string, financial: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/financial`, financial)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/financial`, financial)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -387,7 +387,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const allocateUnit = useCallback(async (id: string, beneficiary: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/allocate`, beneficiary)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/allocate`, beneficiary)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -401,7 +401,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const transferUnit = useCallback(async (id: string, newBeneficiary: any, reason: string): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/transfer`, { newBeneficiary, reason })
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/transfer`, { newBeneficiary, reason })
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -415,7 +415,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const vacateUnit = useCallback(async (id: string, reason: string): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/vacate`, { reason })
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/vacate`, { reason })
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -429,7 +429,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const addToWaitingList = useCallback(async (id: string, candidate: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/waiting-list`, candidate)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/waiting-list`, candidate)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -443,7 +443,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateCondition = useCallback(async (id: string, condition: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/condition`, condition)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/condition`, condition)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -457,7 +457,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const reportIssue = useCallback(async (id: string, issue: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/issues`, issue)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/issues`, issue)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -471,7 +471,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const resolveIssue = useCallback(async (id: string, issueId: string): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/issues/${issueId}`, { status: 'COMPLETED' })
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/issues/${issueId}`, { status: 'COMPLETED' })
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -485,7 +485,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const scheduleMaintenance = useCallback(async (id: string, maintenance: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/maintenance/schedule`, maintenance)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/maintenance/schedule`, maintenance)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -499,7 +499,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const addMaintenanceRecord = useCallback(async (id: string, record: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/maintenance/history`, record)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/maintenance/history`, record)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -513,7 +513,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateLegal = useCallback(async (id: string, legal: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/legal`, legal)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/legal`, legal)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -527,7 +527,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const addOccupancyRecord = useCallback(async (id: string, record: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/occupancy`, record)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/occupancy`, record)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -541,7 +541,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const addVisit = useCallback(async (id: string, visit: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/visits`, visit)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/visits`, visit)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -555,7 +555,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateCompliance = useCallback(async (id: string, compliance: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/compliance`, compliance)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/compliance`, compliance)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -569,7 +569,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const updateInsurance = useCallback(async (id: string, insurance: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/units/${id}/insurance`, insurance)
+      const response = await apiClient.put(`/api/secretarias/housing/units/${id}/insurance`, insurance)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -583,7 +583,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const addDocument = useCallback(async (id: string, document: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/documents`, document)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/documents`, document)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -597,7 +597,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const addPhoto = useCallback(async (id: string, photo: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/photos`, photo)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/photos`, photo)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -611,7 +611,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const inspectUnit = useCallback(async (id: string, inspection: any): Promise<HousingUnit> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/units/${id}/inspect`, inspection)
+      const response = await apiClient.post(`/api/secretarias/housing/units/${id}/inspect`, inspection)
       const updatedUnit = response.unit
       setHousingUnits(prev => prev.map(unit => unit.id === id ? updatedUnit : unit))
       return updatedUnit
@@ -625,7 +625,7 @@ export function useHousingUnits(): UseHousingUnitsReturn {
   const deleteUnit = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/housing/units/${id}`)
+      await apiClient.delete(`/api/secretarias/housing/units/${id}`)
       setHousingUnits(prev => prev.filter(unit => unit.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir unidade'

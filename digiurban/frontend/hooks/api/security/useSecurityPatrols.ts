@@ -55,7 +55,7 @@ export function useSecurityPatrols(): UseSecurityPatrolsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/security/patrols')
+      const data = await apiClient.get('/api/secretarias/security/patrols')
       setPatrols(data.patrols || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar patrulhas')
@@ -67,7 +67,7 @@ export function useSecurityPatrols(): UseSecurityPatrolsReturn {
   const createPatrol = useCallback(async (data: CreateSecurityPatrolData): Promise<SecurityPatrol> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/security/patrols', data)
+      const response = await apiClient.post('/api/secretarias/security/patrols', data)
       const newPatrol = response.patrol
       setPatrols(prev => [newPatrol, ...prev])
       return newPatrol
@@ -81,7 +81,7 @@ export function useSecurityPatrols(): UseSecurityPatrolsReturn {
   const startPatrol = useCallback(async (id: string): Promise<SecurityPatrol> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/patrols/${id}/start`)
+      const response = await apiClient.put(`/api/secretarias/security/patrols/${id}/start`)
       const updatedPatrol = response.patrol
       setPatrols(prev => prev.map(patrol => patrol.id === id ? updatedPatrol : patrol))
       return updatedPatrol
@@ -95,7 +95,7 @@ export function useSecurityPatrols(): UseSecurityPatrolsReturn {
   const completePatrol = useCallback(async (id: string, observations?: string): Promise<SecurityPatrol> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/patrols/${id}/complete`, { observations })
+      const response = await apiClient.put(`/api/secretarias/security/patrols/${id}/complete`, { observations })
       const updatedPatrol = response.patrol
       setPatrols(prev => prev.map(patrol => patrol.id === id ? updatedPatrol : patrol))
       return updatedPatrol
@@ -109,7 +109,7 @@ export function useSecurityPatrols(): UseSecurityPatrolsReturn {
   const addIncident = useCallback(async (id: string, incident: { type: string; description: string }): Promise<SecurityPatrol> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/security/patrols/${id}/incidents`, incident)
+      const response = await apiClient.post(`/api/secretarias/security/patrols/${id}/incidents`, incident)
       const updatedPatrol = response.patrol
       setPatrols(prev => prev.map(patrol => patrol.id === id ? updatedPatrol : patrol))
       return updatedPatrol
@@ -123,7 +123,7 @@ export function useSecurityPatrols(): UseSecurityPatrolsReturn {
   const checkCheckpoint = useCallback(async (id: string, checkpointIndex: number): Promise<SecurityPatrol> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/patrols/${id}/checkpoints/${checkpointIndex}`)
+      const response = await apiClient.put(`/api/secretarias/security/patrols/${id}/checkpoints/${checkpointIndex}`)
       const updatedPatrol = response.patrol
       setPatrols(prev => prev.map(patrol => patrol.id === id ? updatedPatrol : patrol))
       return updatedPatrol
@@ -137,7 +137,7 @@ export function useSecurityPatrols(): UseSecurityPatrolsReturn {
   const cancelPatrol = useCallback(async (id: string, reason: string): Promise<SecurityPatrol> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/patrols/${id}/cancel`, { reason })
+      const response = await apiClient.put(`/api/secretarias/security/patrols/${id}/cancel`, { reason })
       const updatedPatrol = response.patrol
       setPatrols(prev => prev.map(patrol => patrol.id === id ? updatedPatrol : patrol))
       return updatedPatrol

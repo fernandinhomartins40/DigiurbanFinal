@@ -37,7 +37,7 @@ export function useIntegratedSurveillance(): UseIntegratedSurveillanceReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/security/surveillance')
+      const data = await apiClient.get('/api/secretarias/security/surveillance')
       setCameras(data.cameras || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar câmeras')
@@ -52,7 +52,7 @@ export function useIntegratedSurveillance(): UseIntegratedSurveillanceReturn {
   const updateCameraStatus = useCallback(async (id: string, status: 'ONLINE' | 'OFFLINE' | 'MAINTENANCE') => {
     try {
       setError(null)
-      await apiClient.put(`/api/specialized/security/surveillance/${id}`, { status })
+      await apiClient.put(`/api/secretarias/security/surveillance/${id}`, { status })
       setCameras(prev => prev.map(camera => camera.id === id ? { ...camera, status } : camera))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao atualizar status da câmera'

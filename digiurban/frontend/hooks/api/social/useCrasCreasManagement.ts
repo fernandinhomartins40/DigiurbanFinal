@@ -84,7 +84,7 @@ export function useCrasCreasManagement(initialFilters?: ManagementFilters): UseC
       if (filters?.month) queryParams.append('month', filters.month)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/cras-creas-management${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/cras-creas-management${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setManagementData(data.managementData || [])
     } catch (err) {
@@ -97,7 +97,7 @@ export function useCrasCreasManagement(initialFilters?: ManagementFilters): UseC
   const createManagement = useCallback(async (data: CreateCrasCreasManagementData): Promise<CrasCreasManagement> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/cras-creas-management', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/cras-creas-management', data)
       const newManagement = response.management
       setManagementData(prev => [newManagement, ...prev])
       return newManagement
@@ -111,7 +111,7 @@ export function useCrasCreasManagement(initialFilters?: ManagementFilters): UseC
   const updateManagement = useCallback(async (id: string, data: UpdateCrasCreasManagementData): Promise<CrasCreasManagement> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/cras-creas-management/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/cras-creas-management/${id}`, data)
       const updatedManagement = response.management
       setManagementData(prev => prev.map(mgmt => mgmt.id === id ? updatedManagement : mgmt))
       return updatedManagement
@@ -125,7 +125,7 @@ export function useCrasCreasManagement(initialFilters?: ManagementFilters): UseC
   const deleteManagement = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/cras-creas-management/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/cras-creas-management/${id}`)
       setManagementData(prev => prev.filter(mgmt => mgmt.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir dados de gestão'

@@ -71,7 +71,7 @@ export function useCleaningSchedule(): UseCleaningScheduleReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/public-services/cleaning-schedule')
+      const data = await apiClient.get('/api/secretarias/public-services/cleaning-schedule')
       setCleaningSchedules(data.schedules || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar cronograma de limpeza')
@@ -83,7 +83,7 @@ export function useCleaningSchedule(): UseCleaningScheduleReturn {
   const createSchedule = useCallback(async (data: CreateCleaningScheduleData): Promise<CleaningSchedule> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/public-services/cleaning-schedule', data)
+      const response = await apiClient.post('/api/secretarias/public-services/cleaning-schedule', data)
       const newSchedule = response.schedule
       setCleaningSchedules(prev => [newSchedule, ...prev])
       return newSchedule
@@ -97,7 +97,7 @@ export function useCleaningSchedule(): UseCleaningScheduleReturn {
   const updateSchedule = useCallback(async (id: string, data: Partial<CreateCleaningScheduleData>): Promise<CleaningSchedule> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/cleaning-schedule/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/public-services/cleaning-schedule/${id}`, data)
       const updatedSchedule = response.schedule
       setCleaningSchedules(prev => prev.map(schedule => schedule.id === id ? updatedSchedule : schedule))
       return updatedSchedule

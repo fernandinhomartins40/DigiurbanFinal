@@ -94,7 +94,7 @@ export function useEmergencyDeliveries(initialFilters?: DeliveryFilters): UseEme
       if (filters?.dateTo) queryParams.append('dateTo', filters.dateTo)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/social-assistance/emergency-deliveries${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/social-assistance/emergency-deliveries${query ? `?${query}` : ''}`
       const data = await apiClient.get(endpoint)
       setDeliveries(data.deliveries || [])
     } catch (err) {
@@ -107,7 +107,7 @@ export function useEmergencyDeliveries(initialFilters?: DeliveryFilters): UseEme
   const createDelivery = useCallback(async (data: CreateEmergencyDeliveryData): Promise<EmergencyDelivery> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/social-assistance/emergency-deliveries', data)
+      const response = await apiClient.post('/api/secretarias/social-assistance/emergency-deliveries', data)
       const newDelivery = response.delivery
       setDeliveries(prev => [newDelivery, ...prev])
       return newDelivery
@@ -121,7 +121,7 @@ export function useEmergencyDeliveries(initialFilters?: DeliveryFilters): UseEme
   const updateDelivery = useCallback(async (id: string, data: UpdateEmergencyDeliveryData): Promise<EmergencyDelivery> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/social-assistance/emergency-deliveries/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/social-assistance/emergency-deliveries/${id}`, data)
       const updatedDelivery = response.delivery
       setDeliveries(prev => prev.map(delivery => delivery.id === id ? updatedDelivery : delivery))
       return updatedDelivery
@@ -152,7 +152,7 @@ export function useEmergencyDeliveries(initialFilters?: DeliveryFilters): UseEme
   const deleteDelivery = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/social-assistance/emergency-deliveries/${id}`)
+      await apiClient.delete(`/api/secretarias/social-assistance/emergency-deliveries/${id}`)
       setDeliveries(prev => prev.filter(delivery => delivery.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir entrega'

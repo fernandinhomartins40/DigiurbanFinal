@@ -6,6 +6,7 @@ import { Router, Request, Response, NextFunction, RequestHandler } from 'express
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { Prisma } from '@prisma/client';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -601,22 +602,61 @@ router.post(
   handleAsyncRoute(async (req, res) => {
     const data = benefitRequestSchema.parse(req.body);
 
-    const benefitRequest = await prisma.benefitRequest.create({
-      data: {
-        tenantId: req.tenantId,
-        familyId: data.familyHeadCpf, // Using CPF as family identifier
-        benefitType: data.benefitType,
-        reason: data.reason,
-        status: 'PENDING',
-        urgency: data.urgency || 'NORMAL',
-        documentsProvided: data.documents ? JSON.parse(data.documents) : null,
-        observations: data.observations || null,
-      },
-    });
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        // Gerar número do protocolo
+        const protocolNumber = await getNextProtocolNumber(req.tenantId);
 
-    return res.status(201).json(
-      createSuccessResponse(benefitRequest, 'Solicitação de benefício criada com sucesso')
-    );
+        // Buscar cidadão pelo CPF
+        const citizen = await tx.citizen.findFirst({
+          where: { cpf: data.familyHeadCpf, tenantId: req.tenantId }
+        });
+        const citizenId = citizen?.id || data.familyHeadCpf; // fallback para CPF
+
+        // Criar protocolo
+        const protocol = await tx.protocol.create({
+          data: {
+            tenantId: req.tenantId,
+            citizenId,
+            number: protocolNumber,
+            title: `Solicitação de Benefício - ${data.benefitType}`,
+            description: data.reason,
+            status: 'VINCULADO' as any,
+            priority: 3,
+          },
+        });
+
+        // Criar solicitação de benefício vinculada ao protocolo
+        const benefitRequest = await tx.benefitRequest.create({
+          data: {
+            tenantId: req.tenantId,
+            familyId: data.familyHeadCpf, // Using CPF as family identifier
+            benefitType: data.benefitType,
+            reason: data.reason,
+            status: 'PENDING',
+            urgency: data.urgency || 'NORMAL',
+            documentsProvided: data.documents ? JSON.parse(data.documents) : null,
+            observations: data.observations || null,
+          },
+        });
+
+        return { protocol, benefitRequest };
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Solicitação de benefício criada com sucesso',
+        data: {
+          protocol: result.protocol,
+          benefitRequest: result.benefitRequest,
+        },
+      });
+    } catch (error) {
+      console.error('Error creating benefit request with protocol:', error);
+      return res.status(500).json(
+        createErrorResponse('INTERNAL_ERROR', 'Erro ao criar solicitação de benefício')
+      );
+    }
   })
 );
 

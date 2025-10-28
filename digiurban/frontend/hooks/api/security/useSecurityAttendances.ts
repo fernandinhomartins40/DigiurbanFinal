@@ -53,7 +53,7 @@ export function useSecurityAttendances(): UseSecurityAttendancesReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/security/attendances')
+      const data = await apiClient.get('/api/secretarias/security/attendances')
       setAttendances(data.attendances || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar atendimentos')
@@ -65,7 +65,7 @@ export function useSecurityAttendances(): UseSecurityAttendancesReturn {
   const createAttendance = useCallback(async (data: CreateSecurityAttendanceData): Promise<SecurityAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/security/attendances', data)
+      const response = await apiClient.post('/api/secretarias/security/attendances', data)
       const newAttendance = response.attendance
       setAttendances(prev => [newAttendance, ...prev])
       return newAttendance
@@ -79,7 +79,7 @@ export function useSecurityAttendances(): UseSecurityAttendancesReturn {
   const updateAttendance = useCallback(async (id: string, data: Partial<CreateSecurityAttendanceData>): Promise<SecurityAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/security/attendances/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/security/attendances/${id}`, data)
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(att => att.id === id ? updatedAttendance : att))
       return updatedAttendance

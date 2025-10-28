@@ -317,7 +317,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/housing/beneficiaries')
+      const data = await apiClient.get('/api/secretarias/housing/beneficiaries')
       setBeneficiaries(data.beneficiaries || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar beneficiários')
@@ -329,7 +329,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const createBeneficiary = useCallback(async (data: CreateHousingBeneficiaryData): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/housing/beneficiaries', data)
+      const response = await apiClient.post('/api/secretarias/housing/beneficiaries', data)
       const newBeneficiary = response.beneficiary
       setBeneficiaries(prev => [newBeneficiary, ...prev])
       return newBeneficiary
@@ -343,7 +343,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateBeneficiary = useCallback(async (id: string, data: Partial<CreateHousingBeneficiaryData>): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}`, data)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -357,7 +357,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updatePersonalInfo = useCallback(async (id: string, personalInfo: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/personal-info`, personalInfo)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/personal-info`, personalInfo)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -371,7 +371,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateFamily = useCallback(async (id: string, family: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/family`, family)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/family`, family)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -385,7 +385,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addFamilyMember = useCallback(async (id: string, member: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/family/members`, member)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/family/members`, member)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -399,7 +399,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const removeFamilyMember = useCallback(async (id: string, memberCpf: string): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/housing/beneficiaries/${id}/family/members/${memberCpf}`)
+      const response = await apiClient.delete(`/api/secretarias/housing/beneficiaries/${id}/family/members/${memberCpf}`)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -413,7 +413,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateHousing = useCallback(async (id: string, housing: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/housing`, housing)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/housing`, housing)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -427,7 +427,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addPayment = useCallback(async (id: string, payment: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/payments`, payment)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/payments`, payment)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -441,7 +441,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateSocioeconomic = useCallback(async (id: string, socioeconomic: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/socioeconomic`, socioeconomic)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/socioeconomic`, socioeconomic)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -455,7 +455,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const assignSocialWorker = useCallback(async (id: string, socialWorker: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/social-worker`, socialWorker)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/social-worker`, socialWorker)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -469,7 +469,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const scheduleVisit = useCallback(async (id: string, visit: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/visits/schedule`, visit)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/visits/schedule`, visit)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -483,7 +483,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const recordVisit = useCallback(async (id: string, visit: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/visits`, visit)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/visits`, visit)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -497,7 +497,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addSupportService = useCallback(async (id: string, service: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/support/services`, service)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/support/services`, service)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -511,7 +511,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addIntervention = useCallback(async (id: string, intervention: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/support/interventions`, intervention)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/support/interventions`, intervention)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -525,7 +525,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateCompliance = useCallback(async (id: string, compliance: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/compliance`, compliance)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/compliance`, compliance)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -539,7 +539,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const recordViolation = useCallback(async (id: string, violation: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/violations`, violation)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/violations`, violation)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -553,7 +553,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const issueWarning = useCallback(async (id: string, warning: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/warnings`, warning)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/warnings`, warning)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -567,7 +567,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const conductSurvey = useCallback(async (id: string, survey: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/surveys`, survey)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/surveys`, survey)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -581,7 +581,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addFeedback = useCallback(async (id: string, feedback: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/feedback`, feedback)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/feedback`, feedback)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -595,7 +595,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const respondToFeedback = useCallback(async (id: string, feedbackId: string, response: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const responseData = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/feedback/${feedbackId}/respond`, response)
+      const responseData = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/feedback/${feedbackId}/respond`, response)
       const updatedBeneficiary = responseData.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -609,7 +609,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const recordAchievement = useCallback(async (id: string, achievement: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/achievements`, achievement)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/achievements`, achievement)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -623,7 +623,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const recordChallenge = useCallback(async (id: string, challenge: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/challenges`, challenge)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/challenges`, challenge)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -637,7 +637,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const assessGraduation = useCallback(async (id: string): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/assess-graduation`, {})
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/assess-graduation`, {})
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -651,7 +651,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addDocument = useCallback(async (id: string, document: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/documents`, document)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/documents`, document)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -665,7 +665,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateDocument = useCallback(async (id: string, documentId: string, status: string): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/documents/${documentId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/documents/${documentId}`, { status })
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -679,7 +679,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateCommunicationPreferences = useCallback(async (id: string, preferences: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/communication/preferences`, preferences)
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/communication/preferences`, preferences)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -693,7 +693,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const sendCommunication = useCallback(async (id: string, communication: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/communication/send`, communication)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/communication/send`, communication)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -707,7 +707,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addEmergencyContact = useCallback(async (id: string, contact: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/emergency-contacts`, contact)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/emergency-contacts`, contact)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -721,7 +721,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const updateCaseStatus = useCallback(async (id: string, status: string): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/housing/beneficiaries/${id}/case/status`, { status })
+      const response = await apiClient.put(`/api/secretarias/housing/beneficiaries/${id}/case/status`, { status })
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -735,7 +735,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const addCaseNote = useCallback(async (id: string, note: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/case/notes`, note)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/case/notes`, note)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -749,7 +749,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const transferBeneficiary = useCallback(async (id: string, newUnit: string, reason: string): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/transfer`, { newUnit, reason })
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/transfer`, { newUnit, reason })
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -763,7 +763,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const graduateBeneficiary = useCallback(async (id: string, graduationPlan: any): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/graduate`, graduationPlan)
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/graduate`, graduationPlan)
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -777,7 +777,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const suspendBeneficiary = useCallback(async (id: string, reason: string): Promise<HousingBeneficiary> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/housing/beneficiaries/${id}/suspend`, { reason })
+      const response = await apiClient.post(`/api/secretarias/housing/beneficiaries/${id}/suspend`, { reason })
       const updatedBeneficiary = response.beneficiary
       setBeneficiaries(prev => prev.map(ben => ben.id === id ? updatedBeneficiary : ben))
       return updatedBeneficiary
@@ -791,7 +791,7 @@ export function useHousingBeneficiaries(): UseHousingBeneficiariesReturn {
   const deleteBeneficiary = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/housing/beneficiaries/${id}`)
+      await apiClient.delete(`/api/secretarias/housing/beneficiaries/${id}`)
       setBeneficiaries(prev => prev.filter(ben => ben.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir beneficiário'

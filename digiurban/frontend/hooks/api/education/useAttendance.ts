@@ -98,7 +98,7 @@ export function useAttendance(initialFilters?: AttendanceFilters): UseAttendance
       if (filters?.status) queryParams.append('status', filters.status)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/education/attendance${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/education/attendance${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setAttendances(data.attendances || [])
@@ -112,7 +112,7 @@ export function useAttendance(initialFilters?: AttendanceFilters): UseAttendance
   const markAttendance = useCallback(async (data: MarkAttendanceData): Promise<Attendance> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/attendance', data)
+      const response = await apiClient.post('/api/secretarias/education/attendance', data)
       const newAttendance = response.attendance
       setAttendances(prev => {
         // Remove existing attendance for same student/class/date if exists
@@ -132,7 +132,7 @@ export function useAttendance(initialFilters?: AttendanceFilters): UseAttendance
   const markBulkAttendance = useCallback(async (data: BulkAttendanceData): Promise<Attendance[]> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/attendance/bulk', data)
+      const response = await apiClient.post('/api/secretarias/education/attendance/bulk', data)
       const newAttendances = response.attendances
       setAttendances(prev => {
         // Remove existing attendances for same class/date if exists
@@ -152,7 +152,7 @@ export function useAttendance(initialFilters?: AttendanceFilters): UseAttendance
   const updateAttendance = useCallback(async (id: string, data: Partial<MarkAttendanceData>): Promise<Attendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/attendance/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/attendance/${id}`, data)
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(attendance =>
         attendance.id === id ? updatedAttendance : attendance
@@ -168,7 +168,7 @@ export function useAttendance(initialFilters?: AttendanceFilters): UseAttendance
   const deleteAttendance = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/attendance/${id}`)
+      await apiClient.delete(`/api/secretarias/education/attendance/${id}`)
       setAttendances(prev => prev.filter(attendance => attendance.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir frequência'

@@ -190,7 +190,7 @@ export default function VisitasDomiciliaresPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/social-assistance/home-visits"
+        endpoint="/api/secretarias/social-assistance/home-visits"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

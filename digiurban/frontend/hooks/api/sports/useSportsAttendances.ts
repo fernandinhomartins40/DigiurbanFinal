@@ -93,7 +93,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/attendances')
+      const data = await apiClient.get('/api/secretarias/sports/attendances')
       setAttendances(data.attendances || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar atendimentos esportivos')
@@ -105,7 +105,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
   const createAttendance = useCallback(async (data: CreateSportsAttendanceData): Promise<SportsAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/attendances', data)
+      const response = await apiClient.post('/api/secretarias/sports/attendances', data)
       const newAttendance = response.attendance
       setAttendances(prev => [newAttendance, ...prev])
       return newAttendance
@@ -119,7 +119,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
   const updateAttendance = useCallback(async (id: string, data: Partial<CreateSportsAttendanceData>): Promise<SportsAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/attendances/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/attendances/${id}`, data)
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(attendance => attendance.id === id ? updatedAttendance : attendance))
       return updatedAttendance
@@ -133,7 +133,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
   const assignAttendance = useCallback(async (id: string, assignedToId: string): Promise<SportsAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/attendances/${id}/assign`, { assignedToId })
+      const response = await apiClient.put(`/api/secretarias/sports/attendances/${id}/assign`, { assignedToId })
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(attendance => attendance.id === id ? updatedAttendance : attendance))
       return updatedAttendance
@@ -147,7 +147,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
   const resolveAttendance = useCallback(async (id: string, resolution: any): Promise<SportsAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/attendances/${id}/resolve`, resolution)
+      const response = await apiClient.put(`/api/secretarias/sports/attendances/${id}/resolve`, resolution)
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(attendance => attendance.id === id ? updatedAttendance : attendance))
       return updatedAttendance
@@ -161,7 +161,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
   const addFollowUp = useCallback(async (id: string, description: string): Promise<SportsAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/attendances/${id}/followups`, { description })
+      const response = await apiClient.post(`/api/secretarias/sports/attendances/${id}/followups`, { description })
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(attendance => attendance.id === id ? updatedAttendance : attendance))
       return updatedAttendance
@@ -177,7 +177,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
       setError(null)
       const formData = new FormData()
       formData.append('file', file)
-      const response = await apiClient.post(`/api/specialized/sports/attendances/${id}/attachments`, formData, {
+      const response = await apiClient.post(`/api/secretarias/sports/attendances/${id}/attachments`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       const updatedAttendance = response.attendance
@@ -193,7 +193,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
   const updateStatus = useCallback(async (id: string, status: 'PENDING' | 'IN_PROGRESS' | 'RESOLVED' | 'CANCELLED'): Promise<SportsAttendance> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/attendances/${id}/status`, { status })
+      const response = await apiClient.put(`/api/secretarias/sports/attendances/${id}/status`, { status })
       const updatedAttendance = response.attendance
       setAttendances(prev => prev.map(attendance => attendance.id === id ? updatedAttendance : attendance))
       return updatedAttendance
@@ -207,7 +207,7 @@ export function useSportsAttendances(): UseSportsAttendancesReturn {
   const deleteAttendance = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/attendances/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/attendances/${id}`)
       setAttendances(prev => prev.filter(attendance => attendance.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir atendimento'

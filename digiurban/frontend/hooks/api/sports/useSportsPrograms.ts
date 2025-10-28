@@ -152,7 +152,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/programs')
+      const data = await apiClient.get('/api/secretarias/sports/programs')
       setPrograms(data.programs || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar programas esportivos')
@@ -164,7 +164,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const createProgram = useCallback(async (data: CreateSportsProgramData): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/programs', data)
+      const response = await apiClient.post('/api/secretarias/sports/programs', data)
       const newProgram = response.program
       setPrograms(prev => [newProgram, ...prev])
       return newProgram
@@ -178,7 +178,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const updateProgram = useCallback(async (id: string, data: Partial<CreateSportsProgramData>): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/programs/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/programs/${id}`, data)
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program => program.id === id ? updatedProgram : program))
       return updatedProgram
@@ -192,7 +192,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const addParticipant = useCallback(async (programId: string, participant: any): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/programs/${programId}/participants`, participant)
+      const response = await apiClient.post(`/api/secretarias/sports/programs/${programId}/participants`, participant)
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program => program.id === programId ? updatedProgram : program))
       return updatedProgram
@@ -206,7 +206,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const removeParticipant = useCallback(async (programId: string, participantId: string): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/sports/programs/${programId}/participants/${participantId}`)
+      const response = await apiClient.delete(`/api/secretarias/sports/programs/${programId}/participants/${participantId}`)
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program => program.id === programId ? updatedProgram : program))
       return updatedProgram
@@ -220,7 +220,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const updateParticipantStatus = useCallback(async (programId: string, participantId: string, status: string): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/programs/${programId}/participants/${participantId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/sports/programs/${programId}/participants/${participantId}`, { status })
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program => program.id === programId ? updatedProgram : program))
       return updatedProgram
@@ -234,7 +234,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const addPartnership = useCallback(async (programId: string, partnership: any): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/programs/${programId}/partnerships`, partnership)
+      const response = await apiClient.post(`/api/secretarias/sports/programs/${programId}/partnerships`, partnership)
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program => program.id === programId ? updatedProgram : program))
       return updatedProgram
@@ -248,7 +248,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const updateBudget = useCallback(async (programId: string, budget: any): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/programs/${programId}/budget`, budget)
+      const response = await apiClient.put(`/api/secretarias/sports/programs/${programId}/budget`, budget)
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program => program.id === programId ? updatedProgram : program))
       return updatedProgram
@@ -262,7 +262,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const addAchievement = useCallback(async (programId: string, achievement: any): Promise<SportsProgram> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/programs/${programId}/achievements`, achievement)
+      const response = await apiClient.post(`/api/secretarias/sports/programs/${programId}/achievements`, achievement)
       const updatedProgram = response.program
       setPrograms(prev => prev.map(program => program.id === programId ? updatedProgram : program))
       return updatedProgram
@@ -284,7 +284,7 @@ export function useSportsPrograms(): UseSportsProgramsReturn {
   const deleteProgram = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/programs/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/programs/${id}`)
       setPrograms(prev => prev.filter(program => program.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir programa'

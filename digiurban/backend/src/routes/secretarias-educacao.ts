@@ -4,6 +4,7 @@ import { prisma } from '../lib/prisma';
 import { tenantMiddleware } from '../middleware/tenant';
 import { AuthenticatedRequest, SuccessResponse, ErrorResponse, UserRole } from '../types';
 import { asyncHandler } from '../utils/express-helpers';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ====================== TIPOS LOCAIS ======================
 
@@ -264,48 +265,77 @@ router.post('/matriculas', authenticateToken, async (req, res) => {
       return;
     }
 
-    // Verificar se estudante e turma existem será feito pelo Prisma foreign key
-
     // Gerar número de matrícula
     const year = schoolYear || new Date().getFullYear();
-    const lastEnrollment = await prisma.studentEnrollment.findFirst({
-      where: {
-        tenantId: req.tenantId,
-        year: year,
-      },
-      orderBy: { createdAt: 'desc' },
-    });
 
-    // Número de matrícula será gerado automaticamente pelo ID
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        // Gerar número do protocolo
+        const protocolNumber = await getNextProtocolNumber(req.tenantId!);
 
-    const enrollment = await prisma.studentEnrollment.create({
-      data: {
-        tenantId: req.tenantId!,
-        studentId,
-        classId,
-        year,
-        status: 'ativo',
-      },
-      include: {
-        student: {
-          select: {
-            id: true,
-            name: true,
+        // Buscar informações do estudante para o protocolo
+        const student = await tx.student.findUnique({
+          where: { id: studentId },
+          select: { id: true, name: true },
+        });
+
+        if (!student) {
+          throw new Error('Estudante não encontrado');
+        }
+
+        // Criar protocolo
+        const protocol = await tx.protocol.create({
+          data: {
+            tenantId: req.tenantId!,
+            citizenId: student.id, // usar ID do estudante como citizenId
+            number: protocolNumber,
+            title: `Matrícula - ${student.name}`,
+            description: `Matrícula de estudante no ano letivo ${year}`,
+            status: 'VINCULADO' as any,
+            priority: 3,
           },
-        },
-        class: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-    });
+        });
 
-    res.status(201).json({
-      message: 'Matrícula realizada com sucesso',
-      enrollment,
-    });
+        // Criar matrícula vinculada ao protocolo
+        const enrollment = await tx.studentEnrollment.create({
+          data: {
+            tenantId: req.tenantId!,
+            studentId,
+            classId,
+            year,
+            status: 'ativo',
+          },
+          include: {
+            student: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            class: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        });
+
+        return { protocol, enrollment };
+      });
+
+      res.status(201).json({
+        message: 'Matrícula realizada com sucesso',
+        protocol: result.protocol,
+        enrollment: result.enrollment,
+      });
+    } catch (transactionError) {
+      console.error('Transaction error:', transactionError);
+      res.status(500).json({
+        error: 'Transaction error',
+        message: transactionError instanceof Error ? transactionError.message : 'Erro ao criar matrícula',
+      });
+    }
   } catch (error) {
     console.error('Create student enrollment error:', error);
     res.status(500).json({
@@ -516,6 +546,7 @@ router.get('/merenda-escolar', authenticateToken, async (req, res) => {
     const stats = {
       total: menus.length,
       thisWeek: menus.filter(m => {
+        if (!m.date) return false;
         const now = new Date();
         const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
         const weekEnd = new Date(weekStart);

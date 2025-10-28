@@ -4,6 +4,7 @@ import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { citizenAuthMiddleware, familyAuthMiddleware } from '../middleware/citizen-auth';
 import { tenantMiddleware } from '../middleware/tenant';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -153,12 +154,7 @@ function getDefaultLimits(): TenantLimits {
   };
 }
 
-function generateProtocolNumber(tenantId: string): string {
-  const timestamp = Date.now();
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  const prefix = tenantId.substring(0, 3).toUpperCase();
-  return `${prefix}${timestamp}-${random}`;
-}
+// Função removida - usar getNextProtocolNumber() de protocol-helpers
 
 function handleAsyncRoute(fn: (req: any, res: Response) => Promise<void>) {
   return (req: any, res: Response, next: NextFunction) => {
@@ -354,7 +350,7 @@ router.post('/', familyAuthMiddleware, handleAsyncRoute(async (req, res) => {
     }
 
     // Gerar número do protocolo
-    const protocolNumber = generateProtocolNumber(tenant.id);
+    const protocolNumber = await getNextProtocolNumber(tenant.id);
 
     // Criar protocolo
     const createData = {

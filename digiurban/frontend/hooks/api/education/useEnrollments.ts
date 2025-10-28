@@ -95,7 +95,7 @@ export function useEnrollments(initialFilters?: EnrollmentFilters): UseEnrollmen
       if (filters?.status) queryParams.append('status', filters.status)
 
       const query = queryParams.toString()
-      const endpoint = `/api/specialized/education/enrollments${query ? `?${query}` : ''}`
+      const endpoint = `/api/secretarias/education/enrollments${query ? `?${query}` : ''}`
 
       const data = await apiClient.get(endpoint)
       setEnrollments(data.enrollments || [])
@@ -109,7 +109,7 @@ export function useEnrollments(initialFilters?: EnrollmentFilters): UseEnrollmen
   const createEnrollment = useCallback(async (data: CreateEnrollmentData): Promise<Enrollment> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/education/enrollments', data)
+      const response = await apiClient.post('/api/secretarias/education/enrollments', data)
       const newEnrollment = response.enrollment
       setEnrollments(prev => [newEnrollment, ...prev])
       return newEnrollment
@@ -123,7 +123,7 @@ export function useEnrollments(initialFilters?: EnrollmentFilters): UseEnrollmen
   const updateEnrollment = useCallback(async (id: string, data: UpdateEnrollmentData): Promise<Enrollment> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/education/enrollments/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/education/enrollments/${id}`, data)
       const updatedEnrollment = response.enrollment
       setEnrollments(prev => prev.map(enrollment =>
         enrollment.id === id ? updatedEnrollment : enrollment
@@ -139,7 +139,7 @@ export function useEnrollments(initialFilters?: EnrollmentFilters): UseEnrollmen
   const deleteEnrollment = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/education/enrollments/${id}`)
+      await apiClient.delete(`/api/secretarias/education/enrollments/${id}`)
       setEnrollments(prev => prev.filter(enrollment => enrollment.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir matrícula'

@@ -78,7 +78,7 @@ export function useProblemReports(): UseProblemReportsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/public-services/problem-reports')
+      const data = await apiClient.get('/api/secretarias/public-services/problem-reports')
       setProblemReports(data.reports || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar relatórios de problemas')
@@ -90,7 +90,7 @@ export function useProblemReports(): UseProblemReportsReturn {
   const createReport = useCallback(async (data: CreateProblemReportData): Promise<ProblemReport> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/public-services/problem-reports', data)
+      const response = await apiClient.post('/api/secretarias/public-services/problem-reports', data)
       const newReport = response.report
       setProblemReports(prev => [newReport, ...prev])
       return newReport
@@ -104,7 +104,7 @@ export function useProblemReports(): UseProblemReportsReturn {
   const updateReport = useCallback(async (id: string, data: Partial<CreateProblemReportData>): Promise<ProblemReport> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/problem-reports/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/public-services/problem-reports/${id}`, data)
       const updatedReport = response.report
       setProblemReports(prev => prev.map(report => report.id === id ? updatedReport : report))
       return updatedReport
@@ -155,7 +155,7 @@ export function useProblemReports(): UseProblemReportsReturn {
   const deleteReport = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/public-services/problem-reports/${id}`)
+      await apiClient.delete(`/api/secretarias/public-services/problem-reports/${id}`)
       setProblemReports(prev => prev.filter(report => report.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir relatório'

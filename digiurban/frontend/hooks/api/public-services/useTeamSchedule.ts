@@ -106,7 +106,7 @@ export function useTeamSchedule(): UseTeamScheduleReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/public-services/team-schedule')
+      const data = await apiClient.get('/api/secretarias/public-services/team-schedule')
       setTeamSchedules(data.schedules || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar cronograma de equipes')
@@ -118,7 +118,7 @@ export function useTeamSchedule(): UseTeamScheduleReturn {
   const createSchedule = useCallback(async (data: CreateTeamScheduleData): Promise<TeamSchedule> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/public-services/team-schedule', data)
+      const response = await apiClient.post('/api/secretarias/public-services/team-schedule', data)
       const newSchedule = response.schedule
       setTeamSchedules(prev => [newSchedule, ...prev])
       return newSchedule
@@ -132,7 +132,7 @@ export function useTeamSchedule(): UseTeamScheduleReturn {
   const updateSchedule = useCallback(async (id: string, data: Partial<CreateTeamScheduleData>): Promise<TeamSchedule> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/team-schedule/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/public-services/team-schedule/${id}`, data)
       const updatedSchedule = response.schedule
       setTeamSchedules(prev => prev.map(schedule => schedule.id === id ? updatedSchedule : schedule))
       return updatedSchedule
@@ -154,7 +154,7 @@ export function useTeamSchedule(): UseTeamScheduleReturn {
   const updateTaskStatus = useCallback(async (scheduleId: string, taskId: string, status: string, notes?: string): Promise<TeamSchedule> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/public-services/team-schedule/${scheduleId}/tasks/${taskId}`, { status, notes })
+      const response = await apiClient.put(`/api/secretarias/public-services/team-schedule/${scheduleId}/tasks/${taskId}`, { status, notes })
       const updatedSchedule = response.schedule
       setTeamSchedules(prev => prev.map(schedule => schedule.id === scheduleId ? updatedSchedule : schedule))
       return updatedSchedule
@@ -168,7 +168,7 @@ export function useTeamSchedule(): UseTeamScheduleReturn {
   const addTask = useCallback(async (scheduleId: string, task: any): Promise<TeamSchedule> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/public-services/team-schedule/${scheduleId}/tasks`, task)
+      const response = await apiClient.post(`/api/secretarias/public-services/team-schedule/${scheduleId}/tasks`, task)
       const updatedSchedule = response.schedule
       setTeamSchedules(prev => prev.map(schedule => schedule.id === scheduleId ? updatedSchedule : schedule))
       return updatedSchedule
@@ -186,7 +186,7 @@ export function useTeamSchedule(): UseTeamScheduleReturn {
   const deleteSchedule = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/public-services/team-schedule/${id}`)
+      await apiClient.delete(`/api/secretarias/public-services/team-schedule/${id}`)
       setTeamSchedules(prev => prev.filter(schedule => schedule.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir cronograma'

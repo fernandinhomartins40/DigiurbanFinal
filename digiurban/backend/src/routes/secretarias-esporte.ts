@@ -8,6 +8,7 @@ import { prisma } from '../lib/prisma';
 import { Prisma } from '@prisma/client';
 import { tenantMiddleware } from '../middleware/tenant';
 import { authenticateToken, requireManager } from '../middleware/auth';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -283,7 +284,7 @@ function createPaginationInfo(page: number, limit: number, total: number): Pagin
 // ====================== VALIDATION SCHEMAS ======================
 
 const sportsAttendanceSchema = z.object({
-  protocol: z.string().min(1, 'Protocolo é obrigatório'),
+  protocol: z.string().min(1, 'Protocolo é obrigatório').optional(), // Agora opcional, será gerado automaticamente
   citizenName: z.string().min(1, 'Nome do cidadão é obrigatório'),
   contact: z.string().min(1, 'Contato é obrigatório'),
   type: z.enum([
@@ -414,30 +415,69 @@ router.post(
   handleAsyncRoute(async (req, res) => {
     const data = sportsAttendanceSchema.parse(req.body);
 
-    const attendanceData: Record<string, unknown> = {
-      tenantId: req.tenantId,
-      protocol: data.protocol,
-      citizenName: data.citizenName,
-      contact: data.contact,
-      type: data.type,
-      status: data.status || 'PENDING',
-      description: data.description,
-    };
+    try {
+      const result = await prisma.$transaction(async (tx) => {
+        // Gerar número do protocolo
+        const protocolNumber = await getNextProtocolNumber(req.tenantId);
 
-    if (data.observations) attendanceData.observations = data.observations;
-    if (data.responsible) attendanceData.responsible = data.responsible;
-    if (data.attachments) attendanceData.attachments = data.attachments as Prisma.InputJsonValue;
-    if (data.sportType) attendanceData.sportType = data.sportType;
-    if (data.eventDate) attendanceData.eventDate = new Date(data.eventDate);
-    if (data.location) attendanceData.location = data.location;
-    if (data.expectedParticipants) attendanceData.expectedParticipants = data.expectedParticipants;
-    if (data.priority) attendanceData.priority = data.priority;
+        // Buscar cidadão pelo nome (esporte não usa CPF)
+        const citizen = await tx.citizen.findFirst({
+          where: { name: data.citizenName, tenantId: req.tenantId }
+        });
+        const citizenId = citizen?.id || data.citizenName; // fallback para nome
 
-    const attendance = await prisma.sportsAttendance.create({
-      data: attendanceData as Prisma.SportsAttendanceCreateInput,
-    });
+        // Criar protocolo
+        const protocol = await tx.protocol.create({
+          data: {
+            tenantId: req.tenantId,
+            citizenId,
+            number: protocolNumber,
+            title: data.description.substring(0, 100),
+            description: data.description,
+            status: 'VINCULADO' as any,
+            priority: 3,
+          },
+        });
 
-    return res.status(201).json(createSuccessResponse(attendance, 'Atendimento esportivo criado com sucesso'));
+        // Criar attendance vinculado ao protocolo
+        const attendanceData: Record<string, unknown> = {
+          tenantId: req.tenantId,
+          protocol: protocolNumber,
+          citizenName: data.citizenName,
+          contact: data.contact,
+          type: data.type,
+          status: data.status || 'PENDING',
+          description: data.description,
+        };
+
+        if (data.observations) attendanceData.observations = data.observations;
+        if (data.responsible) attendanceData.responsible = data.responsible;
+        if (data.attachments) attendanceData.attachments = data.attachments as Prisma.InputJsonValue;
+        if (data.sportType) attendanceData.sportType = data.sportType;
+        if (data.eventDate) attendanceData.eventDate = new Date(data.eventDate);
+        if (data.location) attendanceData.location = data.location;
+        if (data.expectedParticipants) attendanceData.expectedParticipants = data.expectedParticipants;
+        if (data.priority) attendanceData.priority = data.priority;
+
+        const attendance = await tx.sportsAttendance.create({
+          data: attendanceData as Prisma.SportsAttendanceCreateInput,
+        });
+
+        return { protocol, attendance };
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: 'Atendimento esportivo criado com sucesso',
+        data: {
+          protocol: result.protocol,
+          attendance: result.attendance,
+        },
+      });
+    } catch (error) {
+      console.error('Error creating sports attendance with protocol:', error);
+      return res.status(500).json(createErrorResponse('INTERNAL_ERROR', 'Erro ao criar atendimento esportivo'));
+    }
   })
 );
 

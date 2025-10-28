@@ -91,6 +91,8 @@ import adminManagementRoutes from './routes/admin-management';
 import adminChamadosRoutes from './routes/admin-chamados';
 import adminReportsRoutes from './routes/admin-reports';
 import adminTransferRoutes from './routes/admin-transfer';
+import serviceTemplatesRoutes from './routes/service-templates';
+import customModulesRoutes from './routes/custom-modules';
 
 // Fase 5 - Páginas Especializadas por Secretaria
 import secretariasSaudeRoutes from './routes/secretarias-saude';
@@ -101,20 +103,8 @@ import secretariasCulturaRoutes from './routes/secretarias-cultura';
 import secretariasEsporteRoutes from './routes/secretarias-esporte';
 import secretariasHabitacaoRoutes from './routes/secretarias-habitacao';
 
-// Specialized routes
-import agricultureSpecializedRoutes from './routes/specialized/agriculture';
-import cultureSpecializedRoutes from './routes/specialized/culture';
-import educationSpecializedRoutes from './routes/specialized/education';
-import environmentSpecializedRoutes from './routes/specialized/environment';
-import healthSpecializedRoutes from './routes/specialized/health';
-import housingSpecializedRoutes from './routes/specialized/housing';
-import publicServicesSpecializedRoutes from './routes/specialized/public-services';
-import publicWorksSpecializedRoutes from './routes/specialized/public-works';
-import securitySpecializedRoutes from './routes/specialized/security';
-import socialAssistanceSpecializedRoutes from './routes/specialized/social-assistance';
-import sportsSpecializedRoutes from './routes/specialized/sports';
-import tourismSpecializedRoutes from './routes/specialized/tourism';
-import urbanPlanningSpecializedRoutes from './routes/specialized/urban-planning';
+// ❌ REMOVIDO: Rotas Specialized (LEGADO - não está no PLANO)
+// Substituído por admin-secretarias.ts que acessa Prisma diretamente (PLANO Fase 8.2)
 
 // Fase 6 - Analytics, Relatórios e Business Intelligence
 // import analyticsRoutes from './routes/analytics';
@@ -135,6 +125,9 @@ import adminGabineteRoutes from './routes/admin-gabinete';
 
 // Rotas Públicas (sem autenticação)
 import publicRoutes from './routes/public';
+
+// NOVO: Rotas Admin Secretarias (PLANO Fase 8.2)
+import adminSecretariasRoutes from './routes/admin-secretarias';
 
 // API Routes
 
@@ -165,6 +158,8 @@ app.use('/api/admin/management', adminManagementRoutes);
 app.use('/api/admin/chamados', adminChamadosRoutes);
 app.use('/api/admin/relatorios', adminReportsRoutes);
 app.use('/api/admin/gabinete', adminGabineteRoutes);
+app.use('/api/admin/templates', serviceTemplatesRoutes);
+app.use('/api/admin/custom-modules', customModulesRoutes);
 app.use('/api/admin', adminTransferRoutes);
 
 // Rotas das Secretarias Especializadas (Fase 5)
@@ -176,20 +171,11 @@ app.use('/api/secretarias/cultura', secretariasCulturaRoutes);
 app.use('/api/secretarias/esporte', secretariasEsporteRoutes);
 app.use('/api/secretarias/habitacao', secretariasHabitacaoRoutes);
 
-// Specialized API Routes
-app.use('/api/specialized/agriculture', agricultureSpecializedRoutes);
-app.use('/api/specialized/culture', cultureSpecializedRoutes);
-app.use('/api/specialized/education', educationSpecializedRoutes);
-app.use('/api/specialized/environment', environmentSpecializedRoutes);
-app.use('/api/specialized/health', healthSpecializedRoutes);
-app.use('/api/specialized/housing', housingSpecializedRoutes);
-app.use('/api/specialized/public-services', publicServicesSpecializedRoutes);
-app.use('/api/specialized/public-works', publicWorksSpecializedRoutes);
-app.use('/api/specialized/security', securitySpecializedRoutes);
-app.use('/api/specialized/social-assistance', socialAssistanceSpecializedRoutes);
-app.use('/api/specialized/sports', sportsSpecializedRoutes);
-app.use('/api/specialized/tourism', tourismSpecializedRoutes);
-app.use('/api/specialized/urban-planning', urbanPlanningSpecializedRoutes);
+// NOVO: Admin Secretarias - Acesso direto ao Prisma (PLANO Fase 8.2)
+app.use('/api/secretarias', adminSecretariasRoutes);
+
+// ❌ REMOVIDO: Rotas /api/specialized/* (LEGADO - não está no PLANO)
+// Substituído por /api/secretarias/* (admin-secretarias.ts)
 
 // Rotas de Analytics e Business Intelligence (Fase 6)
 // app.use('/api/analytics', analyticsRoutes);
@@ -216,6 +202,14 @@ app.use((err: unknown, _req: express.Request, res: express.Response, _next: expr
 app.use((_req, res: express.Response) => {
   res.status(404).json({ message: 'Route not found' });
 });
+
+// ========== REGISTRAR MODULE HANDLERS (TODAS AS FASES) ==========
+import { registerAllHandlers } from './modules/handlers';
+
+// Registrar todos os handlers de todas as secretarias
+registerAllHandlers();
+
+console.log('✅ Todos os module handlers registrados com sucesso');
 
 app.listen(PORT, () => {
   console.log(`🚀 DigiUrban Backend server running on port ${PORT}`);

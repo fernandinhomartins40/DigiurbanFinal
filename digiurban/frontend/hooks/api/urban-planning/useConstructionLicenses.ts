@@ -239,7 +239,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/construction-licenses')
+      const data = await apiClient.get('/api/secretarias/urban-planning/construction-licenses')
       setLicenses(data.licenses || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar licenças de construção')
@@ -251,7 +251,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const createLicense = useCallback(async (data: CreateConstructionLicenseData): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/construction-licenses', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/construction-licenses', data)
       const newLicense = response.license
       setLicenses(prev => [newLicense, ...prev])
       return newLicense
@@ -265,7 +265,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const updateLicense = useCallback(async (id: string, data: Partial<CreateConstructionLicenseData>): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/construction-licenses/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/construction-licenses/${id}`, data)
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -279,7 +279,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const submitLicense = useCallback(async (id: string): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/submit`, {})
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/submit`, {})
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -293,7 +293,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const assignReviewer = useCallback(async (id: string, reviewer: string, phase: string): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/assign`, { reviewer, phase })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/assign`, { reviewer, phase })
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -307,7 +307,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const addReviewComment = useCallback(async (id: string, phase: string, comment: string): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/review-comment`, { phase, comment })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/review-comment`, { phase, comment })
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -321,7 +321,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const approveLicense = useCallback(async (id: string): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/approve`, {})
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/approve`, {})
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -335,7 +335,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const rejectLicense = useCallback(async (id: string, reasons: string[], corrections: string[]): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/reject`, { reasons, corrections })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/reject`, { reasons, corrections })
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -349,7 +349,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const addDocument = useCallback(async (id: string, document: any): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/documents`, document)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/documents`, document)
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -363,7 +363,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const updateDocumentStatus = useCallback(async (id: string, documentId: string, status: string): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/construction-licenses/${id}/documents/${documentId}`, { status })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/construction-licenses/${id}/documents/${documentId}`, { status })
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -377,7 +377,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const scheduleInspection = useCallback(async (id: string, inspection: any): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/inspections`, inspection)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/inspections`, inspection)
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -391,7 +391,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const completeInspection = useCallback(async (id: string, inspectionId: string, result: any): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/construction-licenses/${id}/inspections/${inspectionId}`, result)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/construction-licenses/${id}/inspections/${inspectionId}`, result)
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -405,7 +405,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const updateConstructionProgress = useCallback(async (id: string, progress: number): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/construction-licenses/${id}/progress`, { progress })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/construction-licenses/${id}/progress`, { progress })
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -419,7 +419,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const addContractor = useCallback(async (id: string, contractor: any): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/contractor`, contractor)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/contractor`, contractor)
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -433,7 +433,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const requestExtension = useCallback(async (id: string, request: any): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/extension`, request)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/extension`, request)
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -447,7 +447,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const processPayment = useCallback(async (id: string, amount: number): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/payment`, { amount })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/payment`, { amount })
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -461,7 +461,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const suspendLicense = useCallback(async (id: string, reason: string): Promise<ConstructionLicense> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/construction-licenses/${id}/suspend`, { reason })
+      const response = await apiClient.post(`/api/secretarias/urban-planning/construction-licenses/${id}/suspend`, { reason })
       const updatedLicense = response.license
       setLicenses(prev => prev.map(license => license.id === id ? updatedLicense : license))
       return updatedLicense
@@ -475,7 +475,7 @@ export function useConstructionLicenses(): UseConstructionLicensesReturn {
   const deleteLicense = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/construction-licenses/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/construction-licenses/${id}`)
       setLicenses(prev => prev.filter(license => license.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir licença'

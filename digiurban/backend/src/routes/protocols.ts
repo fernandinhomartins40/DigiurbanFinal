@@ -3,6 +3,7 @@ import { prisma } from '../lib/prisma';
 import { tenantMiddleware } from '../middleware/tenant';
 import { authenticateToken, optionalAuth } from '../middleware/auth';
 import { ProtocolStatus, UserRole } from '@prisma/client';
+import { getNextProtocolNumber } from '../utils/protocol-helpers';
 import {
   AuthenticatedRequest,
   AdminAuthenticatedRequest,
@@ -77,10 +78,7 @@ router.post('/', optionalAuth, async (req, res) => {
     }
 
     // Gerar número único do protocolo
-    const protocolCount = await prisma.protocol.count({
-      where: { tenantId: req.tenantId },
-    });
-    const protocolNumber = `${new Date().getFullYear()}${String(protocolCount + 1).padStart(6, '0')}`;
+    const protocolNumber = await getNextProtocolNumber(req.tenantId!);
 
     // Criar protocolo
     const protocol = await prisma.protocol.create({
@@ -316,13 +314,25 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
       });
     }
 
+    // Preparar dados para atualização
+    const updateData: any = {
+      status,
+      updatedAt: new Date(),
+    };
+
+    // Se o status for CONCLUIDO, setar concludedAt
+    if (status === 'CONCLUIDO') {
+      updateData.concludedAt = new Date();
+    }
+    // Se estava concluído e voltou para outro status, limpar concludedAt
+    else if (protocol.status === 'CONCLUIDO') {
+      updateData.concludedAt = null;
+    }
+
     // Atualizar protocolo
     const updatedProtocol = await prisma.protocol.update({
       where: { id },
-      data: {
-        status,
-        updatedAt: new Date(),
-      },
+      data: updateData,
       include: {
         citizen: true,
         service: true,

@@ -132,7 +132,7 @@ export default function PropriedadesPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/agriculture/properties"
+        endpoint="/api/secretarias/agriculture/properties"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

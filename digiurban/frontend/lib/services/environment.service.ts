@@ -1,6 +1,6 @@
 import { api, createCRUDService } from './api'
 
-const BASE_PATH = '/api/specialized/environment'
+const BASE_PATH = '/api/secretarias/environment'
 
 export const environmentService = {
   licenses: createCRUDService(`${BASE_PATH}/licenses`),

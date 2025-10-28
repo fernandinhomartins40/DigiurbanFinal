@@ -108,7 +108,7 @@ export function useCompetitions(): UseCompetitionsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/competitions')
+      const data = await apiClient.get('/api/secretarias/sports/competitions')
       setCompetitions(data.competitions || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar competições')
@@ -120,7 +120,7 @@ export function useCompetitions(): UseCompetitionsReturn {
   const createCompetition = useCallback(async (data: CreateCompetitionData): Promise<Competition> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/competitions', data)
+      const response = await apiClient.post('/api/secretarias/sports/competitions', data)
       const newCompetition = response.competition
       setCompetitions(prev => [newCompetition, ...prev])
       return newCompetition
@@ -134,7 +134,7 @@ export function useCompetitions(): UseCompetitionsReturn {
   const updateCompetition = useCallback(async (id: string, data: Partial<CreateCompetitionData>): Promise<Competition> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/competitions/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/competitions/${id}`, data)
       const updatedCompetition = response.competition
       setCompetitions(prev => prev.map(comp => comp.id === id ? updatedCompetition : comp))
       return updatedCompetition
@@ -148,7 +148,7 @@ export function useCompetitions(): UseCompetitionsReturn {
   const registerTeam = useCallback(async (competitionId: string, teamId: string): Promise<Competition> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/competitions/${competitionId}/teams`, { teamId })
+      const response = await apiClient.post(`/api/secretarias/sports/competitions/${competitionId}/teams`, { teamId })
       const updatedCompetition = response.competition
       setCompetitions(prev => prev.map(comp => comp.id === competitionId ? updatedCompetition : comp))
       return updatedCompetition
@@ -162,7 +162,7 @@ export function useCompetitions(): UseCompetitionsReturn {
   const unregisterTeam = useCallback(async (competitionId: string, teamId: string): Promise<Competition> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/sports/competitions/${competitionId}/teams/${teamId}`)
+      const response = await apiClient.delete(`/api/secretarias/sports/competitions/${competitionId}/teams/${teamId}`)
       const updatedCompetition = response.competition
       setCompetitions(prev => prev.map(comp => comp.id === competitionId ? updatedCompetition : comp))
       return updatedCompetition
@@ -176,7 +176,7 @@ export function useCompetitions(): UseCompetitionsReturn {
   const addMatch = useCallback(async (competitionId: string, match: any): Promise<Competition> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/competitions/${competitionId}/matches`, match)
+      const response = await apiClient.post(`/api/secretarias/sports/competitions/${competitionId}/matches`, match)
       const updatedCompetition = response.competition
       setCompetitions(prev => prev.map(comp => comp.id === competitionId ? updatedCompetition : comp))
       return updatedCompetition
@@ -190,7 +190,7 @@ export function useCompetitions(): UseCompetitionsReturn {
   const updateMatchResult = useCallback(async (competitionId: string, matchId: string, result: any): Promise<Competition> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/competitions/${competitionId}/matches/${matchId}`, result)
+      const response = await apiClient.put(`/api/secretarias/sports/competitions/${competitionId}/matches/${matchId}`, result)
       const updatedCompetition = response.competition
       setCompetitions(prev => prev.map(comp => comp.id === competitionId ? updatedCompetition : comp))
       return updatedCompetition
@@ -216,7 +216,7 @@ export function useCompetitions(): UseCompetitionsReturn {
   const deleteCompetition = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/competitions/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/competitions/${id}`)
       setCompetitions(prev => prev.filter(comp => comp.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir competição'

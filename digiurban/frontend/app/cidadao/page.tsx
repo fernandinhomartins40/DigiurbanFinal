@@ -5,6 +5,7 @@ import { CitizenLayout } from '@/components/citizen/CitizenLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useCitizenAuth } from '@/contexts/CitizenAuthContext';
+import { useCitizenServices } from '@/hooks/useCitizenServices';
 import Link from 'next/link';
 import {
   FileText,
@@ -15,17 +16,12 @@ import {
   Bell,
   ArrowRight,
   Activity,
-  Building2,
-  Heart,
-  GraduationCap,
-  Home,
-  TreePine,
-  Briefcase
+  Loader2
 } from 'lucide-react';
 
 export default function CitizenDashboard() {
   const { citizen } = useCitizenAuth();
-  const [loading, setLoading] = useState(false);
+  const { services, loading: servicesLoading } = useCitizenServices();
 
   const stats = [
     {
@@ -92,96 +88,10 @@ export default function CitizenDashboard() {
     }
   ];
 
-  const popularServices = [
-    {
-      id: 1,
-      title: 'Segunda Via de Documentos',
-      department: 'Administração',
-      description: 'Solicite a segunda via de certidões, declarações e outros documentos municipais',
-      icon: FileText,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      requests: 1234,
-      avgTime: '2-3 dias'
-    },
-    {
-      id: 2,
-      title: 'Consulta de IPTU',
-      department: 'Fazenda',
-      description: 'Consulte débitos, emita guias de pagamento e solicite parcelamento do IPTU',
-      icon: Building2,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      requests: 987,
-      avgTime: 'Imediato'
-    },
-    {
-      id: 3,
-      title: 'Agendamento Saúde',
-      department: 'Saúde',
-      description: 'Agende consultas, exames e procedimentos nas unidades de saúde do município',
-      icon: Heart,
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      requests: 856,
-      avgTime: '1-5 dias'
-    },
-    {
-      id: 4,
-      title: 'Matrícula Escolar',
-      department: 'Educação',
-      description: 'Realize a matrícula ou transferência de alunos nas escolas municipais',
-      icon: GraduationCap,
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-50',
-      requests: 743,
-      avgTime: '3-7 dias'
-    },
-    {
-      id: 5,
-      title: 'Cadastro Habitacional',
-      department: 'Habitação',
-      description: 'Inscreva-se em programas habitacionais e solicite benefícios de moradia',
-      icon: Home,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50',
-      requests: 621,
-      avgTime: '5-10 dias'
-    },
-    {
-      id: 6,
-      title: 'Licença Ambiental',
-      department: 'Meio Ambiente',
-      description: 'Solicite licenças e autorizações para atividades que impactam o meio ambiente',
-      icon: TreePine,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50',
-      requests: 512,
-      avgTime: '10-15 dias'
-    },
-    {
-      id: 7,
-      title: 'Abertura de Empresa',
-      department: 'Desenvolvimento Econômico',
-      description: 'Inicie o processo de abertura de empresa e obtenha alvarás necessários',
-      icon: Briefcase,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50',
-      requests: 445,
-      avgTime: '15-20 dias'
-    },
-    {
-      id: 8,
-      title: 'Assistência Social',
-      department: 'Assistência Social',
-      description: 'Cadastre-se em programas sociais e solicite benefícios assistenciais',
-      icon: Users,
-      color: 'text-pink-600',
-      bgColor: 'bg-pink-50',
-      requests: 398,
-      avgTime: '7-10 dias'
-    }
-  ];
+  // Serviços populares: pegar os primeiros 8 serviços com maior prioridade
+  const popularServices = services
+    .sort((a, b) => b.priority - a.priority)
+    .slice(0, 8);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -295,57 +205,73 @@ export default function CitizenDashboard() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Serviços Populares</h2>
-              <p className="text-sm text-gray-600 mt-1">Os serviços mais solicitados pelos cidadãos</p>
+              <h2 className="text-lg font-semibold text-gray-900">Serviços Disponíveis</h2>
+              <p className="text-sm text-gray-600 mt-1">Serviços oferecidos pelo município</p>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              Ver todos
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <Link href="/cidadao/servicos">
+              <Button variant="outline" size="sm">
+                Ver todos
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {popularServices.slice(0, 8).map((service) => {
-              const Icon = service.icon;
-              return (
+          {servicesLoading && (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 text-blue-600 animate-spin" />
+              <span className="ml-2 text-gray-600">Carregando serviços...</span>
+            </div>
+          )}
+
+          {!servicesLoading && popularServices.length === 0 && (
+            <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600 font-medium">Nenhum serviço disponível</p>
+              <p className="text-sm text-gray-500 mt-1">Os serviços municipais ainda não foram configurados</p>
+            </div>
+          )}
+
+          {!servicesLoading && popularServices.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {popularServices.map((service) => (
                 <Card key={service.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-3">
-                      <div className={`${service.bgColor} p-2.5 rounded-lg`}>
-                        <Icon className={`h-5 w-5 ${service.color}`} />
+                      <div className="bg-blue-50 p-2.5 rounded-lg">
+                        <FileText className="h-5 w-5 text-blue-600" />
                       </div>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                        Em breve
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        Disponível
                       </span>
                     </div>
 
                     <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
-                      {service.title}
+                      {service.name}
                     </h3>
 
                     <p className="text-xs text-gray-500 mb-3">
-                      {service.department}
+                      {service.department?.name || 'Sem departamento'}
                     </p>
 
                     <p className="text-xs text-gray-600 mb-4 line-clamp-2">
-                      {service.description}
+                      {service.description || 'Sem descrição'}
                     </p>
 
                     <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
                       <div className="flex items-center gap-1">
-                        <Users className="h-3.5 w-3.5" />
-                        <span>{service.requests.toLocaleString('pt-BR')}</span>
+                        <Activity className="h-3.5 w-3.5" />
+                        <span>Prioridade {service.priority}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="h-3.5 w-3.5" />
-                        <span>{service.avgTime}</span>
+                        <span>{service.estimatedDays ? `${service.estimatedDays}d` : 'A definir'}</span>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Informações Importantes */}

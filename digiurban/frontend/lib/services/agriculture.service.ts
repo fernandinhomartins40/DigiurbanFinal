@@ -1,6 +1,6 @@
 import { api, createCRUDService } from './api'
 
-const BASE_PATH = '/api/specialized/agriculture'
+const BASE_PATH = '/api/secretarias/agriculture'
 
 export const agricultureService = {
   producers: createCRUDService(`${BASE_PATH}/producers`),

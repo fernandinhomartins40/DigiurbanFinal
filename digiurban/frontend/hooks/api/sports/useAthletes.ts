@@ -126,7 +126,7 @@ export function useAthletes(): UseAthletesReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/athletes')
+      const data = await apiClient.get('/api/secretarias/sports/athletes')
       setAthletes(data.athletes || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar atletas')
@@ -138,7 +138,7 @@ export function useAthletes(): UseAthletesReturn {
   const createAthlete = useCallback(async (data: CreateAthleteData): Promise<Athlete> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/athletes', data)
+      const response = await apiClient.post('/api/secretarias/sports/athletes', data)
       const newAthlete = response.athlete
       setAthletes(prev => [newAthlete, ...prev])
       return newAthlete
@@ -152,7 +152,7 @@ export function useAthletes(): UseAthletesReturn {
   const updateAthlete = useCallback(async (id: string, data: Partial<CreateAthleteData>): Promise<Athlete> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/athletes/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/athletes/${id}`, data)
       const updatedAthlete = response.athlete
       setAthletes(prev => prev.map(athlete => athlete.id === id ? updatedAthlete : athlete))
       return updatedAthlete
@@ -166,7 +166,7 @@ export function useAthletes(): UseAthletesReturn {
   const addCompetition = useCallback(async (id: string, competition: any): Promise<Athlete> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/athletes/${id}/competitions`, competition)
+      const response = await apiClient.post(`/api/secretarias/sports/athletes/${id}/competitions`, competition)
       const updatedAthlete = response.athlete
       setAthletes(prev => prev.map(athlete => athlete.id === id ? updatedAthlete : athlete))
       return updatedAthlete
@@ -180,7 +180,7 @@ export function useAthletes(): UseAthletesReturn {
   const addPersonalBest = useCallback(async (id: string, personalBest: any): Promise<Athlete> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/athletes/${id}/personal-bests`, personalBest)
+      const response = await apiClient.post(`/api/secretarias/sports/athletes/${id}/personal-bests`, personalBest)
       const updatedAthlete = response.athlete
       setAthletes(prev => prev.map(athlete => athlete.id === id ? updatedAthlete : athlete))
       return updatedAthlete
@@ -210,7 +210,7 @@ export function useAthletes(): UseAthletesReturn {
   const deleteAthlete = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/athletes/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/athletes/${id}`)
       setAthletes(prev => prev.filter(athlete => athlete.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir atleta'

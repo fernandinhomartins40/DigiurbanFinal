@@ -193,7 +193,7 @@ export function useZoning(): UseZoningReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/urban-planning/zoning')
+      const data = await apiClient.get('/api/secretarias/urban-planning/zoning')
       setZoningAreas(data.zoningAreas || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar zoneamento')
@@ -205,7 +205,7 @@ export function useZoning(): UseZoningReturn {
   const createZoningArea = useCallback(async (data: CreateZoningAreaData): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/urban-planning/zoning', data)
+      const response = await apiClient.post('/api/secretarias/urban-planning/zoning', data)
       const newZoning = response.zoning
       setZoningAreas(prev => [newZoning, ...prev])
       return newZoning
@@ -219,7 +219,7 @@ export function useZoning(): UseZoningReturn {
   const updateZoningArea = useCallback(async (id: string, data: Partial<CreateZoningAreaData>): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/zoning/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/zoning/${id}`, data)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -233,7 +233,7 @@ export function useZoning(): UseZoningReturn {
   const updateRegulations = useCallback(async (id: string, regulations: any): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/zoning/${id}/regulations`, regulations)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/zoning/${id}/regulations`, regulations)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -247,7 +247,7 @@ export function useZoning(): UseZoningReturn {
   const addRestriction = useCallback(async (id: string, restriction: any): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/zoning/${id}/restrictions`, restriction)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/zoning/${id}/restrictions`, restriction)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -261,7 +261,7 @@ export function useZoning(): UseZoningReturn {
   const addIncentive = useCallback(async (id: string, incentive: any): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/zoning/${id}/incentives`, incentive)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/zoning/${id}/incentives`, incentive)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -275,7 +275,7 @@ export function useZoning(): UseZoningReturn {
   const reportViolation = useCallback(async (id: string, violation: any): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/zoning/${id}/violations`, violation)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/zoning/${id}/violations`, violation)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -289,7 +289,7 @@ export function useZoning(): UseZoningReturn {
   const resolveViolation = useCallback(async (id: string, violationId: string): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/zoning/${id}/violations/${violationId}`, { status: 'RESOLVED' })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/zoning/${id}/violations/${violationId}`, { status: 'RESOLVED' })
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -303,7 +303,7 @@ export function useZoning(): UseZoningReturn {
   const proposeChange = useCallback(async (id: string, change: any): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/urban-planning/zoning/${id}/changes`, change)
+      const response = await apiClient.post(`/api/secretarias/urban-planning/zoning/${id}/changes`, change)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -317,7 +317,7 @@ export function useZoning(): UseZoningReturn {
   const approveChange = useCallback(async (id: string, changeId: string): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/zoning/${id}/changes/${changeId}`, { status: 'APPROVED' })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/zoning/${id}/changes/${changeId}`, { status: 'APPROVED' })
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -331,7 +331,7 @@ export function useZoning(): UseZoningReturn {
   const updateCurrentUse = useCallback(async (id: string, currentUse: any): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/zoning/${id}/current-use`, currentUse)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/zoning/${id}/current-use`, currentUse)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -345,7 +345,7 @@ export function useZoning(): UseZoningReturn {
   const updateEconomicData = useCallback(async (id: string, economicData: any): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/zoning/${id}/economic-data`, economicData)
+      const response = await apiClient.put(`/api/secretarias/urban-planning/zoning/${id}/economic-data`, economicData)
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -359,7 +359,7 @@ export function useZoning(): UseZoningReturn {
   const scheduleReview = useCallback(async (id: string, reviewDate: string): Promise<ZoningArea> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/urban-planning/zoning/${id}/schedule-review`, { nextReview: reviewDate })
+      const response = await apiClient.put(`/api/secretarias/urban-planning/zoning/${id}/schedule-review`, { nextReview: reviewDate })
       const updatedZoning = response.zoning
       setZoningAreas(prev => prev.map(zone => zone.id === id ? updatedZoning : zone))
       return updatedZoning
@@ -373,7 +373,7 @@ export function useZoning(): UseZoningReturn {
   const deleteZoningArea = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/urban-planning/zoning/${id}`)
+      await apiClient.delete(`/api/secretarias/urban-planning/zoning/${id}`)
       setZoningAreas(prev => prev.filter(zone => zone.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir área de zoneamento'

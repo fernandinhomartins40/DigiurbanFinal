@@ -144,7 +144,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
     try {
       setLoading(true)
       setError(null)
-      const data = await apiClient.get('/api/specialized/sports/schools')
+      const data = await apiClient.get('/api/secretarias/sports/schools')
       setSportsSchools(data.schools || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar escolinhas esportivas')
@@ -156,7 +156,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const createSchool = useCallback(async (data: CreateSportsSchoolData): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.post('/api/specialized/sports/schools', data)
+      const response = await apiClient.post('/api/secretarias/sports/schools', data)
       const newSchool = response.school
       setSportsSchools(prev => [newSchool, ...prev])
       return newSchool
@@ -170,7 +170,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const updateSchool = useCallback(async (id: string, data: Partial<CreateSportsSchoolData>): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/schools/${id}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/schools/${id}`, data)
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === id ? updatedSchool : school))
       return updatedSchool
@@ -184,7 +184,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const enrollStudent = useCallback(async (schoolId: string, studentData: any): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/schools/${schoolId}/enrollments`, studentData)
+      const response = await apiClient.post(`/api/secretarias/sports/schools/${schoolId}/enrollments`, studentData)
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -198,7 +198,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const updateEnrollment = useCallback(async (schoolId: string, enrollmentId: string, data: any): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/schools/${schoolId}/enrollments/${enrollmentId}`, data)
+      const response = await apiClient.put(`/api/secretarias/sports/schools/${schoolId}/enrollments/${enrollmentId}`, data)
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -212,7 +212,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const suspendEnrollment = useCallback(async (schoolId: string, enrollmentId: string, reason: string): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/schools/${schoolId}/enrollments/${enrollmentId}/suspend`, { reason })
+      const response = await apiClient.put(`/api/secretarias/sports/schools/${schoolId}/enrollments/${enrollmentId}/suspend`, { reason })
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -226,7 +226,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const reactivateEnrollment = useCallback(async (schoolId: string, enrollmentId: string): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/schools/${schoolId}/enrollments/${enrollmentId}/reactivate`)
+      const response = await apiClient.put(`/api/secretarias/sports/schools/${schoolId}/enrollments/${enrollmentId}/reactivate`)
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -240,7 +240,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const addInstructor = useCallback(async (schoolId: string, instructorId: string): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/schools/${schoolId}/instructors`, { instructorId })
+      const response = await apiClient.post(`/api/secretarias/sports/schools/${schoolId}/instructors`, { instructorId })
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -254,7 +254,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const removeInstructor = useCallback(async (schoolId: string, instructorId: string): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.delete(`/api/specialized/sports/schools/${schoolId}/instructors/${instructorId}`)
+      const response = await apiClient.delete(`/api/secretarias/sports/schools/${schoolId}/instructors/${instructorId}`)
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -268,7 +268,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const addEvent = useCallback(async (schoolId: string, event: any): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/schools/${schoolId}/events`, event)
+      const response = await apiClient.post(`/api/secretarias/sports/schools/${schoolId}/events`, event)
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -282,7 +282,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const addAchievement = useCallback(async (schoolId: string, achievement: any): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.post(`/api/specialized/sports/schools/${schoolId}/achievements`, achievement)
+      const response = await apiClient.post(`/api/secretarias/sports/schools/${schoolId}/achievements`, achievement)
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -296,7 +296,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const updateCapacity = useCallback(async (schoolId: string, capacity: number): Promise<SportsSchool> => {
     try {
       setError(null)
-      const response = await apiClient.put(`/api/specialized/sports/schools/${schoolId}/capacity`, { capacity })
+      const response = await apiClient.put(`/api/secretarias/sports/schools/${schoolId}/capacity`, { capacity })
       const updatedSchool = response.school
       setSportsSchools(prev => prev.map(school => school.id === schoolId ? updatedSchool : school))
       return updatedSchool
@@ -310,7 +310,7 @@ export function useSportsSchools(): UseSportsSchoolsReturn {
   const deleteSchool = useCallback(async (id: string): Promise<void> => {
     try {
       setError(null)
-      await apiClient.delete(`/api/specialized/sports/schools/${id}`)
+      await apiClient.delete(`/api/secretarias/sports/schools/${id}`)
       setSportsSchools(prev => prev.filter(school => school.id !== id))
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao excluir escolinha'

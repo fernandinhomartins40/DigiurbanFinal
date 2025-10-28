@@ -193,7 +193,7 @@ export default function EventosTurismoPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/tourism/events"
+        endpoint="/api/secretarias/tourism/events"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

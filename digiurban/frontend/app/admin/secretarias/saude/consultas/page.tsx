@@ -205,7 +205,7 @@ export default function ConsultasPage() {
 
       <DataTable
         key={refreshKey}
-        endpoint="/api/specialized/health/appointments"
+        endpoint="/api/secretarias/health/appointments"
         columns={columns}
         onEdit={handleEdit}
         onDelete={handleDelete}

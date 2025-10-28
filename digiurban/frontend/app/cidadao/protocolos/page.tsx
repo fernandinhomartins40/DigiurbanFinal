@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { CitizenLayout } from '@/components/citizen/CitizenLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,61 +14,39 @@ import {
   XCircle,
   Eye,
   Calendar,
-  Building2
+  Building2,
+  Loader2
 } from 'lucide-react';
+import { useCitizenProtocols } from '@/hooks/useCitizenProtocols';
 
 export default function ProtocolosPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('todos');
 
   const statusTypes = [
-    { id: 'todos', name: 'Todos', color: 'gray' },
-    { id: 'pendente', name: 'Pendente', color: 'yellow' },
-    { id: 'em_andamento', name: 'Em Andamento', color: 'blue' },
-    { id: 'concluido', name: 'Concluído', color: 'green' },
-    { id: 'cancelado', name: 'Cancelado', color: 'red' }
+    { id: 'todos', name: 'Todos', color: 'gray', apiValue: undefined },
+    { id: 'VINCULADO', name: 'Pendente', color: 'yellow', apiValue: 'VINCULADO' },
+    { id: 'EM_ANDAMENTO', name: 'Em Andamento', color: 'blue', apiValue: 'EM_ANDAMENTO' },
+    { id: 'CONCLUIDO', name: 'Concluído', color: 'green', apiValue: 'CONCLUIDO' },
+    { id: 'CANCELADO', name: 'Cancelado', color: 'red', apiValue: 'CANCELADO' }
   ];
 
-  // Dados de exemplo - em produção virão do backend
-  const protocols = [
-    {
-      id: 'PROT-2024-001',
-      service: 'Segunda Via de Certidão',
-      department: 'Administração',
-      status: 'concluido',
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-18',
-      description: 'Solicitação de segunda via de certidão de nascimento'
-    },
-    {
-      id: 'PROT-2024-002',
-      service: 'Agendamento de Consulta',
-      department: 'Saúde',
-      status: 'em_andamento',
-      createdAt: '2024-01-20',
-      updatedAt: '2024-01-22',
-      description: 'Agendamento de consulta médica na UBS Central'
-    },
-    {
-      id: 'PROT-2024-003',
-      service: 'Consulta IPTU',
-      department: 'Fazenda',
-      status: 'pendente',
-      createdAt: '2024-01-25',
-      updatedAt: '2024-01-25',
-      description: 'Consulta de débitos de IPTU do exercício 2024'
-    }
-  ];
+  // Buscar protocolos reais da API
+  const { protocols, loading, error, stats } = useCitizenProtocols({
+    status: statusFilter !== 'todos' ? statusFilter : undefined,
+    limit: 100,
+  });
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pendente':
+      case 'VINCULADO':
         return <Clock className="h-5 w-5 text-yellow-600" />;
-      case 'em_andamento':
+      case 'EM_ANDAMENTO':
+      case 'AGUARDANDO_DOCUMENTOS':
         return <AlertCircle className="h-5 w-5 text-blue-600" />;
-      case 'concluido':
+      case 'CONCLUIDO':
         return <CheckCircle2 className="h-5 w-5 text-green-600" />;
-      case 'cancelado':
+      case 'CANCELADO':
         return <XCircle className="h-5 w-5 text-red-600" />;
       default:
         return <FileText className="h-5 w-5 text-gray-600" />;
@@ -77,10 +55,11 @@ export default function ProtocolosPage() {
 
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
-      pendente: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pendente' },
-      em_andamento: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Em Andamento' },
-      concluido: { bg: 'bg-green-100', text: 'text-green-700', label: 'Concluído' },
-      cancelado: { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelado' }
+      VINCULADO: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Pendente' },
+      EM_ANDAMENTO: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Em Andamento' },
+      AGUARDANDO_DOCUMENTOS: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Aguardando Docs' },
+      CONCLUIDO: { bg: 'bg-green-100', text: 'text-green-700', label: 'Concluído' },
+      CANCELADO: { bg: 'bg-red-100', text: 'text-red-700', label: 'Cancelado' }
     };
 
     const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
@@ -92,20 +71,18 @@ export default function ProtocolosPage() {
     );
   };
 
-  const filteredProtocols = protocols.filter(protocol => {
-    const matchesSearch = protocol.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         protocol.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         protocol.department.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'todos' || protocol.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Filtrar protocolos por busca (status já filtrado pela API)
+  const filteredProtocols = useMemo(() => {
+    if (!searchTerm) return protocols;
 
-  const stats = {
-    total: protocols.length,
-    pendente: protocols.filter(p => p.status === 'pendente').length,
-    em_andamento: protocols.filter(p => p.status === 'em_andamento').length,
-    concluido: protocols.filter(p => p.status === 'concluido').length
-  };
+    const searchLower = searchTerm.toLowerCase();
+    return protocols.filter(protocol =>
+      protocol.number.toLowerCase().includes(searchLower) ||
+      protocol.title.toLowerCase().includes(searchLower) ||
+      protocol.service.name.toLowerCase().includes(searchLower) ||
+      protocol.department.name.toLowerCase().includes(searchLower)
+    );
+  }, [protocols, searchTerm]);
 
   return (
     <CitizenLayout>
@@ -195,7 +172,22 @@ export default function ProtocolosPage() {
 
         {/* Lista de Protocolos */}
         <div className="space-y-4">
-          {filteredProtocols.length > 0 ? (
+          {loading ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Loader2 className="h-12 w-12 text-gray-400 mx-auto mb-4 animate-spin" />
+                <p className="text-gray-600">Carregando protocolos...</p>
+              </CardContent>
+            </Card>
+          ) : error ? (
+            <Card>
+              <CardContent className="p-12 text-center">
+                <XCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-2">Erro ao carregar protocolos</p>
+                <p className="text-sm text-gray-500">{error}</p>
+              </CardContent>
+            </Card>
+          ) : filteredProtocols.length > 0 ? (
             filteredProtocols.map((protocol) => (
               <Card key={protocol.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
@@ -207,17 +199,20 @@ export default function ProtocolosPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-lg font-semibold text-gray-900">
-                            {protocol.id}
+                            {protocol.number}
                           </h3>
                           {getStatusBadge(protocol.status)}
                         </div>
-                        <p className="text-base text-gray-900 mb-1">{protocol.service}</p>
-                        <p className="text-sm text-gray-600 mb-3">{protocol.description}</p>
+                        <p className="text-base text-gray-900 mb-1">{protocol.title}</p>
+                        <p className="text-sm text-gray-600 mb-1">{protocol.service.name}</p>
+                        {protocol.description && (
+                          <p className="text-sm text-gray-500 mb-3">{protocol.description}</p>
+                        )}
 
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                           <div className="flex items-center gap-1">
                             <Building2 className="h-4 w-4" />
-                            <span>{protocol.department}</span>
+                            <span>{protocol.department.name}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <Calendar className="h-4 w-4" />

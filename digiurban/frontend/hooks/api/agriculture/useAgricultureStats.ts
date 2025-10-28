@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/services/api';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 export interface AgricultureStats {
   producers: {
@@ -50,11 +50,13 @@ export interface AgricultureStatsResponse {
 }
 
 export function useAgricultureStats() {
+  const { apiRequest } = useAdminAuth();
+
   return useQuery<AgricultureStatsResponse>({
     queryKey: ['agriculture-stats'],
     queryFn: async () => {
-      const response = await api.get('/admin/secretarias/agricultura/stats');
-      return response.data;
+      const response = await apiRequest('/admin/secretarias/agricultura/stats');
+      return response;
     },
     staleTime: 2 * 60 * 1000, // 2 minutos
     refetchInterval: 5 * 60 * 1000, // Atualiza a cada 5 minutos

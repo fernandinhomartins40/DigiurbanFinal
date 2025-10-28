@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/services/api';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 export interface AgricultureService {
   id: string;
@@ -23,11 +23,13 @@ export interface AgricultureServicesResponse {
 }
 
 export function useAgricultureServices() {
+  const { apiRequest } = useAdminAuth();
+
   return useQuery<AgricultureServicesResponse>({
     queryKey: ['agriculture-services'],
     queryFn: async () => {
-      const response = await api.get('/services?departmentCode=AGRICULTURA');
-      return response.data;
+      const response = await apiRequest('/services?departmentCode=AGRICULTURA');
+      return response;
     },
     staleTime: 5 * 60 * 1000, // 5 minutos
   });

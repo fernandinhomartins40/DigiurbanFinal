@@ -323,9 +323,9 @@ function SuperAdminLayoutContent({
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64 md:ml-72' : 'ml-16 md:ml-20'} transition-all duration-300`}>
+      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64 md:ml-72' : 'ml-16 md:ml-20'} transition-all duration-300 overflow-x-hidden`}>
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 fixed right-0 left-0 z-30" style={{ left: sidebarOpen ? 'clamp(256px, 18rem, 288px)' : 'clamp(64px, 5rem, 80px)' }}>
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 fixed right-0 z-30" style={{ left: sidebarOpen ? 'clamp(256px, 18rem, 288px)' : 'clamp(64px, 5rem, 80px)' }}>
           <div className="min-w-0 flex-shrink">
             <h2 className="text-lg md:text-xl font-bold text-gray-900 truncate">{currentPageTitle}</h2>
             <p className="text-xs text-gray-500 truncate hidden sm:block">{pathname}</p>
@@ -366,7 +366,7 @@ function SuperAdminLayoutContent({
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto pt-16 p-3 md:p-6">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden pt-20 md:pt-24 px-3 md:px-6 pb-6 w-full max-w-full">
           {children}
         </main>
       </div>

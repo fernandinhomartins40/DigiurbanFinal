@@ -2,16 +2,14 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Building2, Plus, Search, Filter, Download, Users, FileText, DollarSign, Eye, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { Building2, Plus, Search, Download, Users, FileText, DollarSign, Eye, Edit2, Trash2 } from 'lucide-react';
 import { useTenants } from '@/hooks/super-admin';
 import { SuperAdminCard, MetricCard } from '@/components/super-admin';
 import { TenantStatusBadge, PlanBadge } from '@/components/ui/status-badge';
 import { useToast } from '@/hooks/use-toast';
-import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
 
 export default function TenantsPage() {
   const { toast } = useToast();
-  const { confirm, ConfirmDialog } = useConfirmDialog();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [planFilter, setPlanFilter] = useState('');
@@ -71,33 +69,35 @@ export default function TenantsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestão de Tenants</h1>
           <p className="text-gray-600">
             Gerencie todos os municípios da plataforma DigiUrban
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Link
             href="/super-admin/tenants/desativados"
-            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
           >
             <Building2 size={20} />
-            Tenants Desativados
+            <span className="hidden sm:inline">Tenants Desativados</span>
+            <span className="sm:hidden">Desativados</span>
           </Link>
           <Link
             href="/super-admin/tenants/create"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
           >
             <Plus size={20} />
-            Novo Tenant
+            <span className="hidden sm:inline">Novo Tenant</span>
+            <span className="sm:hidden">Novo</span>
           </Link>
         </div>
       </div>
 
       {/* Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title="Total de Tenants"
           value={stats.total}
@@ -138,31 +138,31 @@ export default function TenantsPage() {
         title="Filtros e Busca"
         description="Encontre tenants específicos"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="sm:col-span-2">
-            <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Buscar
             </label>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
                 placeholder="Nome, CNPJ ou domínio..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 md:pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Status
             </label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Todos</option>
               <option value="ACTIVE">Ativo</option>
@@ -173,13 +173,13 @@ export default function TenantsPage() {
           </div>
 
           <div>
-            <label className="block text-xs md:text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Plano
             </label>
             <select
               value={planFilter}
               onChange={(e) => setPlanFilter(e.target.value)}
-              className="w-full px-3 md:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Todos</option>
               <option value="STARTER">Starter</option>
@@ -189,20 +189,20 @@ export default function TenantsPage() {
           </div>
         </div>
 
-        <div className="mt-3 md:mt-4 flex gap-2">
+        <div className="mt-4 flex gap-2">
           <button
             onClick={() => {
               setSearchTerm('');
               setStatusFilter('');
               setPlanFilter('');
             }}
-            className="flex-1 sm:flex-none px-3 md:px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-xs md:text-sm font-medium"
+            className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
           >
             Limpar Filtros
           </button>
           <button
             onClick={refetch}
-            className="flex-1 sm:flex-none px-3 md:px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-xs md:text-sm font-medium"
+            className="flex-1 sm:flex-none px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium"
           >
             Atualizar
           </button>
@@ -214,8 +214,8 @@ export default function TenantsPage() {
         title={`Tenants (${total})`}
         description="Lista completa de municípios"
         headerAction={
-          <button className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 text-xs md:text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <Download size={14} className="md:w-4 md:h-4" />
+          <button className="flex items-center gap-2 px-3 py-1 text-sm text-gray-600 hover:text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            <Download size={16} />
             <span className="hidden sm:inline">Exportar</span>
           </button>
         }
@@ -412,7 +412,7 @@ export default function TenantsPage() {
       {/* Modal de Confirmação de Exclusão */}
       {deleteModalOpen && tenantToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg p-4 md:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                 <Trash2 size={20} className="text-red-600 md:w-6 md:h-6" />
@@ -493,7 +493,6 @@ export default function TenantsPage() {
           </div>
         </div>
       )}
-      <ConfirmDialog />
     </div>
   );
 }

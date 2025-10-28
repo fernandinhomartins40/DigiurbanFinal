@@ -130,9 +130,26 @@ function SuperAdminLayoutContent({
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading: authLoading, logout } = useSuperAdminAuth();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['#dashboards', '#billing', '#analytics', '#settings']);
   const [notifications, setNotifications] = useState(0);
+
+  // Auto-open sidebar on desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (pathname === '/super-admin/login') {
@@ -184,8 +201,18 @@ function SuperAdminLayoutContent({
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
+      {/* Mobile Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-64 md:w-72' : 'w-16 md:w-20'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col fixed left-0 top-0 bottom-0 z-40`}>
+      <aside className={`${
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      } ${sidebarOpen ? 'w-64 md:w-72' : 'md:w-16 md:w-20'} w-64 bg-white border-r border-gray-200 transition-all duration-300 flex flex-col fixed left-0 top-0 bottom-0 z-40`}>
         {/* Logo e Toggle */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
           {sidebarOpen ? (
@@ -323,12 +350,21 @@ function SuperAdminLayoutContent({
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64 md:ml-72' : 'ml-16 md:ml-20'} transition-all duration-300 overflow-x-hidden`}>
+      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'md:ml-64 md:ml-72' : 'md:ml-16 md:ml-20'} transition-all duration-300 overflow-x-hidden`}>
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 fixed right-0 z-30" style={{ left: sidebarOpen ? 'clamp(256px, 18rem, 288px)' : 'clamp(64px, 5rem, 80px)' }}>
-          <div className="min-w-0 flex-shrink">
-            <h2 className="text-lg md:text-xl font-bold text-gray-900 truncate">{currentPageTitle}</h2>
-            <p className="text-xs text-gray-500 truncate hidden sm:block">{pathname}</p>
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 fixed right-0 left-0 md:left-auto z-20">
+          <div className="flex items-center gap-3 min-w-0 flex-shrink">
+            {/* Mobile Hamburger */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="md:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <Menu size={24} className="text-gray-700" />
+            </button>
+            <div className="min-w-0">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 truncate">{currentPageTitle}</h2>
+              <p className="text-xs text-gray-500 truncate hidden sm:block">{pathname}</p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">

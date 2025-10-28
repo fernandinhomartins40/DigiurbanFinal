@@ -185,7 +185,7 @@ function SuperAdminLayoutContent({
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-72' : 'w-20'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col fixed left-0 top-0 bottom-0 z-40`}>
+      <aside className={`${sidebarOpen ? 'w-64 md:w-72' : 'w-16 md:w-20'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col fixed left-0 top-0 bottom-0 z-40`}>
         {/* Logo e Toggle */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-blue-700">
           {sidebarOpen ? (
@@ -323,22 +323,22 @@ function SuperAdminLayoutContent({
       </aside>
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-72' : 'ml-20'} transition-all duration-300`}>
+      <div className={`flex-1 flex flex-col ${sidebarOpen ? 'ml-64 md:ml-72' : 'ml-16 md:ml-20'} transition-all duration-300`}>
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 fixed right-0 left-0 z-30" style={{ left: sidebarOpen ? '288px' : '80px' }}>
-          <div>
-            <h2 className="text-xl font-bold text-gray-900">{currentPageTitle}</h2>
-            <p className="text-xs text-gray-500">{pathname}</p>
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 fixed right-0 left-0 z-30" style={{ left: sidebarOpen ? 'clamp(256px, 18rem, 288px)' : 'clamp(64px, 5rem, 80px)' }}>
+          <div className="min-w-0 flex-shrink">
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 truncate">{currentPageTitle}</h2>
+            <p className="text-xs text-gray-500 truncate hidden sm:block">{pathname}</p>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
             {/* Search */}
-            <div className="hidden md:flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-lg">
+            <div className="hidden lg:flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
               <Search size={16} className="text-gray-400" />
               <input
                 type="text"
                 placeholder="Buscar..."
-                className="bg-transparent border-none outline-none text-sm w-64"
+                className="bg-transparent border-none outline-none text-sm w-32 xl:w-64"
               />
             </div>
 
@@ -356,17 +356,17 @@ function SuperAdminLayoutContent({
             <div className="flex items-center gap-2">
               <Link
                 href="/super-admin/tenants/create"
-                className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="hidden lg:flex items-center gap-2 px-3 md:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
               >
                 <Building2 size={16} />
-                Novo Tenant
+                <span className="hidden xl:inline">Novo Tenant</span>
               </Link>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto pt-16 p-6">
+        <main className="flex-1 overflow-y-auto pt-16 p-3 md:p-6">
           {children}
         </main>
       </div>

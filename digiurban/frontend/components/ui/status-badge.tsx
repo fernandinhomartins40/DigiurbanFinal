@@ -19,9 +19,9 @@ const statusVariants = {
 };
 
 const sizeVariants = {
-  sm: 'px-2 py-1 text-xs',
-  md: 'px-3 py-1 text-sm',
-  lg: 'px-4 py-2 text-base',
+  sm: 'px-1.5 md:px-2 py-0.5 md:py-1 text-[10px] md:text-xs',
+  md: 'px-2 md:px-3 py-0.5 md:py-1 text-xs md:text-sm',
+  lg: 'px-3 md:px-4 py-1 md:py-2 text-sm md:text-base',
 };
 
 // Predefined status mappings for common use cases

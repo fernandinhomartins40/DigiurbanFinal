@@ -19,19 +19,19 @@ export function SuperAdminCard({
 }: SuperAdminCardProps) {
   return (
     <div className={`bg-white rounded-lg border border-gray-200 shadow-sm ${className}`}>
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      <div className="px-3 md:px-6 py-3 md:py-4 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-base md:text-lg font-semibold text-gray-900">{title}</h3>
           {description && (
-            <p className="text-sm text-gray-500 mt-1">{description}</p>
+            <p className="text-xs md:text-sm text-gray-500 mt-1">{description}</p>
           )}
         </div>
-        {headerAction && <div>{headerAction}</div>}
+        {headerAction && <div className="flex-shrink-0">{headerAction}</div>}
       </div>
-      <div className="p-6">
+      <div className="p-3 md:p-6">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="flex items-center justify-center py-8 md:py-12">
+            <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
           children
@@ -74,32 +74,32 @@ export function MetricCard({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-        <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+      <div className="bg-white rounded-lg border border-gray-200 p-4 md:p-6 animate-pulse">
+        <div className="h-3 md:h-4 bg-gray-200 rounded w-1/2 mb-3 md:mb-4"></div>
+        <div className="h-6 md:h-8 bg-gray-200 rounded w-3/4"></div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white rounded-lg border ${colorClasses[color].split(' ')[2]} p-6 hover:shadow-md transition-shadow`}>
+    <div className={`bg-white rounded-lg border ${colorClasses[color].split(' ')[2]} p-4 md:p-6 hover:shadow-md transition-shadow`}>
       <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600 mb-2">{title}</p>
-          <div className="flex items-baseline gap-2">
-            <p className="text-3xl font-bold text-gray-900">{value}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs md:text-sm font-medium text-gray-600 mb-1 md:mb-2 truncate">{title}</p>
+          <div className="flex items-baseline gap-1 md:gap-2 flex-wrap">
+            <p className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">{value}</p>
             {trend && (
-              <span className={`text-sm font-semibold ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+              <span className={`text-xs md:text-sm font-semibold ${trend.isPositive ? 'text-green-600' : 'text-red-600'} whitespace-nowrap`}>
                 {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
               </span>
             )}
           </div>
           {subtitle && (
-            <p className="text-xs text-gray-500 mt-2">{subtitle}</p>
+            <p className="text-xs text-gray-500 mt-1 md:mt-2 truncate">{subtitle}</p>
           )}
         </div>
         {icon && (
-          <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+          <div className={`p-2 md:p-3 rounded-lg ${colorClasses[color]} flex-shrink-0 ml-2`}>
             {icon}
           </div>
         )}

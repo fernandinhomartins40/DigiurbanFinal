@@ -265,23 +265,25 @@ export default function SuperAdminPage() {
 
   return (
     <main className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-2 sm:px-4 py-4 md:py-8 max-w-7xl">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-primary mb-2">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 md:mb-8">
+          <div className="min-w-0">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1 md:mb-2">
               Dashboard Super Admin
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm md:text-base text-muted-foreground">
               Central de controle da plataforma DigiUrban SaaS
             </p>
           </div>
-          <div className="space-x-2">
-            <Button onClick={generateBilling} variant="outline">
-              Gerar Faturas do Mês
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button onClick={generateBilling} variant="outline" className="flex-1 sm:flex-none text-xs md:text-sm">
+              <span className="hidden md:inline">Gerar Faturas do Mês</span>
+              <span className="md:hidden">Faturas</span>
             </Button>
-            <Button onClick={() => window.location.reload()} variant="outline">
-              Atualizar Dados
+            <Button onClick={() => window.location.reload()} variant="outline" className="flex-1 sm:flex-none text-xs md:text-sm">
+              <span className="hidden md:inline">Atualizar Dados</span>
+              <span className="md:hidden">Atualizar</span>
             </Button>
           </div>
         </div>
@@ -339,43 +341,43 @@ export default function SuperAdminPage() {
         </KPICardGrid>
 
         {/* Secondary KPIs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-blue-600">
+            <CardContent className="p-3 md:p-4 text-center">
+              <div className="text-xl md:text-2xl font-bold text-blue-600">
                 {dashboardData?.overview.totalUsers.toLocaleString('pt-BR') || 0}
               </div>
-              <div className="text-sm text-muted-foreground">Usuários Totais</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Usuários Totais</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-green-600">
+            <CardContent className="p-3 md:p-4 text-center">
+              <div className="text-xl md:text-2xl font-bold text-green-600">
                 {dashboardData?.overview.totalProtocols.toLocaleString('pt-BR') || 0}
               </div>
-              <div className="text-sm text-muted-foreground">Protocolos Processados</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Protocolos Processados</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-orange-600">
+            <CardContent className="p-3 md:p-4 text-center">
+              <div className="text-xl md:text-2xl font-bold text-orange-600">
                 {dashboardData?.overview.trialTenants || 0}
               </div>
-              <div className="text-sm text-muted-foreground">Tenants em Trial</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Tenants em Trial</div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-red-600">
+            <CardContent className="p-3 md:p-4 text-center">
+              <div className="text-xl md:text-2xl font-bold text-red-600">
                 {dashboardData?.financial.churnRate.toFixed(1) || 0}%
               </div>
-              <div className="text-sm text-muted-foreground">Taxa de Churn</div>
+              <div className="text-xs md:text-sm text-muted-foreground">Taxa de Churn</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
           <LineChart
             title="Receita Mensal"
             data={dashboardData?.charts.monthlyRevenue.map(item => ({
@@ -398,7 +400,7 @@ export default function SuperAdminPage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
           <BarChart
             title="Protocolos por Status"
             data={Object.entries(dashboardData?.breakdown.protocolsByStatus || {}).map(([label, value]) => ({
@@ -437,10 +439,10 @@ export default function SuperAdminPage() {
         </div>
 
         {/* Detailed Tables */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="tenants">Tenants</TabsTrigger>
-            <TabsTrigger value="invoices">Faturas</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
+          <TabsList className="grid w-full grid-cols-2 h-auto">
+            <TabsTrigger value="tenants" className="text-sm md:text-base">Tenants</TabsTrigger>
+            <TabsTrigger value="invoices" className="text-sm md:text-base">Faturas</TabsTrigger>
           </TabsList>
 
           <TabsContent value="tenants">

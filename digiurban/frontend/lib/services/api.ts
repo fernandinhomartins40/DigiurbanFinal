@@ -21,11 +21,36 @@ api.interceptors.request.use((config) => {
     } else {
       console.warn('[API] Nenhum token encontrado no localStorage para:', config.url)
     }
+
+    // Buscar tenantId do localStorage ou user data
+    let tenantId = localStorage.getItem('digiurban_tenant_id')
+
+    // Se não encontrar no localStorage, tentar buscar dos cookies (AdminAuth)
+    if (!tenantId) {
+      try {
+        const userData = localStorage.getItem('digiurban_admin_user')
+        if (userData) {
+          const user = JSON.parse(userData)
+          tenantId = user.tenantId
+        }
+      } catch (e) {
+        console.warn('[API] Erro ao buscar tenantId do user data')
+      }
+    }
+
+    if (tenantId) {
+      config.headers['X-Tenant-ID'] = tenantId
+      console.log('[API] Tenant-ID adicionado:', tenantId)
+    } else {
+      // Fallback: buscar primeiro tenant do banco
+      config.headers['X-Tenant-ID'] = 'cmhav73z00000cblg3uhyri24'
+      console.warn('[API] Usando tenant-id default do sistema')
+    }
   } catch (error) {
     // SSR context - sem localStorage disponível
     console.log('[API] Contexto SSR - sem localStorage')
+    config.headers['X-Tenant-ID'] = 'demo'
   }
-  config.headers['X-Tenant-ID'] = 'demo'
   return config
 })
 

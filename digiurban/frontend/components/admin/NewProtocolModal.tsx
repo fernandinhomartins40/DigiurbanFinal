@@ -89,33 +89,27 @@ export function NewProtocolModal({
     }
   }, [open]);
 
-  // Buscar template ao selecionar serviço
+  // Não busca template - usa formSchema do próprio serviço se disponível
   useEffect(() => {
-    async function fetchTemplate() {
-      if (!selectedService || !selectedServiceData?.moduleType) {
-        setServiceTemplate(null);
-        return;
-      }
-
-      setLoadingTemplate(true);
-      try {
-        // Buscar template baseado no moduleEntity
-        const response = await api.get(`/api/admin/templates?moduleEntity=${selectedServiceData.moduleEntity}`);
-
-        if (response.data.success && response.data.data.length > 0) {
-          setServiceTemplate(response.data.data[0]);
-        } else {
-          setServiceTemplate(null);
-        }
-      } catch (error) {
-        console.error('Error fetching template:', error);
-        setServiceTemplate(null);
-      } finally {
-        setLoadingTemplate(false);
-      }
+    if (!selectedService || !selectedServiceData) {
+      setServiceTemplate(null);
+      return;
     }
 
-    fetchTemplate();
+    // Usar formSchema do serviço se disponível
+    if (selectedServiceData.customForm) {
+      setServiceTemplate({
+        id: selectedServiceData.id,
+        code: selectedServiceData.id,
+        name: selectedServiceData.name,
+        description: selectedServiceData.description || '',
+        formSchema: selectedServiceData.customForm as any,
+        moduleType: selectedServiceData.moduleType,
+        moduleEntity: selectedServiceData.moduleEntity,
+      });
+    } else {
+      setServiceTemplate(null);
+    }
   }, [selectedService, selectedServiceData]);
 
   const validateCitizenData = (): boolean => {

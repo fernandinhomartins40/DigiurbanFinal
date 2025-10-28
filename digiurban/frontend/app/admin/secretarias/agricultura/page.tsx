@@ -13,12 +13,9 @@ import {
   FileText,
   TrendingUp,
   Plus,
-  Search,
   FileBarChart,
-  Loader2,
   AlertCircle,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useAgricultureServices } from '@/hooks/api/agriculture/useAgricultureServices';
 import { useAgricultureStats } from '@/hooks/api/agriculture/useAgricultureStats';
 import { NewProtocolModal } from '@/components/admin/NewProtocolModal';
@@ -148,7 +145,7 @@ export default function SecretariaAgriculturaPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Button
               className="h-20 flex flex-col"
               variant="outline"
@@ -170,16 +167,6 @@ export default function SecretariaAgriculturaPage() {
                   {stats.protocols.pending}
                 </Badge>
               )}
-            </Button>
-
-            <Button className="h-20 flex flex-col" variant="outline">
-              <Search className="h-6 w-6 mb-2" />
-              <span>Buscar Produtor</span>
-            </Button>
-
-            <Button className="h-20 flex flex-col" variant="outline">
-              <FileBarChart className="h-6 w-6 mb-2" />
-              <span>Relatório Mensal</span>
             </Button>
           </div>
         </CardContent>

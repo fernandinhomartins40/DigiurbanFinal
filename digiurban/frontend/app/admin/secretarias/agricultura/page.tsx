@@ -359,34 +359,124 @@ export default function SecretariaAgriculturaPage() {
 
       {/* Módulos Customizados */}
       <div>
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold">Módulos Customizados</h2>
-          <p className="text-sm text-muted-foreground">
-            Sistema extensível para criação de tabelas personalizadas
-          </p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-semibold">Módulos Customizados</h2>
+            <p className="text-sm text-muted-foreground">
+              Crie tabelas personalizadas para dados específicos da agricultura
+            </p>
+          </div>
+          <Button
+            onClick={() => router.push('/admin/modulos-customizados/novo?moduleType=agriculture')}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Módulo Customizado
+          </Button>
         </div>
 
-        <Card className="border-blue-100 bg-blue-50/30">
-          <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-            <FileText className="h-16 w-16 text-blue-400 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Recurso em Desenvolvimento</h3>
-            <p className="text-sm text-muted-foreground mb-6 max-w-md">
-              Os módulos customizados permitirão criar tabelas personalizadas para dados específicos da agricultura,
-              como controle de insumos, registro de produção, monitoramento de propriedades e muito mais.
-            </p>
-            <div className="bg-white border rounded-lg p-4 w-full max-w-md">
-              <h4 className="font-medium mb-3 text-left">Recursos Planejados:</h4>
-              <ul className="text-sm space-y-2 text-left text-muted-foreground">
-                <li>✅ Criação de campos personalizados</li>
-                <li>✅ Vínculo automático com protocolos</li>
-                <li>✅ Exportação para Excel/CSV</li>
-                <li>✅ Relatórios personalizados</li>
-                <li>✅ Validações customizadas</li>
-              </ul>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card exemplo: Controle de Insumos */}
+          <Card className="border-blue-200 bg-blue-50/50 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                Controle de Insumos
+              </CardTitle>
+              <CardDescription>
+                Exemplo: tabela para controlar estoque de sementes, fertilizantes e defensivos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="text-xs text-muted-foreground">
+                  <strong>Campos possíveis:</strong> Produto, Quantidade, Unidade, Fornecedor, Data de entrada
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => router.push('/admin/modulos-customizados/novo?moduleType=agriculture&template=insumos')}
+                >
+                  Criar este Módulo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card exemplo: Registro de Produção */}
+          <Card className="border-green-200 bg-green-50/50 hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Sprout className="h-5 w-5 text-green-600" />
+                Registro de Produção
+              </CardTitle>
+              <CardDescription>
+                Exemplo: acompanhar safras e produtividade por propriedade
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="text-xs text-muted-foreground">
+                  <strong>Campos possíveis:</strong> Cultura, Área plantada, Produção (kg), Safra, Produtor
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => router.push('/admin/modulos-customizados/novo?moduleType=agriculture&template=producao')}
+                >
+                  Criar este Módulo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Ver todos os módulos */}
+          <Card className="border-dashed border-2 border-gray-300 hover:border-blue-500 transition-colors">
+            <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+              <FileBarChart className="h-12 w-12 text-gray-400 mb-4" />
+              <h3 className="font-semibold mb-2">Gerenciar Módulos</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Ver todos os módulos customizados criados para agricultura
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => router.push('/admin/modulos-customizados?moduleType=agriculture')}
+              >
+                Ver Todos
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Info sobre módulos customizados */}
+        <Card className="mt-6 border-gray-200 bg-gray-50/50">
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-blue-600" />
+              O que são Módulos Customizados?
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Funcionalidades:</h4>
+                <ul className="space-y-1">
+                  <li>✅ Defina campos personalizados (texto, número, data, etc)</li>
+                  <li>✅ Vincule automaticamente a protocolos</li>
+                  <li>✅ Exporte dados para Excel/CSV</li>
+                  <li>✅ Crie relatórios personalizados</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Exemplos de uso:</h4>
+                <ul className="space-y-1">
+                  <li>• Controle de estoque de insumos</li>
+                  <li>• Registro de visitas técnicas</li>
+                  <li>• Monitoramento de propriedades rurais</li>
+                  <li>• Cadastro de equipamentos agrícolas</li>
+                </ul>
+              </div>
             </div>
-            <Badge variant="outline" className="mt-6 border-blue-300 text-blue-700">
-              Disponível em breve
-            </Badge>
           </CardContent>
         </Card>
       </div>

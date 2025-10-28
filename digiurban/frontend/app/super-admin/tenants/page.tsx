@@ -79,7 +79,10 @@ export default function TenantsPage() {
         <div className="flex gap-2 w-full sm:w-auto">
           <Link
             href="/super-admin/tenants/desativados"
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors font-medium cursor-pointer"
+            onClick={(e) => {
+              console.log('Navegando para Tenants Desativados');
+            }}
           >
             <Building2 size={20} />
             <span className="hidden sm:inline">Tenants Desativados</span>
@@ -87,7 +90,10 @@ export default function TenantsPage() {
           </Link>
           <Link
             href="/super-admin/tenants/create"
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer"
+            onClick={(e) => {
+              console.log('Navegando para Criar Novo Tenant');
+            }}
           >
             <Plus size={20} />
             <span className="hidden sm:inline">Novo Tenant</span>

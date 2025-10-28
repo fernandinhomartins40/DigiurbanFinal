@@ -352,7 +352,7 @@ function SuperAdminLayoutContent({
       {/* Main Content */}
       <div className={`flex-1 flex flex-col ${sidebarOpen ? 'md:ml-64 md:ml-72' : 'md:ml-16 md:ml-20'} transition-all duration-300 overflow-x-hidden`}>
         {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 fixed right-0 left-0 md:left-auto z-20">
+        <header className={`h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 fixed right-0 left-0 z-20 ${sidebarOpen ? 'md:left-64 md:left-72' : 'md:left-16 md:left-20'} transition-all duration-300`}>
           <div className="flex items-center gap-3 min-w-0 flex-shrink">
             {/* Mobile Hamburger */}
             <button

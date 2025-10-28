@@ -1,7 +1,25 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)"
+      "Bash(git push:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(timeout:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix: corrigir responsividade completa da página tenants do super-admin\n\n- Layout super-admin: adicionar overflow-x-hidden no container principal\n- Layout super-admin: remover left-0 conflitante do header fixo\n- Layout super-admin: melhorar espaçamento superior (pt-20 md:pt-24)\n- Layout super-admin: adicionar overflow-x-hidden e max-w-full no main\n- Página tenants: tornar header totalmente responsivo (flex-col sm:flex-row)\n- Página tenants: adicionar flex-1 sm:flex-none nos botões\n- Página tenants: melhorar grid de métricas (1->2->4 colunas)\n- Página tenants: padronizar espaçamentos e tamanhos de fonte\n- Página tenants: adicionar overflow-x-hidden no modal\n- Página tenants: remover imports não utilizados (Filter, MoreVertical, useConfirmDialog)\n- Página tenants: adicionar textos responsivos nos botões (hidden sm:inline)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: implementar sidebar retr\\u00e1til e responsividade mobile completa\n\nLayout Super-Admin:\n- Sidebar inicia fechada em mobile (< 768px) e aberta em desktop\n- Auto-ajuste da sidebar ao redimensionar janela\n- Overlay escuro quando sidebar aberta em mobile\n- Bot\\u00e3o hamburger no header mobile para abrir/fechar sidebar\n- Sidebar com transla\\u00e7\\u00e3o suave (-translate-x-full em mobile)\n- Header fixo responsivo em toda largura no mobile\n- Z-index ajustado (overlay: z-30, sidebar: z-40, header: z-20)\n\nP\\u00e1gina Tenants:\n- T\\u00edtulos responsivos (text-2xl sm:text-3xl)\n- Descri\\u00e7\\u00f5es com tamanhos adaptados (text-sm sm:text-base)\n- Melhor legibilidade em telas pequenas\n\nComportamento Mobile:\n- Sidebar escondida por padr\\u00e3o\n- Clique no overlay fecha a sidebar\n- Clique no hamburger abre/fecha\n- Conte\\u00fado ocupa largura total em mobile\n- Transi\\u00e7\\u00f5es suaves (duration-300)\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(cmd /c:*)",
+      "Bash(git commit:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next build:*)",
+      "Bash(npx prisma:*)",
+      "Bash(curl:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(json_pp:*)"
     ],
     "deny": [],
     "ask": []

@@ -199,12 +199,12 @@ model Service {
   color              String?
   tenantId           String
   departmentId       String
-  moduleType         String?             // Tipo de módulo customizado
-  moduleEntity       String?             // Entidade do módulo customizado
-  templateId         String?             // ID do template usado
+  moduleType         String? // Tipo de módulo customizado
+  moduleEntity       String? // Entidade do módulo customizado
+  templateId         String? // ID do template usado
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  serviceType        String?             // Tipo de serviço (REQUEST, APPROVAL, etc)
+  serviceType        String? // Tipo de serviço (REQUEST, APPROVAL, etc)
   hasCustomForm      Boolean             @default(false)
   hasLocation        Boolean             @default(false)
   hasScheduling      Boolean             @default(false)
@@ -235,7 +235,7 @@ model Service {
 model ServiceTemplate {
   id             String  @id @default(cuid())
   name           String
-  code              String          @unique // Código único do template
+  code           String  @unique // Código único do template
   description    String?
   category       String
   department     String? // Departamento/Secretaria responsável (nome genérico)
@@ -243,7 +243,7 @@ model ServiceTemplate {
   icon           String?
   color          String?
   isActive       Boolean
-  version        Int?          @default(1) // Versão do template @default(true)
+  version        Int?    @default(1) // Versão do template @default(true)
 
   // Configuração padrão
   defaultConfig  Json?
@@ -277,12 +277,12 @@ model ServiceSurvey {
   showAfter String  @default("completion") // completion, approval, days
   daysAfter Int?
 
-  type      String?
-  timing    String? // Momento de aplicação da pesquisa
+  type   String?
+  timing String? // Momento de aplicação da pesquisa
 
-  isRequired       Boolean  @default(false) // Se a pesquisa é obrigatória
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isRequired Boolean  @default(false) // Se a pesquisa é obrigatória
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@map("service_surveys")
 }
@@ -1256,8 +1256,8 @@ model CulturalAttendance {
   priority          String                   @default("MEDIUM")
   followUpDate      DateTime?
   serviceId         String?
-  source               String           @default("manual")
-    createdAt         DateTime                 @default(now())
+  source            String                   @default("manual")
+  createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
   tenant            Tenant                   @relation(fields: [tenantId], references: [id])
 
@@ -1320,28 +1320,28 @@ model CulturalWorkshop {
 }
 
 model CulturalProject {
-  id            String          @id @default(cuid())
-  tenantId      String
-  name          String
-  type          String
-  description   String
-  responsible   String
-  startDate     DateTime?
-  endDate       DateTime?
-  budget        Float?
-  currentStatus String          @default("PLANNING")
-  status        String          @default("ACTIVE")
-  protocol      String? // Campo adicionado
-  contact       Json? // Campo adicionado
-  funding       Json? // Campo adicionado
+  id             String          @id @default(cuid())
+  tenantId       String
+  name           String
+  type           String
+  description    String
+  responsible    String
+  startDate      DateTime?
+  endDate        DateTime?
+  budget         Float?
+  currentStatus  String          @default("PLANNING")
+  status         String          @default("ACTIVE")
+  protocol       String? // Campo adicionado
+  contact        Json? // Campo adicionado
+  funding        Json? // Campo adicionado
   targetAudience String? // Público-alvo do projeto
-  participants  Int? // Número de participantes esperados
-  serviceId     String? // Campo adicionado
-  source        String  @default("manual") // Origem do registro
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  events        CulturalEvent[]
-  tenant        Tenant          @relation(fields: [tenantId], references: [id])
+  participants   Int? // Número de participantes esperados
+  serviceId      String? // Campo adicionado
+  source         String          @default("manual") // Origem do registro
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  events         CulturalEvent[]
+  tenant         Tenant          @relation(fields: [tenantId], references: [id])
 
   @@map("cultural_projects")
 }
@@ -1677,7 +1677,7 @@ model CulturalEvent {
   observations   String?
   protocol       String? // Campo adicionado
   serviceId      String? // ID do serviço que criou
-  source         String  @default("manual") // Origem do registro
+  source         String           @default("manual") // Origem do registro
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   project        CulturalProject? @relation(fields: [projectId], references: [id])
@@ -2651,9 +2651,9 @@ model LocalBusiness {
   category         String
   description      String
   address          String
-  neighborhood     String?      // Bairro do estabelecimento
-  city             String?      // Cidade do estabelecimento
-  state            String?      // Estado do estabelecimento
+  neighborhood     String? // Bairro do estabelecimento
+  city             String? // Cidade do estabelecimento
+  state            String? // Estado do estabelecimento
   coordinates      Json?
   contact          Json
   openingHours     Json
@@ -2961,7 +2961,7 @@ model TechnicalAssistance {
   livestock        String?
   technician       String
   scheduledDate    DateTime?
-  scheduledVisit   DateTime?    // Data da visita agendada // Campo adicionado
+  scheduledVisit   DateTime? // Data da visita agendada // Campo adicionado
   requestDate      DateTime? // Campo adicionado - data da solicitação
   visitDate        DateTime
   visitReport      Json? // Campo adicionado
@@ -5074,12 +5074,12 @@ model ServiceLocation {
   requireReference Boolean @default(false)
 
   // Metadata
-  requiresLocation Boolean  @default(false)
+  requiresLocation Boolean @default(false)
   locationType     String?
 
-  hasGeofencing    Boolean  @default(false) // Se requer geofencing
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  hasGeofencing Boolean  @default(false) // Se requer geofencing
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@map("service_locations")
 }
@@ -5104,13 +5104,13 @@ model ServiceForm {
   validationRules Json?
 
   // Metadata
-  isRequired    Boolean  @default(false)
-  validation    Json?
-  conditional   Json?    // Lógica condicional de campos
+  isRequired  Boolean @default(false)
+  validation  Json?
+  conditional Json? // Lógica condicional de campos
 
-  isMultiStep      Boolean  @default(false) // Se é formulário multi-etapa
-  steps            Json?    // Etapas do formulário (para multi-step)
-  hasGeofencing    Boolean  @default(false) // Se requer geofencing
+  isMultiStep   Boolean  @default(false) // Se é formulário multi-etapa
+  steps         Json? // Etapas do formulário (para multi-step)
+  hasGeofencing Boolean  @default(false) // Se requer geofencing
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -5164,8 +5164,8 @@ model ServiceScheduling {
   maxPerDay  Int?
 
   // Antecedência
-  minAdvanceDays Int @default(1)
-  maxAdvanceDays Int @default(30)
+  minAdvanceDays Int  @default(1)
+  maxAdvanceDays Int  @default(30)
   advanceBooking Int? // Dias de antecedência para agendamento
 
   // Lembretes
@@ -5175,8 +5175,8 @@ model ServiceScheduling {
   // Metadata
   allowScheduling Boolean  @default(true)
   type            String?
-  workingHours    Json?    // Horário de funcionamento
-  blockouts       Json?    // Bloqueios de horário
+  workingHours    Json? // Horário de funcionamento
+  blockouts       Json? // Bloqueios de horário
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

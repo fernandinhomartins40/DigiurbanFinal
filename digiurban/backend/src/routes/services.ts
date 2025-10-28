@@ -33,15 +33,20 @@ router.get(
   '/',
   async (req, res: Response<SuccessResponse | ErrorResponse>) => {
     try {
-      const { departmentId, search, includeFeatures } = req.query;
+      const { departmentId, departmentCode, search, includeFeatures } = req.query;
 
       let whereClause: WhereCondition = {
         tenantId: req.tenantId,
         isActive: true,
       };
 
+      // Suporte para filtrar por departmentId OU departmentCode
       if (departmentId) {
         whereClause.departmentId = departmentId;
+      } else if (departmentCode) {
+        whereClause.department = {
+          code: departmentCode as string,
+        };
       }
 
       if (search) {

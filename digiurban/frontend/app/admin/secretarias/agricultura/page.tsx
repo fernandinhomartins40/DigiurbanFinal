@@ -172,6 +172,128 @@ export default function SecretariaAgriculturaPage() {
         </CardContent>
       </Card>
 
+      {/* Módulos Padrões - Base de dados do sistema */}
+      <div>
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold">Módulos Padrões</h2>
+          <p className="text-sm text-muted-foreground">
+            Gestão de cadastros e dados estruturados da agricultura
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Produtores Rurais */}
+          <Card className="border-amber-200 bg-amber-50/50 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => router.push('/admin/secretarias/agricultura/produtores')}>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Users className="h-5 w-5 text-amber-600" />
+                Produtores Rurais
+              </CardTitle>
+              <CardDescription>
+                Cadastro de produtores e agricultores familiares
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {statsLoading ? (
+                <Skeleton className="h-12 w-full" />
+              ) : (
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Ativos:</span>
+                    <span className="font-medium">{stats?.producers.active || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total:</span>
+                    <span className="font-medium">{stats?.producers.total || 0}</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Propriedades Rurais */}
+          <Card className="border-green-200 bg-green-50/50 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => router.push('/admin/secretarias/agricultura/propriedades')}>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-green-600" />
+                Propriedades Rurais
+              </CardTitle>
+              <CardDescription>
+                Cadastro e mapeamento de propriedades
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {statsLoading ? (
+                <Skeleton className="h-12 w-full" />
+              ) : (
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Total:</span>
+                    <span className="font-medium">{stats?.properties.total || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Área:</span>
+                    <span className="font-medium">{stats?.properties.totalArea || 0} ha</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Programas Rurais */}
+          <Card className="border-blue-200 bg-blue-50/50 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => router.push('/admin/secretarias/agricultura/programas')}>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileBarChart className="h-5 w-5 text-blue-600" />
+                Programas Rurais
+              </CardTitle>
+              <CardDescription>
+                PRONAF, crédito rural e programas especiais
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Ativos:</span>
+                  <span className="font-medium">0</span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-2">
+                  Em desenvolvimento
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Capacitações */}
+          <Card className="border-purple-200 bg-purple-50/50 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => router.push('/admin/secretarias/agricultura/capacitacoes')}>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="h-5 w-5 text-purple-600" />
+                Capacitações
+              </CardTitle>
+              <CardDescription>
+                Cursos, treinamentos e assistência técnica
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Agendadas:</span>
+                  <span className="font-medium">0</span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-2">
+                  Em desenvolvimento
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Serviços Disponíveis */}
       <div>
         <h2 className="text-2xl font-semibold mb-6">Serviços Disponíveis</h2>
@@ -343,128 +465,6 @@ export default function SecretariaAgriculturaPage() {
           </div>
         </div>
       )}
-
-      {/* Módulos Padrões */}
-      <div>
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold">Módulos Padrões</h2>
-          <p className="text-sm text-muted-foreground">
-            Gestão de cadastros e dados estruturados da agricultura
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Produtores Rurais */}
-          <Card className="border-amber-200 bg-amber-50/50 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => router.push('/admin/secretarias/agricultura/produtores')}>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Users className="h-5 w-5 text-amber-600" />
-                Produtores Rurais
-              </CardTitle>
-              <CardDescription>
-                Cadastro de produtores e agricultores familiares
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Skeleton className="h-12 w-full" />
-              ) : (
-                <div className="text-sm space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Ativos:</span>
-                    <span className="font-medium">{stats?.producers.active || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total:</span>
-                    <span className="font-medium">{stats?.producers.total || 0}</span>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Propriedades Rurais */}
-          <Card className="border-green-200 bg-green-50/50 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => router.push('/admin/secretarias/agricultura/propriedades')}>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-green-600" />
-                Propriedades Rurais
-              </CardTitle>
-              <CardDescription>
-                Cadastro e mapeamento de propriedades
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {statsLoading ? (
-                <Skeleton className="h-12 w-full" />
-              ) : (
-                <div className="text-sm space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total:</span>
-                    <span className="font-medium">{stats?.properties.total || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Área:</span>
-                    <span className="font-medium">{stats?.properties.totalArea || 0} ha</span>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Programas Rurais */}
-          <Card className="border-blue-200 bg-blue-50/50 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => router.push('/admin/secretarias/agricultura/programas')}>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileBarChart className="h-5 w-5 text-blue-600" />
-                Programas Rurais
-              </CardTitle>
-              <CardDescription>
-                PRONAF, crédito rural e programas especiais
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Ativos:</span>
-                  <span className="font-medium">0</span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-2">
-                  Em desenvolvimento
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Capacitações */}
-          <Card className="border-purple-200 bg-purple-50/50 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => router.push('/admin/secretarias/agricultura/capacitacoes')}>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileText className="h-5 w-5 text-purple-600" />
-                Capacitações
-              </CardTitle>
-              <CardDescription>
-                Cursos, treinamentos e assistência técnica
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm space-y-1">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Agendadas:</span>
-                  <span className="font-medium">0</span>
-                </div>
-                <div className="text-xs text-muted-foreground mt-2">
-                  Em desenvolvimento
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
 
       {/* Módulos Customizados */}
       <div>

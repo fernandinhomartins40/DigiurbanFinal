@@ -869,11 +869,15 @@ export async function seedServiceTemplates() {
 
       await prisma.serviceTemplate.upsert({
         where: { code: template.code },
-        update: template,
+        update: {
+          ...template,
+          departmentType: template.departmentType || 'geral'
+        },
         create: {
           ...template,
+          departmentType: template.departmentType || 'geral',
           isActive: true,
-          version: '1.0'
+          version: 1
         },
       });
 

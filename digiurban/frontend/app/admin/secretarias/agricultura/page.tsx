@@ -359,6 +359,95 @@ export default function SecretariaAgriculturaPage() {
         </div>
       )}
 
+      {/* Módulos Customizados */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-semibold">Módulos Customizados</h2>
+            <p className="text-sm text-muted-foreground">
+              Crie tabelas personalizadas para dados específicos da agricultura
+            </p>
+          </div>
+          <Button
+            onClick={() => router.push('/admin/custom-modules/new?department=agricultura')}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Novo Módulo Customizado
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card: Exemplo de módulo customizado */}
+          <Card className="border-blue-200 bg-blue-50/50">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                Controle de Insumos
+              </CardTitle>
+              <CardDescription>
+                Tabela customizada para controlar estoque de insumos agrícolas
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="text-sm text-muted-foreground">
+                  💾 15 registros
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => router.push('/admin/custom-modules/insumos')}
+                >
+                  Gerenciar Registros
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card: Incentivo para criar */}
+          <Card className="border-dashed border-2">
+            <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+              <Plus className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="font-semibold mb-2">Crie seu primeiro módulo</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Módulos customizados permitem armazenar dados específicos que não fazem parte dos módulos padrões
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => router.push('/admin/custom-modules/new?department=agricultura')}
+              >
+                Começar
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Card: Informativo */}
+          <Card className="border-gray-200 bg-gray-50/50">
+            <CardHeader>
+              <CardTitle className="text-lg">
+                ℹ️ Sobre Módulos Customizados
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="text-sm space-y-2 text-muted-foreground">
+                <li>✅ Defina seus próprios campos</li>
+                <li>✅ Vincule a protocolos</li>
+                <li>✅ Exporte para Excel/CSV</li>
+                <li>✅ Crie relatórios personalizados</li>
+              </ul>
+              <Button
+                variant="link"
+                className="mt-4 p-0"
+                onClick={() => window.open('/docs/custom-modules', '_blank')}
+              >
+                Ver documentação →
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
       {/* Modal de Novo Protocolo */}
       <NewProtocolModal
         open={showNewProtocolModal}

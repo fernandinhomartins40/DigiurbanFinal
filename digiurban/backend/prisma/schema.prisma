@@ -32,7 +32,9 @@ model Tenant {
   athletes                         Athlete[]
   benefitRequests                  BenefitRequest[]
   buildingPermits                  BuildingPermit[]
+  businessLicenses                 BusinessLicense[]
   campaignEnrollments              CampaignEnrollment[]
+  certificateRequests              CertificateRequest[]
   transferRequestsTo               CitizenTransferRequest[]          @relation("TransferTo")
   transferRequestsFrom             CitizenTransferRequest[]          @relation("TransferFrom")
   citizens                         Citizen[]
@@ -149,6 +151,7 @@ model Tenant {
   tourismInfos                     TourismInfo[]
   tourismPrograms                  TourismProgram[]
   touristAttractions               TouristAttraction[]
+  urbanInfractions                 UrbanInfraction[]
   urbanPlanningAttendances         UrbanPlanningAttendance[]
   urbanProjects                    UrbanProject[]
   urbanZoning                      UrbanZoning[]
@@ -505,6 +508,15 @@ model ProtocolSimplified {
   technicalInspections   TechnicalInspection[]   @relation("TechnicalInspectionProtocol")
   publicWorks            PublicWork[]            @relation("PublicWorkProtocol")
   workInspections        WorkInspection[]        @relation("WorkInspectionProtocol")
+
+  // Módulos de Planejamento Urbano
+  projectApprovals            ProjectApproval[]            @relation("ProjectApprovalProtocol")
+  buildingPermits             BuildingPermit[]             @relation("BuildingPermitProtocol")
+  businessLicenses            BusinessLicense[]            @relation("BusinessLicenseProtocol")
+  certificateRequests         CertificateRequest[]         @relation("CertificateRequestProtocol")
+  urbanInfractions            UrbanInfraction[]            @relation("UrbanInfractionProtocol")
+  urbanZonings                UrbanZoning[]                @relation("UrbanZoningProtocol")
+  urbanPlanningAttendances    UrbanPlanningAttendance[]    @relation("UrbanPlanningAttendanceProtocol")
 
   @@map("protocols_simplified")
 }
@@ -1119,6 +1131,7 @@ model RuralProperty {
 model BuildingPermit {
   id                String    @id @default(cuid())
   tenantId          String
+  protocolId        String?
   applicantName     String
   applicantCpf      String? // Campo adicionado
   applicantCpfCnpj  String?
@@ -1155,6 +1168,7 @@ model BuildingPermit {
   approvedAt        DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  protocol          ProtocolSimplified? @relation("BuildingPermitProtocol", fields: [protocolId], references: [id])
   tenant            Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("building_permits")
@@ -1199,6 +1213,7 @@ model PublicConsultation {
 model UrbanZoning {
   id           String   @id @default(cuid())
   tenantId     String
+  protocolId   String?
   name         String?
   zoneName     String
   code         String?
@@ -1213,6 +1228,7 @@ model UrbanZoning {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  protocol     ProtocolSimplified? @relation("UrbanZoningProtocol", fields: [protocolId], references: [id])
   tenant       Tenant   @relation(fields: [tenantId], references: [id])
 
   @@map("urban_zoning")
@@ -1221,6 +1237,7 @@ model UrbanZoning {
 model ProjectApproval {
   id             String    @id @default(cuid())
   tenantId       String
+  protocolId     String?
   projectName    String
   applicantName  String
   projectType    String
@@ -1231,6 +1248,7 @@ model ProjectApproval {
   documents      Json?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  protocol       ProtocolSimplified? @relation("ProjectApprovalProtocol", fields: [protocolId], references: [id])
   tenant         Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("project_approvals")
@@ -1239,6 +1257,7 @@ model ProjectApproval {
 model UrbanPlanningAttendance {
   id             String    @id @default(cuid())
   tenantId       String
+  protocolId     String?
   citizenId      String?
   citizenName    String
   contactInfo    String?
@@ -1250,6 +1269,7 @@ model UrbanPlanningAttendance {
   assignedTo     String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  protocol       ProtocolSimplified? @relation("UrbanPlanningAttendanceProtocol", fields: [protocolId], references: [id])
   citizen        Citizen?  @relation("UrbanPlanningAttendanceCitizen", fields: [citizenId], references: [id])
   tenant         Tenant    @relation(fields: [tenantId], references: [id])
 
@@ -1273,6 +1293,101 @@ model UrbanProject {
   tenant      Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("urban_projects")
+}
+
+model BusinessLicense {
+  id                String    @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  applicantName     String
+  applicantCpfCnpj  String
+  applicantPhone    String?
+  applicantEmail    String?
+  businessName      String
+  businessType      String
+  businessActivity  String
+  propertyAddress   String
+  propertyNumber    String?
+  neighborhood      String?
+  licenseType       String
+  status            String    @default("PENDING")
+  submissionDate    DateTime  @default(now())
+  approvalDate      DateTime?
+  validUntil        DateTime?
+  licenseNumber     String?
+  observations      String?
+  documents         Json?
+  technicalAnalysis Json?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  issuedDate        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  protocol          ProtocolSimplified? @relation("BusinessLicenseProtocol", fields: [protocolId], references: [id])
+  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("business_licenses")
+}
+
+model CertificateRequest {
+  id               String    @id @default(cuid())
+  tenantId         String
+  protocolId       String?
+  applicantName    String
+  applicantCpfCnpj String
+  applicantPhone   String?
+  applicantEmail   String?
+  certificateType  String
+  purpose          String?
+  propertyAddress  String?
+  propertyNumber   String?
+  neighborhood     String?
+  status           String    @default("PENDING")
+  submissionDate   DateTime  @default(now())
+  issuedDate       DateTime?
+  validUntil       DateTime?
+  certificateNumber String?
+  observations     String?
+  documents        Json?
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  protocol         ProtocolSimplified? @relation("CertificateRequestProtocol", fields: [protocolId], references: [id])
+  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("certificate_requests")
+}
+
+model UrbanInfraction {
+  id                String    @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  complainantName   String?
+  complainantPhone  String?
+  complainantEmail  String?
+  infractionType    String
+  description       String
+  propertyAddress   String
+  propertyNumber    String?
+  neighborhood      String?
+  latitude          Float?
+  longitude         Float?
+  photos            Json?
+  status            String    @default("OPEN")
+  priority          String    @default("MEDIUM")
+  submissionDate    DateTime  @default(now())
+  inspectionDate    DateTime?
+  resolutionDate    DateTime?
+  assignedTo        String?
+  observations      String?
+  documents         Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  protocol          ProtocolSimplified? @relation("UrbanInfractionProtocol", fields: [protocolId], references: [id])
+  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("urban_infractions")
 }
 
 model EmailSubscription {

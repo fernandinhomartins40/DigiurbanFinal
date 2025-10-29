@@ -2116,6 +2116,141 @@ export class ProtocolModuleService {
           status: 'ACTIVE',
         },
       }),
+
+      // PLANEJAMENTO URBANO
+      ProjectApproval: () => tx.projectApproval.create({
+        data: {
+          tenantId,
+          protocolId,
+          projectName: formData.projectName,
+          applicantName: formData.applicantName,
+          projectType: formData.projectType,
+          description: formData.description,
+          documents: formData.documents as Prisma.JsonValue,
+          status: 'UNDER_REVIEW',
+        },
+      }),
+
+      BuildingPermit: () => tx.buildingPermit.create({
+        data: {
+          tenantId,
+          protocolId,
+          applicantName: formData.applicantName,
+          applicantCpf: formData.applicantCpf,
+          applicantCpfCnpj: formData.applicantCpfCnpj || formData.applicantCpf,
+          applicantPhone: formData.applicantPhone,
+          applicantEmail: formData.applicantEmail,
+          propertyAddress: formData.propertyAddress,
+          propertyNumber: formData.propertyNumber,
+          neighborhood: formData.neighborhood,
+          lotNumber: formData.lotNumber,
+          blockNumber: formData.blockNumber,
+          totalArea: formData.totalArea ? parseFloat(formData.totalArea) : null,
+          builtArea: formData.builtArea ? parseFloat(formData.builtArea) : null,
+          floors: formData.floors ? parseInt(formData.floors) : null,
+          constructionType: formData.constructionType,
+          permitType: formData.permitType,
+          projectValue: formData.projectValue ? parseFloat(formData.projectValue) : null,
+          description: formData.description,
+          observations: formData.observations,
+          documents: formData.documents as Prisma.JsonValue,
+          status: 'PENDING',
+        },
+      }),
+
+      BusinessLicense: () => tx.businessLicense.create({
+        data: {
+          tenantId,
+          protocolId,
+          applicantName: formData.applicantName,
+          applicantCpfCnpj: formData.applicantCpfCnpj,
+          applicantPhone: formData.applicantPhone,
+          applicantEmail: formData.applicantEmail,
+          businessName: formData.businessName,
+          businessType: formData.businessType,
+          businessActivity: formData.businessActivity,
+          propertyAddress: formData.propertyAddress,
+          propertyNumber: formData.propertyNumber,
+          neighborhood: formData.neighborhood,
+          licenseType: formData.licenseType,
+          observations: formData.observations,
+          documents: formData.documents as Prisma.JsonValue,
+          status: 'PENDING',
+        },
+      }),
+
+      CertificateRequest: () => tx.certificateRequest.create({
+        data: {
+          tenantId,
+          protocolId,
+          applicantName: formData.applicantName,
+          applicantCpfCnpj: formData.applicantCpfCnpj,
+          applicantPhone: formData.applicantPhone,
+          applicantEmail: formData.applicantEmail,
+          certificateType: formData.certificateType,
+          purpose: formData.purpose,
+          propertyAddress: formData.propertyAddress,
+          propertyNumber: formData.propertyNumber,
+          neighborhood: formData.neighborhood,
+          observations: formData.observations,
+          documents: formData.documents as Prisma.JsonValue,
+          status: 'PENDING',
+        },
+      }),
+
+      UrbanInfraction: () => tx.urbanInfraction.create({
+        data: {
+          tenantId,
+          protocolId,
+          complainantName: formData.complainantName,
+          complainantPhone: formData.complainantPhone,
+          complainantEmail: formData.complainantEmail,
+          infractionType: formData.infractionType,
+          description: formData.description,
+          propertyAddress: formData.propertyAddress,
+          propertyNumber: formData.propertyNumber,
+          neighborhood: formData.neighborhood,
+          latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+          longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+          photos: formData.photos as Prisma.JsonValue,
+          priority: formData.priority || 'MEDIUM',
+          observations: formData.observations,
+          documents: formData.documents as Prisma.JsonValue,
+          status: 'OPEN',
+        },
+      }),
+
+      UrbanZoning: () => tx.urbanZoning.create({
+        data: {
+          tenantId,
+          protocolId,
+          name: formData.name,
+          zoneName: formData.zoneName,
+          code: formData.code,
+          type: formData.type,
+          zoneType: formData.zoneType,
+          description: formData.description,
+          regulations: formData.regulations as Prisma.JsonValue,
+          permitedUses: formData.permitedUses as Prisma.JsonValue,
+          restrictions: formData.restrictions as Prisma.JsonValue,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          boundaries: formData.boundaries as Prisma.JsonValue,
+          isActive: formData.isActive !== false,
+        },
+      }),
+
+      UrbanPlanningAttendance: () => tx.urbanPlanningAttendance.create({
+        data: {
+          tenantId,
+          protocolId,
+          citizenId: formData.citizenId,
+          citizenName: formData.citizenName,
+          contactInfo: formData.contactInfo || formData.phone,
+          subject: formData.subject,
+          description: formData.description,
+          status: 'OPEN',
+        },
+      }),
     };
 
     const createFn = entityMap[entityName];
@@ -2693,6 +2828,42 @@ export class ProtocolModuleService {
       }),
 
       ProtectedArea: () => tx.protectedArea.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      // PLANEJAMENTO URBANO
+      ProjectApproval: () => tx.projectApproval.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      BuildingPermit: () => tx.buildingPermit.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      BusinessLicense: () => tx.businessLicense.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      CertificateRequest: () => tx.certificateRequest.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      UrbanInfraction: () => tx.urbanInfraction.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      UrbanZoning: () => tx.urbanZoning.updateMany({
+        where: { protocolId },
+        data: { isActive: status === 'ACTIVE', ...additionalData },
+      }),
+
+      UrbanPlanningAttendance: () => tx.urbanPlanningAttendance.updateMany({
         where: { protocolId },
         data: { status, ...additionalData },
       }),

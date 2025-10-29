@@ -18,6 +18,7 @@ import {
   consultaContratosConfig,
   consultaMapaObrasConfig,
 } from './obras-publicas';
+import { configsPlanejamentoUrbano } from './planejamento-urbano';
 
 // Módulos de Obras Públicas (5 COM_DADOS + 2 INFORMATIVOS = 7 TOTAL)
 export const obrasPublicasModuleConfigs: Record<string, ModuleConfig> = {
@@ -30,11 +31,15 @@ export const obrasPublicasModuleConfigs: Record<string, ModuleConfig> = {
   'consulta-mapa-obras': consultaMapaObrasConfig,
 };
 
+// Módulos de Planejamento Urbano (7 COM_DADOS + 2 INFORMATIVOS = 9 TOTAL)
+export const planejamentoUrbanoModuleConfigs = configsPlanejamentoUrbano;
+
 // Registry de todas as configurações de módulos
 const moduleRegistry: Record<string, Record<string, ModuleConfig>> = {
   agriculture: agricultureModules,
   education: educacaoModuleConfigs,
   obrasPublicas: obrasPublicasModuleConfigs,
+  planejamentoUrbano: configsPlanejamentoUrbano,
 };
 
 /**
@@ -72,3 +77,4 @@ export * from './types';
 export { agricultureModules } from './agriculture';
 export { educacaoModuleConfigs } from './educacao';
 export { obrasPublicasModuleConfigs } from './obras-publicas';
+export { planejamentoUrbanoModuleConfigs, configsPlanejamentoUrbano } from './planejamento-urbano';

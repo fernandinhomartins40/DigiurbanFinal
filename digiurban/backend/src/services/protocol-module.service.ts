@@ -615,6 +615,191 @@ export class ProtocolModuleService {
           cost: formData.cost ? parseFloat(formData.cost) : null,
         },
       }),
+
+      // ASSISTÊNCIA SOCIAL
+      SocialAssistanceAttendance: () => tx.socialAssistanceAttendance.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          citizenId: formData.citizenId,
+          citizenName: formData.citizenName,
+          citizenCpf: formData.citizenCpf,
+          contact: formData.contact as Prisma.JsonValue,
+          familyIncome: formData.familyIncome ? parseFloat(formData.familyIncome) : null,
+          familySize: formData.familySize ? parseInt(formData.familySize) : null,
+          serviceType: formData.serviceType,
+          attendanceType: formData.attendanceType,
+          subject: formData.subject,
+          description: formData.description,
+          vulnerability: formData.vulnerability,
+          urgency: formData.urgency || 'NORMAL',
+          referredBy: formData.referredBy,
+          socialWorker: formData.socialWorker,
+          socialWorkerId: formData.socialWorkerId,
+          assessment: formData.assessment as Prisma.JsonValue,
+          interventionPlan: formData.interventionPlan as Prisma.JsonValue,
+          referrals: formData.referrals as Prisma.JsonValue,
+          followUpPlan: formData.followUpPlan as Prisma.JsonValue,
+          followUpNeeded: formData.followUpNeeded || false,
+          followUpDate: formData.followUpDate ? new Date(formData.followUpDate) : null,
+          priority: formData.priority,
+          status: 'PENDING',
+          observations: formData.observations,
+        },
+      }),
+
+      VulnerableFamily: () => tx.vulnerableFamily.create({
+        data: {
+          tenantId,
+          protocolId,
+          citizenId: formData.citizenId,
+          familyCode: formData.familyCode,
+          responsibleName: formData.responsibleName || formData.citizenName,
+          memberCount: formData.memberCount ? parseInt(formData.memberCount) : 1,
+          monthlyIncome: formData.monthlyIncome ? parseFloat(formData.monthlyIncome) : null,
+          riskLevel: formData.riskLevel || 'LOW',
+          vulnerabilityType: formData.vulnerabilityType,
+          socialWorker: formData.socialWorker,
+          status: 'ACTIVE',
+          observations: formData.observations,
+          lastVisitDate: formData.lastVisitDate ? new Date(formData.lastVisitDate) : null,
+          nextVisitDate: formData.nextVisitDate ? new Date(formData.nextVisitDate) : null,
+        },
+      }),
+
+      BenefitRequest: () => tx.benefitRequest.create({
+        data: {
+          tenantId,
+          protocolId,
+          familyId: formData.familyId,
+          benefitType: formData.benefitType,
+          requestDate: new Date(),
+          status: 'PENDING',
+          urgency: formData.urgency || 'NORMAL',
+          reason: formData.reason,
+          documentsProvided: formData.documentsProvided as Prisma.JsonValue,
+          observations: formData.observations,
+        },
+      }),
+
+      EmergencyDelivery: () => tx.emergencyDelivery.create({
+        data: {
+          tenantId,
+          protocolId,
+          benefitRequestId: formData.benefitRequestId,
+          citizenId: formData.citizenId,
+          deliveryType: formData.deliveryType,
+          quantity: formData.quantity ? parseInt(formData.quantity) : 1,
+          deliveryDate: formData.deliveryDate ? new Date(formData.deliveryDate) : new Date(),
+          recipientName: formData.recipientName,
+          recipientSignature: formData.recipientSignature,
+          deliveredBy: formData.deliveredBy,
+          urgency: formData.urgency,
+          status: 'PENDING',
+          observations: formData.observations,
+        },
+      }),
+
+      SocialGroupEnrollment: () => tx.socialGroupEnrollment.create({
+        data: {
+          tenantId,
+          protocolId,
+          citizenId: formData.citizenId,
+          participantName: formData.participantName || formData.citizenName,
+          participantCpf: formData.participantCpf || formData.citizenCpf,
+          groupName: formData.groupName,
+          groupType: formData.groupType,
+          enrollmentDate: new Date(),
+          status: 'ACTIVE',
+          frequency: formData.frequency,
+          observations: formData.observations,
+          instructor: formData.instructor,
+          schedule: formData.schedule as Prisma.JsonValue,
+        },
+      }),
+
+      HomeVisit: () => tx.homeVisit.create({
+        data: {
+          tenantId,
+          protocolId,
+          familyId: formData.familyId,
+          socialWorkerId: formData.socialWorkerId,
+          visitDate: formData.visitDate ? new Date(formData.visitDate) : new Date(),
+          socialWorker: formData.socialWorker,
+          visitType: formData.visitType || 'ROUTINE',
+          visitPurpose: formData.visitPurpose || formData.purpose,
+          purpose: formData.purpose,
+          findings: formData.findings,
+          recommendations: formData.recommendations,
+          nextVisitDate: formData.nextVisitDate ? new Date(formData.nextVisitDate) : null,
+          status: 'SCHEDULED',
+        },
+      }),
+
+      SocialProgramEnrollment: () => tx.socialProgramEnrollment.create({
+        data: {
+          tenantId,
+          protocolId,
+          citizenId: formData.citizenId,
+          beneficiaryName: formData.beneficiaryName || formData.citizenName,
+          beneficiaryCpf: formData.beneficiaryCpf || formData.citizenCpf,
+          programName: formData.programName,
+          programType: formData.programType,
+          enrollmentDate: new Date(),
+          status: 'PENDING',
+          monthlyIncome: formData.monthlyIncome ? parseFloat(formData.monthlyIncome) : null,
+          familySize: formData.familySize ? parseInt(formData.familySize) : null,
+          priority: formData.priority || 'NORMAL',
+          approvedDate: formData.approvedDate ? new Date(formData.approvedDate) : null,
+          startDate: formData.startDate ? new Date(formData.startDate) : null,
+          endDate: formData.endDate ? new Date(formData.endDate) : null,
+          benefits: formData.benefits as Prisma.JsonValue,
+          observations: formData.observations,
+        },
+      }),
+
+      SocialAppointment: () => tx.socialAppointment.create({
+        data: {
+          tenantId,
+          protocolId,
+          citizenId: formData.citizenId,
+          citizenName: formData.citizenName,
+          citizenCpf: formData.citizenCpf,
+          appointmentType: formData.appointmentType,
+          appointmentDate: formData.appointmentDate ? new Date(formData.appointmentDate) : new Date(),
+          socialWorker: formData.socialWorker,
+          socialWorkerId: formData.socialWorkerId,
+          purpose: formData.purpose,
+          status: 'SCHEDULED',
+          notes: formData.notes,
+          result: formData.result,
+          followUpNeeded: formData.followUpNeeded || false,
+          followUpDate: formData.followUpDate ? new Date(formData.followUpDate) : null,
+        },
+      }),
+
+      SocialEquipment: () => tx.socialEquipment.create({
+        data: {
+          tenantId,
+          protocolId,
+          equipmentName: formData.equipmentName,
+          equipmentType: formData.equipmentType,
+          address: formData.address,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          capacity: formData.capacity ? parseInt(formData.capacity) : null,
+          currentOccupancy: formData.currentOccupancy ? parseInt(formData.currentOccupancy) : 0,
+          coordinator: formData.coordinator,
+          coordinatorId: formData.coordinatorId,
+          phone: formData.phone,
+          email: formData.email,
+          services: formData.services as Prisma.JsonValue,
+          schedule: formData.schedule as Prisma.JsonValue,
+          status: 'ACTIVE',
+          isActive: true,
+          observations: formData.observations,
+        },
+      }),
     };
 
     const createFn = entityMap[entityName];
@@ -871,6 +1056,52 @@ export class ProtocolModuleService {
       SchoolMeal: () => tx.schoolMeal.updateMany({
         where: { protocolId },
         data: { ...additionalData },
+      }),
+
+      // ASSISTÊNCIA SOCIAL
+      SocialAssistanceAttendance: () => tx.socialAssistanceAttendance.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      VulnerableFamily: () => tx.vulnerableFamily.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      BenefitRequest: () => tx.benefitRequest.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      EmergencyDelivery: () => tx.emergencyDelivery.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      SocialGroupEnrollment: () => tx.socialGroupEnrollment.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      HomeVisit: () => tx.homeVisit.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      SocialProgramEnrollment: () => tx.socialProgramEnrollment.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      SocialAppointment: () => tx.socialAppointment.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      SocialEquipment: () => tx.socialEquipment.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
       }),
     };
 

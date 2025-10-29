@@ -144,6 +144,10 @@ model Tenant {
   UrbanMaintenanceRequest     UrbanMaintenanceRequest[]
   HousingRequest              HousingRequest[]
   SportsModality              SportsModality[]
+  socialGroupEnrollments      SocialGroupEnrollment[]
+  socialProgramEnrollments    SocialProgramEnrollment[]
+  socialAppointments          SocialAppointment[]
+  socialEquipments            SocialEquipment[]
 
   @@map("tenants")
 }
@@ -170,6 +174,8 @@ model User {
   createdProtocolsSimplified  ProtocolSimplified[]         @relation("CreatedByUserSimplified")
   assignedProtocolsSimplified ProtocolSimplified[]         @relation("AssignedUserSimplified")
   socialAssistanceAsWorker    SocialAssistanceAttendance[] @relation("SocialAssistanceWorker")
+  socialAppointmentsAsWorker  SocialAppointment[]          @relation("SocialAppointmentWorker")
+  socialEquipmentsAsCoordinator SocialEquipment[]          @relation("SocialEquipmentCoordinator")
   department                  Department?                  @relation(fields: [departmentId], references: [id])
   tenant                      Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
@@ -233,6 +239,9 @@ model Citizen {
   urbanPlanningAttendances    UrbanPlanningAttendance[]    @relation("UrbanPlanningAttendanceCitizen")
   vaccinations                Vaccination[]
   vulnerableFamilyData        VulnerableFamily?
+  socialGroupEnrollments      SocialGroupEnrollment[]      @relation("SocialGroupCitizen")
+  socialProgramEnrollments    SocialProgramEnrollment[]    @relation("SocialProgramCitizen")
+  socialAppointments          SocialAppointment[]          @relation("SocialAppointmentCitizen")
 
   @@unique([tenantId, cpf])
   @@map("citizens")
@@ -409,6 +418,17 @@ model ProtocolSimplified {
   gradeRecords             GradeRecord[]             @relation("GradeRecordProtocol")
   schoolManagements        SchoolManagement[]        @relation("SchoolManagementProtocol")
   schoolMeals              SchoolMeal[]              @relation("SchoolMealProtocol")
+
+  // Módulos de Assistência Social
+  socialAssistanceAttendances SocialAssistanceAttendance[] @relation("SocialAssistanceAttendanceProtocol")
+  vulnerableFamilies          VulnerableFamily[]           @relation("VulnerableFamilyProtocol")
+  benefitRequests             BenefitRequest[]             @relation("BenefitRequestProtocol")
+  emergencyDeliveries         EmergencyDelivery[]          @relation("EmergencyDeliveryProtocol")
+  socialGroupEnrollments      SocialGroupEnrollment[]      @relation("SocialGroupEnrollmentProtocol")
+  homeVisits                  HomeVisit[]                  @relation("HomeVisitProtocol")
+  socialProgramEnrollments    SocialProgramEnrollment[]    @relation("SocialProgramEnrollmentProtocol")
+  socialAppointments          SocialAppointment[]          @relation("SocialAppointmentProtocol")
+  socialEquipments            SocialEquipment[]            @relation("SocialEquipmentProtocol")
 
   @@map("protocols_simplified")
 }
@@ -1846,6 +1866,7 @@ model Medication {
 model VulnerableFamily {
   id                String           @id @default(cuid())
   tenantId          String
+  protocolId        String?
   citizenId         String           @unique
   familyCode        String?
   responsibleName   String?
@@ -1864,6 +1885,7 @@ model VulnerableFamily {
   homeVisits        HomeVisit[]
   tenant            Tenant           @relation(fields: [tenantId], references: [id])
   citizen           Citizen          @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  protocol          ProtocolSimplified? @relation("VulnerableFamilyProtocol", fields: [protocolId], references: [id])
 
   @@map("vulnerable_families")
 }
@@ -1871,6 +1893,7 @@ model VulnerableFamily {
 model BenefitRequest {
   id                String              @id @default(cuid())
   tenantId          String
+  protocolId        String?
   familyId          String
   benefitType       String
   requestDate       DateTime            @default(now())
@@ -1887,6 +1910,7 @@ model BenefitRequest {
   family            VulnerableFamily    @relation(fields: [familyId], references: [id])
   tenant            Tenant              @relation(fields: [tenantId], references: [id])
   deliveries        EmergencyDelivery[]
+  protocol          ProtocolSimplified? @relation("BenefitRequestProtocol", fields: [protocolId], references: [id])
 
   @@map("benefit_requests")
 }
@@ -1894,6 +1918,7 @@ model BenefitRequest {
 model EmergencyDelivery {
   id                 String          @id @default(cuid())
   tenantId           String
+  protocolId         String?
   benefitRequestId   String?
   citizenId          String?
   deliveryType       String
@@ -1910,6 +1935,7 @@ model EmergencyDelivery {
   citizen            Citizen?        @relation("EmergencyDeliveryCitizen", fields: [citizenId], references: [id])
   benefitRequest     BenefitRequest? @relation(fields: [benefitRequestId], references: [id])
   tenant             Tenant          @relation(fields: [tenantId], references: [id])
+  protocol           ProtocolSimplified? @relation("EmergencyDeliveryProtocol", fields: [protocolId], references: [id])
 
   @@map("emergency_deliveries")
 }
@@ -1917,6 +1943,7 @@ model EmergencyDelivery {
 model HomeVisit {
   id               String           @id @default(cuid())
   tenantId         String
+  protocolId       String?
   familyId         String
   socialWorkerId   String?
   visitDate        DateTime
@@ -1933,6 +1960,7 @@ model HomeVisit {
   socialWorkerUser User?            @relation("HomeVisitSocialWorker", fields: [socialWorkerId], references: [id])
   family           VulnerableFamily @relation(fields: [familyId], references: [id])
   tenant           Tenant           @relation(fields: [tenantId], references: [id])
+  protocol         ProtocolSimplified? @relation("HomeVisitProtocol", fields: [protocolId], references: [id])
 
   @@map("home_visits")
 }
@@ -3511,6 +3539,7 @@ model SocialProgram {
 model SocialAssistanceAttendance {
   id               String    @id @default(cuid())
   tenantId         String
+  protocolId       String?
   protocol         String    @unique
   citizenId        String?
   citizenName      String
@@ -3543,8 +3572,116 @@ model SocialAssistanceAttendance {
   socialWorkerUser User?     @relation("SocialAssistanceWorker", fields: [socialWorkerId], references: [id])
   citizen          Citizen?  @relation("SocialAssistanceCitizen", fields: [citizenId], references: [id])
   tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("SocialAssistanceAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("social_assistance_attendances")
+}
+
+model SocialGroupEnrollment {
+  id            String    @id @default(cuid())
+  tenantId      String
+  protocolId    String?
+  citizenId     String?
+  participantName String
+  participantCpf  String?
+  groupName     String
+  groupType     String
+  enrollmentDate DateTime @default(now())
+  status        String    @default("ACTIVE")
+  frequency     String?
+  observations  String?
+  instructor    String?
+  schedule      Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  tenant        Tenant    @relation(fields: [tenantId], references: [id])
+  citizen       Citizen?  @relation("SocialGroupCitizen", fields: [citizenId], references: [id])
+  protocol      ProtocolSimplified? @relation("SocialGroupEnrollmentProtocol", fields: [protocolId], references: [id])
+
+  @@map("social_group_enrollments")
+}
+
+model SocialProgramEnrollment {
+  id              String    @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  citizenId       String?
+  beneficiaryName String
+  beneficiaryCpf  String?
+  programName     String
+  programType     String
+  enrollmentDate  DateTime  @default(now())
+  status          String    @default("PENDING")
+  monthlyIncome   Float?
+  familySize      Int?
+  priority        String    @default("NORMAL")
+  approvedDate    DateTime?
+  startDate       DateTime?
+  endDate         DateTime?
+  benefits        Json?
+  observations    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  citizen         Citizen?  @relation("SocialProgramCitizen", fields: [citizenId], references: [id])
+  protocol        ProtocolSimplified? @relation("SocialProgramEnrollmentProtocol", fields: [protocolId], references: [id])
+
+  @@map("social_program_enrollments")
+}
+
+model SocialAppointment {
+  id               String    @id @default(cuid())
+  tenantId         String
+  protocolId       String?
+  citizenId        String?
+  citizenName      String
+  citizenCpf       String?
+  appointmentType  String
+  appointmentDate  DateTime
+  socialWorker     String?
+  socialWorkerId   String?
+  purpose          String
+  status           String    @default("SCHEDULED")
+  notes            String?
+  result           String?
+  followUpNeeded   Boolean   @default(false)
+  followUpDate     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  citizen          Citizen?  @relation("SocialAppointmentCitizen", fields: [citizenId], references: [id])
+  socialWorkerUser User?     @relation("SocialAppointmentWorker", fields: [socialWorkerId], references: [id])
+  protocol         ProtocolSimplified? @relation("SocialAppointmentProtocol", fields: [protocolId], references: [id])
+
+  @@map("social_appointments")
+}
+
+model SocialEquipment {
+  id              String    @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  equipmentName   String
+  equipmentType   String
+  address         String
+  coordinates     Json?
+  capacity        Int?
+  currentOccupancy Int      @default(0)
+  coordinator     String?
+  coordinatorId   String?
+  phone           String?
+  email           String?
+  services        Json?
+  schedule        Json?
+  status          String    @default("ACTIVE")
+  isActive        Boolean   @default(true)
+  observations    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  coordinatorUser User?     @relation("SocialEquipmentCoordinator", fields: [coordinatorId], references: [id])
+  protocol        ProtocolSimplified? @relation("SocialEquipmentProtocol", fields: [protocolId], references: [id])
+
+  @@map("social_equipments")
 }
 
 model WorkInspection {

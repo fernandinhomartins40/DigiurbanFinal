@@ -75,8 +75,7 @@ interface PageWithServices {
   name: string;
   isActive: boolean;
   generatedServices: unknown[];
-  _count: {
-    protocols: number;
+  _count: { protocolsSimplified: number;
   };
 }
 
@@ -173,7 +172,7 @@ router.get('/:secretaria/pages', authenticateToken, handleAsyncRoute(async (req,
       },
       _count: {
         select: {
-          protocols: true,
+          protocolsSimplified: true,
           serviceGenerations: true,
         },
       },
@@ -186,7 +185,7 @@ router.get('/:secretaria/pages', authenticateToken, handleAsyncRoute(async (req,
     total: typedPages.length,
     active: typedPages.filter(p => p.isActive).length,
     withServices: typedPages.filter(p => p.generatedServices.length > 0).length,
-    totalProtocols: typedPages.reduce((acc: number, p) => acc + p._count.protocols, 0),
+    totalProtocols: typedPages.reduce((acc: number, p) => acc + p._count.protocolsSimplified, 0),
   };
 
   res.json(createSuccessResponse({ pages, stats }, 'Páginas listadas com sucesso'));
@@ -276,7 +275,7 @@ router.post('/:secretaria/:pageCode/protocols', authenticateToken, handleAsyncRo
   // Gerar número do protocolo
   const protocolNumber = generateProtocolNumber();
 
-  const protocol = await prisma.protocol.create({
+  const protocol = await prisma.protocolSimplified.create({
     data: {
       tenantId: (req.tenantId || req.tenant?.id)!,
       number: protocolNumber,
@@ -365,7 +364,7 @@ router.get('/:secretaria/:pageCode/protocols', authenticateToken, handleAsyncRou
     where.priority = priority;
   }
 
-  const protocols = await prisma.protocol.findMany({
+  const protocols = await prisma.protocolSimplified.findMany({
     where,
     include: {
       citizen: {
@@ -387,12 +386,12 @@ router.get('/:secretaria/:pageCode/protocols', authenticateToken, handleAsyncRou
     take: parseInt(limit),
   });
 
-  const total = await prisma.protocol.count({ where });
+  const total = await prisma.protocolSimplified.count({ where });
 
   const stats = {
     total,
     returned: protocols.length,
-    byStatus: await prisma.protocol.groupBy({
+    byStatus: await prisma.protocolSimplified.groupBy({
       by: ['status'],
       where: {
         tenantId: (req.tenantId || req.tenant?.id)!,
@@ -470,7 +469,7 @@ router.post(
     });
 
     // Simular criação de serviço baseado na análise
-    const generatedService = await prisma.service.create({
+    const generatedService = await prisma.serviceSimplified.create({
       data: {
         name: `Serviço Auto-gerado para ${page.name}`,
         description: `Serviço gerado automaticamente baseado na análise da página ${page.name}`,
@@ -515,7 +514,7 @@ router.get('/:secretaria/dashboard', authenticateToken, handleAsyncRoute(async (
   });
 
   // Protocolos ativos
-  const activeProtocols = await prisma.protocol.count({
+  const activeProtocols = await prisma.protocolSimplified.count({
     where: {
       tenantId: (req.tenantId || req.tenant?.id)!,
       specializedPage: {
@@ -539,7 +538,7 @@ router.get('/:secretaria/dashboard', authenticateToken, handleAsyncRoute(async (
   });
 
   // Protocolos por página
-  const protocolsByPage = await prisma.protocol.groupBy({
+  const protocolsByPage = await prisma.protocolSimplified.groupBy({
     by: ['specializedPageId'],
     where: {
       tenantId: (req.tenantId || req.tenant?.id)!,

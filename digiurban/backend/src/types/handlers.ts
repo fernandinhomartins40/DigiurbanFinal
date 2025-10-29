@@ -4,7 +4,6 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { UserRole } from '@prisma/client';
-
 // Handler básico
 export type BaseHandler = (req: Request, res: Response, next: NextFunction) => void | Promise<void>;
 

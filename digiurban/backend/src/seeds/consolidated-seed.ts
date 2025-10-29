@@ -9,7 +9,6 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
 
 async function main() {
@@ -180,7 +179,7 @@ async function main() {
     });
 
     if (saudeDept) {
-      const existing1 = await prisma.service.findFirst({
+      const existing1 = await prisma.serviceSimplified.findFirst({
         where: {
           tenantId: tenant.id,
           name: 'Agendamento de Consulta'
@@ -188,7 +187,7 @@ async function main() {
       });
 
       if (!existing1) {
-        await prisma.service.create({
+        await prisma.serviceSimplified.create({
           data: {
             name: 'Agendamento de Consulta',
             description: 'Agendar consulta médica nas UBS e clínicas municipais',
@@ -204,7 +203,7 @@ async function main() {
         });
       }
 
-      const existing2 = await prisma.service.findFirst({
+      const existing2 = await prisma.serviceSimplified.findFirst({
         where: {
           tenantId: tenant.id,
           name: 'Solicitação de Cartão SUS'
@@ -212,7 +211,7 @@ async function main() {
       });
 
       if (!existing2) {
-        await prisma.service.create({
+        await prisma.serviceSimplified.create({
           data: {
             name: 'Solicitação de Cartão SUS',
             description: 'Primeira via ou segunda via do Cartão Nacional de Saúde',
@@ -230,7 +229,7 @@ async function main() {
     }
 
     if (educacaoDept) {
-      const existing3 = await prisma.service.findFirst({
+      const existing3 = await prisma.serviceSimplified.findFirst({
         where: {
           tenantId: tenant.id,
           name: 'Matrícula Escolar'
@@ -238,7 +237,7 @@ async function main() {
       });
 
       if (!existing3) {
-        await prisma.service.create({
+        await prisma.serviceSimplified.create({
           data: {
             name: 'Matrícula Escolar',
             description: 'Solicitação de matrícula em escola da rede municipal',
@@ -254,7 +253,7 @@ async function main() {
         });
       }
 
-      const existing4 = await prisma.service.findFirst({
+      const existing4 = await prisma.serviceSimplified.findFirst({
         where: {
           tenantId: tenant.id,
           name: 'Transporte Escolar'
@@ -262,7 +261,7 @@ async function main() {
       });
 
       if (!existing4) {
-        await prisma.service.create({
+        await prisma.serviceSimplified.create({
           data: {
             name: 'Transporte Escolar',
             description: 'Solicitação de transporte escolar gratuito',

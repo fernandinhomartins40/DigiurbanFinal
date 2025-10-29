@@ -245,7 +245,7 @@ router.get('/budget/summary', authenticateToken, requireRole('USER'), async (req
     }
 
     // Contar protocolos do departamento de agricultura
-    const totalProtocols = await prisma.protocol.count({
+    const totalProtocols = await prisma.protocolSimplified.count({
       where: {
         tenantId,
         departmentId: agricultureDepartment.id,
@@ -253,7 +253,7 @@ router.get('/budget/summary', authenticateToken, requireRole('USER'), async (req
     });
 
     // Protocolos concluídos (como proxy para "orçamento usado")
-    const completedProtocols = await prisma.protocol.count({
+    const completedProtocols = await prisma.protocolSimplified.count({
       where: {
         tenantId,
         departmentId: agricultureDepartment.id,
@@ -272,7 +272,7 @@ router.get('/budget/summary', authenticateToken, requireRole('USER'), async (req
     const executionRate = allocated > 0 ? (used / allocated) * 100 : 0;
 
     // Projetos ativos (protocolos em andamento)
-    const activeProjects = await prisma.protocol.count({
+    const activeProjects = await prisma.protocolSimplified.count({
       where: {
         tenantId,
         departmentId: agricultureDepartment.id,
@@ -321,7 +321,7 @@ router.get('/services/stats', authenticateToken, requireRole('USER'), async (req
     }
 
     // Serviços por tipo
-    const serviceStats = await prisma.service.groupBy({
+    const serviceStats = await prisma.serviceSimplified.groupBy({
       by: ['name'],
       where: {
         tenantId,
@@ -333,7 +333,7 @@ router.get('/services/stats', authenticateToken, requireRole('USER'), async (req
     // Protocolos por serviço (para ter uma ideia de demanda)
     const protocolsPerService = await Promise.all(
       serviceStats.map(async service => {
-        const serviceRecord = await prisma.service.findFirst({
+        const serviceRecord = await prisma.serviceSimplified.findFirst({
           where: {
             tenantId,
             name: service.name,
@@ -343,7 +343,7 @@ router.get('/services/stats', authenticateToken, requireRole('USER'), async (req
 
         if (!serviceRecord) return { ...service, protocols: 0 };
 
-        const protocolCount = await prisma.protocol.count({
+        const protocolCount = await prisma.protocolSimplified.count({
           where: {
             tenantId,
             serviceId: serviceRecord.id,
@@ -393,7 +393,7 @@ router.get('/monthly-stats', authenticateToken, requireRole('USER'), async (req:
 
     if (agricultureDepartment) {
       // Agrupar protocolos por mês
-      const protocolsData = await prisma.protocol.groupBy({
+      const protocolsData = await prisma.protocolSimplified.groupBy({
         by: ['createdAt'],
         where: {
           tenantId,
@@ -606,7 +606,7 @@ async function getBudgetSummary(tenantId: string) {
     };
   }
 
-  const completedProtocols = await prisma.protocol.count({
+  const completedProtocols = await prisma.protocolSimplified.count({
     where: {
       tenantId,
       departmentId: agricultureDepartment.id,
@@ -614,7 +614,7 @@ async function getBudgetSummary(tenantId: string) {
     },
   });
 
-  const activeProjects = await prisma.protocol.count({
+  const activeProjects = await prisma.protocolSimplified.count({
     where: {
       tenantId,
       departmentId: agricultureDepartment.id,
@@ -646,7 +646,7 @@ async function getServicesStats(tenantId: string) {
 
   if (!agricultureDepartment) return [];
 
-  const serviceStats = await prisma.service.groupBy({
+  const serviceStats = await prisma.serviceSimplified.groupBy({
     by: ['name'],
     where: {
       tenantId,

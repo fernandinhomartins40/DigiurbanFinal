@@ -144,7 +144,7 @@ router.get(
         createdAt: true,
         _count: {
           select: {
-            protocols: true,
+            protocolsSimplified: true,
             familyAsHead: true,
           },
         },
@@ -346,7 +346,7 @@ router.get(
         },
         _count: {
           select: {
-            protocols: true,
+            protocolsSimplified: true,
             familyAsHead: true,
             notifications: true,
           },

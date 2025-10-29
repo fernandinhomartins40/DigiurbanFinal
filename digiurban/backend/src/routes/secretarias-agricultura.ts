@@ -62,7 +62,7 @@ router.get(
         }),
 
         // 2. Estatísticas de Protocolos
-        prisma.protocol.groupBy({
+        prisma.protocolSimplified.groupBy({
           by: ['status'],
           where: {
             tenantId,
@@ -259,7 +259,7 @@ router.post('/protocols', requireMinRole(UserRole.USER), async (req, res) => {
     }
 
     // Buscar serviço
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id: serviceId,
         tenantId,

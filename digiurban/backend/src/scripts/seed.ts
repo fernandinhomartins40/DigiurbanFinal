@@ -165,7 +165,7 @@ async function main() {
   ];
 
   const servicosPromises = servicosSaude.map(servico =>
-    prisma.service.create({
+    prisma.serviceSimplified.create({
       data: {
         ...servico,
         tenantId: defaultTenant.id,
@@ -210,7 +210,7 @@ async function main() {
   console.log('✅ Cidadão de exemplo criado:', cidadao.name);
 
   // 6. Criar protocolo de exemplo
-  const protocoloExemplo = await prisma.protocol.create({
+  const protocoloExemplo = await prisma.protocolSimplified.create({
     data: {
       number: '2024000001',
       title: 'Agendamento de consulta médica',
@@ -227,7 +227,7 @@ async function main() {
   console.log('✅ Protocolo de exemplo criado:', protocoloExemplo.number);
 
   // 7. Criar histórico do protocolo
-  await prisma.protocolHistory.create({
+  await prisma.protocolHistorySimplified.create({
     data: {
       action: 'CREATED',
       comment: 'Protocolo criado automaticamente durante seed',

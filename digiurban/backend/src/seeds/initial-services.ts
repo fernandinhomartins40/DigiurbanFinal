@@ -21,7 +21,6 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-
 const prisma = new PrismaClient();
 
 interface ServiceSeedData {
@@ -1925,7 +1924,7 @@ export async function seedInitialServices(tenantId: string) {
         }
 
         // Verificar se serviço já existe
-        const existing = await prisma.service.findFirst({
+        const existing = await prisma.serviceSimplified.findFirst({
           where: {
             name: serviceData.name,
             tenantId,
@@ -1938,7 +1937,7 @@ export async function seedInitialServices(tenantId: string) {
         }
 
         // Criar serviço
-        await prisma.service.create({
+        await prisma.serviceSimplified.create({
           data: {
             name: serviceData.name,
             description: serviceData.description,

@@ -4,7 +4,6 @@
 
 import { Request, Response } from 'express';
 import { UserRole } from '@prisma/client';
-
 // Re-exporta tipos de outros módulos para compatibilidade
 export type { UserWithRelations, CitizenWithRelations } from './common';
 export type { TenantWithMeta } from './middleware';

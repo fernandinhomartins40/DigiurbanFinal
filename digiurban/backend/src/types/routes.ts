@@ -10,9 +10,9 @@ import {
   User,
   UserRole,
   Citizen,
-  Protocol,
+  ProtocolSimplified,
   ProtocolStatus,
-  Service,
+  ServiceSimplified,
   Department,
   TenantStatus,
 } from '@prisma/client';
@@ -193,8 +193,8 @@ export interface UpdateProtocolRequest {
  * Resposta detalhada de protocolo
  */
 export interface ProtocolDetailResponse {
-  protocol: Protocol & {
-    service: Service;
+  protocol: ProtocolSimplified & {
+    service: ServiceSimplified;
     department: Department;
     assignedUser?: User;
     citizen?: Citizen;
@@ -212,7 +212,7 @@ export interface ProtocolDetailResponse {
       createdAt: Date;
     }>;
   };
-  relatedProtocols?: Protocol[];
+  relatedProtocols?: ProtocolSimplified[];
 }
 
 // ============================================================================

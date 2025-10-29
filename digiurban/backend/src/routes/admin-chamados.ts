@@ -193,7 +193,7 @@ router.post(
     }
 
     // Verificar se o serviço existe e está ativo
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id: data.serviceId,
         tenantId: user.tenantId,
@@ -261,7 +261,7 @@ router.post(
       ...(data.dueDate && { dueDate: new Date(data.dueDate) }),
     };
 
-    const protocol = await prisma.protocol.create({
+    const protocol = await prisma.protocolSimplified.create({
       data: protocolData,
       include: {
         citizen: {
@@ -300,7 +300,7 @@ router.post(
     });
 
     // Criar histórico inicial detalhado
-    await prisma.protocolHistory.create({
+    await prisma.protocolHistorySimplified.create({
       data: {
         protocolId: protocol.id,
         action: 'CHAMADO_CREATED',
@@ -397,7 +397,7 @@ router.get(
 
     // Buscar chamados (protocolos) com paginação
     const [chamados, total] = await Promise.all([
-      prisma.protocol.findMany({
+      prisma.protocolSimplified.findMany({
         where,
         include: {
           citizen: {
@@ -454,7 +454,7 @@ router.get(
         skip,
         take: limit,
       }),
-      prisma.protocol.count({ where }),
+      prisma.protocolSimplified.count({ where }),
     ]);
 
     res.json(createSuccessResponse({
@@ -576,7 +576,7 @@ router.get(
     }
 
     // Buscar serviços agrupados por departamento
-    const services = await prisma.service.findMany({
+    const services = await prisma.serviceSimplified.findMany({
       where,
       include: {
         department: {

@@ -412,7 +412,7 @@ router.get('/protocols', async (req, res) => {
 
     // Buscar protocolos familiares
     const [protocols, total] = await Promise.all([
-      prisma.protocol.findMany({
+      prisma.protocolSimplified.findMany({
         where,
         include: {
           service: {
@@ -444,7 +444,7 @@ router.get('/protocols', async (req, res) => {
         skip,
         take: Number(limit),
       }),
-      prisma.protocol.count({ where }),
+      prisma.protocolSimplified.count({ where }),
     ]);
 
     return res.json({
@@ -479,7 +479,7 @@ router.get('/stats', async (req, res) => {
     const allFamilyIds = [citizen.id, ...familyMembers.map(m => m.memberId)];
 
     // Estatísticas dos protocolos familiares
-    const protocolStats = await prisma.protocol.groupBy({
+    const protocolStats = await prisma.protocolSimplified.groupBy({
       by: ['status'],
       where: {
         tenantId: tenant.id,
@@ -491,7 +491,7 @@ router.get('/stats', async (req, res) => {
     });
 
     // Total de protocolos
-    const totalProtocols = await prisma.protocol.count({
+    const totalProtocols = await prisma.protocolSimplified.count({
       where: {
         tenantId: tenant.id,
         citizenId: { in: allFamilyIds },
@@ -509,7 +509,7 @@ router.get('/stats', async (req, res) => {
                 select: { id: true, name: true, cpf: true },
               });
 
-        const protocolCount = await prisma.protocol.count({
+        const protocolCount = await prisma.protocolSimplified.count({
           where: {
             tenantId: tenant.id,
             citizenId: memberId,
@@ -579,7 +579,7 @@ router.get('/members/:memberId', async (req, res) => {
     }
 
     // Buscar protocolos do membro
-    const memberProtocols = await prisma.protocol.findMany({
+    const memberProtocols = await prisma.protocolSimplified.findMany({
       where: {
         tenantId: tenant.id,
         citizenId: memberId,

@@ -701,13 +701,13 @@ async function getUserStats(
     };
 
     const [totalProtocols, pendingProtocols, completedProtocols] = await Promise.all([
-      prisma.protocol.count({ where: whereAll }),
-      prisma.protocol.count({ where: whereNotCompleted }),
-      prisma.protocol.count({ where: whereCompleted }),
+      prisma.protocolSimplified.count({ where: whereAll }),
+      prisma.protocolSimplified.count({ where: whereNotCompleted }),
+      prisma.protocolSimplified.count({ where: whereCompleted }),
     ]);
 
     // Protocolos por status
-    const protocolsByStatus = await prisma.protocol.groupBy({
+    const protocolsByStatus = await prisma.protocolSimplified.groupBy({
       by: ['status'],
       where: whereAll,
       _count: {

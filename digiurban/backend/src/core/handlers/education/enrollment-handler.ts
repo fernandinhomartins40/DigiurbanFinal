@@ -1,7 +1,6 @@
 import { BaseModuleHandler } from '../base-handler';
 import { ModuleAction } from '../../../types/module-handler';
 import { PrismaClient } from '@prisma/client';
-
 export class StudentEnrollmentHandler extends BaseModuleHandler {
   moduleType = 'education';
   entityName = 'StudentEnrollment';

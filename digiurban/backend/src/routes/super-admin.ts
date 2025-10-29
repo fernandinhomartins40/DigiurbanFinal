@@ -409,8 +409,8 @@ router.get(
           _count: {
             select: {
               users: true,
-              protocols: true,
-              services: true,
+              protocolsSimplified: true,
+              servicesSimplified: true,
               citizens: true,
               invoices: true,
             },
@@ -638,8 +638,8 @@ router.get(
         _count: {
           select: {
             users: true,
-            protocols: true,
-            services: true,
+            protocolsSimplified: true,
+            servicesSimplified: true,
             citizens: true,
             invoices: true,
           },
@@ -699,8 +699,8 @@ router.put(
         _count: {
           select: {
             users: true,
-            protocols: true,
-            services: true,
+            protocolsSimplified: true,
+            servicesSimplified: true,
             citizens: true,
           },
         },
@@ -735,9 +735,9 @@ router.post(
         _count: {
           select: {
             users: true,
-            protocols: true,
+            protocolsSimplified: true,
             citizens: true,
-            services: true,
+            servicesSimplified: true,
           },
         },
       },
@@ -767,9 +767,9 @@ router.post(
         _count: {
           select: {
             users: true,
-            protocols: true,
+            protocolsSimplified: true,
             citizens: true,
-            services: true,
+            servicesSimplified: true,
           },
         },
       },
@@ -781,9 +781,9 @@ router.post(
       tenant: updatedTenant,
       info: {
         usersPreserved: updatedTenant._count.users,
-        protocolsPreserved: updatedTenant._count.protocols,
+        protocolsPreserved: updatedTenant._count.protocolsSimplified,
         citizensPreserved: updatedTenant._count.citizens,
-        servicesPreserved: updatedTenant._count.services,
+        servicesPreserved: updatedTenant._count.servicesSimplified,
       }
     });
   })
@@ -870,9 +870,9 @@ router.delete(
         _count: {
           select: {
             users: true,
-            protocols: true,
+            protocolsSimplified: true,
             citizens: true,
-            services: true,
+            servicesSimplified: true,
             departments: true,
             invoices: true,
             leads: true,
@@ -904,9 +904,9 @@ router.delete(
       // Se não houver cascade, deletar manualmente em ordem
       const deletionSummary = {
         users: tenant._count.users,
-        protocols: tenant._count.protocols,
+        protocols: tenant._count.protocolsSimplified,
         citizens: tenant._count.citizens,
-        services: tenant._count.services,
+        services: tenant._count.servicesSimplified,
         departments: tenant._count.departments,
         invoices: tenant._count.invoices,
         leads: tenant._count.leads,
@@ -962,9 +962,9 @@ router.delete(
         _count: {
           select: {
             users: true,
-            protocols: true,
+            protocolsSimplified: true,
             citizens: true,
-            services: true,
+            servicesSimplified: true,
           },
         },
       },
@@ -1042,7 +1042,7 @@ router.get(
       prisma.tenant.count(),
       prisma.tenant.count({ where: { status: TenantStatus.ACTIVE } }),
       prisma.tenant.count({ where: { status: TenantStatus.TRIAL } }),
-      prisma.protocol.count(),
+      prisma.protocolSimplified.count(),
       prisma.user.count(),
       prisma.invoice.aggregate({
         where: { status: InvoiceStatus.PAID },
@@ -1081,7 +1081,7 @@ router.get(
     });
 
     // Protocolos por status
-    const protocolsByStatus = await prisma.protocol.groupBy({
+    const protocolsByStatus = await prisma.protocolSimplified.groupBy({
       by: ['status'],
       _count: true,
     });
@@ -1092,7 +1092,7 @@ router.get(
       include: {
         _count: {
           select: {
-            protocols: true,
+            protocolsSimplified: true,
             users: true,
           },
         },
@@ -1155,7 +1155,7 @@ router.get(
         id: tenant.id,
         name: tenant.name,
         plan: tenant.plan,
-        protocolCount: tenant._count.protocols,
+        protocolCount: tenant._count.protocolsSimplified,
         userCount: tenant._count.users,
         createdAt: tenant.createdAt,
       })),
@@ -1674,8 +1674,8 @@ router.get(
         _count: {
           select: {
             users: true,
-            protocols: true,
-            services: true,
+            protocolsSimplified: true,
+            servicesSimplified: true,
             citizens: true,
             invoices: true
           }
@@ -1720,8 +1720,8 @@ router.get(
       },
       usage: {
         activeUsers: tenant._count.users,
-        totalProtocols: tenant._count.protocols,
-        protocolsThisMonth: Math.floor(tenant._count.protocols * 0.1),
+        totalProtocols: tenant._count.protocolsSimplified,
+        protocolsThisMonth: Math.floor(tenant._count.protocolsSimplified * 0.1),
         storageUsed: 1024 * 1024 * 500,
         storageLimit: 1024 * 1024 * 1024 * 10,
         apiCalls: 45000

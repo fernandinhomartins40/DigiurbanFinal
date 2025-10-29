@@ -54,8 +54,8 @@ router.get('/', authenticateToken, requireSuperAdmin, async (req, res) => {
             select: {
               users: true,
               departments: true,
-              services: true,
-              protocols: true,
+              servicesSimplified: true,
+              protocolsSimplified: true,
             },
           },
         },
@@ -112,7 +112,7 @@ router.get(
               _count: {
                 select: {
                   users: true,
-                  services: true,
+                  servicesSimplified: true,
                 },
               },
             },
@@ -120,8 +120,8 @@ router.get(
           _count: {
             select: {
               users: true,
-              protocols: true,
-              services: true,
+              protocolsSimplified: true,
+              servicesSimplified: true,
               citizens: true,
             },
           },
@@ -405,16 +405,16 @@ router.get(
       ] = await Promise.all([
         prisma.user.count({ where: { tenantId: id } }),
         prisma.department.count({ where: { tenantId: id } }),
-        prisma.service.count({ where: { tenantId: id } }),
-        prisma.protocol.count({ where: { tenantId: id } }),
+        prisma.serviceSimplified.count({ where: { tenantId: id } }),
+        prisma.protocolSimplified.count({ where: { tenantId: id } }),
         prisma.citizen.count({ where: { tenantId: id } }),
-        prisma.protocol.count({
+        prisma.protocolSimplified.count({
           where: {
             tenantId: id,
             status: { in: ['VINCULADO', 'PROGRESSO', 'ATUALIZACAO'] },
           },
         }),
-        prisma.protocol.groupBy({
+        prisma.protocolSimplified.groupBy({
           by: ['status'],
           where: { tenantId: id },
           _count: true,

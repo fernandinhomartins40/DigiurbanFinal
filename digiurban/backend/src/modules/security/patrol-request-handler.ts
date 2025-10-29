@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-
 interface ModuleAction {
   type: string;
   entity: string;

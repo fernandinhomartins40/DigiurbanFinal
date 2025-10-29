@@ -108,15 +108,14 @@ export type {
   TenantStatus,
   Plan,
   Department,
-  Service,
-  Protocol,
+  ServiceSimplified,
+  ProtocolSimplified,
   ProtocolStatus,
   Citizen,
   EmailPlan,
   InvoiceStatus,
   LeadSource,
 } from '@prisma/client';
-
 /**
  * REGRAS DE IMPORTAÇÃO:
  *

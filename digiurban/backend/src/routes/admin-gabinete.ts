@@ -286,7 +286,7 @@ router.get('/mapa-demandas/protocols', adminAuthMiddleware, requireAdmin, async 
       }
     }
 
-    const protocols = await prisma.protocol.findMany({
+    const protocols = await prisma.protocolSimplified.findMany({
       where,
       select: {
         id: true,
@@ -328,7 +328,7 @@ router.get('/mapa-demandas/protocols', adminAuthMiddleware, requireAdmin, async 
 router.get('/mapa-demandas/stats', adminAuthMiddleware, requireAdmin, async (req: Request, res: Response) => {
   try {
     // Total de protocolos com geolocalização
-    const totalWithLocation = await prisma.protocol.count({
+    const totalWithLocation = await prisma.protocolSimplified.count({
       where: {
         tenantId: req.tenantId,
         latitude: { not: null },
@@ -337,7 +337,7 @@ router.get('/mapa-demandas/stats', adminAuthMiddleware, requireAdmin, async (req
     })
 
     // Por status
-    const byStatus = await prisma.protocol.groupBy({
+    const byStatus = await prisma.protocolSimplified.groupBy({
       by: ['status'],
       where: {
         tenantId: req.tenantId,
@@ -350,7 +350,7 @@ router.get('/mapa-demandas/stats', adminAuthMiddleware, requireAdmin, async (req
     })
 
     // Por categoria de serviço
-    const protocolsWithService = await prisma.protocol.findMany({
+    const protocolsWithService = await prisma.protocolSimplified.findMany({
       where: {
         tenantId: req.tenantId,
         latitude: { not: null },

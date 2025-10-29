@@ -36,8 +36,7 @@
  */
 
 import { prisma } from '../lib/prisma';
-import { Protocol } from '@prisma/client';
-
+import { ProtocolSimplified as Protocol } from '@prisma/client';
 // ============================================================================
 // INTERFACES E TIPOS
 // ============================================================================

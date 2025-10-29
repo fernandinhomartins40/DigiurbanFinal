@@ -314,7 +314,7 @@ router.post(
 
     try {
       // Verificar se o protocolo existe e pertence ao cidadão/família
-      const protocol = await prisma.protocol.findFirst({
+      const protocol = await prisma.protocolSimplified.findFirst({
         where: {
           id: protocolId,
           tenantId: tenant.id,
@@ -354,7 +354,7 @@ router.post(
         : [];
       const updatedDocuments = [...currentDocuments, ...uploadedFiles];
 
-      await prisma.protocol.update({
+      await prisma.protocolSimplified.update({
         where: { id: protocolId },
         data: {
           documents: updatedDocuments as unknown as Prisma.InputJsonValue,
@@ -362,7 +362,7 @@ router.post(
       });
 
       // Criar histórico
-      await prisma.protocolHistory.create({
+      await prisma.protocolHistorySimplified.create({
         data: {
           protocolId: protocolId,
           action: 'DOCUMENTOS_ENVIADOS',
@@ -418,7 +418,7 @@ router.get(
     }
 
     // Verificar se o protocolo existe e pertence ao cidadão/família
-    const protocol = await prisma.protocol.findFirst({
+    const protocol = await prisma.protocolSimplified.findFirst({
       where: {
         id: protocolId,
         tenantId: tenant.id,
@@ -489,7 +489,7 @@ router.get(
     }
 
     // Verificar se o protocolo existe e pertence ao cidadão/família
-    const protocol = await prisma.protocol.findFirst({
+    const protocol = await prisma.protocolSimplified.findFirst({
       where: {
         id: protocolId,
         tenantId: tenant.id,
@@ -556,7 +556,7 @@ router.delete(
     }
 
     // Verificar se o protocolo existe e pertence ao cidadão/família
-    const protocol = await prisma.protocol.findFirst({
+    const protocol = await prisma.protocolSimplified.findFirst({
       where: {
         id: protocolId,
         tenantId: tenant.id,
@@ -611,7 +611,7 @@ router.delete(
     const updatedDocuments = documents.filter((_, index) => index !== documentIndex);
 
     // Atualizar protocolo
-    await prisma.protocol.update({
+    await prisma.protocolSimplified.update({
       where: { id: protocolId },
       data: {
         documents: updatedDocuments as unknown as Prisma.InputJsonValue,
@@ -619,7 +619,7 @@ router.delete(
     });
 
     // Criar histórico
-    await prisma.protocolHistory.create({
+    await prisma.protocolHistorySimplified.create({
       data: {
         protocolId: protocolId,
         action: 'DOCUMENTO_REMOVIDO',

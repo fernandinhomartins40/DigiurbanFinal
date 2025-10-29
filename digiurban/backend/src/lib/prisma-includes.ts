@@ -56,8 +56,8 @@ export const UserIncludes = {
     department: true,
     _count: {
       select: {
-        assignedProtocols: true,
-        createdProtocols: true,
+        assignedProtocolsSimplified: true,
+        createdProtocolsSimplified: true,
       }
     },
   }
@@ -87,7 +87,7 @@ export const TenantIncludes = {
   full: {
     users: true,
     departments: true,
-    services: true,
+    servicesSimplified: true,
     protocols: {
       include: {
         citizen: {
@@ -114,8 +114,8 @@ export const TenantIncludes = {
       select: {
         users: true,
         departments: true,
-        services: true,
-        protocols: true,
+        servicesSimplified: true,
+        protocolsSimplified: true,
         citizens: true,
       }
     },
@@ -275,7 +275,7 @@ export const ServiceIncludes = {
     },
     _count: {
       select: {
-        protocols: true,
+        protocolsSimplified: true,
       }
     },
   }
@@ -352,7 +352,7 @@ export const CitizenIncludes = {
     },
     _count: {
       select: {
-        protocols: true,
+        protocolsSimplified: true,
         familyAsHead: true,
         familyAsMember: true,
         notifications: true,

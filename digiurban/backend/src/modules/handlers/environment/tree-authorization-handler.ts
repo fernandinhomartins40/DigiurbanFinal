@@ -5,7 +5,6 @@
 import { BaseModuleHandler } from '../../../core/handlers/base-handler';
 import { ModuleAction } from '../../../types/module-handler';
 import { PrismaClient } from '@prisma/client';
-
 type PrismaTransaction = Omit<
   PrismaClient,
   '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'

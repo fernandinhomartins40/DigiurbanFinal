@@ -57,7 +57,7 @@ router.get(
       }
 
       // Include condicional baseado em flags
-      const services = await prisma.service.findMany({
+      const services = await prisma.serviceSimplified.findMany({
         where: whereClause,
         include: {
           department: {
@@ -101,7 +101,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id,
         tenantId: req.tenantId,
@@ -469,7 +469,7 @@ router.put('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async 
     } = authReq.body;
 
     // Verificar se serviço existe
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id,
         tenantId: authReq.tenantId,
@@ -491,7 +491,7 @@ router.put('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async 
       });
     }
 
-    const updatedService = await prisma.service.update({
+    const updatedService = await prisma.serviceSimplified.update({
       where: { id },
       data: {
         name: name !== undefined ? name : service.name,
@@ -548,7 +548,7 @@ router.delete('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), asy
     const { id } = authReq.params;
 
     // Verificar se serviço existe
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id,
         tenantId: authReq.tenantId,
@@ -571,7 +571,7 @@ router.delete('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), asy
     }
 
     // Verificar se há protocolos ativos
-    const activeProtocols = await prisma.protocol.count({
+    const activeProtocols = await prisma.protocolSimplified.count({
       where: {
         serviceId: id,
         status: {
@@ -587,7 +587,7 @@ router.delete('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), asy
       });
     }
 
-    await prisma.service.update({
+    await prisma.serviceSimplified.update({
       where: { id },
       data: { isActive: false },
     });
@@ -612,7 +612,7 @@ router.get('/department/:departmentId', async (req, res) => {
   try {
     const { departmentId } = req.params;
 
-    const services = await prisma.service.findMany({
+    const services = await prisma.serviceSimplified.findMany({
       where: {
         departmentId,
         tenantId: req.tenantId,

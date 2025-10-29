@@ -371,7 +371,7 @@ router.get(
     const where = createServiceWhereClause(whereParams);
 
     const [services, total] = await Promise.all([
-      prisma.service.findMany({
+      prisma.serviceSimplified.findMany({
         where,
         include: {
           department: {
@@ -383,7 +383,7 @@ router.get(
           },
           _count: {
             select: {
-              protocols: true,
+              protocolsSimplified: true,
             },
           },
         },
@@ -391,7 +391,7 @@ router.get(
         skip,
         take: limit,
       }),
-      prisma.service.count({ where }),
+      prisma.serviceSimplified.count({ where }),
     ]);
 
     const paginationInfo: PaginationInfo = {
@@ -446,7 +446,7 @@ router.post(
     }
 
     // Criar serviço
-    const service = await prisma.service.create({
+    const service = await prisma.serviceSimplified.create({
       data: {
         tenantId: user.tenantId || '',
         departmentId,
@@ -507,7 +507,7 @@ router.put(
       serviceWhereParams.departmentId = user.departmentId;
     }
 
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id: serviceId,
         ...serviceWhereParams,
@@ -536,7 +536,7 @@ router.put(
     if (data.icon !== undefined) updateData.icon = data.icon;
     if (data.color !== undefined) updateData.color = data.color;
 
-    const updatedService = await prisma.service.update({
+    const updatedService = await prisma.serviceSimplified.update({
       where: { id: serviceId },
       data: updateData,
       include: {
@@ -616,7 +616,7 @@ router.get(
           },
           _count: {
             select: {
-              assignedProtocols: true,
+              assignedProtocolsSimplified: true,
             },
           },
         },
@@ -846,8 +846,8 @@ router.get(
         _count: {
           select: {
             users: true,
-            services: true,
-            protocols: true,
+            servicesSimplified: true,
+            protocolsSimplified: true,
           },
         },
       },
@@ -861,8 +861,8 @@ router.get(
       name: dept.name,
       code: dept.code,
       usersCount: dept._count.users,
-      servicesCount: dept._count.services,
-      protocolsCount: dept._count.protocols,
+      servicesCount: dept._count.servicesSimplified,
+      protocolsCount: dept._count.protocolsSimplified,
     }));
 
     return res.json(createSuccessResponse({ departments: departmentList }));
@@ -902,7 +902,7 @@ router.get(
     }
 
     // Performance por usuário
-    const userPerformance = await prisma.protocol.groupBy({
+    const userPerformance = await prisma.protocolSimplified.groupBy({
       by: ['assignedUserId'],
       where: {
         ...protocolFilter,

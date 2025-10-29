@@ -64,7 +64,7 @@ router.get('/', async (req, res) => {
     // Para cada template, verificar se já foi ativado no tenant
     const templatesWithStatus = await Promise.all(
       templates.map(async (template) => {
-        const activeInstance = await prisma.service.findFirst({
+        const activeInstance = await prisma.serviceSimplified.findFirst({
           where: {
             tenantId: tenant.id,
             templateId: template.id,
@@ -180,7 +180,7 @@ router.post('/:id/activate', async (req, res) => {
     }
 
     // Verificar se já foi ativado
-    const existingService = await prisma.service.findFirst({
+    const existingService = await prisma.serviceSimplified.findFirst({
       where: {
         tenantId: tenant.id,
         templateId: template.id,
@@ -207,7 +207,7 @@ router.post('/:id/activate', async (req, res) => {
     }
 
     // Criar serviço baseado no template
-    const service = await prisma.service.create({
+    const service = await prisma.serviceSimplified.create({
       data: {
         tenantId: tenant.id,
         templateId: template.id,
@@ -261,7 +261,7 @@ router.delete('/:id/deactivate', async (req, res) => {
     const { id: templateId } = req.params;
 
     // Buscar serviço ativo
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         tenantId: tenant.id,
         templateId,
@@ -273,7 +273,7 @@ router.delete('/:id/deactivate', async (req, res) => {
     }
 
     // Verificar se há protocolos vinculados
-    const protocolsCount = await prisma.protocol.count({
+    const protocolsCount = await prisma.protocolSimplified.count({
       where: {
         serviceId: service.id,
       },
@@ -281,7 +281,7 @@ router.delete('/:id/deactivate', async (req, res) => {
 
     if (protocolsCount > 0) {
       // Apenas desativar, não deletar
-      await prisma.service.update({
+      await prisma.serviceSimplified.update({
         where: { id: service.id },
         data: { isActive: false },
       });
@@ -293,7 +293,7 @@ router.delete('/:id/deactivate', async (req, res) => {
       });
     } else {
       // Pode deletar com segurança
-      await prisma.service.delete({
+      await prisma.serviceSimplified.delete({
         where: { id: service.id },
       });
 
@@ -321,7 +321,7 @@ router.get('/stats/summary', async (req, res) => {
     });
 
     // Templates ativados neste tenant
-    const activatedTemplates = await prisma.service.count({
+    const activatedTemplates = await prisma.serviceSimplified.count({
       where: {
         tenantId: tenant.id,
         templateId: { not: null },
@@ -336,7 +336,7 @@ router.get('/stats/summary', async (req, res) => {
     });
 
     // Templates mais ativados (globalmente)
-    const mostActivated = await prisma.service.groupBy({
+    const mostActivated = await prisma.serviceSimplified.groupBy({
       by: ['templateId'],
       where: {
         templateId: { not: null },

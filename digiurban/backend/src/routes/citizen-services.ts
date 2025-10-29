@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
 
     // Buscar serviços com paginação
     const [services, total] = await Promise.all([
-      prisma.service.findMany({
+      prisma.serviceSimplified.findMany({
         where,
         include: {
           department: {
@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
         skip,
         take: Number(limit),
       }),
-      prisma.service.count({ where }),
+      prisma.serviceSimplified.count({ where }),
     ]);
 
     return res.json({
@@ -79,7 +79,7 @@ router.get('/categories', async (req, res) => {
   try {
     const { tenant } = req as GuaranteedTenantRequest;
 
-    const categories = await prisma.service.findMany({
+    const categories = await prisma.serviceSimplified.findMany({
       where: {
         tenantId: tenant.id,
         isActive: true,
@@ -96,7 +96,7 @@ router.get('/categories', async (req, res) => {
 
     const categoriesWithCount = await Promise.all(
       categories.map(async cat => {
-        const count = await prisma.service.count({
+        const count = await prisma.serviceSimplified.count({
           where: {
             tenantId: tenant.id,
             isActive: true,
@@ -127,7 +127,7 @@ router.get('/popular', async (req, res) => {
     const { limit = 10 } = req.query;
 
     // Buscar serviços com mais protocolos
-    const popularServices = await prisma.service.findMany({
+    const popularServices = await prisma.serviceSimplified.findMany({
       where: {
         tenantId: tenant.id,
         isActive: true,
@@ -141,7 +141,7 @@ router.get('/popular', async (req, res) => {
         },
         _count: {
           select: {
-            protocols: true,
+            protocolsSimplified: true,
           },
         },
       },
@@ -168,7 +168,7 @@ router.get('/:id', async (req, res) => {
     const { tenant } = req as GuaranteedTenantRequest;
     const { id } = req.params;
 
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id,
         tenantId: tenant.id,
@@ -184,7 +184,7 @@ router.get('/:id', async (req, res) => {
         },
         _count: {
           select: {
-            protocols: true,
+            protocolsSimplified: true,
           },
         },
       },
@@ -195,7 +195,7 @@ router.get('/:id', async (req, res) => {
     }
 
     // Buscar estatísticas do serviço
-    const stats = await prisma.protocol.groupBy({
+    const stats = await prisma.protocolSimplified.groupBy({
       by: ['status'],
       where: {
         tenantId: tenant.id,
@@ -207,7 +207,7 @@ router.get('/:id', async (req, res) => {
     });
 
     // Calcular tempo médio de conclusão
-    const completedProtocols = await prisma.protocol.findMany({
+    const completedProtocols = await prisma.protocolSimplified.findMany({
       where: {
         tenantId: tenant.id,
         serviceId: id,
@@ -234,7 +234,7 @@ router.get('/:id', async (req, res) => {
       service: {
         ...service,
         stats: {
-          protocolsCount: service._count.protocols,
+          protocolsCount: service._count.protocolsSimplified,
           statusDistribution: stats,
           averageCompletionDays,
         },
@@ -252,7 +252,7 @@ router.get('/:id/requirements', async (req, res) => {
     const { tenant } = req as GuaranteedTenantRequest;
     const { id } = req.params;
 
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id,
         tenantId: tenant.id,
@@ -294,7 +294,7 @@ router.get('/:id/similar', async (req, res) => {
     const { limit = 5 } = req.query;
 
     // Buscar o serviço atual
-    const currentService = await prisma.service.findFirst({
+    const currentService = await prisma.serviceSimplified.findFirst({
       where: {
         id,
         tenantId: tenant.id,
@@ -311,7 +311,7 @@ router.get('/:id/similar', async (req, res) => {
     }
 
     // Buscar serviços similares (mesma categoria ou departamento)
-    const similarServices = await prisma.service.findMany({
+    const similarServices = await prisma.serviceSimplified.findMany({
       where: {
         tenantId: tenant.id,
         isActive: true,
@@ -327,7 +327,7 @@ router.get('/:id/similar', async (req, res) => {
         },
         _count: {
           select: {
-            protocols: true,
+            protocolsSimplified: true,
           },
         },
       },
@@ -363,7 +363,7 @@ router.post('/:id/request', async (req, res) => {
     }
 
     // Buscar o serviço
-    const service = await prisma.service.findFirst({
+    const service = await prisma.serviceSimplified.findFirst({
       where: {
         id: serviceId,
         tenantId: tenant.id,
@@ -529,7 +529,7 @@ router.post('/:id/request', async (req, res) => {
     }
 
     // Buscar protocolo completo
-    const fullProtocol = await prisma.protocol.findUnique({
+    const fullProtocol = await prisma.protocolSimplified.findUnique({
       where: { id: result.id },
       include: {
         service: {

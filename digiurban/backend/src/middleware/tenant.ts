@@ -113,8 +113,8 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
         _count: {
           select: {
             users: true,
-            protocols: true,
-            services: true,
+            protocolsSimplified: true,
+            servicesSimplified: true,
           },
         },
       },

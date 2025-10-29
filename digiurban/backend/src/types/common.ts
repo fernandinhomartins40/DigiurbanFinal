@@ -5,7 +5,6 @@
 
 import { Request } from 'express';
 import { User, Citizen, Tenant, Department, UserRole } from '@prisma/client';
-
 // Type for user with relations (complete user data)
 export type UserWithRelations = User & {
   department?: Department | null;

@@ -151,12 +151,12 @@ router.get(
         satisfactionScore,
       ] = await Promise.all([
         // Total de protocolos
-        prisma.protocol.count({
+        prisma.protocolSimplified.count({
           where: { tenantId },
         }),
 
         // Protocolos ativos
-        prisma.protocol.count({
+        prisma.protocolSimplified.count({
           where: {
             tenantId,
             status: { in: ['VINCULADO', 'PROGRESSO', 'ATUALIZACAO'] },
@@ -164,7 +164,7 @@ router.get(
         }),
 
         // Concluídos hoje
-        prisma.protocol.count({
+        prisma.protocolSimplified.count({
           where: {
             tenantId,
             status: 'CONCLUIDO',
@@ -173,7 +173,7 @@ router.get(
         }),
 
         // Tempo médio de resolução (últimos 30 dias)
-        prisma.protocol.aggregate({
+        prisma.protocolSimplified.aggregate({
           where: {
             tenantId,
             status: 'CONCLUIDO',
@@ -199,7 +199,7 @@ router.get(
       ]);
 
       // Calcular tempo médio de resolução em horas
-      const recentProtocols = await prisma.protocol.findMany({
+      const recentProtocols = await prisma.protocolSimplified.findMany({
         where: {
           tenantId,
           status: 'CONCLUIDO',
@@ -688,7 +688,7 @@ function getUserLevel(role: string): number {
 }
 
 async function getCitizenDashboard(tenantId: string, userId: string) {
-  const protocols = await prisma.protocol.findMany({
+  const protocols = await prisma.protocolSimplified.findMany({
     where: { tenantId, createdBy: userId },
     include: { evaluations: true },
   });

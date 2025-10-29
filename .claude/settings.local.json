@@ -21,7 +21,11 @@
       "Bash(npx ts-node:*)",
       "Bash(json_pp:*)",
       "Bash(dir:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(cd:*)",
+      "Bash(git checkout:*)",
+      "Bash(git stash:*)",
+      "Bash(git stash show:*)"
     ],
     "deny": [],
     "ask": []

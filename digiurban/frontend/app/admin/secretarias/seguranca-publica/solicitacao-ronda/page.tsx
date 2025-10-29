@@ -3,9 +3,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ModulePageTemplate } from '@/components/admin/modules/ModulePageTemplate';
 import { PendingProtocolsList } from '@/components/admin/modules/PendingProtocolsList';
-import { securityOccurrenceConfig } from '@/lib/module-configs/seguranca-publica';
+import { patrolRequestConfig } from '@/lib/module-configs/seguranca-publica';
 
-export default function SecurityOccurrencePage() {
+export default function PatrolRequestPage() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="cadastrados">
@@ -16,15 +16,15 @@ export default function SecurityOccurrencePage() {
 
         <TabsContent value="cadastrados">
           <ModulePageTemplate
-            config={securityOccurrenceConfig}
+            config={patrolRequestConfig}
             departmentType="seguranca-publica"
           />
         </TabsContent>
 
         <TabsContent value="pendentes">
           <PendingProtocolsList
-            moduleType="SECURITY_OCCURRENCE"
-            moduleName="Ocorrências de Segurança"
+            moduleType="PATROL_REQUEST"
+            moduleName="Solicitações de Ronda"
           />
         </TabsContent>
       </Tabs>

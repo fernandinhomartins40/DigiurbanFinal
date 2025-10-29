@@ -104,6 +104,7 @@ import secretariasEsportesRoutes from './routes/secretarias-esportes';
 import secretariasHabitacaoRoutes from './routes/secretarias-habitacao';
 import secretariasAgriculturaRoutes from './routes/secretarias-agricultura';
 import secretariasAgricultureProdutoresRoutes from './routes/secretarias-agricultura-produtores';
+import secretariasSegurancaRoutes from './routes/secretarias-seguranca';
 
 // ❌ REMOVIDO: Rotas Specialized (LEGADO - não está no PLANO)
 // Substituído por admin-secretarias.ts que acessa Prisma diretamente (PLANO Fase 8.2)
@@ -174,6 +175,7 @@ app.use('/api/secretarias/esportes', secretariasEsportesRoutes);
 app.use('/api/secretarias/habitacao', secretariasHabitacaoRoutes);
 app.use('/api/admin/secretarias/agricultura', secretariasAgriculturaRoutes);
 app.use('/api/admin/secretarias/agricultura/produtores', secretariasAgricultureProdutoresRoutes);
+app.use('/api/admin/secretarias/seguranca', secretariasSegurancaRoutes);
 
 // NOVO: Admin Secretarias - Acesso direto ao Prisma (PLANO Fase 8.2)
 app.use('/api/secretarias', adminSecretariasRoutes);

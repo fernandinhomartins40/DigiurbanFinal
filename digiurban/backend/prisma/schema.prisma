@@ -8,158 +8,158 @@ datasource db {
 }
 
 model Tenant {
-  id                          String                       @id @default(cuid())
-  name                        String
-  cnpj                        String                       @unique
-  plan                        Plan                         @default(STARTER)
-  status                      TenantStatus                 @default(TRIAL)
-  trialEndsAt                 DateTime?
-  population                  Int?
-  billing                     Json?
-  limits                      Json?
-  settings                    Json?
-  metadata                    Json?
-  codigoIbge                  String?
-  nomeMunicipio               String?
-  ufMunicipio                 String?
-  createdAt                   DateTime                     @default(now())
-  updatedAt                   DateTime                     @updatedAt
-  hasEmailService             Boolean                      @default(false)
-  emailPlanType               EmailPlan                    @default(NONE)
-  agendaEvents                AgendaEvent[]
-  agricultureAttendances      AgricultureAttendance[]
-  artisticGroups              ArtisticGroup[]
-  athletes                    Athlete[]
-  benefitRequests             BenefitRequest[]
-  buildingPermits             BuildingPermit[]
-  campaignEnrollments         CampaignEnrollment[]
-  transferRequestsTo          CitizenTransferRequest[]     @relation("TransferTo")
-  transferRequestsFrom        CitizenTransferRequest[]     @relation("TransferFrom")
-  citizens                    Citizen[]
-  cleaningSchedules           CleaningSchedule[]
-  competitions                Competition[]
-  criticalPoints              CriticalPoint[]
-  culturalAttendances         CulturalAttendance[]
-  culturalEvents              CulturalEvent[]
-  culturalManifestations      CulturalManifestation[]
-  culturalProjects            CulturalProject[]
-  culturalSpaces              CulturalSpace[]
-  culturalWorkshops           CulturalWorkshop[]
-  culturalWorkshopEnrollments CulturalWorkshopEnrollment[]
-  culturalProjectSubmissions  CulturalProjectSubmission[]
-  culturalSpaceReservations   CulturalSpaceReservation[]
-  departments                 Department[]
-  disciplinaryRecords         DisciplinaryRecord[]
-  educationAttendances        EducationAttendance[]
-  schoolDocuments             SchoolDocument[]
-  studentTransfers            StudentTransfer[]
-  attendanceRecords           AttendanceRecord[]
-  gradeRecords                GradeRecord[]
-  schoolManagements           SchoolManagement[]
-  emailServer                 EmailServer?
-  emailTemplates              EmailTemplate[]
-  emergencyDeliveries         EmergencyDelivery[]
-  environmentalAttendances    EnvironmentalAttendance[]
-  environmentalComplaints     EnvironmentalComplaint[]
-  environmentalLicenses       EnvironmentalLicense[]
-  environmentalPrograms       EnvironmentalProgram[]
-  healthAppointments          HealthAppointment[]
-  healthAttendances           HealthAttendance[]
-  healthCampaigns             HealthCampaign[]
-  healthDoctors               HealthDoctor[]
-  healthProfessionals         HealthProfessional[]
-  healthTransports            HealthTransport[]
-  healthUnits                 HealthUnit[]
-  healthPrograms              HealthProgram[]
-  healthExams                 HealthExam[]
-  healthTransportRequests     HealthTransportRequest[]
-  patients                    Patient[]
-  communityHealthAgents       CommunityHealthAgent[]
-  homeVisits                  HomeVisit[]
-  housingApplications         HousingApplication[]
-  housingAttendances          HousingAttendance[]
-  housingPrograms             HousingProgram[]
-  housingRegistrations        HousingRegistration[]
-  housingUnits                HousingUnit[]
-  integrations                Integration[]
-  invoices                    Invoice[]
-  landRegularizations         LandRegularization[]
-  leads                       Lead[]
-  localBusinesses             LocalBusiness[]
-  medicalSpecialties          MedicalSpecialty[]
-  medicationDispenses         MedicationDispense[]
-  medicationDispensings       MedicationDispensing[]
-  medications                 Medication[]
-  pageConfigurations          PageConfiguration[]
-  pageMetrics                 PageMetrics[]
-  projectApprovals            ProjectApproval[]
-  protectedAreas              ProtectedArea[]
-  protocolsSimplified         ProtocolSimplified[]
-  servicesSimplified          ServiceSimplified[]
-  publicComplaints            PublicComplaint[]
-  publicConsultations         PublicConsultation[]
-  publicProblemReports        PublicProblemReport[]
-  publicSchools               PublicSchool[]
-  publicServiceRequests       PublicServiceRequest[]
-  publicWorks                 PublicWork[]
-  publicWorksAttendances      PublicWorksAttendance[]
-  ruralProducers              RuralProducer[]
-  ruralPrograms               RuralProgram[]
-  ruralProperties             RuralProperty[]
-  ruralTrainings              RuralTraining[]
-  schoolCalls                 SchoolCall[]
-  schoolClasses               SchoolClass[]
-  schoolEvents                SchoolEvent[]
-  schoolMeals                 SchoolMeal[]
-  schools                     School[]
-  securityAlerts              SecurityAlert[]
-  securityAttendances         SecurityAttendance[]
-  securityOccurrences         SecurityOccurrence[]
-  securityPatrols             SecurityPatrol[]
-  patrolRequests              PatrolRequest[]
-  cameraRequests              CameraRequest[]
-  anonymousTips               AnonymousTip[]
-  municipalGuards             MunicipalGuard[]
-  surveillanceSystems         SurveillanceSystem[]
-  socialAssistanceAttendances SocialAssistanceAttendance[]
-  socialPrograms              SocialProgram[]
-  specialCollections          SpecialCollection[]
-  specializedPages            SpecializedPage[]
-  sportModalities             SportModality[]
-  sportsAttendances           SportsAttendance[]
-  sportsClubs                 SportsClub[]
-  sportsEvents                SportsEvent[]
-  sportsInfrastructures       SportsInfrastructure[]
-  sportsSchools               SportsSchool[]
-  sportsTeams                 SportsTeam[]
-  sportsSchoolEnrollments     SportsSchoolEnrollment[]
+  id                               String                            @id @default(cuid())
+  name                             String
+  cnpj                             String                            @unique
+  plan                             Plan                              @default(STARTER)
+  status                           TenantStatus                      @default(TRIAL)
+  trialEndsAt                      DateTime?
+  population                       Int?
+  billing                          Json?
+  limits                           Json?
+  settings                         Json?
+  metadata                         Json?
+  codigoIbge                       String?
+  nomeMunicipio                    String?
+  ufMunicipio                      String?
+  createdAt                        DateTime                          @default(now())
+  updatedAt                        DateTime                          @updatedAt
+  hasEmailService                  Boolean                           @default(false)
+  emailPlanType                    EmailPlan                         @default(NONE)
+  agendaEvents                     AgendaEvent[]
+  agricultureAttendances           AgricultureAttendance[]
+  artisticGroups                   ArtisticGroup[]
+  athletes                         Athlete[]
+  benefitRequests                  BenefitRequest[]
+  buildingPermits                  BuildingPermit[]
+  campaignEnrollments              CampaignEnrollment[]
+  transferRequestsTo               CitizenTransferRequest[]          @relation("TransferTo")
+  transferRequestsFrom             CitizenTransferRequest[]          @relation("TransferFrom")
+  citizens                         Citizen[]
+  cleaningSchedules                CleaningSchedule[]
+  competitions                     Competition[]
+  criticalPoints                   CriticalPoint[]
+  culturalAttendances              CulturalAttendance[]
+  culturalEvents                   CulturalEvent[]
+  culturalManifestations           CulturalManifestation[]
+  culturalProjects                 CulturalProject[]
+  culturalSpaces                   CulturalSpace[]
+  culturalWorkshops                CulturalWorkshop[]
+  culturalWorkshopEnrollments      CulturalWorkshopEnrollment[]
+  culturalProjectSubmissions       CulturalProjectSubmission[]
+  culturalSpaceReservations        CulturalSpaceReservation[]
+  departments                      Department[]
+  disciplinaryRecords              DisciplinaryRecord[]
+  educationAttendances             EducationAttendance[]
+  schoolDocuments                  SchoolDocument[]
+  studentTransfers                 StudentTransfer[]
+  attendanceRecords                AttendanceRecord[]
+  gradeRecords                     GradeRecord[]
+  schoolManagements                SchoolManagement[]
+  emailServer                      EmailServer?
+  emailTemplates                   EmailTemplate[]
+  emergencyDeliveries              EmergencyDelivery[]
+  environmentalAttendances         EnvironmentalAttendance[]
+  environmentalComplaints          EnvironmentalComplaint[]
+  environmentalLicenses            EnvironmentalLicense[]
+  environmentalPrograms            EnvironmentalProgram[]
+  healthAppointments               HealthAppointment[]
+  healthAttendances                HealthAttendance[]
+  healthCampaigns                  HealthCampaign[]
+  healthDoctors                    HealthDoctor[]
+  healthProfessionals              HealthProfessional[]
+  healthTransports                 HealthTransport[]
+  healthUnits                      HealthUnit[]
+  healthPrograms                   HealthProgram[]
+  healthExams                      HealthExam[]
+  healthTransportRequests          HealthTransportRequest[]
+  patients                         Patient[]
+  communityHealthAgents            CommunityHealthAgent[]
+  homeVisits                       HomeVisit[]
+  housingApplications              HousingApplication[]
+  housingAttendances               HousingAttendance[]
+  housingPrograms                  HousingProgram[]
+  housingRegistrations             HousingRegistration[]
+  housingUnits                     HousingUnit[]
+  integrations                     Integration[]
+  invoices                         Invoice[]
+  landRegularizations              LandRegularization[]
+  leads                            Lead[]
+  localBusinesses                  LocalBusiness[]
+  medicalSpecialties               MedicalSpecialty[]
+  medicationDispenses              MedicationDispense[]
+  medicationDispensings            MedicationDispensing[]
+  medications                      Medication[]
+  pageConfigurations               PageConfiguration[]
+  pageMetrics                      PageMetrics[]
+  projectApprovals                 ProjectApproval[]
+  protectedAreas                   ProtectedArea[]
+  protocolsSimplified              ProtocolSimplified[]
+  servicesSimplified               ServiceSimplified[]
+  publicComplaints                 PublicComplaint[]
+  publicConsultations              PublicConsultation[]
+  publicProblemReports             PublicProblemReport[]
+  publicSchools                    PublicSchool[]
+  publicServiceRequests            PublicServiceRequest[]
+  publicWorks                      PublicWork[]
+  publicWorksAttendances           PublicWorksAttendance[]
+  ruralProducers                   RuralProducer[]
+  ruralPrograms                    RuralProgram[]
+  ruralProperties                  RuralProperty[]
+  ruralTrainings                   RuralTraining[]
+  schoolCalls                      SchoolCall[]
+  schoolClasses                    SchoolClass[]
+  schoolEvents                     SchoolEvent[]
+  schoolMeals                      SchoolMeal[]
+  schools                          School[]
+  securityAlerts                   SecurityAlert[]
+  securityAttendances              SecurityAttendance[]
+  securityOccurrences              SecurityOccurrence[]
+  securityPatrols                  SecurityPatrol[]
+  patrolRequests                   PatrolRequest[]
+  cameraRequests                   CameraRequest[]
+  anonymousTips                    AnonymousTip[]
+  municipalGuards                  MunicipalGuard[]
+  surveillanceSystems              SurveillanceSystem[]
+  socialAssistanceAttendances      SocialAssistanceAttendance[]
+  socialPrograms                   SocialProgram[]
+  specialCollections               SpecialCollection[]
+  specializedPages                 SpecializedPage[]
+  sportModalities                  SportModality[]
+  sportsAttendances                SportsAttendance[]
+  sportsClubs                      SportsClub[]
+  sportsEvents                     SportsEvent[]
+  sportsInfrastructures            SportsInfrastructure[]
+  sportsSchools                    SportsSchool[]
+  sportsTeams                      SportsTeam[]
+  sportsSchoolEnrollments          SportsSchoolEnrollment[]
   sportsInfrastructureReservations SportsInfrastructureReservation[]
-  competitionEnrollments      CompetitionEnrollment[]
-  tournamentEnrollments       TournamentEnrollment[]
-  streetLightings             StreetLighting[]
-  students                    Student[]
-  teamSchedules               TeamSchedule[]
-  technicalAssistances        TechnicalAssistance[]
-  tourismAttendances          TourismAttendance[]
-  tourismInfos                TourismInfo[]
-  tourismPrograms             TourismProgram[]
-  touristAttractions          TouristAttraction[]
-  urbanPlanningAttendances    UrbanPlanningAttendance[]
-  urbanProjects               UrbanProject[]
-  urbanZoning                 UrbanZoning[]
-  users                       User[]
-  vaccinationCampaigns        VaccinationCampaign[]
-  vaccinations                Vaccination[]
-  vulnerableFamilies          VulnerableFamily[]
-  workInspections             WorkInspection[]
-  InfrastructureProblem       InfrastructureProblem[]
-  UrbanMaintenanceRequest     UrbanMaintenanceRequest[]
-  HousingRequest              HousingRequest[]
-  SportsModality              SportsModality[]
-  socialGroupEnrollments      SocialGroupEnrollment[]
-  socialProgramEnrollments    SocialProgramEnrollment[]
-  socialAppointments          SocialAppointment[]
-  socialEquipments            SocialEquipment[]
+  competitionEnrollments           CompetitionEnrollment[]
+  tournamentEnrollments            TournamentEnrollment[]
+  streetLightings                  StreetLighting[]
+  students                         Student[]
+  teamSchedules                    TeamSchedule[]
+  technicalAssistances             TechnicalAssistance[]
+  tourismAttendances               TourismAttendance[]
+  tourismInfos                     TourismInfo[]
+  tourismPrograms                  TourismProgram[]
+  touristAttractions               TouristAttraction[]
+  urbanPlanningAttendances         UrbanPlanningAttendance[]
+  urbanProjects                    UrbanProject[]
+  urbanZoning                      UrbanZoning[]
+  users                            User[]
+  vaccinationCampaigns             VaccinationCampaign[]
+  vaccinations                     Vaccination[]
+  vulnerableFamilies               VulnerableFamily[]
+  workInspections                  WorkInspection[]
+  InfrastructureProblem            InfrastructureProblem[]
+  UrbanMaintenanceRequest          UrbanMaintenanceRequest[]
+  HousingRequest                   HousingRequest[]
+  SportsModality                   SportsModality[]
+  socialGroupEnrollments           SocialGroupEnrollment[]
+  socialProgramEnrollments         SocialProgramEnrollment[]
+  socialAppointments               SocialAppointment[]
+  socialEquipments                 SocialEquipment[]
 
   @@map("tenants")
 }
@@ -455,17 +455,17 @@ model ProtocolSimplified {
   surveillanceSystems SurveillanceSystem[] @relation("SurveillanceSystemProtocol")
 
   // Módulos de Esportes
-  sportsAttendances     SportsAttendance[]     @relation("SportsAttendanceProtocol")
-  athletes              Athlete[]              @relation("AthleteProtocol")
-  sportsTeams           SportsTeam[]           @relation("SportsTeamProtocol")
-  competitions          Competition[]          @relation("CompetitionProtocol")
-  sportsInfrastructures SportsInfrastructure[] @relation("SportsInfrastructureProtocol")
-  sportsSchools         SportsSchool[]         @relation("SportsSchoolProtocol")
-  sportsModalities      SportsModality[]       @relation("SportsModalityProtocol")
-  sportsSchoolEnrollments              SportsSchoolEnrollment[]              @relation("SportsSchoolEnrollmentProtocol")
-  sportsInfrastructureReservations     SportsInfrastructureReservation[]     @relation("SportsInfrastructureReservationProtocol")
-  competitionEnrollments               CompetitionEnrollment[]               @relation("CompetitionEnrollmentProtocol")
-  tournamentEnrollments                TournamentEnrollment[]                @relation("TournamentEnrollmentProtocol")
+  sportsAttendances                SportsAttendance[]                @relation("SportsAttendanceProtocol")
+  athletes                         Athlete[]                         @relation("AthleteProtocol")
+  sportsTeams                      SportsTeam[]                      @relation("SportsTeamProtocol")
+  competitions                     Competition[]                     @relation("CompetitionProtocol")
+  sportsInfrastructures            SportsInfrastructure[]            @relation("SportsInfrastructureProtocol")
+  sportsSchools                    SportsSchool[]                    @relation("SportsSchoolProtocol")
+  sportsModalities                 SportsModality[]                  @relation("SportsModalityProtocol")
+  sportsSchoolEnrollments          SportsSchoolEnrollment[]          @relation("SportsSchoolEnrollmentProtocol")
+  sportsInfrastructureReservations SportsInfrastructureReservation[] @relation("SportsInfrastructureReservationProtocol")
+  competitionEnrollments           CompetitionEnrollment[]           @relation("CompetitionEnrollmentProtocol")
+  tournamentEnrollments            TournamentEnrollment[]            @relation("TournamentEnrollmentProtocol")
 
   // Módulos de Cultura
   culturalAttendances         CulturalAttendance[]         @relation("CulturalAttendanceProtocol")
@@ -478,7 +478,7 @@ model ProtocolSimplified {
   culturalManifestations      CulturalManifestation[]      @relation("CulturalManifestationProtocol")
 
   // Módulos de Habitação
-  housingAttendances          HousingAttendance[]          @relation("HousingAttendanceProtocol")
+  housingAttendances HousingAttendance[] @relation("HousingAttendanceProtocol")
 
   @@map("protocols_simplified")
 }
@@ -1840,31 +1840,31 @@ model CulturalEvent {
 }
 
 model HousingAttendance {
-  id              String                  @id @default(cuid())
-  tenantId        String
-  protocolId      String?
-  protocol        String                  @unique
-  citizenId       String?
-  citizenName     String
-  citizenCPF      String
-  contact         String
-  type            HousingAttendanceType
-  status          HousingAttendanceStatus @default(PENDING)
-  description     String
-  observations    String?
-  responsible     String?
-  attachments     Json?
-  program         String?
-  documents       Json?
-  propertyAddress String?
-  familyIncome    Float?
-  familySize      Int?
-  currentHousing  String?
-  priority        String                  @default("MEDIUM")
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
-  citizen         Citizen?                @relation("HousingAttendanceCitizen", fields: [citizenId], references: [id])
-  tenant          Tenant                  @relation(fields: [tenantId], references: [id])
+  id                 String                  @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  protocol           String                  @unique
+  citizenId          String?
+  citizenName        String
+  citizenCPF         String
+  contact            String
+  type               HousingAttendanceType
+  status             HousingAttendanceStatus @default(PENDING)
+  description        String
+  observations       String?
+  responsible        String?
+  attachments        Json?
+  program            String?
+  documents          Json?
+  propertyAddress    String?
+  familyIncome       Float?
+  familySize         Int?
+  currentHousing     String?
+  priority           String                  @default("MEDIUM")
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  citizen            Citizen?                @relation("HousingAttendanceCitizen", fields: [citizenId], references: [id])
+  tenant             Tenant                  @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified?     @relation("HousingAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_attendances")
@@ -3016,70 +3016,70 @@ model SportsInfrastructureReservation {
 }
 
 model CompetitionEnrollment {
-  id              String              @id @default(cuid())
-  tenantId        String
-  protocolId      String?
-  competitionId   String?
-  competitionName String
-  teamName        String
-  sport           String
-  category        String
-  ageGroup        String
-  coachName       String
-  coachCpf        String?
-  coachPhone      String
-  coachEmail      String?
-  playersCount    Int
-  playersList     Json // lista de atletas com dados
-  enrollmentDate  DateTime            @default(now())
-  paymentStatus   String              @default("PENDING") // PENDING, PAID, EXEMPT
-  paymentProof    Json?
-  status          String              @default("PENDING") // PENDING, APPROVED, REJECTED
-  approvedBy      String?
-  approvedAt      DateTime?
-  rejectionReason String?
-  observations    String?
-  serviceId       String?
-  source          String              @default("manual")
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  competitionId      String?
+  competitionName    String
+  teamName           String
+  sport              String
+  category           String
+  ageGroup           String
+  coachName          String
+  coachCpf           String?
+  coachPhone         String
+  coachEmail         String?
+  playersCount       Int
+  playersList        Json // lista de atletas com dados
+  enrollmentDate     DateTime            @default(now())
+  paymentStatus      String              @default("PENDING") // PENDING, PAID, EXEMPT
+  paymentProof       Json?
+  status             String              @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy         String?
+  approvedAt         DateTime?
+  rejectionReason    String?
+  observations       String?
+  serviceId          String?
+  source             String              @default("manual")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("CompetitionEnrollmentProtocol", fields: [protocolId], references: [id])
 
   @@map("competition_enrollments")
 }
 
 model TournamentEnrollment {
-  id              String              @id @default(cuid())
-  tenantId        String
-  protocolId      String?
-  tournamentId    String?
-  tournamentName  String
-  participantType String // TEAM, INDIVIDUAL
-  teamName        String?
-  athleteName     String?
-  athleteCpf      String?
-  sport           String
-  category        String
-  ageGroup        String
-  coachName       String?
-  coachPhone      String?
-  coachEmail      String?
-  playersCount    Int?
-  playersList     Json? // lista de atletas (se equipe)
-  enrollmentDate  DateTime            @default(now())
-  paymentStatus   String              @default("PENDING")
-  paymentProof    Json?
-  status          String              @default("PENDING")
-  approvedBy      String?
-  approvedAt      DateTime?
-  rejectionReason String?
-  observations    String?
-  serviceId       String?
-  source          String              @default("manual")
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  tournamentId       String?
+  tournamentName     String
+  participantType    String // TEAM, INDIVIDUAL
+  teamName           String?
+  athleteName        String?
+  athleteCpf         String?
+  sport              String
+  category           String
+  ageGroup           String
+  coachName          String?
+  coachPhone         String?
+  coachEmail         String?
+  playersCount       Int?
+  playersList        Json? // lista de atletas (se equipe)
+  enrollmentDate     DateTime            @default(now())
+  paymentStatus      String              @default("PENDING")
+  paymentProof       Json?
+  status             String              @default("PENDING")
+  approvedBy         String?
+  approvedAt         DateTime?
+  rejectionReason    String?
+  observations       String?
+  serviceId          String?
+  source             String              @default("manual")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("TournamentEnrollmentProtocol", fields: [protocolId], references: [id])
 
   @@map("tournament_enrollments")

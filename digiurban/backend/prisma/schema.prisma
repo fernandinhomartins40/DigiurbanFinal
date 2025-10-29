@@ -45,6 +45,9 @@ model Tenant {
   culturalProjects            CulturalProject[]
   culturalSpaces              CulturalSpace[]
   culturalWorkshops           CulturalWorkshop[]
+  culturalWorkshopEnrollments CulturalWorkshopEnrollment[]
+  culturalProjectSubmissions  CulturalProjectSubmission[]
+  culturalSpaceReservations   CulturalSpaceReservation[]
   departments                 Department[]
   disciplinaryRecords         DisciplinaryRecord[]
   educationAttendances        EducationAttendance[]
@@ -113,6 +116,11 @@ model Tenant {
   securityAttendances         SecurityAttendance[]
   securityOccurrences         SecurityOccurrence[]
   securityPatrols             SecurityPatrol[]
+  patrolRequests              PatrolRequest[]
+  cameraRequests              CameraRequest[]
+  anonymousTips               AnonymousTip[]
+  municipalGuards             MunicipalGuard[]
+  surveillanceSystems         SurveillanceSystem[]
   socialAssistanceAttendances SocialAssistanceAttendance[]
   socialPrograms              SocialProgram[]
   specialCollections          SpecialCollection[]
@@ -153,31 +161,31 @@ model Tenant {
 }
 
 model User {
-  id                          String                       @id @default(cuid())
-  email                       String                       @unique
-  name                        String
-  password                    String
-  role                        UserRole                     @default(USER)
-  isActive                    Boolean                      @default(true)
-  tenantId                    String
-  departmentId                String?
-  failedLoginAttempts         Int                          @default(0)
-  lockedUntil                 DateTime?
-  mustChangePassword          Boolean                      @default(false)
-  createdAt                   DateTime                     @default(now())
-  updatedAt                   DateTime                     @updatedAt
-  lastLogin                   DateTime?
-  agendaEvents                AgendaEvent[]                @relation("AgendaEventCreator")
-  auditLogs                   AuditLog[]
-  reviewedTransferRequests    CitizenTransferRequest[]
-  homeVisitsAsSocialWorker    HomeVisit[]                  @relation("HomeVisitSocialWorker")
-  createdProtocolsSimplified  ProtocolSimplified[]         @relation("CreatedByUserSimplified")
-  assignedProtocolsSimplified ProtocolSimplified[]         @relation("AssignedUserSimplified")
-  socialAssistanceAsWorker    SocialAssistanceAttendance[] @relation("SocialAssistanceWorker")
-  socialAppointmentsAsWorker  SocialAppointment[]          @relation("SocialAppointmentWorker")
-  socialEquipmentsAsCoordinator SocialEquipment[]          @relation("SocialEquipmentCoordinator")
-  department                  Department?                  @relation(fields: [departmentId], references: [id])
-  tenant                      Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                            String                       @id @default(cuid())
+  email                         String                       @unique
+  name                          String
+  password                      String
+  role                          UserRole                     @default(USER)
+  isActive                      Boolean                      @default(true)
+  tenantId                      String
+  departmentId                  String?
+  failedLoginAttempts           Int                          @default(0)
+  lockedUntil                   DateTime?
+  mustChangePassword            Boolean                      @default(false)
+  createdAt                     DateTime                     @default(now())
+  updatedAt                     DateTime                     @updatedAt
+  lastLogin                     DateTime?
+  agendaEvents                  AgendaEvent[]                @relation("AgendaEventCreator")
+  auditLogs                     AuditLog[]
+  reviewedTransferRequests      CitizenTransferRequest[]
+  homeVisitsAsSocialWorker      HomeVisit[]                  @relation("HomeVisitSocialWorker")
+  createdProtocolsSimplified    ProtocolSimplified[]         @relation("CreatedByUserSimplified")
+  assignedProtocolsSimplified   ProtocolSimplified[]         @relation("AssignedUserSimplified")
+  socialAssistanceAsWorker      SocialAssistanceAttendance[] @relation("SocialAssistanceWorker")
+  socialAppointmentsAsWorker    SocialAppointment[]          @relation("SocialAppointmentWorker")
+  socialEquipmentsAsCoordinator SocialEquipment[]            @relation("SocialEquipmentCoordinator")
+  department                    Department?                  @relation(fields: [departmentId], references: [id])
+  tenant                        Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("users")
 }
@@ -389,35 +397,35 @@ model ProtocolSimplified {
   evaluations ProtocolEvaluationSimplified[]
 
   // Módulos de Agricultura
-  ruralProducers  RuralProducer[]  @relation("RuralProducerProtocol")
-  ruralProperties RuralProperty[]  @relation("RuralPropertyProtocol")
-  ruralPrograms   RuralProgram[]   @relation("RuralProgramProtocol")
-  ruralTrainings  RuralTraining[]  @relation("RuralTrainingProtocol")
+  ruralProducers  RuralProducer[] @relation("RuralProducerProtocol")
+  ruralProperties RuralProperty[] @relation("RuralPropertyProtocol")
+  ruralPrograms   RuralProgram[]  @relation("RuralProgramProtocol")
+  ruralTrainings  RuralTraining[] @relation("RuralTrainingProtocol")
 
   // Módulos de Saúde
-  healthAttendances        HealthAttendance[]        @relation("HealthAttendanceProtocol")
-  healthAppointments       HealthAppointment[]       @relation("HealthAppointmentProtocol")
-  medicationDispenses      MedicationDispense[]      @relation("MedicationDispenseProtocol")
-  healthCampaigns          HealthCampaign[]          @relation("HealthCampaignProtocol")
-  healthPrograms           HealthProgram[]           @relation("HealthProgramProtocol")
-  healthTransports         HealthTransport[]         @relation("HealthTransportProtocol")
-  healthExams              HealthExam[]              @relation("HealthExamProtocol")
-  healthTransportRequests  HealthTransportRequest[]  @relation("HealthTransportRequestProtocol")
-  vaccinations             Vaccination[]             @relation("VaccinationProtocol")
-  patients                 Patient[]                 @relation("PatientProtocol")
-  communityHealthAgents    CommunityHealthAgent[]    @relation("CommunityHealthAgentProtocol")
+  healthAttendances       HealthAttendance[]       @relation("HealthAttendanceProtocol")
+  healthAppointments      HealthAppointment[]      @relation("HealthAppointmentProtocol")
+  medicationDispenses     MedicationDispense[]     @relation("MedicationDispenseProtocol")
+  healthCampaigns         HealthCampaign[]         @relation("HealthCampaignProtocol")
+  healthPrograms          HealthProgram[]          @relation("HealthProgramProtocol")
+  healthTransports        HealthTransport[]        @relation("HealthTransportProtocol")
+  healthExams             HealthExam[]             @relation("HealthExamProtocol")
+  healthTransportRequests HealthTransportRequest[] @relation("HealthTransportRequestProtocol")
+  vaccinations            Vaccination[]            @relation("VaccinationProtocol")
+  patients                Patient[]                @relation("PatientProtocol")
+  communityHealthAgents   CommunityHealthAgent[]   @relation("CommunityHealthAgentProtocol")
 
   // Módulos de Educação
-  educationAttendances     EducationAttendance[]     @relation("EducationAttendanceProtocol")
-  students                 Student[]                 @relation("StudentProtocol")
-  schoolTransports         SchoolTransport[]         @relation("SchoolTransportProtocol")
-  disciplinaryRecords      DisciplinaryRecord[]      @relation("DisciplinaryRecordProtocol")
-  schoolDocuments          SchoolDocument[]          @relation("SchoolDocumentProtocol")
-  studentTransfers         StudentTransfer[]         @relation("StudentTransferProtocol")
-  attendanceRecords        AttendanceRecord[]        @relation("AttendanceRecordProtocol")
-  gradeRecords             GradeRecord[]             @relation("GradeRecordProtocol")
-  schoolManagements        SchoolManagement[]        @relation("SchoolManagementProtocol")
-  schoolMeals              SchoolMeal[]              @relation("SchoolMealProtocol")
+  educationAttendances EducationAttendance[] @relation("EducationAttendanceProtocol")
+  students             Student[]             @relation("StudentProtocol")
+  schoolTransports     SchoolTransport[]     @relation("SchoolTransportProtocol")
+  disciplinaryRecords  DisciplinaryRecord[]  @relation("DisciplinaryRecordProtocol")
+  schoolDocuments      SchoolDocument[]      @relation("SchoolDocumentProtocol")
+  studentTransfers     StudentTransfer[]     @relation("StudentTransferProtocol")
+  attendanceRecords    AttendanceRecord[]    @relation("AttendanceRecordProtocol")
+  gradeRecords         GradeRecord[]         @relation("GradeRecordProtocol")
+  schoolManagements    SchoolManagement[]    @relation("SchoolManagementProtocol")
+  schoolMeals          SchoolMeal[]          @relation("SchoolMealProtocol")
 
   // Módulos de Assistência Social
   socialAssistanceAttendances SocialAssistanceAttendance[] @relation("SocialAssistanceAttendanceProtocol")
@@ -429,6 +437,37 @@ model ProtocolSimplified {
   socialProgramEnrollments    SocialProgramEnrollment[]    @relation("SocialProgramEnrollmentProtocol")
   socialAppointments          SocialAppointment[]          @relation("SocialAppointmentProtocol")
   socialEquipments            SocialEquipment[]            @relation("SocialEquipmentProtocol")
+
+  // Módulos de Segurança Pública
+  securityAttendances SecurityAttendance[] @relation("SecurityAttendanceProtocol")
+  securityOccurrences SecurityOccurrence[] @relation("SecurityOccurrenceProtocol")
+  patrolRequests      PatrolRequest[]      @relation("PatrolRequestProtocol")
+  cameraRequests      CameraRequest[]      @relation("CameraRequestProtocol")
+  anonymousTips       AnonymousTip[]       @relation("AnonymousTipProtocol")
+  criticalPoints      CriticalPoint[]      @relation("CriticalPointProtocol")
+  securityAlerts      SecurityAlert[]      @relation("SecurityAlertProtocol")
+  securityPatrols     SecurityPatrol[]     @relation("SecurityPatrolProtocol")
+  municipalGuards     MunicipalGuard[]     @relation("MunicipalGuardProtocol")
+  surveillanceSystems SurveillanceSystem[] @relation("SurveillanceSystemProtocol")
+
+  // Módulos de Esportes
+  sportsAttendances     SportsAttendance[]     @relation("SportsAttendanceProtocol")
+  athletes              Athlete[]              @relation("AthleteProtocol")
+  sportsTeams           SportsTeam[]           @relation("SportsTeamProtocol")
+  competitions          Competition[]          @relation("CompetitionProtocol")
+  sportsInfrastructures SportsInfrastructure[] @relation("SportsInfrastructureProtocol")
+  sportsSchools         SportsSchool[]         @relation("SportsSchoolProtocol")
+  sportsModalities      SportsModality[]       @relation("SportsModalityProtocol")
+
+  // Módulos de Cultura
+  culturalAttendances         CulturalAttendance[]         @relation("CulturalAttendanceProtocol")
+  culturalSpaceReservations   CulturalSpaceReservation[]   @relation("CulturalSpaceReservationProtocol")
+  culturalWorkshopEnrollments CulturalWorkshopEnrollment[] @relation("CulturalWorkshopEnrollmentProtocol")
+  artisticGroups              ArtisticGroup[]              @relation("ArtisticGroupProtocol")
+  culturalProjects            CulturalProject[]            @relation("CulturalProjectProtocol")
+  culturalProjectSubmissions  CulturalProjectSubmission[]  @relation("CulturalProjectSubmissionProtocol")
+  culturalEvents              CulturalEvent[]              @relation("CulturalEventProtocol")
+  culturalManifestations      CulturalManifestation[]      @relation("CulturalManifestationProtocol")
 
   @@map("protocols_simplified")
 }
@@ -995,7 +1034,7 @@ model AuditLog {
 }
 
 model RuralProducer {
-  id             String               @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
   protocolId     String?
   name           String
@@ -1004,13 +1043,13 @@ model RuralProducer {
   phone          String?
   address        String?
   productionType String?
-  status         String               @default("ACTIVE")
+  status         String              @default("ACTIVE")
   mainCrop       String?
-  isActive       Boolean              @default(true)
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  protocol       ProtocolSimplified?  @relation("RuralProducerProtocol", fields: [protocolId], references: [id])
-  tenant         Tenant               @relation(fields: [tenantId], references: [id])
+  isActive       Boolean             @default(true)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocol       ProtocolSimplified? @relation("RuralProducerProtocol", fields: [protocolId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
   properties     RuralProperty[]
 
   @@unique([tenantId, document])
@@ -1018,7 +1057,7 @@ model RuralProducer {
 }
 
 model RuralProperty {
-  id             String               @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
   protocolId     String?
   producerId     String
@@ -1030,12 +1069,12 @@ model RuralProperty {
   owner          String?
   totalArea      Float?
   cultivatedArea Float?
-  status         String               @default("ACTIVE")
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  protocol       ProtocolSimplified?  @relation("RuralPropertyProtocol", fields: [protocolId], references: [id])
-  producer       RuralProducer        @relation(fields: [producerId], references: [id])
-  tenant         Tenant               @relation(fields: [tenantId], references: [id])
+  status         String              @default("ACTIVE")
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocol       ProtocolSimplified? @relation("RuralPropertyProtocol", fields: [protocolId], references: [id])
+  producer       RuralProducer       @relation(fields: [producerId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("rural_properties")
 }
@@ -1218,6 +1257,7 @@ model EmailSubscription {
 model CulturalAttendance {
   id                String                   @id @default(cuid())
   tenantId          String
+  protocolId        String?
   protocol          String                   @unique
   citizenId         String?
   citizenName       String
@@ -1242,7 +1282,9 @@ model CulturalAttendance {
   source            String                   @default("manual")
   createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
-  tenant            Tenant                   @relation(fields: [tenantId], references: [id])
+
+  protocolSimplified ProtocolSimplified? @relation("CulturalAttendanceProtocol", fields: [protocolId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("cultural_attendances")
 }
@@ -1250,6 +1292,7 @@ model CulturalAttendance {
 model ArtisticGroup {
   id             String    @id @default(cuid())
   tenantId       String
+  protocolId     String?
   name           String
   category       String
   foundationDate DateTime?
@@ -1259,7 +1302,9 @@ model ArtisticGroup {
   status         String    @default("ACTIVE")
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+
+  protocolSimplified ProtocolSimplified? @relation("ArtisticGroupProtocol", fields: [protocolId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("artistic_groups")
 }
@@ -1267,6 +1312,7 @@ model ArtisticGroup {
 model CulturalManifestation {
   id               String   @id @default(cuid())
   tenantId         String
+  protocolId       String?
   name             String
   type             String
   description      String
@@ -1276,7 +1322,9 @@ model CulturalManifestation {
   status           String   @default("ACTIVE")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+
+  protocolSimplified ProtocolSimplified? @relation("CulturalManifestationProtocol", fields: [protocolId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("cultural_manifestations")
 }
@@ -1302,9 +1350,36 @@ model CulturalWorkshop {
   @@map("cultural_workshops")
 }
 
+model CulturalWorkshopEnrollment {
+  id            String    @id @default(cuid())
+  tenantId      String
+  protocolId    String?
+  workshopId    String?
+  citizenName   String
+  cpf           String
+  birthDate     DateTime?
+  phone         String
+  email         String?
+  address       String?
+  hasExperience Boolean   @default(false)
+  experience    String?
+  motivation    String
+  status        String    @default("PENDING")
+  enrolledAt    DateTime  @default(now())
+  approvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  protocolSimplified ProtocolSimplified? @relation("CulturalWorkshopEnrollmentProtocol", fields: [protocolId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+
+  @@map("cultural_workshop_enrollments")
+}
+
 model CulturalProject {
-  id             String          @id @default(cuid())
+  id             String    @id @default(cuid())
   tenantId       String
+  protocolId     String?
   name           String
   type           String
   description    String
@@ -1312,21 +1387,55 @@ model CulturalProject {
   startDate      DateTime?
   endDate        DateTime?
   budget         Float?
-  currentStatus  String          @default("PLANNING")
-  status         String          @default("ACTIVE")
+  currentStatus  String    @default("PLANNING")
+  status         String    @default("ACTIVE")
   protocol       String? // Campo adicionado
   contact        Json? // Campo adicionado
   funding        Json? // Campo adicionado
   targetAudience String? // Público-alvo do projeto
   participants   Int? // Número de participantes esperados
   serviceId      String? // Campo adicionado
-  source         String          @default("manual") // Origem do registro
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
-  events         CulturalEvent[]
-  tenant         Tenant          @relation(fields: [tenantId], references: [id])
+  source         String    @default("manual") // Origem do registro
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  protocolSimplified ProtocolSimplified? @relation("CulturalProjectProtocol", fields: [protocolId], references: [id])
+  events             CulturalEvent[]
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("cultural_projects")
+}
+
+model CulturalProjectSubmission {
+  id             String    @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  projectName    String
+  projectType    String
+  description    String
+  responsible    String
+  cpf            String
+  phone          String
+  email          String
+  organization   String?
+  budget         Float
+  fundingSource  String?
+  targetAudience String
+  expectedImpact String
+  startDate      DateTime?
+  endDate        DateTime?
+  attachments    Json?
+  status         String    @default("UNDER_REVIEW")
+  submittedAt    DateTime  @default(now())
+  reviewedAt     DateTime?
+  reviewComments String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  protocolSimplified ProtocolSimplified? @relation("CulturalProjectSubmissionProtocol", fields: [protocolId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+
+  @@map("cultural_project_submissions")
 }
 
 model PublicSchool {
@@ -1374,6 +1483,7 @@ model SchoolCall {
 model SportsAttendance {
   id                   String                 @id @default(cuid())
   tenantId             String
+  protocolId           String?
   protocol             String                 @unique
   citizenId            String?
   citizenName          String
@@ -1400,6 +1510,7 @@ model SportsAttendance {
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
   tenant               Tenant                 @relation(fields: [tenantId], references: [id])
+  protocolSimplified   ProtocolSimplified?    @relation("SportsAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("sports_attendances")
 }
@@ -1549,7 +1660,7 @@ model MedicationDispensing {
 }
 
 model Vaccination {
-  id         String               @id @default(cuid())
+  id         String    @id @default(cuid())
   tenantId   String
   protocolId String?
   campaignId String?
@@ -1560,8 +1671,8 @@ model Vaccination {
   appliedBy  String
   lotNumber  String?
   nextDose   DateTime?
-  createdAt  DateTime             @default(now())
-  updatedAt  DateTime             @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   protocolSimplified ProtocolSimplified?  @relation("VaccinationProtocol", fields: [protocolId], references: [id])
   patient            Citizen              @relation(fields: [patientId], references: [id])
@@ -1620,9 +1731,43 @@ model CulturalSpace {
   @@map("cultural_spaces")
 }
 
-model CulturalEvent {
-  id             String           @id @default(cuid())
+model CulturalSpaceReservation {
+  id             String    @id @default(cuid())
   tenantId       String
+  protocolId     String?
+  spaceId        String?
+  spaceName      String
+  requesterName  String
+  cpf            String
+  phone          String
+  email          String?
+  eventName      String
+  eventType      String
+  description    String
+  startDate      DateTime
+  endDate        DateTime
+  startTime      String
+  endTime        String
+  expectedPeople Int
+  needsEquipment Boolean   @default(false)
+  equipment      Json?
+  status         String    @default("PENDING")
+  requestedAt    DateTime  @default(now())
+  approvedAt     DateTime?
+  observations   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  protocolSimplified ProtocolSimplified? @relation("CulturalSpaceReservationProtocol", fields: [protocolId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+
+  @@map("cultural_space_reservations")
+}
+
+model CulturalEvent {
+  id             String    @id @default(cuid())
+  tenantId       String
+  protocolId     String?
   spaceId        String?
   projectId      String?
   title          String
@@ -1640,7 +1785,7 @@ model CulturalEvent {
   targetAudience String
   ageRating      String?
   ticketPrice    Float?
-  freeEvent      Boolean          @default(true)
+  freeEvent      Boolean   @default(true)
   organizer      Json
   producer       String?
   contact        Json
@@ -1649,8 +1794,8 @@ model CulturalEvent {
   requirements   Json?
   setup          Json?
   technical      Json?
-  status         String           @default("planned")
-  approved       Boolean          @default(false)
+  status         String    @default("planned")
+  approved       Boolean   @default(false)
   approvedBy     String?
   approvedAt     DateTime?
   promotion      Json?
@@ -1666,12 +1811,14 @@ model CulturalEvent {
   observations   String?
   protocol       String? // Campo adicionado
   serviceId      String? // ID do serviço que criou
-  source         String           @default("manual") // Origem do registro
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  project        CulturalProject? @relation(fields: [projectId], references: [id])
-  space          CulturalSpace?   @relation(fields: [spaceId], references: [id])
-  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  source         String    @default("manual") // Origem do registro
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  protocolSimplified ProtocolSimplified? @relation("CulturalEventProtocol", fields: [protocolId], references: [id])
+  project            CulturalProject?    @relation(fields: [projectId], references: [id])
+  space              CulturalSpace?      @relation(fields: [spaceId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, category])
   @@index([tenantId, status])
@@ -1761,7 +1908,7 @@ model HousingRegistration {
 }
 
 model HealthAppointment {
-  id               String        @id @default(cuid())
+  id               String    @id @default(cuid())
   tenantId         String
   protocolId       String?
   patientName      String
@@ -1771,16 +1918,16 @@ model HealthAppointment {
   appointmentDate  DateTime
   appointmentTime  String
   doctorId         String?
-  speciality       String        @default("GENERAL")
-  priority         String        @default("NORMAL")
-  status           String        @default("SCHEDULED")
+  speciality       String    @default("GENERAL")
+  priority         String    @default("NORMAL")
+  status           String    @default("SCHEDULED")
   symptoms         String?
   observations     String?
   diagnosis        String?
   treatment        String?
   followUpDate     DateTime?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   protocolSimplified ProtocolSimplified? @relation("HealthAppointmentProtocol", fields: [protocolId], references: [id])
   doctor             HealthDoctor?       @relation(fields: [doctorId], references: [id])
@@ -1864,27 +2011,27 @@ model Medication {
 }
 
 model VulnerableFamily {
-  id                String           @id @default(cuid())
+  id                String              @id @default(cuid())
   tenantId          String
   protocolId        String?
-  citizenId         String           @unique
+  citizenId         String              @unique
   familyCode        String?
   responsibleName   String?
   memberCount       Int
   monthlyIncome     Float?
-  riskLevel         String           @default("LOW")
+  riskLevel         String              @default("LOW")
   vulnerabilityType String
   socialWorker      String?
-  status            String           @default("ACTIVE")
+  status            String              @default("ACTIVE")
   observations      String?
   lastVisitDate     DateTime?
   nextVisitDate     DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   benefitRequests   BenefitRequest[]
   homeVisits        HomeVisit[]
-  tenant            Tenant           @relation(fields: [tenantId], references: [id])
-  citizen           Citizen          @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
+  citizen           Citizen             @relation(fields: [citizenId], references: [id], onDelete: Cascade)
   protocol          ProtocolSimplified? @relation("VulnerableFamilyProtocol", fields: [protocolId], references: [id])
 
   @@map("vulnerable_families")
@@ -1916,50 +2063,50 @@ model BenefitRequest {
 }
 
 model EmergencyDelivery {
-  id                 String          @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
   protocolId         String?
   benefitRequestId   String?
   citizenId          String?
   deliveryType       String
-  quantity           Int             @default(1)
+  quantity           Int                 @default(1)
   deliveryDate       DateTime
   recipientName      String
   recipientSignature String?
   deliveredBy        String
   urgency            String?
-  status             String          @default("PENDING")
+  status             String              @default("PENDING")
   observations       String?
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  citizen            Citizen?        @relation("EmergencyDeliveryCitizen", fields: [citizenId], references: [id])
-  benefitRequest     BenefitRequest? @relation(fields: [benefitRequestId], references: [id])
-  tenant             Tenant          @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  citizen            Citizen?            @relation("EmergencyDeliveryCitizen", fields: [citizenId], references: [id])
+  benefitRequest     BenefitRequest?     @relation(fields: [benefitRequestId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocol           ProtocolSimplified? @relation("EmergencyDeliveryProtocol", fields: [protocolId], references: [id])
 
   @@map("emergency_deliveries")
 }
 
 model HomeVisit {
-  id               String           @id @default(cuid())
+  id               String              @id @default(cuid())
   tenantId         String
   protocolId       String?
   familyId         String
   socialWorkerId   String?
   visitDate        DateTime
   socialWorker     String
-  visitType        String           @default("ROUTINE")
+  visitType        String              @default("ROUTINE")
   visitPurpose     String
   purpose          String?
   findings         String?
   recommendations  String?
   nextVisitDate    DateTime?
-  status           String           @default("SCHEDULED")
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  socialWorkerUser User?            @relation("HomeVisitSocialWorker", fields: [socialWorkerId], references: [id])
-  family           VulnerableFamily @relation(fields: [familyId], references: [id])
-  tenant           Tenant           @relation(fields: [tenantId], references: [id])
+  status           String              @default("SCHEDULED")
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  socialWorkerUser User?               @relation("HomeVisitSocialWorker", fields: [socialWorkerId], references: [id])
+  family           VulnerableFamily    @relation(fields: [familyId], references: [id])
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
   protocol         ProtocolSimplified? @relation("HomeVisitProtocol", fields: [protocolId], references: [id])
 
   @@map("home_visits")
@@ -2178,24 +2325,24 @@ model SchoolEvent {
 }
 
 model EducationAttendance {
-  id             String              @id @default(cuid())
-  tenantId       String
-  protocolId     String?
-  citizenName    String
-  citizenCpf     String
-  citizenPhone   String?
-  citizenEmail   String?
-  serviceType    String
-  description    String
-  status         String              @default("PENDING")
-  priority       String              @default("NORMAL")
-  scheduledDate  DateTime?
-  completedDate  DateTime?
-  observations   String?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  tenant         Tenant              @relation(fields: [tenantId], references: [id])
-  protocol       ProtocolSimplified? @relation("EducationAttendanceProtocol", fields: [protocolId], references: [id])
+  id            String              @id @default(cuid())
+  tenantId      String
+  protocolId    String?
+  citizenName   String
+  citizenCpf    String
+  citizenPhone  String?
+  citizenEmail  String?
+  serviceType   String
+  description   String
+  status        String              @default("PENDING")
+  priority      String              @default("NORMAL")
+  scheduledDate DateTime?
+  completedDate DateTime?
+  observations  String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  protocol      ProtocolSimplified? @relation("EducationAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("education_attendances")
 }
@@ -2221,102 +2368,103 @@ model SchoolDocument {
 }
 
 model StudentTransfer {
-  id                String              @id @default(cuid())
-  tenantId          String
-  protocolId        String?
-  studentId         String?
-  studentName       String
-  currentSchool     String
-  targetSchool      String
-  grade             String
-  transferReason    String
-  requestDate       DateTime            @default(now())
-  transferDate      DateTime?
-  status            String              @default("PENDING")
-  documents         Json?
-  observations      String?
-  approvedBy        String?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  tenant            Tenant              @relation(fields: [tenantId], references: [id])
-  protocol          ProtocolSimplified? @relation("StudentTransferProtocol", fields: [protocolId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  studentId      String?
+  studentName    String
+  currentSchool  String
+  targetSchool   String
+  grade          String
+  transferReason String
+  requestDate    DateTime            @default(now())
+  transferDate   DateTime?
+  status         String              @default("PENDING")
+  documents      Json?
+  observations   String?
+  approvedBy     String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
+  protocol       ProtocolSimplified? @relation("StudentTransferProtocol", fields: [protocolId], references: [id])
 
   @@map("student_transfers")
 }
 
 model AttendanceRecord {
-  id            String              @id @default(cuid())
-  tenantId      String
-  protocolId    String?
-  studentId     String?
-  studentName   String
-  schoolId      String?
-  classId       String?
-  month         Int
-  year          Int
-  totalDays     Int
-  presentDays   Int
-  absentDays    Int
-  percentage    Float
-  status        String              @default("ACTIVE")
-  observations  String?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  tenant        Tenant              @relation(fields: [tenantId], references: [id])
-  protocol      ProtocolSimplified? @relation("AttendanceRecordProtocol", fields: [protocolId], references: [id])
+  id           String              @id @default(cuid())
+  tenantId     String
+  protocolId   String?
+  studentId    String?
+  studentName  String
+  schoolId     String?
+  classId      String?
+  month        Int
+  year         Int
+  totalDays    Int
+  presentDays  Int
+  absentDays   Int
+  percentage   Float
+  status       String              @default("ACTIVE")
+  observations String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
+  protocol     ProtocolSimplified? @relation("AttendanceRecordProtocol", fields: [protocolId], references: [id])
 
   @@map("attendance_records")
 }
 
 model GradeRecord {
-  id            String              @id @default(cuid())
-  tenantId      String
-  protocolId    String?
-  studentId     String?
-  studentName   String
-  schoolId      String?
-  classId       String?
-  subject       String
-  period        String
-  grade         Float
-  maxGrade      Float               @default(10)
-  status        String              @default("APPROVED")
-  observations  String?
-  teacherName   String?
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-  tenant        Tenant              @relation(fields: [tenantId], references: [id])
-  protocol      ProtocolSimplified? @relation("GradeRecordProtocol", fields: [protocolId], references: [id])
+  id           String              @id @default(cuid())
+  tenantId     String
+  protocolId   String?
+  studentId    String?
+  studentName  String
+  schoolId     String?
+  classId      String?
+  subject      String
+  period       String
+  grade        Float
+  maxGrade     Float               @default(10)
+  status       String              @default("APPROVED")
+  observations String?
+  teacherName  String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
+  protocol     ProtocolSimplified? @relation("GradeRecordProtocol", fields: [protocolId], references: [id])
 
   @@map("grade_records")
 }
 
 model SchoolManagement {
-  id               String              @id @default(cuid())
-  tenantId         String
-  protocolId       String?
-  schoolId         String?
-  schoolName       String
-  managementType   String
-  requestDate      DateTime            @default(now())
-  description      String
-  status           String              @default("PENDING")
-  priority         String              @default("NORMAL")
-  assignedTo       String?
-  completedDate    DateTime?
-  observations     String?
-  documents        Json?
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
-  tenant           Tenant              @relation(fields: [tenantId], references: [id])
-  protocol         ProtocolSimplified? @relation("SchoolManagementProtocol", fields: [protocolId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  schoolId       String?
+  schoolName     String
+  managementType String
+  requestDate    DateTime            @default(now())
+  description    String
+  status         String              @default("PENDING")
+  priority       String              @default("NORMAL")
+  assignedTo     String?
+  completedDate  DateTime?
+  observations   String?
+  documents      Json?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
+  protocol       ProtocolSimplified? @relation("SchoolManagementProtocol", fields: [protocolId], references: [id])
 
   @@map("school_management")
 }
 
 model Athlete {
-  id                 String         @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
+  protocolId         String?
   name               String
   birthDate          DateTime
   cpf                String?
@@ -2335,14 +2483,15 @@ model Athlete {
   federationExpiry   DateTime?
   medicalCertificate Json?
   modalityId         String?
-  isActive           Boolean        @default(true)
+  isActive           Boolean             @default(true)
   protocol           String? // Campo adicionado
   serviceId          String? // Campo adicionado
-  source             String         @default("manual") // Campo adicionado
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
-  modality           SportModality? @relation(fields: [modalityId], references: [id])
-  tenant             Tenant         @relation(fields: [tenantId], references: [id])
+  source             String              @default("manual") // Campo adicionado
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  modality           SportModality?      @relation(fields: [modalityId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("AthleteProtocol", fields: [protocolId], references: [id])
 
   @@unique([tenantId, cpf])
   @@map("athletes")
@@ -2428,7 +2577,7 @@ model MedicationDispense {
 }
 
 model HealthCampaign {
-  id              String               @id @default(cuid())
+  id              String   @id @default(cuid())
   tenantId        String
   protocolId      String?
   name            String
@@ -2438,13 +2587,13 @@ model HealthCampaign {
   endDate         DateTime
   targetAudience  String
   goals           Json
-  status          String               @default("ACTIVE")
-  isActive        Boolean              @default(true)
+  status          String   @default("ACTIVE")
+  isActive        Boolean  @default(true)
   coordinatorName String
   budget          Float?
   results         Json?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   protocolSimplified ProtocolSimplified?  @relation("HealthCampaignProtocol", fields: [protocolId], references: [id])
   enrollments        CampaignEnrollment[]
@@ -2480,7 +2629,7 @@ model HealthProgram {
   protocolId      String?
   name            String
   description     String
-  programType     String    // HIPERDIA, SAUDE_MENTAL, PRENATAL, etc
+  programType     String // HIPERDIA, SAUDE_MENTAL, PRENATAL, etc
   targetAudience  String
   coordinatorName String
   startDate       DateTime
@@ -2494,41 +2643,41 @@ model HealthProgram {
   updatedAt       DateTime  @updatedAt
 
   protocol ProtocolSimplified? @relation("HealthProgramProtocol", fields: [protocolId], references: [id])
-  tenant   Tenant               @relation(fields: [tenantId], references: [id])
+  tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("health_programs")
 }
 
 model HealthExam {
-  id             String    @id @default(cuid())
-  tenantId       String
-  protocolId     String?
-  patientName    String
-  patientCpf     String
-  patientPhone   String?
-  examType       String
-  examName       String
-  requestDate    DateTime  @default(now())
-  scheduledDate  DateTime?
-  resultDate     DateTime?
-  status         String    @default("REQUESTED") // REQUESTED, SCHEDULED, COMPLETED, CANCELLED
-  priority       String    @default("NORMAL")
-  requestedBy    String    // Médico solicitante
-  healthUnit     String?
-  observations   String?
-  result         String?
-  attachments    Json?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  tenantId      String
+  protocolId    String?
+  patientName   String
+  patientCpf    String
+  patientPhone  String?
+  examType      String
+  examName      String
+  requestDate   DateTime  @default(now())
+  scheduledDate DateTime?
+  resultDate    DateTime?
+  status        String    @default("REQUESTED") // REQUESTED, SCHEDULED, COMPLETED, CANCELLED
+  priority      String    @default("NORMAL")
+  requestedBy   String // Médico solicitante
+  healthUnit    String?
+  observations  String?
+  result        String?
+  attachments   Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   protocol ProtocolSimplified? @relation("HealthExamProtocol", fields: [protocolId], references: [id])
-  tenant   Tenant               @relation(fields: [tenantId], references: [id])
+  tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("health_exams")
 }
 
 model HealthTransportRequest {
-  id                String   @id @default(cuid())
+  id                String    @id @default(cuid())
   tenantId          String
   protocolId        String?
   patientName       String
@@ -2536,64 +2685,64 @@ model HealthTransportRequest {
   patientPhone      String?
   origin            String
   destination       String
-  transportType     String   // AMBULANCIA, VEICULO_COMUM, ADAPTADO
-  urgencyLevel      String   @default("NORMAL") // URGENTE, NORMAL, BAIXA
-  requestDate       DateTime @default(now())
+  transportType     String // AMBULANCIA, VEICULO_COMUM, ADAPTADO
+  urgencyLevel      String    @default("NORMAL") // URGENTE, NORMAL, BAIXA
+  requestDate       DateTime  @default(now())
   scheduledDate     DateTime?
-  status            String   @default("REQUESTED") // REQUESTED, SCHEDULED, IN_TRANSIT, COMPLETED, CANCELLED
-  reason            String   // Motivo da solicitação
+  status            String    @default("REQUESTED") // REQUESTED, SCHEDULED, IN_TRANSIT, COMPLETED, CANCELLED
+  reason            String // Motivo da solicitação
   observations      String?
   responsibleDriver String?
   vehicleId         String?
   departureTime     DateTime?
   arrivalTime       DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   protocol ProtocolSimplified? @relation("HealthTransportRequestProtocol", fields: [protocolId], references: [id])
-  tenant   Tenant               @relation(fields: [tenantId], references: [id])
+  tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("health_transport_requests")
 }
 
 model Patient {
-  id                String    @id @default(cuid())
-  tenantId          String
-  protocolId        String?
-  fullName          String
-  cpf               String
-  rg                String?
-  birthDate         DateTime
-  gender            String
-  bloodType         String?
-  phone             String?
-  email             String?
-  address           String?
-  city              String?
-  state             String?
-  zipCode           String?
-  susCardNumber     String?   // Cartão SUS
-  allergies         String?
-  chronicDiseases   String?
-  medications       String?
-  emergencyContact  String?
-  emergencyPhone    String?
-  observations      String?
-  status            String    @default("ACTIVE") // ACTIVE, INACTIVE, DECEASED
-  registeredBy      String
-  registrationDate  DateTime  @default(now())
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id               String   @id @default(cuid())
+  tenantId         String
+  protocolId       String?
+  fullName         String
+  cpf              String
+  rg               String?
+  birthDate        DateTime
+  gender           String
+  bloodType        String?
+  phone            String?
+  email            String?
+  address          String?
+  city             String?
+  state            String?
+  zipCode          String?
+  susCardNumber    String? // Cartão SUS
+  allergies        String?
+  chronicDiseases  String?
+  medications      String?
+  emergencyContact String?
+  emergencyPhone   String?
+  observations     String?
+  status           String   @default("ACTIVE") // ACTIVE, INACTIVE, DECEASED
+  registeredBy     String
+  registrationDate DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   protocol ProtocolSimplified? @relation("PatientProtocol", fields: [protocolId], references: [id])
-  tenant   Tenant               @relation(fields: [tenantId], references: [id])
+  tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, cpf])
   @@map("patients")
 }
 
 model CommunityHealthAgent {
-  id              String    @id @default(cuid())
+  id              String   @id @default(cuid())
   tenantId        String
   protocolId      String?
   fullName        String
@@ -2601,20 +2750,20 @@ model CommunityHealthAgent {
   phone           String
   email           String?
   address         String?
-  assignedArea    String    // Área de atuação (bairro, microárea)
-  registrationNum String?   // Número de registro profissional
+  assignedArea    String // Área de atuação (bairro, microárea)
+  registrationNum String? // Número de registro profissional
   hireDate        DateTime
-  status          String    @default("ACTIVE") // ACTIVE, INACTIVE, ON_LEAVE
+  status          String   @default("ACTIVE") // ACTIVE, INACTIVE, ON_LEAVE
   healthUnit      String?
   supervisor      String?
-  familiesServed  Int       @default(0)
-  workSchedule    Json?     // Escala de trabalho
+  familiesServed  Int      @default(0)
+  workSchedule    Json? // Escala de trabalho
   observations    String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   protocol ProtocolSimplified? @relation("CommunityHealthAgentProtocol", fields: [protocolId], references: [id])
-  tenant   Tenant               @relation(fields: [tenantId], references: [id])
+  tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, cpf])
   @@map("community_health_agents")
@@ -2651,77 +2800,82 @@ model DisciplinaryRecord {
 }
 
 model SportsTeam {
-  id               String          @id @default(cuid())
-  tenantId         String
-  name             String
-  sport            String
-  category         String
-  gender           String?
-  ageGroup         String
-  coach            String
-  coachCpf         String?
-  coachPhone       String?
-  foundationDate   DateTime?
-  trainingSchedule Json?
-  maxPlayers       Int?
-  currentPlayers   Int             @default(0)
-  status           String          @default("ACTIVE")
-  homeVenue        String?
-  description      String?
-  achievements     Json?
-  roster           Json?
-  modalityId       String?
-  isActive         Boolean         @default(true)
-  protocol         String? // Campo adicionado
-  serviceId        String? // ID do serviço que criou o time
-  source           String          @default("manual")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  modality         SportModality?  @relation(fields: [modalityId], references: [id])
-  tenant           Tenant          @relation(fields: [tenantId], references: [id])
-  SportsModality   SportsModality? @relation(fields: [sportsModalityId], references: [id])
-  sportsModalityId String?
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  name               String
+  sport              String
+  category           String
+  gender             String?
+  ageGroup           String
+  coach              String
+  coachCpf           String?
+  coachPhone         String?
+  foundationDate     DateTime?
+  trainingSchedule   Json?
+  maxPlayers         Int?
+  currentPlayers     Int                 @default(0)
+  status             String              @default("ACTIVE")
+  homeVenue          String?
+  description        String?
+  achievements       Json?
+  roster             Json?
+  modalityId         String?
+  isActive           Boolean             @default(true)
+  protocol           String? // Campo adicionado
+  serviceId          String? // ID do serviço que criou o time
+  source             String              @default("manual")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  modality           SportModality?      @relation(fields: [modalityId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  SportsModality     SportsModality?     @relation(fields: [sportsModalityId], references: [id])
+  sportsModalityId   String?
+  protocolSimplified ProtocolSimplified? @relation("SportsTeamProtocol", fields: [protocolId], references: [id])
 
   @@map("sports_teams")
 }
 
 model Competition {
-  id               String          @id @default(cuid())
-  tenantId         String
-  name             String
-  sport            String
-  competitionType  String
-  type             String?
-  startDate        DateTime
-  endDate          DateTime
-  category         String
-  ageGroup         String
-  maxTeams         Int?
-  registeredTeams  Int?
-  registrationFee  Float?
-  entryFee         Float?
-  prizes           Json?
-  rules            String?
-  status           String          @default("PLANNED")
-  organizer        String
-  venue            String?
-  location         String?
-  contact          Json?
-  results          Json?
-  modalityId       String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  modality         SportModality?  @relation(fields: [modalityId], references: [id])
-  tenant           Tenant          @relation(fields: [tenantId], references: [id])
-  SportsModality   SportsModality? @relation(fields: [sportsModalityId], references: [id])
-  sportsModalityId String?
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  name               String
+  sport              String
+  competitionType    String
+  type               String?
+  startDate          DateTime
+  endDate            DateTime
+  category           String
+  ageGroup           String
+  maxTeams           Int?
+  registeredTeams    Int?
+  registrationFee    Float?
+  entryFee           Float?
+  prizes             Json?
+  rules              String?
+  status             String              @default("PLANNED")
+  organizer          String
+  venue              String?
+  location           String?
+  contact            Json?
+  results            Json?
+  modalityId         String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  modality           SportModality?      @relation(fields: [modalityId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  SportsModality     SportsModality?     @relation(fields: [sportsModalityId], references: [id])
+  sportsModalityId   String?
+  protocolSimplified ProtocolSimplified? @relation("CompetitionProtocol", fields: [protocolId], references: [id])
 
   @@map("competitions")
 }
 
 model SportsInfrastructure {
-  id                  String    @id @default(cuid())
+  id                  String              @id @default(cuid())
   tenantId            String
+  protocolId          String?
   name                String
   type                String
   sports              Json
@@ -2731,49 +2885,52 @@ model SportsInfrastructure {
   capacity            Int?
   dimensions          String?
   surface             String?
-  lighting            Boolean   @default(false)
-  covered             Boolean   @default(false)
-  accessibility       Boolean   @default(false)
+  lighting            Boolean             @default(false)
+  covered             Boolean             @default(false)
+  accessibility       Boolean             @default(false)
   equipment           Json?
   facilities          Json?
   operatingHours      String?
-  status              String    @default("ACTIVE")
+  status              String              @default("ACTIVE")
   maintenanceSchedule Json?
   lastMaintenance     DateTime?
   bookingRules        Json?
   contact             String?
   manager             String?
-  isPublic            Boolean   @default(true)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-  tenant              Tenant    @relation(fields: [tenantId], references: [id])
+  isPublic            Boolean             @default(true)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  tenant              Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified  ProtocolSimplified? @relation("SportsInfrastructureProtocol", fields: [protocolId], references: [id])
 
   @@map("sports_infrastructures")
 }
 
 model SportsSchool {
-  id              String    @id @default(cuid())
-  tenantId        String
-  name            String
-  sport           String
-  description     String
-  targetAge       String
-  instructor      String
-  instructorCpf   String?
-  maxStudents     Int
-  currentStudents Int       @default(0)
-  schedule        Json
-  location        String
-  monthlyFee      Float?
-  equipment       Json?
-  requirements    String?
-  startDate       DateTime
-  endDate         DateTime?
-  status          String    @default("ACTIVE")
-  isActive        Boolean   @default(true)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  name               String
+  sport              String
+  description        String
+  targetAge          String
+  instructor         String
+  instructorCpf      String?
+  maxStudents        Int
+  currentStudents    Int                 @default(0)
+  schedule           Json
+  location           String
+  monthlyFee         Float?
+  equipment          Json?
+  requirements       String?
+  startDate          DateTime
+  endDate            DateTime?
+  status             String              @default("ACTIVE")
+  isActive           Boolean             @default(true)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("SportsSchoolProtocol", fields: [protocolId], references: [id])
 
   @@map("sports_schools")
 }
@@ -2800,9 +2957,10 @@ model SportModality {
 }
 
 model SecurityOccurrence {
-  id             String    @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
-  protocol       String    @unique
+  protocolId     String?
+  protocol       String              @unique
   occurrenceType String
   type           String?
   severity       String
@@ -2817,23 +2975,25 @@ model SecurityOccurrence {
   officerName    String?
   dateTime       DateTime?
   occurrenceDate DateTime
-  reportDate     DateTime  @default(now())
-  status         String    @default("OPEN")
+  reportDate     DateTime            @default(now())
+  status         String              @default("OPEN")
   evidence       Json?
   witnesses      Json?
   actions        String?
   resolution     String?
-  followUp       Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  followUp       Boolean             @default(false)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel    ProtocolSimplified? @relation("SecurityOccurrenceProtocol", fields: [protocolId], references: [id])
 
   @@map("security_occurrences")
 }
 
 model SecurityAlert {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   tenantId        String
+  protocolId      String?
   title           String
   alertType       String
   type            String?
@@ -2844,7 +3004,7 @@ model SecurityAlert {
   coordinates     Json?
   severity        String
   priority        String?
-  isActive        Boolean   @default(true)
+  isActive        Boolean             @default(true)
   status          String?
   startDate       DateTime
   endDate         DateTime?
@@ -2853,18 +3013,20 @@ model SecurityAlert {
   targetAudience  String?
   affectedAreas   Json?
   channels        Json
-  acknowledgments Int       @default(0)
+  acknowledgments Int                 @default(0)
   createdBy       String
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel     ProtocolSimplified? @relation("SecurityAlertProtocol", fields: [protocolId], references: [id])
 
   @@map("security_alerts")
 }
 
 model SecurityPatrol {
-  id           String    @id @default(cuid())
+  id           String              @id @default(cuid())
   tenantId     String
+  protocolId   String?
   patrolType   String
   route        String
   startTime    DateTime
@@ -2874,21 +3036,23 @@ model SecurityPatrol {
   officerName  String
   officerBadge String?
   vehicle      String?
-  status       String    @default("ACTIVE")
+  status       String              @default("ACTIVE")
   checkpoints  Json?
   incidents    Json?
   observations String?
   gpsTrack     Json?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  tenant       Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel  ProtocolSimplified? @relation("SecurityPatrolProtocol", fields: [protocolId], references: [id])
 
   @@map("security_patrols")
 }
 
 model CriticalPoint {
-  id                 String    @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
+  protocolId         String?
   name               String
   location           String
   address            String?
@@ -2903,20 +3067,22 @@ model CriticalPoint {
   monitoringLevel    String
   lastIncident       DateTime?
   lastIncidentDate   DateTime?
-  incidentCount      Int       @default(0)
-  isActive           Boolean   @default(true)
+  incidentCount      Int                 @default(0)
+  isActive           Boolean             @default(true)
   observations       String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  tenant             Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel        ProtocolSimplified? @relation("CriticalPointProtocol", fields: [protocolId], references: [id])
 
   @@map("critical_points")
 }
 
 model SecurityAttendance {
-  id                 String    @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
-  protocol           String    @unique
+  protocolId         String?
+  protocol           String              @unique
   citizenId          String?
   citizenName        String
   citizenCpf         String?
@@ -2925,20 +3091,21 @@ model SecurityAttendance {
   attendanceType     String?
   subject            String
   description        String
-  urgency            String    @default("NORMAL")
+  urgency            String              @default("NORMAL")
   location           String?
   evidence           Json?
-  status             String    @default("PENDING")
+  status             String              @default("PENDING")
   assignedOfficer    String?
   referredTo         String?
   actions            String?
   resolution         String?
   satisfactionRating Int?
   followUpDate       DateTime?
-  followUpNeeded     Boolean   @default(false)
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  tenant             Tenant    @relation(fields: [tenantId], references: [id])
+  followUpNeeded     Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel        ProtocolSimplified? @relation("SecurityAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("security_attendances")
 }
@@ -3296,7 +3463,7 @@ model TechnicalAssistance {
 }
 
 model RuralProgram {
-  id                  String               @id @default(cuid())
+  id                  String              @id @default(cuid())
   tenantId            String
   protocolId          String?
   name                String
@@ -3311,23 +3478,23 @@ model RuralProgram {
   budget              Float?
   coordinator         String
   maxParticipants     Int?
-  currentParticipants Int                  @default(0)
+  currentParticipants Int                 @default(0)
   applicationPeriod   Json?
   selectionCriteria   Json?
   partners            Json?
   results             Json?
-  status              String               @default("PLANNED")
+  status              String              @default("PLANNED")
   evaluation          Json?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  protocol            ProtocolSimplified?  @relation("RuralProgramProtocol", fields: [protocolId], references: [id])
-  tenant              Tenant               @relation(fields: [tenantId], references: [id])
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  protocol            ProtocolSimplified? @relation("RuralProgramProtocol", fields: [protocolId], references: [id])
+  tenant              Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("rural_programs")
 }
 
 model RuralTraining {
-  id                  String               @id @default(cuid())
+  id                  String              @id @default(cuid())
   tenantId            String
   protocolId          String?
   title               String
@@ -3340,23 +3507,23 @@ model RuralTraining {
   content             Json
   duration            Int
   maxParticipants     Int
-  currentParticipants Int                  @default(0)
+  currentParticipants Int                 @default(0)
   startDate           DateTime
   endDate             DateTime?
   schedule            Json
   location            String
   materials           Json?
-  certificate         Boolean              @default(false)
+  certificate         Boolean             @default(false)
   cost                Float?
   requirements        String?
   evaluation          Json?
   feedback            Json?
   photos              Json?
-  status              String               @default("PLANNED")
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  protocol            ProtocolSimplified?  @relation("RuralTrainingProtocol", fields: [protocolId], references: [id])
-  tenant              Tenant               @relation(fields: [tenantId], references: [id])
+  status              String              @default("PLANNED")
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  protocol            ProtocolSimplified? @relation("RuralTrainingProtocol", fields: [protocolId], references: [id])
+  tenant              Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("rural_trainings")
 }
@@ -3537,72 +3704,72 @@ model SocialProgram {
 }
 
 model SocialAssistanceAttendance {
-  id               String    @id @default(cuid())
-  tenantId         String
-  protocolId       String?
-  protocol         String    @unique
-  citizenId        String?
-  citizenName      String
-  citizenCpf       String
-  contact          Json
-  familyIncome     Float?
-  familySize       Int?
-  serviceType      String
-  attendanceType   String?
-  subject          String
-  description      String
-  vulnerability    String?
-  urgency          String    @default("NORMAL")
-  referredBy       String?
-  socialWorker     String?
-  socialWorkerId   String?
-  assessment       Json?
-  interventionPlan Json?
-  referrals        Json?
-  followUpPlan     Json?
-  followUpNeeded   Boolean   @default(false)
-  followUpDate     DateTime?
-  priority         String?
-  status           String    @default("PENDING")
-  resolution       String?
-  nextVisitDate    DateTime?
-  satisfaction     Int?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  socialWorkerUser User?     @relation("SocialAssistanceWorker", fields: [socialWorkerId], references: [id])
-  citizen          Citizen?  @relation("SocialAssistanceCitizen", fields: [citizenId], references: [id])
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  protocol           String              @unique
+  citizenId          String?
+  citizenName        String
+  citizenCpf         String
+  contact            Json
+  familyIncome       Float?
+  familySize         Int?
+  serviceType        String
+  attendanceType     String?
+  subject            String
+  description        String
+  vulnerability      String?
+  urgency            String              @default("NORMAL")
+  referredBy         String?
+  socialWorker       String?
+  socialWorkerId     String?
+  assessment         Json?
+  interventionPlan   Json?
+  referrals          Json?
+  followUpPlan       Json?
+  followUpNeeded     Boolean             @default(false)
+  followUpDate       DateTime?
+  priority           String?
+  status             String              @default("PENDING")
+  resolution         String?
+  nextVisitDate      DateTime?
+  satisfaction       Int?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  socialWorkerUser   User?               @relation("SocialAssistanceWorker", fields: [socialWorkerId], references: [id])
+  citizen            Citizen?            @relation("SocialAssistanceCitizen", fields: [citizenId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("SocialAssistanceAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("social_assistance_attendances")
 }
 
 model SocialGroupEnrollment {
-  id            String    @id @default(cuid())
-  tenantId      String
-  protocolId    String?
-  citizenId     String?
+  id              String              @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  citizenId       String?
   participantName String
   participantCpf  String?
-  groupName     String
-  groupType     String
-  enrollmentDate DateTime @default(now())
-  status        String    @default("ACTIVE")
-  frequency     String?
-  observations  String?
-  instructor    String?
-  schedule      Json?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  tenant        Tenant    @relation(fields: [tenantId], references: [id])
-  citizen       Citizen?  @relation("SocialGroupCitizen", fields: [citizenId], references: [id])
-  protocol      ProtocolSimplified? @relation("SocialGroupEnrollmentProtocol", fields: [protocolId], references: [id])
+  groupName       String
+  groupType       String
+  enrollmentDate  DateTime            @default(now())
+  status          String              @default("ACTIVE")
+  frequency       String?
+  observations    String?
+  instructor      String?
+  schedule        Json?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  citizen         Citizen?            @relation("SocialGroupCitizen", fields: [citizenId], references: [id])
+  protocol        ProtocolSimplified? @relation("SocialGroupEnrollmentProtocol", fields: [protocolId], references: [id])
 
   @@map("social_group_enrollments")
 }
 
 model SocialProgramEnrollment {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   tenantId        String
   protocolId      String?
   citizenId       String?
@@ -3610,27 +3777,27 @@ model SocialProgramEnrollment {
   beneficiaryCpf  String?
   programName     String
   programType     String
-  enrollmentDate  DateTime  @default(now())
-  status          String    @default("PENDING")
+  enrollmentDate  DateTime            @default(now())
+  status          String              @default("PENDING")
   monthlyIncome   Float?
   familySize      Int?
-  priority        String    @default("NORMAL")
+  priority        String              @default("NORMAL")
   approvedDate    DateTime?
   startDate       DateTime?
   endDate         DateTime?
   benefits        Json?
   observations    String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
-  citizen         Citizen?  @relation("SocialProgramCitizen", fields: [citizenId], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  citizen         Citizen?            @relation("SocialProgramCitizen", fields: [citizenId], references: [id])
   protocol        ProtocolSimplified? @relation("SocialProgramEnrollmentProtocol", fields: [protocolId], references: [id])
 
   @@map("social_program_enrollments")
 }
 
 model SocialAppointment {
-  id               String    @id @default(cuid())
+  id               String              @id @default(cuid())
   tenantId         String
   protocolId       String?
   citizenId        String?
@@ -3641,45 +3808,45 @@ model SocialAppointment {
   socialWorker     String?
   socialWorkerId   String?
   purpose          String
-  status           String    @default("SCHEDULED")
+  status           String              @default("SCHEDULED")
   notes            String?
   result           String?
-  followUpNeeded   Boolean   @default(false)
+  followUpNeeded   Boolean             @default(false)
   followUpDate     DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
-  citizen          Citizen?  @relation("SocialAppointmentCitizen", fields: [citizenId], references: [id])
-  socialWorkerUser User?     @relation("SocialAppointmentWorker", fields: [socialWorkerId], references: [id])
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  citizen          Citizen?            @relation("SocialAppointmentCitizen", fields: [citizenId], references: [id])
+  socialWorkerUser User?               @relation("SocialAppointmentWorker", fields: [socialWorkerId], references: [id])
   protocol         ProtocolSimplified? @relation("SocialAppointmentProtocol", fields: [protocolId], references: [id])
 
   @@map("social_appointments")
 }
 
 model SocialEquipment {
-  id              String    @id @default(cuid())
-  tenantId        String
-  protocolId      String?
-  equipmentName   String
-  equipmentType   String
-  address         String
-  coordinates     Json?
-  capacity        Int?
-  currentOccupancy Int      @default(0)
-  coordinator     String?
-  coordinatorId   String?
-  phone           String?
-  email           String?
-  services        Json?
-  schedule        Json?
-  status          String    @default("ACTIVE")
-  isActive        Boolean   @default(true)
-  observations    String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
-  coordinatorUser User?     @relation("SocialEquipmentCoordinator", fields: [coordinatorId], references: [id])
-  protocol        ProtocolSimplified? @relation("SocialEquipmentProtocol", fields: [protocolId], references: [id])
+  id               String              @id @default(cuid())
+  tenantId         String
+  protocolId       String?
+  equipmentName    String
+  equipmentType    String
+  address          String
+  coordinates      Json?
+  capacity         Int?
+  currentOccupancy Int                 @default(0)
+  coordinator      String?
+  coordinatorId    String?
+  phone            String?
+  email            String?
+  services         Json?
+  schedule         Json?
+  status           String              @default("ACTIVE")
+  isActive         Boolean             @default(true)
+  observations     String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  coordinatorUser  User?               @relation("SocialEquipmentCoordinator", fields: [coordinatorId], references: [id])
+  protocol         ProtocolSimplified? @relation("SocialEquipmentProtocol", fields: [protocolId], references: [id])
 
   @@map("social_equipments")
 }
@@ -4433,9 +4600,10 @@ model HousingRequest {
 // ============================================================================
 
 model SportsModality {
-  id       String @id @default(cuid())
-  tenantId String
-  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id         String  @id @default(cuid())
+  tenantId   String
+  protocolId String?
+  tenant     Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   name        String
   description String?
@@ -4447,6 +4615,8 @@ model SportsModality {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  protocolSimplified ProtocolSimplified? @relation("SportsModalityProtocol", fields: [protocolId], references: [id])
 
   @@index([tenantId])
   @@map("sports_modalities")
@@ -4960,8 +5130,9 @@ model PoliceReport {
 }
 
 model PatrolRequest {
-  id       String @id @default(cuid())
-  tenantId String
+  id         String  @id @default(cuid())
+  tenantId   String
+  protocolId String?
 
   // Informações da solicitação
   type        String // "preventive", "monitoring", "event", "complaint"
@@ -5003,9 +5174,11 @@ model PatrolRequest {
   completedAt  DateTime?
 
   // Vínculo com protocolo
-  protocol  String?
-  serviceId String?
-  source    String  @default("manual") // "service", "manual", "phone"
+  protocol    String?
+  serviceId   String?
+  source      String              @default("manual") // "service", "manual", "phone"
+  protocolRel ProtocolSimplified? @relation("PatrolRequestProtocol", fields: [protocolId], references: [id])
+  tenant      Tenant              @relation(fields: [tenantId], references: [id])
 
   // Metadados
   metadata  Json?
@@ -5021,8 +5194,9 @@ model PatrolRequest {
 }
 
 model CameraRequest {
-  id       String @id @default(cuid())
-  tenantId String
+  id         String  @id @default(cuid())
+  tenantId   String
+  protocolId String?
 
   // Tipo de solicitação
   type    String // "installation", "maintenance", "footage", "relocation"
@@ -5073,9 +5247,11 @@ model CameraRequest {
   footageNotes        String?
 
   // Vínculo com protocolo
-  protocol  String?
-  serviceId String?
-  source    String  @default("manual")
+  protocol    String?
+  serviceId   String?
+  source      String              @default("manual")
+  protocolRel ProtocolSimplified? @relation("CameraRequestProtocol", fields: [protocolId], references: [id])
+  tenant      Tenant              @relation(fields: [tenantId], references: [id])
 
   // Metadados
   metadata  Json?
@@ -5090,8 +5266,9 @@ model CameraRequest {
 }
 
 model AnonymousTip {
-  id       String @id @default(cuid())
-  tenantId String
+  id         String  @id @default(cuid())
+  tenantId   String
+  protocolId String?
 
   // Tipo de denúncia
   type     String // "drug_trafficking", "theft", "violence", "vandalism", "corruption", "other"
@@ -5135,9 +5312,10 @@ model AnonymousTip {
   publicUpdates Json? // Updates que podem ser vistos com o código
 
   // Vínculo com protocolo (se não for anônimo)
-  protocol  String?
-  serviceId String?
-  source    String  @default("manual") // "service", "hotline", "web", "app"
+  protocol    String?
+  serviceId   String?
+  source      String              @default("manual") // "service", "hotline", "web", "app"
+  protocolRel ProtocolSimplified? @relation("AnonymousTipProtocol", fields: [protocolId], references: [id])
 
   // Segurança e anonimato
   isAnonymous    Boolean @default(true)
@@ -5148,6 +5326,7 @@ model AnonymousTip {
   metadata  Json?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  Tenant    Tenant   @relation(fields: [tenantId], references: [id])
 
   @@index([tenantId])
   @@index([status])
@@ -5155,6 +5334,146 @@ model AnonymousTip {
   @@index([tipNumber])
   @@index([feedbackCode])
   @@map("anonymous_tips")
+}
+
+model MunicipalGuard {
+  id         String  @id @default(cuid())
+  tenantId   String
+  protocolId String?
+
+  // Informações do guarda
+  name      String
+  badge     String    @unique
+  cpf       String?
+  rg        String?
+  birthDate DateTime?
+
+  // Contato
+  phone   String
+  email   String?
+  address String?
+
+  // Dados profissionais
+  position      String // "guard", "sergeant", "lieutenant", "captain"
+  admissionDate DateTime
+  status        String   @default("active") // "active", "on_leave", "suspended", "retired"
+
+  // Especialização
+  specialties    Json? // ["patrol", "traffic", "school_security", "event_security"]
+  certifications Json? // Certificações e treinamentos
+
+  // Equipamentos
+  assignedVehicle String?
+  assignedRadio   String?
+  assignedBadge   String?
+  equipment       Json?
+
+  // Escalas e disponibilidade
+  shift        String? // "morning", "afternoon", "night", "rotating"
+  workSchedule Json? // Escala de trabalho
+  availability String  @default("available") // "available", "on_patrol", "off_duty", "unavailable"
+
+  // Histórico e performance
+  patrolsCount   Int   @default(0)
+  incidentsCount Int   @default(0)
+  commendations  Json? // Elogios e reconhecimentos
+  disciplinary   Json? // Advertências e suspensões
+
+  // Observações
+  notes            String?
+  emergencyContact Json?
+
+  // Metadados
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant      Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel ProtocolSimplified? @relation("MunicipalGuardProtocol", fields: [protocolId], references: [id])
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([badge])
+  @@map("municipal_guards")
+}
+
+model SurveillanceSystem {
+  id         String  @id @default(cuid())
+  tenantId   String
+  protocolId String?
+
+  // Identificação do sistema
+  systemName String
+  systemCode String @unique
+  type       String // "camera", "alarm", "sensor", "integrated"
+
+  // Localização
+  location    String
+  address     String?
+  coordinates Json? // { lat, lng }
+  area        String? // Bairro/região
+  zone        String? // Zona de cobertura
+
+  // Detalhes técnicos
+  manufacturer     String?
+  model            String?
+  installationDate DateTime?
+  warrantyExpires  DateTime?
+
+  // Câmeras (se aplicável)
+  cameraType     String? // "fixed", "ptz", "dome", "speed"
+  resolution     String? // "720p", "1080p", "4K"
+  hasNightVision Boolean @default(false)
+  hasAudio       Boolean @default(false)
+  recordingDays  Int? // Dias de retenção de gravação
+
+  // Status operacional
+  status          String    @default("operational") // "operational", "maintenance", "offline", "damaged"
+  lastMaintenance DateTime?
+  nextMaintenance DateTime?
+
+  // Cobertura e capacidade
+  coverageArea String? // Descrição da área coberta
+  viewAngle    String? // Ângulo de visão
+  range        String? // Alcance em metros
+
+  // Conectividade
+  ipAddress      String?
+  connectionType String? // "wired", "wireless", "hybrid"
+  bandwidth      String?
+
+  // Monitoramento
+  isMonitored      Boolean @default(true)
+  monitoringCenter String? // Central de monitoramento
+  alerts           Json? // Configurações de alertas
+
+  // Incidentes e manutenções
+  incidentsDetected  Int    @default(0)
+  maintenanceHistory Json?
+  downtimeHours      Float? @default(0)
+
+  // Integração
+  integratedWith Json? // Outros sistemas integrados
+  apiAccess      Boolean @default(false)
+
+  // Observações e notas
+  notes          String?
+  technicalSpecs Json?
+
+  // Metadados
+  isActive  Boolean  @default(true)
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant      Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel ProtocolSimplified? @relation("SurveillanceSystemProtocol", fields: [protocolId], references: [id])
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([type])
+  @@index([systemCode])
+  @@map("surveillance_systems")
 }
 
 model EventAuthorization {
@@ -5360,4 +5679,3 @@ model CustomDataRecord {
   @@index([serviceId])
   @@map("custom_data_records")
 }
-

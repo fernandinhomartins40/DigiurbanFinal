@@ -19,7 +19,8 @@
       "Bash(npx prisma:*)",
       "Bash(curl:*)",
       "Bash(npx ts-node:*)",
-      "Bash(json_pp:*)"
+      "Bash(json_pp:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

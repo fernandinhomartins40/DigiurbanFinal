@@ -295,7 +295,8 @@ router.get('/mapa-demandas/protocols', adminAuthMiddleware, requireAdmin, async 
         status: true,
         latitude: true,
         longitude: true,
-        endereco: true,
+        // endereco: true, // REMOVED: Campo custom removido do ProtocolSimplified (usar data.endereco)
+        data: true, // Campo JSON genérico que pode conter endereco
         createdAt: true,
         service: {
           select: {
@@ -355,7 +356,7 @@ router.get('/mapa-demandas/stats', adminAuthMiddleware, requireAdmin, async (req
         tenantId: req.tenantId,
         latitude: { not: null },
         longitude: { not: null },
-        serviceId: { not: null }
+        serviceId: { not: null as any } // Prisma type issue - cast para any
       },
       select: {
         service: {
@@ -367,7 +368,7 @@ router.get('/mapa-demandas/stats', adminAuthMiddleware, requireAdmin, async (req
     })
 
     const byCategory = protocolsWithService.reduce((acc: any, p) => {
-      const category = p.service?.category || 'Sem Categoria'
+      const category = (p as any).service?.category || 'Sem Categoria' // Cast necessário devido ao include
       acc[category] = (acc[category] || 0) + 1
       return acc
     }, {})

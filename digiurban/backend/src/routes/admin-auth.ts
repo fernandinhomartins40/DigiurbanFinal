@@ -324,7 +324,7 @@ router.get('/me', handleAsyncRoute(async (req, res) => {
             description: true,
           },
         },
-        assignedProtocols: {
+        assignedProtocolsSimplified: {
           where: {
             status: { notIn: ['CONCLUIDO'] },
           },

@@ -40,14 +40,14 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const protocol = await protocolServiceSimplified.createProtocol(req.body)
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: protocol,
       message: `Protocolo ${protocol.number} criado com sucesso`
     })
   } catch (error: any) {
     console.error('Erro ao criar protocolo:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao criar protocolo'
     })
@@ -76,13 +76,13 @@ router.get('/:number', async (req: Request, res: Response) => {
       })
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: protocol
     })
   } catch (error: any) {
     console.error('Erro ao buscar protocolo:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao buscar protocolo'
     })
@@ -123,14 +123,14 @@ router.patch('/:id/status', async (req: Request, res: Response) => {
       userId
     })
 
-    res.json({
+    return res.json({
       success: true,
       data: protocol,
       message: 'Status atualizado com sucesso'
     })
   } catch (error: any) {
     console.error('Erro ao atualizar status:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao atualizar status'
     })
@@ -165,13 +165,13 @@ router.post('/:id/comments', async (req: Request, res: Response) => {
 
     await protocolServiceSimplified.addComment(id, comment, userId)
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Coment\u00e1rio adicionado com sucesso'
     })
   } catch (error: any) {
     console.error('Erro ao adicionar coment\u00e1rio:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao adicionar coment\u00e1rio'
     })
@@ -210,14 +210,14 @@ router.patch('/:id/assign', async (req: Request, res: Response) => {
       userId
     )
 
-    res.json({
+    return res.json({
       success: true,
       data: protocol,
       message: 'Protocolo atribu\u00eddo com sucesso'
     })
   } catch (error: any) {
     console.error('Erro ao atribuir protocolo:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao atribuir protocolo'
     })
@@ -249,14 +249,14 @@ router.get('/department/:departmentId', async (req: Request, res: Response) => {
       filters
     )
 
-    res.json({
+    return res.json({
       success: true,
       data: protocols,
       count: protocols.length
     })
   } catch (error: any) {
     console.error('Erro ao listar protocolos:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao listar protocolos'
     })
@@ -277,14 +277,14 @@ router.get('/module/:departmentId/:moduleType', async (req: Request, res: Respon
       moduleType
     )
 
-    res.json({
+    return res.json({
       success: true,
       data: protocols,
       count: protocols.length
     })
   } catch (error: any) {
     console.error('Erro ao listar protocolos:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao listar protocolos'
     })
@@ -302,14 +302,14 @@ router.get('/citizen/:citizenId', async (req: Request, res: Response) => {
 
     const protocols = await protocolServiceSimplified.listByCitizen(citizenId)
 
-    res.json({
+    return res.json({
       success: true,
       data: protocols,
       count: protocols.length
     })
   } catch (error: any) {
     console.error('Erro ao listar protocolos:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao listar protocolos'
     })
@@ -331,13 +331,13 @@ router.get('/:id/history', async (req: Request, res: Response) => {
 
     const history = await protocolServiceSimplified.getHistory(id)
 
-    res.json({
+    return res.json({
       success: true,
       data: history
     })
   } catch (error: any) {
     console.error('Erro ao buscar hist\u00f3rico:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao buscar hist\u00f3rico'
     })
@@ -378,14 +378,14 @@ router.post('/:id/evaluate', async (req: Request, res: Response) => {
       wouldRecommend
     )
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       data: evaluation,
       message: 'Avalia\u00e7\u00e3o registrada com sucesso'
     })
   } catch (error: any) {
     console.error('Erro ao avaliar protocolo:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao avaliar protocolo'
     })
@@ -416,13 +416,13 @@ router.get('/stats/:departmentId', async (req: Request, res: Response) => {
       endDate ? new Date(endDate as string) : undefined
     )
 
-    res.json({
+    return res.json({
       success: true,
       data: stats
     })
   } catch (error: any) {
     console.error('Erro ao buscar estat\u00edsticas:', error)
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       error: error.message || 'Erro ao buscar estat\u00edsticas'
     })

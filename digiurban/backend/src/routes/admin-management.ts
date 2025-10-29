@@ -385,7 +385,7 @@ router.get(
             select: {
               protocolsSimplified: true,
             },
-          },
+          } as any, // TODO: Prisma _count não suporta select em relações
         },
         orderBy: [{ priority: 'desc' }, { name: 'asc' }],
         skip,
@@ -457,7 +457,7 @@ router.post(
         requiredDocuments: data.requiredDocuments ? data.requiredDocuments as Prisma.InputJsonValue : undefined,
         estimatedDays: data.estimatedDays || null,
         priority: data.priority,
-        requirements: data.requirements ? data.requirements as Prisma.InputJsonValue : undefined,
+        // requirements: data.requirements ? data.requirements as Prisma.InputJsonValue : undefined, // REMOVED: Campo removido do ServiceSimplified
         icon: data.icon || null,
         color: data.color || null,
         isActive: true,

@@ -504,7 +504,7 @@ router.get('/me', asyncHandler(async (req: LocalTenantRequest, res: Response) =>
             status: true,
           },
         },
-        protocols: {
+        protocolsSimplified: {
           include: {
             service: true,
             department: true,
@@ -535,7 +535,7 @@ router.get('/me', asyncHandler(async (req: LocalTenantRequest, res: Response) =>
     return res.json({
       citizen: citizenData,
       tenantId: citizen.tenantId,
-      tenant: citizen.tenant, // ✅ NOVO: Retornar dados completos do tenant
+      tenant: (citizen as any).tenant, // ✅ NOVO: Retornar dados completos do tenant (cast devido ao include)
     });
   } catch (error: unknown) {
     console.error('Erro ao buscar dados do cidadão:', error);

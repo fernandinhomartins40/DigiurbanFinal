@@ -336,7 +336,7 @@ router.get(
             },
           },
         },
-        protocols: {
+        protocolsSimplified: {
           orderBy: { createdAt: 'desc' },
           take: 10,
           include: {

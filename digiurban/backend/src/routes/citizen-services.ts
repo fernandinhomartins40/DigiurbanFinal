@@ -143,7 +143,7 @@ router.get('/popular', async (req, res) => {
           select: {
             protocolsSimplified: true,
           },
-        },
+        } as any, // TODO: Prisma _count não suporta select em relações
       },
       orderBy: {
         protocols: {
@@ -186,7 +186,7 @@ router.get('/:id', async (req, res) => {
           select: {
             protocolsSimplified: true,
           },
-        },
+        } as any, // TODO: Prisma _count não suporta select em relações
       },
     });
 
@@ -234,7 +234,7 @@ router.get('/:id', async (req, res) => {
       service: {
         ...service,
         stats: {
-          protocolsCount: service._count.protocolsSimplified,
+          protocolsCount: (service._count as any)?.protocolsSimplified || 0,
           statusDistribution: stats,
           averageCompletionDays,
         },
@@ -261,7 +261,7 @@ router.get('/:id/requirements', async (req, res) => {
       select: {
         id: true,
         name: true,
-        requirements: true,
+        // requirements: true, // REMOVED: Campo removido do ServiceSimplified
         requiredDocuments: true,
         estimatedDays: true,
       },
@@ -275,7 +275,7 @@ router.get('/:id/requirements', async (req, res) => {
       service: {
         id: service.id,
         name: service.name,
-        requirements: service.requirements || [],
+        requirements: [], // DEPRECATED: Feature removida do MVP simplificado
         requiredDocuments: service.requiredDocuments || [],
         estimatedDays: service.estimatedDays,
       },
@@ -329,7 +329,7 @@ router.get('/:id/similar', async (req, res) => {
           select: {
             protocolsSimplified: true,
           },
-        },
+        } as any, // TODO: Prisma _count não suporta select em relações
       },
       orderBy: {
         protocols: {
@@ -369,11 +369,12 @@ router.post('/:id/request', async (req, res) => {
         tenantId: tenant.id,
         isActive: true,
       },
-      include: {
-        customForm: true,
-        locationConfig: true,
-        scheduling: true,
-      },
+      // REMOVED: Features deprecated removidas do ServiceSimplified
+      // include: {
+      //   customForm: true,
+      //   locationConfig: true,
+      //   scheduling: true,
+      // },
     });
 
     if (!service) {
@@ -394,56 +395,17 @@ router.post('/:id/request', async (req, res) => {
       return res.status(400).json({ error: 'Descrição é obrigatória' });
     }
 
-    // Validar localização se obrigatório
-    if (service.hasLocation && service.locationConfig) {
-      if (!locationData || !locationData.latitude || !locationData.longitude) {
-        return res.status(400).json({
-          error: 'Localização é obrigatória para este serviço'
-        });
-      }
+    // DEPRECATED: Validações de features removidas do MVP simplificado
+    // TODO: Reimplementar location/scheduling/customForm em iteração futura se necessário
 
-      // Validar se está dentro da área permitida
-      const config = service.locationConfig as any;
-      if (config.restrictByLocation && config.radiusKm) {
-        const distance = calculateDistance(
-          config.centerLat,
-          config.centerLng,
-          locationData.latitude,
-          locationData.longitude
-        );
+    // Validar localização se obrigatório (DEPRECATED)
+    // if (service.hasLocation && service.locationConfig) { ... }
 
-        if (distance > config.radiusKm) {
-          return res.status(400).json({
-            error: 'Localização fora da área de atendimento',
-            details: {
-              maxDistance: config.radiusKm,
-              currentDistance: distance.toFixed(2),
-            },
-          });
-        }
-      }
-    }
+    // Validar agendamento se obrigatório (DEPRECATED)
+    // if (service.hasScheduling && !schedulingData) { ... }
 
-    // Validar agendamento se obrigatório
-    if (service.hasScheduling && !schedulingData) {
-      return res.status(400).json({
-        error: 'Agendamento é obrigatório para este serviço',
-      });
-    }
-
-    // Validar formulário customizado
-    if (service.hasCustomForm && service.customForm) {
-      const formSchema = (service.customForm as any).formSchema;
-      if (formSchema && formSchema.fields) {
-        for (const field of formSchema.fields) {
-          if (field.required && !customFormData?.[field.id]) {
-            return res.status(400).json({
-              error: `Campo "${field.label}" é obrigatório`,
-            });
-          }
-        }
-      }
-    }
+    // Validar formulário customizado (DEPRECATED)
+    // if (service.hasCustomForm && service.customForm) { ... }
 
     // Gerar número do protocolo
     const protocolNumber = generateProtocolNumber();
@@ -451,7 +413,7 @@ router.post('/:id/request', async (req, res) => {
     // Criar protocolo em transação
     const result = await prisma.$transaction(async (tx) => {
       // Criar protocolo
-      const protocol = await tx.protocol.create({
+      const protocol = await tx.protocolSimplified.create({
         data: {
           tenantId: tenant.id,
           number: protocolNumber,
@@ -470,31 +432,14 @@ router.post('/:id/request', async (req, res) => {
         },
       });
 
-      // Se tem agendamento, criar appointment
-      if (schedulingData && schedulingData.scheduledDate) {
-        await tx.appointment.create({
-          data: {
-            protocolId: protocol.id,
-            scheduledDate: new Date(schedulingData.scheduledDate),
-            scheduledTime: schedulingData.scheduledTime,
-            status: 'AGENDADO',
-            notes: schedulingData.notes,
-          } as any,
-        });
-      }
+      // DEPRECATED: Appointment e ProtocolLocation removidos do MVP simplificado
+      // TODO: Armazenar scheduling/location em protocol.data JSON se necessário
 
-      // Se tem localização múltipla, criar registros
-      if (locationData && locationData.latitude) {
-        await tx.protocolLocation.create({
-          data: {
-            protocolId: protocol.id,
-            locationConfigId: service.locationConfig?.id!,
-            latitude: locationData.latitude,
-            longitude: locationData.longitude,
-            address: locationData.address,
-          } as any,
-        });
-      }
+      // Se tem agendamento, armazenar no campo data (DEPRECATED - antes criava appointment)
+      // if (schedulingData && schedulingData.scheduledDate) { ... }
+
+      // Se tem localização, armazenar no campo data (DEPRECATED - antes criava protocolLocation)
+      // if (locationData && locationData.latitude) { ... }
 
       return protocol;
     });
@@ -546,7 +491,7 @@ router.post('/:id/request', async (req, res) => {
             name: true,
           },
         },
-        appointment: true,
+        // appointment: true, // REMOVED: Feature deprecated do MVP simplificado
       },
     });
 

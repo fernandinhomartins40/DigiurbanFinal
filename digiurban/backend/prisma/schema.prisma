@@ -63,6 +63,8 @@ model Tenant {
   environmentalComplaints          EnvironmentalComplaint[]
   environmentalLicenses            EnvironmentalLicense[]
   environmentalPrograms            EnvironmentalProgram[]
+  treeCuttingAuthorizations        TreeCuttingAuthorization[]
+  environmentalInspections         EnvironmentalInspection[]
   healthAppointments               HealthAppointment[]
   healthAttendances                HealthAttendance[]
   healthCampaigns                  HealthCampaign[]
@@ -485,6 +487,15 @@ model ProtocolSimplified {
   rentAssistances         RentAssistance[]         @relation("RentAssistanceProtocol")
   housingUnits            HousingUnit[]            @relation("HousingUnitProtocol")
   housingRegistrations    HousingRegistration[]    @relation("HousingRegistrationProtocol")
+
+  // Módulos de Meio Ambiente
+  environmentalAttendances     EnvironmentalAttendance[]     @relation("EnvironmentalAttendanceProtocol")
+  environmentalLicenses        EnvironmentalLicense[]        @relation("EnvironmentalLicenseProtocol")
+  environmentalComplaints      EnvironmentalComplaint[]      @relation("EnvironmentalComplaintProtocol")
+  environmentalPrograms        EnvironmentalProgram[]        @relation("EnvironmentalProgramProtocol")
+  treeCuttingAuthorizations    TreeCuttingAuthorization[]    @relation("TreeCuttingAuthorizationProtocol")
+  environmentalInspections     EnvironmentalInspection[]     @relation("EnvironmentalInspectionProtocol")
+  protectedAreas               ProtectedArea[]               @relation("ProtectedAreaProtocol")
 
   @@map("protocols_simplified")
 }
@@ -3394,6 +3405,7 @@ model TourismAttendance {
 model EnvironmentalLicense {
   id                String    @id @default(cuid())
   tenantId          String
+  protocolId        String?
   licenseNumber     String    @unique
   applicantName     String
   applicantCpf      String
@@ -3427,11 +3439,12 @@ model EnvironmentalLicense {
   reviewedAt        DateTime? // Campo adicionado
   approvedBy        String? // Campo adicionado
   approvedAt        DateTime? // Campo adicionado
-  protocol          String? // Campo adicionado
+  protocolNumber    String? // Campo adicionado
   serviceId         String? // Campo adicionado
   source            String    @default("manual") // Campo adicionado
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  protocol          ProtocolSimplified? @relation("EnvironmentalLicenseProtocol", fields: [protocolId], references: [id])
   tenant            Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_licenses")
@@ -3440,6 +3453,7 @@ model EnvironmentalLicense {
 model EnvironmentalComplaint {
   id                  String    @id @default(cuid())
   tenantId            String
+  protocolId          String?
   protocol            String    @unique
   reporterName        String?
   complainantName     String? // Campo adicionado (alias de reporterName)
@@ -3477,6 +3491,7 @@ model EnvironmentalComplaint {
   photos              Json? // Campo adicionado
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+  protocolRelation    ProtocolSimplified? @relation("EnvironmentalComplaintProtocol", fields: [protocolId], references: [id])
   tenant              Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_complaints")
@@ -3485,6 +3500,7 @@ model EnvironmentalComplaint {
 model ProtectedArea {
   id              String    @id @default(cuid())
   tenantId        String
+  protocolId      String?
   name            String
   areaType        String
   description     String
@@ -3506,6 +3522,7 @@ model ProtectedArea {
   lastInspection  DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  protocol        ProtocolSimplified? @relation("ProtectedAreaProtocol", fields: [protocolId], references: [id])
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("protected_areas")
@@ -3514,6 +3531,7 @@ model ProtectedArea {
 model EnvironmentalProgram {
   id             String    @id @default(cuid())
   tenantId       String
+  protocolId     String?
   name           String
   programType    String
   description    String
@@ -3534,6 +3552,7 @@ model EnvironmentalProgram {
   reports        Json?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  protocol       ProtocolSimplified? @relation("EnvironmentalProgramProtocol", fields: [protocolId], references: [id])
   tenant         Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_programs")
@@ -3542,6 +3561,7 @@ model EnvironmentalProgram {
 model EnvironmentalAttendance {
   id               String    @id @default(cuid())
   tenantId         String
+  protocolId       String?
   protocol         String    @unique
   citizenId        String?
   citizenName      String
@@ -3563,10 +3583,88 @@ model EnvironmentalAttendance {
   satisfaction     Int?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  protocolRelation ProtocolSimplified? @relation("EnvironmentalAttendanceProtocol", fields: [protocolId], references: [id])
   citizen          Citizen?  @relation("EnvironmentalAttendanceCitizen", fields: [citizenId], references: [id])
   tenant           Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_attendances")
+}
+
+model TreeCuttingAuthorization {
+  id                String    @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  authorizationNumber String  @unique
+  applicantName     String
+  applicantCpf      String
+  applicantPhone    String?
+  applicantEmail    String?
+  propertyAddress   String
+  coordinates       Json?
+  requestType       String    // PODA, CORTE, TRANSPLANTE
+  treeSpecies       String
+  treeQuantity      Int       @default(1)
+  treeHeight        Float?
+  trunkDiameter     Float?
+  justification     String
+  technicalReport   String?
+  photos            Json?
+  requestDate       DateTime  @default(now())
+  inspectionDate    DateTime?
+  inspector         String?
+  inspectionReport  String?
+  decision          String?   // APROVADO, NEGADO, APROVADO_COM_CONDICOES
+  conditions        Json?
+  authorizationDate DateTime?
+  validUntil        DateTime?
+  executionDate     DateTime?
+  status            String    @default("UNDER_ANALYSIS")
+  fee               Float?
+  observations      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  protocol          ProtocolSimplified? @relation("TreeCuttingAuthorizationProtocol", fields: [protocolId], references: [id])
+  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("tree_cutting_authorizations")
+}
+
+model EnvironmentalInspection {
+  id                String    @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  inspectionNumber  String    @unique
+  inspectionType    String    // LICENCIAMENTO, DENUNCIA, ROTINA, SEGUIMENTO
+  subject           String
+  location          String
+  coordinates       Json?
+  scheduledDate     DateTime
+  inspectionDate    DateTime?
+  inspector         String
+  inspectorTeam     Json?
+  findings          String?
+  photos            Json?
+  evidence          Json?
+  nonCompliances    Json?     // Lista de não conformidades
+  recommendations   String?
+  reportedViolations Json?
+  penalties         Float?
+  correctiveActions Json?
+  followUpRequired  Boolean   @default(false)
+  followUpDate      DateTime?
+  status            String    @default("SCHEDULED")
+  priority          String    @default("NORMAL")
+  report            String?
+  reportDate        DateTime?
+  relatedLicenseId  String?
+  relatedComplaintId String?
+  observations      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  protocol          ProtocolSimplified? @relation("EnvironmentalInspectionProtocol", fields: [protocolId], references: [id])
+  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("environmental_inspections")
 }
 
 model TechnicalAssistance {

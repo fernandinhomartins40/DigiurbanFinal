@@ -1842,6 +1842,165 @@ export class ProtocolModuleService {
           observations: formData.observations,
         },
       }),
+
+      // MEIO AMBIENTE
+      EnvironmentalAttendance: () => tx.environmentalAttendance.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          citizenName: formData.citizenName,
+          citizenCpf: formData.citizenCpf,
+          contact: formData.contact || formData.phone,
+          serviceType: formData.serviceType,
+          subject: formData.subject,
+          description: formData.description,
+          category: formData.category,
+          urgency: formData.urgency || 'NORMAL',
+          location: formData.location,
+          evidence: formData.evidence as Prisma.JsonValue,
+          status: 'PENDING',
+        },
+      }),
+
+      EnvironmentalLicense: () => tx.environmentalLicense.create({
+        data: {
+          tenantId,
+          protocolId,
+          licenseNumber: `LIC-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          applicantName: formData.applicantName,
+          applicantCpf: formData.applicantCpf,
+          applicantPhone: formData.applicantPhone,
+          applicantEmail: formData.applicantEmail,
+          businessName: formData.businessName,
+          licenseType: formData.licenseType,
+          activity: formData.activity,
+          description: formData.description,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          area: formData.area ? parseFloat(formData.area) : null,
+          applicationDate: new Date(),
+          status: 'UNDER_ANALYSIS',
+          conditions: formData.conditions as Prisma.JsonValue,
+          fee: formData.fee ? parseFloat(formData.fee) : null,
+          documents: formData.documents as Prisma.JsonValue,
+          observations: formData.observations,
+        },
+      }),
+
+      EnvironmentalComplaint: () => tx.environmentalComplaint.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          reporterName: formData.reporterName,
+          complainantName: formData.complainantName || formData.reporterName,
+          reporterPhone: formData.reporterPhone,
+          reporterEmail: formData.reporterEmail,
+          complaintType: formData.complaintType,
+          severity: formData.severity || 'MEDIUM',
+          description: formData.description,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          evidence: formData.evidence as Prisma.JsonValue,
+          occurrenceDate: formData.occurrenceDate ? new Date(formData.occurrenceDate) : new Date(),
+          reportDate: new Date(),
+          status: 'OPEN',
+          isAnonymous: formData.isAnonymous || false,
+          photos: formData.photos as Prisma.JsonValue,
+        },
+      }),
+
+      EnvironmentalProgram: () => tx.environmentalProgram.create({
+        data: {
+          tenantId,
+          protocolId,
+          name: formData.name || formData.programName,
+          programType: formData.programType,
+          description: formData.description,
+          objectives: formData.objectives as Prisma.JsonValue,
+          targetAudience: formData.targetAudience,
+          startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
+          endDate: formData.endDate ? new Date(formData.endDate) : null,
+          budget: formData.budget ? parseFloat(formData.budget) : null,
+          coordinator: formData.coordinator,
+          activities: formData.activities as Prisma.JsonValue,
+          indicators: formData.indicators as Prisma.JsonValue,
+          partnerships: formData.partnerships as Prisma.JsonValue,
+          status: 'ACTIVE',
+        },
+      }),
+
+      TreeCuttingAuthorization: () => tx.treeCuttingAuthorization.create({
+        data: {
+          tenantId,
+          protocolId,
+          authorizationNumber: `AUT-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          applicantName: formData.applicantName,
+          applicantCpf: formData.applicantCpf,
+          applicantPhone: formData.applicantPhone,
+          applicantEmail: formData.applicantEmail,
+          propertyAddress: formData.propertyAddress,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          requestType: formData.requestType, // PODA, CORTE, TRANSPLANTE
+          treeSpecies: formData.treeSpecies,
+          treeQuantity: formData.treeQuantity ? parseInt(formData.treeQuantity) : 1,
+          treeHeight: formData.treeHeight ? parseFloat(formData.treeHeight) : null,
+          trunkDiameter: formData.trunkDiameter ? parseFloat(formData.trunkDiameter) : null,
+          justification: formData.justification,
+          technicalReport: formData.technicalReport,
+          photos: formData.photos as Prisma.JsonValue,
+          requestDate: new Date(),
+          status: 'UNDER_ANALYSIS',
+          fee: formData.fee ? parseFloat(formData.fee) : null,
+          observations: formData.observations,
+        },
+      }),
+
+      EnvironmentalInspection: () => tx.environmentalInspection.create({
+        data: {
+          tenantId,
+          protocolId,
+          inspectionNumber: `INSP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+          inspectionType: formData.inspectionType, // LICENCIAMENTO, DENUNCIA, ROTINA, SEGUIMENTO
+          subject: formData.subject,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          scheduledDate: formData.scheduledDate ? new Date(formData.scheduledDate) : new Date(),
+          inspector: formData.inspector,
+          inspectorTeam: formData.inspectorTeam as Prisma.JsonValue,
+          status: 'SCHEDULED',
+          priority: formData.priority || 'NORMAL',
+          relatedLicenseId: formData.relatedLicenseId,
+          relatedComplaintId: formData.relatedComplaintId,
+          observations: formData.observations,
+        },
+      }),
+
+      ProtectedArea: () => tx.protectedArea.create({
+        data: {
+          tenantId,
+          protocolId,
+          name: formData.name || formData.areaName,
+          areaType: formData.areaType,
+          description: formData.description,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          totalArea: formData.totalArea ? parseFloat(formData.totalArea) : 0,
+          protectionLevel: formData.protectionLevel,
+          legalBasis: formData.legalBasis,
+          managementPlan: formData.managementPlan as Prisma.JsonValue,
+          biodiversity: formData.biodiversity as Prisma.JsonValue,
+          threats: formData.threats as Prisma.JsonValue,
+          activities: formData.activities as Prisma.JsonValue,
+          restrictions: formData.restrictions as Prisma.JsonValue,
+          guardian: formData.guardian,
+          contact: formData.contact,
+          visitationRules: formData.visitationRules as Prisma.JsonValue,
+          isPublicAccess: formData.isPublicAccess || false,
+          status: 'ACTIVE',
+        },
+      }),
     };
 
     const createFn = entityMap[entityName];
@@ -2357,6 +2516,42 @@ export class ProtocolModuleService {
       }),
 
       HousingRegistration: () => tx.housingRegistration.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      // MEIO AMBIENTE
+      EnvironmentalAttendance: () => tx.environmentalAttendance.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      EnvironmentalLicense: () => tx.environmentalLicense.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      EnvironmentalComplaint: () => tx.environmentalComplaint.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      EnvironmentalProgram: () => tx.environmentalProgram.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      TreeCuttingAuthorization: () => tx.treeCuttingAuthorization.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      EnvironmentalInspection: () => tx.environmentalInspection.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      ProtectedArea: () => tx.protectedArea.updateMany({
         where: { protocolId },
         data: { status, ...additionalData },
       }),

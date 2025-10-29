@@ -53,7 +53,8 @@
       "Bash(rm:*)",
       "Bash(git rm:*)",
       "Bash(for dir in atendimentos ocorrencias solicitacao-ronda cameras denuncias-anonimas pontos-criticos alertas patrulhas guarda-municipal vigilancia)",
-      "Bash(if exist \"digiurban\\backend\\src\\routes\\nul\" del \"digiurban\\backend\\src\\routes\\nul\")"
+      "Bash(if exist \"digiurban\\backend\\src\\routes\\nul\" del \"digiurban\\backend\\src\\routes\\nul\")",
+      "Bash(for dir in licencas denuncias programas poda-corte vistorias areas-protegidas)"
     ],
     "deny": [],
     "ask": []

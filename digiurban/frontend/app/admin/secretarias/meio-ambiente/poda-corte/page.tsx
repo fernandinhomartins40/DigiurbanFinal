@@ -2,10 +2,10 @@
 
 import { ModulePageTemplate } from '@/components/admin/modules/ModulePageTemplate';
 import { PendingProtocolsList } from '@/components/admin/modules/PendingProtocolsList';
-import { areasProtegidasConfig } from '@/lib/module-configs/meio-ambiente';
+import { podaCorteConfig } from '@/lib/module-configs/meio-ambiente';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function AreasProtegidasPage() {
+export default function PodaCortePage() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="cadastrados">
@@ -16,15 +16,15 @@ export default function AreasProtegidasPage() {
 
         <TabsContent value="cadastrados">
           <ModulePageTemplate
-            config={areasProtegidasConfig}
+            config={podaCorteConfig}
             departmentType="meio-ambiente"
           />
         </TabsContent>
 
         <TabsContent value="pendentes">
           <PendingProtocolsList
-            moduleType="AREA_PROTEGIDA"
-            moduleName="Áreas Protegidas"
+            moduleType="AUTORIZACAO_PODA_CORTE"
+            moduleName="Autorizações de Poda e Corte"
           />
         </TabsContent>
       </Tabs>

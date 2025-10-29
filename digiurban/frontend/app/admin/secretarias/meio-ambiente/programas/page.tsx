@@ -2,10 +2,10 @@
 
 import { ModulePageTemplate } from '@/components/admin/modules/ModulePageTemplate';
 import { PendingProtocolsList } from '@/components/admin/modules/PendingProtocolsList';
-import { areasProtegidasConfig } from '@/lib/module-configs/meio-ambiente';
+import { programasAmbientaisConfig } from '@/lib/module-configs/meio-ambiente';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function AreasProtegidasPage() {
+export default function ProgramasAmbientaisPage() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="cadastrados">
@@ -16,15 +16,15 @@ export default function AreasProtegidasPage() {
 
         <TabsContent value="cadastrados">
           <ModulePageTemplate
-            config={areasProtegidasConfig}
+            config={programasAmbientaisConfig}
             departmentType="meio-ambiente"
           />
         </TabsContent>
 
         <TabsContent value="pendentes">
           <PendingProtocolsList
-            moduleType="AREA_PROTEGIDA"
-            moduleName="Áreas Protegidas"
+            moduleType="PROGRAMA_AMBIENTAL"
+            moduleName="Programas Ambientais"
           />
         </TabsContent>
       </Tabs>

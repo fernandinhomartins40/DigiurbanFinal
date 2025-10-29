@@ -47,6 +47,12 @@ model Tenant {
   culturalWorkshops           CulturalWorkshop[]
   departments                 Department[]
   disciplinaryRecords         DisciplinaryRecord[]
+  educationAttendances        EducationAttendance[]
+  schoolDocuments             SchoolDocument[]
+  studentTransfers            StudentTransfer[]
+  attendanceRecords           AttendanceRecord[]
+  gradeRecords                GradeRecord[]
+  schoolManagements           SchoolManagement[]
   emailServer                 EmailServer?
   emailTemplates              EmailTemplate[]
   emergencyDeliveries         EmergencyDelivery[]
@@ -391,6 +397,18 @@ model ProtocolSimplified {
   vaccinations             Vaccination[]             @relation("VaccinationProtocol")
   patients                 Patient[]                 @relation("PatientProtocol")
   communityHealthAgents    CommunityHealthAgent[]    @relation("CommunityHealthAgentProtocol")
+
+  // Módulos de Educação
+  educationAttendances     EducationAttendance[]     @relation("EducationAttendanceProtocol")
+  students                 Student[]                 @relation("StudentProtocol")
+  schoolTransports         SchoolTransport[]         @relation("SchoolTransportProtocol")
+  disciplinaryRecords      DisciplinaryRecord[]      @relation("DisciplinaryRecordProtocol")
+  schoolDocuments          SchoolDocument[]          @relation("SchoolDocumentProtocol")
+  studentTransfers         StudentTransfer[]         @relation("StudentTransferProtocol")
+  attendanceRecords        AttendanceRecord[]        @relation("AttendanceRecordProtocol")
+  gradeRecords             GradeRecord[]             @relation("GradeRecordProtocol")
+  schoolManagements        SchoolManagement[]        @relation("SchoolManagementProtocol")
+  schoolMeals              SchoolMeal[]              @relation("SchoolMealProtocol")
 
   @@map("protocols_simplified")
 }
@@ -1975,6 +1993,7 @@ model School {
 model Student {
   id          String              @id @default(cuid())
   tenantId    String
+  protocolId  String?
   name        String
   birthDate   DateTime
   cpf         String?
@@ -1993,6 +2012,7 @@ model Student {
   enrollments StudentEnrollment[]
   school      School              @relation(fields: [schoolId], references: [id])
   tenant      Tenant              @relation(fields: [tenantId], references: [id])
+  protocol    ProtocolSimplified? @relation("StudentProtocol", fields: [protocolId], references: [id])
 
   @@unique([tenantId, cpf])
   @@map("students")
@@ -2055,34 +2075,38 @@ model StudentAttendance {
 }
 
 model SchoolTransport {
-  id        String   @id @default(cuid())
-  tenantId  String
-  route     String
-  driver    String
-  vehicle   String
-  capacity  Int
-  shift     String
-  stops     Json?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String              @id @default(cuid())
+  tenantId   String
+  protocolId String?
+  route      String
+  driver     String
+  vehicle    String
+  capacity   Int
+  shift      String
+  stops      Json?
+  isActive   Boolean             @default(true)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+  protocol   ProtocolSimplified? @relation("SchoolTransportProtocol", fields: [protocolId], references: [id])
 
   @@map("school_transports")
 }
 
 model SchoolMeal {
-  id             String   @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
+  protocolId     String?
   schoolId       String?
   date           DateTime
   shift          String
   menu           Json
-  studentsServed Int      @default(0)
+  studentsServed Int                 @default(0)
   cost           Float?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  school         School?  @relation(fields: [schoolId], references: [id])
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  school         School?             @relation(fields: [schoolId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
+  protocol       ProtocolSimplified? @relation("SchoolMealProtocol", fields: [protocolId], references: [id])
 
   @@map("school_meals")
 }
@@ -2123,6 +2147,143 @@ model SchoolEvent {
   school      School?  @relation(fields: [schoolId], references: [id])
 
   @@map("school_events")
+}
+
+model EducationAttendance {
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  citizenName    String
+  citizenCpf     String
+  citizenPhone   String?
+  citizenEmail   String?
+  serviceType    String
+  description    String
+  status         String              @default("PENDING")
+  priority       String              @default("NORMAL")
+  scheduledDate  DateTime?
+  completedDate  DateTime?
+  observations   String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
+  protocol       ProtocolSimplified? @relation("EducationAttendanceProtocol", fields: [protocolId], references: [id])
+
+  @@map("education_attendances")
+}
+
+model SchoolDocument {
+  id           String              @id @default(cuid())
+  tenantId     String
+  protocolId   String?
+  studentId    String?
+  studentName  String
+  documentType String
+  issueDate    DateTime            @default(now())
+  validUntil   DateTime?
+  status       String              @default("PENDING")
+  observations String?
+  fileUrl      String?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
+  protocol     ProtocolSimplified? @relation("SchoolDocumentProtocol", fields: [protocolId], references: [id])
+
+  @@map("school_documents")
+}
+
+model StudentTransfer {
+  id                String              @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  studentId         String?
+  studentName       String
+  currentSchool     String
+  targetSchool      String
+  grade             String
+  transferReason    String
+  requestDate       DateTime            @default(now())
+  transferDate      DateTime?
+  status            String              @default("PENDING")
+  documents         Json?
+  observations      String?
+  approvedBy        String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
+  protocol          ProtocolSimplified? @relation("StudentTransferProtocol", fields: [protocolId], references: [id])
+
+  @@map("student_transfers")
+}
+
+model AttendanceRecord {
+  id            String              @id @default(cuid())
+  tenantId      String
+  protocolId    String?
+  studentId     String?
+  studentName   String
+  schoolId      String?
+  classId       String?
+  month         Int
+  year          Int
+  totalDays     Int
+  presentDays   Int
+  absentDays    Int
+  percentage    Float
+  status        String              @default("ACTIVE")
+  observations  String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  protocol      ProtocolSimplified? @relation("AttendanceRecordProtocol", fields: [protocolId], references: [id])
+
+  @@map("attendance_records")
+}
+
+model GradeRecord {
+  id            String              @id @default(cuid())
+  tenantId      String
+  protocolId    String?
+  studentId     String?
+  studentName   String
+  schoolId      String?
+  classId       String?
+  subject       String
+  period        String
+  grade         Float
+  maxGrade      Float               @default(10)
+  status        String              @default("APPROVED")
+  observations  String?
+  teacherName   String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  protocol      ProtocolSimplified? @relation("GradeRecordProtocol", fields: [protocolId], references: [id])
+
+  @@map("grade_records")
+}
+
+model SchoolManagement {
+  id               String              @id @default(cuid())
+  tenantId         String
+  protocolId       String?
+  schoolId         String?
+  schoolName       String
+  managementType   String
+  requestDate      DateTime            @default(now())
+  description      String
+  status           String              @default("PENDING")
+  priority         String              @default("NORMAL")
+  assignedTo       String?
+  completedDate    DateTime?
+  observations     String?
+  documents        Json?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  protocol         ProtocolSimplified? @relation("SchoolManagementProtocol", fields: [protocolId], references: [id])
+
+  @@map("school_management")
 }
 
 model Athlete {
@@ -2432,29 +2593,31 @@ model CommunityHealthAgent {
 }
 
 model DisciplinaryRecord {
-  id                 String   @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
+  protocolId         String?
   studentId          String
   schoolId           String
   incidentType       String
   severity           String?
   description        String
   incidentDate       DateTime
-  date               DateTime @default(now())
+  date               DateTime            @default(now())
   time               String?
   location           String?
   witnesses          String?
   actions_taken      String?
-  status             String   @default("PENDING")
+  status             String              @default("PENDING")
   reportedBy         String?
   measures           String
   responsibleTeacher String
-  parentNotified     Boolean  @default(false)
-  resolved           Boolean  @default(false)
+  parentNotified     Boolean             @default(false)
+  resolved           Boolean             @default(false)
   observations       String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  tenant             Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocol           ProtocolSimplified? @relation("DisciplinaryRecordProtocol", fields: [protocolId], references: [id])
 
   @@map("disciplinary_records")
 }

@@ -443,6 +443,178 @@ export class ProtocolModuleService {
           observations: formData.observations,
         },
       }),
+
+      // EDUCAÇÃO
+      EducationAttendance: () => tx.educationAttendance.create({
+        data: {
+          tenantId,
+          protocolId,
+          citizenName: formData.citizenName,
+          citizenCpf: formData.citizenCpf,
+          citizenPhone: formData.citizenPhone,
+          citizenEmail: formData.citizenEmail,
+          serviceType: formData.serviceType,
+          description: formData.description,
+          status: 'PENDING',
+          priority: formData.priority || 'NORMAL',
+          scheduledDate: formData.scheduledDate ? new Date(formData.scheduledDate) : null,
+          observations: formData.observations,
+        },
+      }),
+
+      Student: () => tx.student.create({
+        data: {
+          tenantId,
+          protocolId,
+          name: formData.name || formData.studentName,
+          birthDate: formData.birthDate ? new Date(formData.birthDate) : new Date(),
+          cpf: formData.cpf,
+          rg: formData.rg,
+          parentName: formData.parentName,
+          parentPhone: formData.parentPhone,
+          parentEmail: formData.parentEmail,
+          address: formData.address,
+          medicalInfo: formData.medicalInfo as Prisma.JsonValue,
+          schoolId: formData.schoolId,
+          isActive: false,
+        },
+      }),
+
+      SchoolTransport: () => tx.schoolTransport.create({
+        data: {
+          tenantId,
+          protocolId,
+          route: formData.route,
+          driver: formData.driver,
+          vehicle: formData.vehicle,
+          capacity: formData.capacity ? parseInt(formData.capacity) : 0,
+          shift: formData.shift,
+          stops: formData.stops as Prisma.JsonValue,
+          isActive: false,
+        },
+      }),
+
+      DisciplinaryRecord: () => tx.disciplinaryRecord.create({
+        data: {
+          tenantId,
+          protocolId,
+          studentId: formData.studentId,
+          schoolId: formData.schoolId,
+          incidentType: formData.incidentType,
+          severity: formData.severity,
+          description: formData.description,
+          incidentDate: formData.incidentDate ? new Date(formData.incidentDate) : new Date(),
+          time: formData.time,
+          location: formData.location,
+          witnesses: formData.witnesses,
+          measures: formData.measures,
+          responsibleTeacher: formData.responsibleTeacher,
+          parentNotified: false,
+          resolved: false,
+          status: 'PENDING',
+        },
+      }),
+
+      SchoolDocument: () => tx.schoolDocument.create({
+        data: {
+          tenantId,
+          protocolId,
+          studentId: formData.studentId,
+          studentName: formData.studentName,
+          documentType: formData.documentType,
+          issueDate: new Date(),
+          validUntil: formData.validUntil ? new Date(formData.validUntil) : null,
+          status: 'PENDING',
+          observations: formData.observations,
+          fileUrl: formData.fileUrl,
+        },
+      }),
+
+      StudentTransfer: () => tx.studentTransfer.create({
+        data: {
+          tenantId,
+          protocolId,
+          studentId: formData.studentId,
+          studentName: formData.studentName,
+          currentSchool: formData.currentSchool,
+          targetSchool: formData.targetSchool,
+          grade: formData.grade,
+          transferReason: formData.transferReason,
+          requestDate: new Date(),
+          transferDate: formData.transferDate ? new Date(formData.transferDate) : null,
+          status: 'PENDING',
+          documents: formData.documents as Prisma.JsonValue,
+          observations: formData.observations,
+        },
+      }),
+
+      AttendanceRecord: () => tx.attendanceRecord.create({
+        data: {
+          tenantId,
+          protocolId,
+          studentId: formData.studentId,
+          studentName: formData.studentName,
+          schoolId: formData.schoolId,
+          classId: formData.classId,
+          month: formData.month ? parseInt(formData.month) : new Date().getMonth() + 1,
+          year: formData.year ? parseInt(formData.year) : new Date().getFullYear(),
+          totalDays: formData.totalDays ? parseInt(formData.totalDays) : 0,
+          presentDays: formData.presentDays ? parseInt(formData.presentDays) : 0,
+          absentDays: formData.absentDays ? parseInt(formData.absentDays) : 0,
+          percentage: formData.percentage ? parseFloat(formData.percentage) : 0,
+          status: 'ACTIVE',
+          observations: formData.observations,
+        },
+      }),
+
+      GradeRecord: () => tx.gradeRecord.create({
+        data: {
+          tenantId,
+          protocolId,
+          studentId: formData.studentId,
+          studentName: formData.studentName,
+          schoolId: formData.schoolId,
+          classId: formData.classId,
+          subject: formData.subject,
+          period: formData.period,
+          grade: formData.grade ? parseFloat(formData.grade) : 0,
+          maxGrade: formData.maxGrade ? parseFloat(formData.maxGrade) : 10,
+          status: formData.status || 'APPROVED',
+          observations: formData.observations,
+          teacherName: formData.teacherName,
+        },
+      }),
+
+      SchoolManagement: () => tx.schoolManagement.create({
+        data: {
+          tenantId,
+          protocolId,
+          schoolId: formData.schoolId,
+          schoolName: formData.schoolName,
+          managementType: formData.managementType,
+          requestDate: new Date(),
+          description: formData.description,
+          status: 'PENDING',
+          priority: formData.priority || 'NORMAL',
+          assignedTo: formData.assignedTo,
+          completedDate: formData.completedDate ? new Date(formData.completedDate) : null,
+          observations: formData.observations,
+          documents: formData.documents as Prisma.JsonValue,
+        },
+      }),
+
+      SchoolMeal: () => tx.schoolMeal.create({
+        data: {
+          tenantId,
+          protocolId,
+          schoolId: formData.schoolId,
+          date: formData.date ? new Date(formData.date) : new Date(),
+          shift: formData.shift,
+          menu: formData.menu as Prisma.JsonValue,
+          studentsServed: formData.studentsServed ? parseInt(formData.studentsServed) : 0,
+          cost: formData.cost ? parseFloat(formData.cost) : null,
+        },
+      }),
     };
 
     const createFn = entityMap[entityName];
@@ -648,6 +820,57 @@ export class ProtocolModuleService {
       CommunityHealthAgent: () => tx.communityHealthAgent.updateMany({
         where: { protocolId },
         data: { status, ...additionalData },
+      }),
+
+      // EDUCAÇÃO
+      EducationAttendance: () => tx.educationAttendance.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      Student: () => tx.student.updateMany({
+        where: { protocolId },
+        data: { isActive: true, ...additionalData },
+      }),
+
+      SchoolTransport: () => tx.schoolTransport.updateMany({
+        where: { protocolId },
+        data: { isActive: true, ...additionalData },
+      }),
+
+      DisciplinaryRecord: () => tx.disciplinaryRecord.updateMany({
+        where: { protocolId },
+        data: { status, resolved: true, ...additionalData },
+      }),
+
+      SchoolDocument: () => tx.schoolDocument.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      StudentTransfer: () => tx.studentTransfer.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      AttendanceRecord: () => tx.attendanceRecord.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      GradeRecord: () => tx.gradeRecord.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      SchoolManagement: () => tx.schoolManagement.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      SchoolMeal: () => tx.schoolMeal.updateMany({
+        where: { protocolId },
+        data: { ...additionalData },
       }),
     };
 

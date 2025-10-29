@@ -132,6 +132,10 @@ model Tenant {
   sportsInfrastructures       SportsInfrastructure[]
   sportsSchools               SportsSchool[]
   sportsTeams                 SportsTeam[]
+  sportsSchoolEnrollments     SportsSchoolEnrollment[]
+  sportsInfrastructureReservations SportsInfrastructureReservation[]
+  competitionEnrollments      CompetitionEnrollment[]
+  tournamentEnrollments       TournamentEnrollment[]
   streetLightings             StreetLighting[]
   students                    Student[]
   teamSchedules               TeamSchedule[]
@@ -458,6 +462,10 @@ model ProtocolSimplified {
   sportsInfrastructures SportsInfrastructure[] @relation("SportsInfrastructureProtocol")
   sportsSchools         SportsSchool[]         @relation("SportsSchoolProtocol")
   sportsModalities      SportsModality[]       @relation("SportsModalityProtocol")
+  sportsSchoolEnrollments              SportsSchoolEnrollment[]              @relation("SportsSchoolEnrollmentProtocol")
+  sportsInfrastructureReservations     SportsInfrastructureReservation[]     @relation("SportsInfrastructureReservationProtocol")
+  competitionEnrollments               CompetitionEnrollment[]               @relation("CompetitionEnrollmentProtocol")
+  tournamentEnrollments                TournamentEnrollment[]                @relation("TournamentEnrollmentProtocol")
 
   // Módulos de Cultura
   culturalAttendances         CulturalAttendance[]         @relation("CulturalAttendanceProtocol")
@@ -468,6 +476,9 @@ model ProtocolSimplified {
   culturalProjectSubmissions  CulturalProjectSubmission[]  @relation("CulturalProjectSubmissionProtocol")
   culturalEvents              CulturalEvent[]              @relation("CulturalEventProtocol")
   culturalManifestations      CulturalManifestation[]      @relation("CulturalManifestationProtocol")
+
+  // Módulos de Habitação
+  housingAttendances          HousingAttendance[]          @relation("HousingAttendanceProtocol")
 
   @@map("protocols_simplified")
 }
@@ -1831,6 +1842,7 @@ model CulturalEvent {
 model HousingAttendance {
   id              String                  @id @default(cuid())
   tenantId        String
+  protocolId      String?
   protocol        String                  @unique
   citizenId       String?
   citizenName     String
@@ -1853,6 +1865,7 @@ model HousingAttendance {
   updatedAt       DateTime                @updatedAt
   citizen         Citizen?                @relation("HousingAttendanceCitizen", fields: [citizenId], references: [id])
   tenant          Tenant                  @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified?     @relation("HousingAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_attendances")
 }
@@ -2935,6 +2948,143 @@ model SportsSchool {
   @@map("sports_schools")
 }
 
+model SportsSchoolEnrollment {
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  sportsSchoolId     String?
+  studentName        String
+  studentBirthDate   DateTime
+  studentCpf         String?
+  studentRg          String?
+  parentName         String?
+  parentCpf          String?
+  parentPhone        String
+  parentEmail        String?
+  address            String
+  neighborhood       String?
+  sport              String
+  level              String? // iniciante, intermediário, avançado
+  enrollmentDate     DateTime            @default(now())
+  status             String              @default("ACTIVE") // ACTIVE, INACTIVE, COMPLETED
+  medicalCertificate Json?
+  emergencyContact   Json?
+  observations       String?
+  uniforms           Json? // uniformes fornecidos
+  attendance         Json? // registro de presença
+  serviceId          String?
+  source             String              @default("manual")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("SportsSchoolEnrollmentProtocol", fields: [protocolId], references: [id])
+
+  @@map("sports_school_enrollments")
+}
+
+model SportsInfrastructureReservation {
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  infrastructureId   String?
+  infrastructureName String
+  requesterName      String
+  requesterCpf       String?
+  requesterPhone     String
+  requesterEmail     String?
+  organization       String? // clube, escola, grupo
+  sport              String
+  purpose            String // treinamento, competição, evento
+  date               DateTime
+  startTime          String
+  endTime            String
+  expectedPeople     Int?
+  equipment          Json? // equipamentos necessários
+  status             String              @default("PENDING") // PENDING, APPROVED, REJECTED, COMPLETED
+  approvedBy         String?
+  approvedAt         DateTime?
+  rejectionReason    String?
+  observations       String?
+  serviceId          String?
+  source             String              @default("manual")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("SportsInfrastructureReservationProtocol", fields: [protocolId], references: [id])
+
+  @@map("sports_infrastructure_reservations")
+}
+
+model CompetitionEnrollment {
+  id              String              @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  competitionId   String?
+  competitionName String
+  teamName        String
+  sport           String
+  category        String
+  ageGroup        String
+  coachName       String
+  coachCpf        String?
+  coachPhone      String
+  coachEmail      String?
+  playersCount    Int
+  playersList     Json // lista de atletas com dados
+  enrollmentDate  DateTime            @default(now())
+  paymentStatus   String              @default("PENDING") // PENDING, PAID, EXEMPT
+  paymentProof    Json?
+  status          String              @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy      String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  observations    String?
+  serviceId       String?
+  source          String              @default("manual")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("CompetitionEnrollmentProtocol", fields: [protocolId], references: [id])
+
+  @@map("competition_enrollments")
+}
+
+model TournamentEnrollment {
+  id              String              @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  tournamentId    String?
+  tournamentName  String
+  participantType String // TEAM, INDIVIDUAL
+  teamName        String?
+  athleteName     String?
+  athleteCpf      String?
+  sport           String
+  category        String
+  ageGroup        String
+  coachName       String?
+  coachPhone      String?
+  coachEmail      String?
+  playersCount    Int?
+  playersList     Json? // lista de atletas (se equipe)
+  enrollmentDate  DateTime            @default(now())
+  paymentStatus   String              @default("PENDING")
+  paymentProof    Json?
+  status          String              @default("PENDING")
+  approvedBy      String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  observations    String?
+  serviceId       String?
+  source          String              @default("manual")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("TournamentEnrollmentProtocol", fields: [protocolId], references: [id])
+
+  @@map("tournament_enrollments")
+}
+
 model SportModality {
   id           String        @id @default(cuid())
   tenantId     String
@@ -3565,6 +3715,7 @@ model AgricultureAttendance {
 model HousingApplication {
   id               String    @id @default(cuid())
   tenantId         String
+  protocolId       String?
   protocol         String    @unique
   applicantName    String
   applicantCpf     String

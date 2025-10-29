@@ -1,33 +1,46 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useAdminAuth } from '@/contexts/AdminAuthContext'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Trophy,
-  Plus,
-  Search,
-  Filter,
-  Download,
-  Clock,
-  CheckCircle,
-  User,
-  MapPin,
-  Phone,
-  Calendar,
-  Activity,
-  Users,
-  Target,
-  Award,
-  Zap
-} from 'lucide-react'
+import { ModulePageTemplate } from '@/components/admin/modules/ModulePageTemplate';
+import { PendingProtocolsList } from '@/components/admin/modules/PendingProtocolsList';
+import { sportsAttendanceConfig } from '@/lib/module-configs/esportes';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+export default function AtendimentosEsportesPage() {
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Atendimentos Esportivos</h1>
+        <p className="text-muted-foreground">
+          Gestão de atendimentos gerais da Secretaria de Esportes
+        </p>
+      </div>
+
+      <Tabs defaultValue="cadastrados" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="cadastrados">Atendimentos Cadastrados</TabsTrigger>
+          <TabsTrigger value="pendentes">Aguardando Aprovação</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="cadastrados" className="mt-6">
+          <ModulePageTemplate
+            config={sportsAttendanceConfig}
+            departmentType="esportes"
+          />
+        </TabsContent>
+
+        <TabsContent value="pendentes" className="mt-6">
+          <PendingProtocolsList
+            moduleType="ATENDIMENTOS_ESPORTES"
+            moduleName="Atendimentos Esportivos"
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+// ========== CÓDIGO LEGADO ABAIXO (DELETAR FUTURAMENTE) ==========
+/*
 interface AtendimentoEsporte {
   id: string
   protocolo: string
@@ -619,3 +632,4 @@ export default function AtendimentosEsportesPage() {
     </div>
   )
 }
+*/

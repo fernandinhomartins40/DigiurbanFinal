@@ -42,7 +42,16 @@
       "Bash(del debug-admin-login.js)",
       "Bash(set PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=sim, pode prosseguir)",
       "Bash($env:PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"sim, pode prosseguir\")",
-      "Bash(del:*)"
+      "Bash(del:*)",
+      "Bash(set PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=SIM!)",
+      "Bash($env:PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"SIM!\")",
+      "Bash(for dir in */)",
+      "Bash(do echo \"=== $dir ===\")",
+      "Bash(ls:*)",
+      "Bash(done)",
+      "Bash(cat:*)",
+      "Bash(rm:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

@@ -81,6 +81,8 @@ model Tenant {
   projectApprovals            ProjectApproval[]
   protectedAreas              ProtectedArea[]
   protocols                   Protocol[]
+  protocolsSimplified         ProtocolSimplified[]
+  servicesSimplified          ServiceSimplified[]
   publicComplaints            PublicComplaint[]
   publicConsultations         PublicConsultation[]
   publicProblemReports        PublicProblemReport[]
@@ -139,46 +141,50 @@ model Tenant {
 }
 
 model User {
-  id                       String                       @id @default(cuid())
-  email                    String                       @unique
-  name                     String
-  password                 String
-  role                     UserRole                     @default(USER)
-  isActive                 Boolean                      @default(true)
-  tenantId                 String
-  departmentId             String?
-  failedLoginAttempts      Int                          @default(0)
-  lockedUntil              DateTime?
-  mustChangePassword       Boolean                      @default(false)
-  createdAt                DateTime                     @default(now())
-  updatedAt                DateTime                     @updatedAt
-  lastLogin                DateTime?
-  agendaEvents             AgendaEvent[]                @relation("AgendaEventCreator")
-  auditLogs                AuditLog[]
-  reviewedTransferRequests CitizenTransferRequest[]
-  homeVisitsAsSocialWorker HomeVisit[]                  @relation("HomeVisitSocialWorker")
-  createdProtocols         Protocol[]                   @relation("CreatedByUser")
-  assignedProtocols        Protocol[]                   @relation("AssignedUser")
-  socialAssistanceAsWorker SocialAssistanceAttendance[] @relation("SocialAssistanceWorker")
-  department               Department?                  @relation(fields: [departmentId], references: [id])
-  tenant                   Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id                          String                       @id @default(cuid())
+  email                       String                       @unique
+  name                        String
+  password                    String
+  role                        UserRole                     @default(USER)
+  isActive                    Boolean                      @default(true)
+  tenantId                    String
+  departmentId                String?
+  failedLoginAttempts         Int                          @default(0)
+  lockedUntil                 DateTime?
+  mustChangePassword          Boolean                      @default(false)
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  lastLogin                   DateTime?
+  agendaEvents                AgendaEvent[]                @relation("AgendaEventCreator")
+  auditLogs                   AuditLog[]
+  reviewedTransferRequests    CitizenTransferRequest[]
+  homeVisitsAsSocialWorker    HomeVisit[]                  @relation("HomeVisitSocialWorker")
+  createdProtocols            Protocol[]                   @relation("CreatedByUser")
+  assignedProtocols           Protocol[]                   @relation("AssignedUser")
+  createdProtocolsSimplified  ProtocolSimplified[]         @relation("CreatedByUserSimplified")
+  assignedProtocolsSimplified ProtocolSimplified[]         @relation("AssignedUserSimplified")
+  socialAssistanceAsWorker    SocialAssistanceAttendance[] @relation("SocialAssistanceWorker")
+  department                  Department?                  @relation(fields: [departmentId], references: [id])
+  tenant                      Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@map("users")
 }
 
 model Department {
-  id          String     @id @default(cuid())
-  name        String
-  code        String?
-  description String?
-  isActive    Boolean    @default(true)
-  tenantId    String
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  protocols   Protocol[]
-  services    Service[]
-  users       User[]
+  id                  String               @id @default(cuid())
+  name                String
+  code                String?
+  description         String?
+  isActive            Boolean              @default(true)
+  tenantId            String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  protocols           Protocol[]
+  protocolsSimplified ProtocolSimplified[]
+  services            Service[]
+  servicesSimplified  ServiceSimplified[]
+  users               User[]
 
   @@unique([tenantId, name])
   @@map("departments")
@@ -352,6 +358,7 @@ model Citizen {
   medicationDispensings       MedicationDispensing[]
   notifications               Notification[]
   protocols                   Protocol[]
+  protocolsSimplified         ProtocolSimplified[]
   publicProblemReports        PublicProblemReport[]        @relation("PublicProblemReportCitizen")
   socialAssistanceAttendances SocialAssistanceAttendance[] @relation("SocialAssistanceCitizen")
   specialCollections          SpecialCollection[]          @relation("SpecialCollectionCitizen")
@@ -486,6 +493,128 @@ model ProtocolEvaluation {
 
   @@map("protocol_evaluations")
 }
+
+// ========================================
+// SISTEMA SIMPLIFICADO DE PROTOCOLOS
+// ========================================
+
+model ServiceSimplified {
+  id           String  @id @default(cuid())
+  name         String
+  description  String?
+  departmentId String
+
+  // SIMPLIFICAÇÃO: 1 enum ao invés de 8 flags
+  serviceType ServiceType
+
+  // Para serviços COM_DADOS
+  moduleType String? // "ATENDIMENTOS_SAUDE", "MATRICULA_ALUNO", etc
+  formSchema Json? // Schema do formulário
+
+  // Campos básicos
+  isActive          Boolean @default(true)
+  requiresDocuments Boolean @default(false)
+  requiredDocuments Json?
+  estimatedDays     Int?
+  priority          Int     @default(1)
+  category          String?
+  icon              String?
+  color             String?
+
+  tenantId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  department Department           @relation(fields: [departmentId], references: [id])
+  tenant     Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  protocols  ProtocolSimplified[]
+
+  @@map("services_simplified")
+}
+
+model ProtocolSimplified {
+  id          String         @id @default(cuid())
+  number      String         @unique
+  title       String
+  description String?
+  status      ProtocolStatus @default(VINCULADO)
+  priority    Int            @default(3)
+
+  // Relacionamentos principais
+  citizenId    String
+  serviceId    String
+  departmentId String
+  tenantId     String
+
+  // Dados capturados (se COM_DADOS)
+  customData Json?
+  moduleType String? // Para roteamento
+
+  // Geolocalização
+  latitude  Float?
+  longitude Float?
+  address   String?
+
+  // Documentos
+  documents   Json?
+  attachments String?
+
+  // Gestão
+  assignedUserId String?
+  createdById    String?
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  dueDate     DateTime?
+  concludedAt DateTime?
+
+  // Relacionamentos
+  citizen      Citizen           @relation(fields: [citizenId], references: [id])
+  service      ServiceSimplified @relation(fields: [serviceId], references: [id])
+  department   Department        @relation(fields: [departmentId], references: [id])
+  tenant       Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignedUser User?             @relation("AssignedUserSimplified", fields: [assignedUserId], references: [id])
+  createdBy    User?             @relation("CreatedByUserSimplified", fields: [createdById], references: [id])
+
+  history     ProtocolHistorySimplified[]
+  evaluations ProtocolEvaluationSimplified[]
+
+  @@map("protocols_simplified")
+}
+
+model ProtocolHistorySimplified {
+  id         String   @id @default(cuid())
+  action     String
+  comment    String?
+  oldStatus  String?
+  newStatus  String?
+  metadata   Json?
+  timestamp  DateTime @default(now())
+  userId     String?
+  protocolId String
+
+  protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@map("protocol_history_simplified")
+}
+
+model ProtocolEvaluationSimplified {
+  id             String   @id @default(cuid())
+  protocolId     String
+  rating         Int
+  comment        String?
+  wouldRecommend Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@map("protocol_evaluations_simplified")
+}
+
+// ========================================
+// FIM DO SISTEMA SIMPLIFICADO
+// ========================================
 
 model Notification {
   id         String    @id @default(cuid())
@@ -3709,6 +3838,12 @@ enum ProtocolStatus {
   ATUALIZACAO
   CONCLUIDO
   PENDENCIA
+  CANCELADO
+}
+
+enum ServiceType {
+  INFORMATIVO // Apenas acompanhamento
+  COM_DADOS // Captura dados para módulo
 }
 
 enum TenantStatus {

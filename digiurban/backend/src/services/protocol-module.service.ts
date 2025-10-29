@@ -1709,6 +1709,139 @@ export class ProtocolModuleService {
           modalityId: formData.modalityId,
         },
       }),
+
+      // HABITAÇÃO
+      HousingAttendance: () => tx.housingAttendance.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          citizenName: formData.citizenName || formData.applicantName,
+          citizenCPF: formData.citizenCPF || formData.applicantCpf,
+          contact: formData.contact || formData.phone,
+          type: formData.type || 'PROGRAM_INFO',
+          status: 'PENDING',
+          description: formData.description || '',
+          observations: formData.observations,
+          program: formData.program,
+          propertyAddress: formData.propertyAddress,
+          familyIncome: formData.familyIncome ? parseFloat(formData.familyIncome) : null,
+          familySize: formData.familySize ? parseInt(formData.familySize) : null,
+          currentHousing: formData.currentHousing,
+          priority: formData.priority || 'MEDIUM',
+        },
+      }),
+
+      HousingApplication: () => tx.housingApplication.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          applicantName: formData.applicantName,
+          applicantCpf: formData.applicantCpf,
+          contact: formData.contact as Prisma.InputJsonValue,
+          address: formData.address,
+          familyIncome: formData.familyIncome ? parseFloat(formData.familyIncome) : 0,
+          familySize: formData.familySize ? parseInt(formData.familySize) : 1,
+          housingType: formData.housingType || 'CASA',
+          programType: formData.programType || 'MCMV',
+          propertyValue: formData.propertyValue ? parseFloat(formData.propertyValue) : null,
+          hasProperty: formData.hasProperty === true || formData.hasProperty === 'true',
+          isFirstHome: formData.isFirstHome !== false && formData.isFirstHome !== 'false',
+          priorityScore: formData.priorityScore ? parseInt(formData.priorityScore) : 0,
+          documents: formData.documents as Prisma.InputJsonValue,
+          program: formData.program,
+          status: 'UNDER_ANALYSIS',
+        },
+      }),
+
+      LandRegularization: () => tx.landRegularization.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          applicantName: formData.applicantName,
+          applicantCpf: formData.applicantCpf,
+          contact: formData.contact as Prisma.InputJsonValue,
+          propertyAddress: formData.propertyAddress,
+          coordinates: formData.coordinates as Prisma.InputJsonValue,
+          propertyArea: formData.propertyArea ? parseFloat(formData.propertyArea) : 0,
+          occupationDate: formData.occupationDate ? new Date(formData.occupationDate) : null,
+          occupationType: formData.occupationType || 'RESIDENCIAL',
+          hasBuilding: formData.hasBuilding === true || formData.hasBuilding === 'true',
+          buildingArea: formData.buildingArea ? parseFloat(formData.buildingArea) : null,
+          landValue: formData.landValue ? parseFloat(formData.landValue) : null,
+          neighbors: formData.neighbors as Prisma.InputJsonValue,
+          accessRoads: formData.accessRoads as Prisma.InputJsonValue,
+          utilities: formData.utilities as Prisma.InputJsonValue,
+          legalDocuments: formData.legalDocuments as Prisma.InputJsonValue,
+          status: 'UNDER_ANALYSIS',
+        },
+      }),
+
+      RentAssistance: () => tx.rentAssistance.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          applicantName: formData.applicantName,
+          applicantCpf: formData.applicantCpf,
+          contact: formData.contact as Prisma.InputJsonValue,
+          currentAddress: formData.currentAddress,
+          monthlyRent: formData.monthlyRent ? parseFloat(formData.monthlyRent) : 0,
+          landlordName: formData.landlordName,
+          landlordContact: formData.landlordContact as Prisma.InputJsonValue,
+          leaseContract: formData.leaseContract as Prisma.InputJsonValue,
+          familyIncome: formData.familyIncome ? parseFloat(formData.familyIncome) : 0,
+          familySize: formData.familySize ? parseInt(formData.familySize) : 1,
+          hasEmployment: formData.hasEmployment === true || formData.hasEmployment === 'true',
+          employmentDetails: formData.employmentDetails as Prisma.InputJsonValue,
+          vulnerabilityReason: formData.vulnerabilityReason,
+          requestedAmount: formData.requestedAmount ? parseFloat(formData.requestedAmount) : 0,
+          requestedPeriod: formData.requestedPeriod ? parseInt(formData.requestedPeriod) : 6,
+          bankAccount: formData.bankAccount as Prisma.InputJsonValue,
+          documents: formData.documents as Prisma.InputJsonValue,
+          status: 'UNDER_ANALYSIS',
+        },
+      }),
+
+      HousingUnit: () => tx.housingUnit.create({
+        data: {
+          tenantId,
+          protocolId,
+          unitCode: formData.unitCode || `UNIT-${Date.now()}`,
+          unitType: formData.unitType || 'APARTAMENTO',
+          address: formData.address,
+          coordinates: formData.coordinates as Prisma.InputJsonValue,
+          neighborhood: formData.neighborhood,
+          area: formData.area ? parseFloat(formData.area) : 0,
+          bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : 2,
+          bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : 1,
+          constructionYear: formData.constructionYear ? parseInt(formData.constructionYear) : null,
+          propertyValue: formData.propertyValue ? parseFloat(formData.propertyValue) : null,
+          monthlyRent: formData.monthlyRent ? parseFloat(formData.monthlyRent) : null,
+          program: formData.program,
+          conditions: formData.conditions as Prisma.InputJsonValue,
+          status: 'AVAILABLE',
+        },
+      }),
+
+      HousingRegistration: () => tx.housingRegistration.create({
+        data: {
+          tenantId,
+          protocolId,
+          programId: formData.programId,
+          familyHeadName: formData.familyHeadName || formData.applicantName,
+          familyHeadCPF: formData.familyHeadCPF || formData.applicantCpf,
+          contact: formData.contact || formData.phone,
+          address: formData.address,
+          familyIncome: formData.familyIncome ? parseFloat(formData.familyIncome) : 0,
+          familySize: formData.familySize ? parseInt(formData.familySize) : 1,
+          score: formData.score ? parseFloat(formData.score) : null,
+          status: 'REGISTERED',
+          observations: formData.observations,
+        },
+      }),
     };
 
     const createFn = entityMap[entityName];
@@ -2193,6 +2326,37 @@ export class ProtocolModuleService {
       }),
 
       Competition: () => tx.competition.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      // HABITAÇÃO
+      HousingAttendance: () => tx.housingAttendance.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      HousingApplication: () => tx.housingApplication.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      LandRegularization: () => tx.landRegularization.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      RentAssistance: () => tx.rentAssistance.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      HousingUnit: () => tx.housingUnit.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      HousingRegistration: () => tx.housingRegistration.updateMany({
         where: { protocolId },
         data: { status, ...additionalData },
       }),

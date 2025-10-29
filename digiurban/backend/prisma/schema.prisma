@@ -84,6 +84,7 @@ model Tenant {
   integrations                     Integration[]
   invoices                         Invoice[]
   landRegularizations              LandRegularization[]
+  rentAssistances                  RentAssistance[]
   leads                            Lead[]
   localBusinesses                  LocalBusiness[]
   medicalSpecialties               MedicalSpecialty[]
@@ -478,7 +479,12 @@ model ProtocolSimplified {
   culturalManifestations      CulturalManifestation[]      @relation("CulturalManifestationProtocol")
 
   // Módulos de Habitação
-  housingAttendances HousingAttendance[] @relation("HousingAttendanceProtocol")
+  housingAttendances      HousingAttendance[]      @relation("HousingAttendanceProtocol")
+  housingApplications     HousingApplication[]     @relation("HousingApplicationProtocol")
+  landRegularizations     LandRegularization[]     @relation("LandRegularizationProtocol")
+  rentAssistances         RentAssistance[]         @relation("RentAssistanceProtocol")
+  housingUnits            HousingUnit[]            @relation("HousingUnitProtocol")
+  housingRegistrations    HousingRegistration[]    @relation("HousingRegistrationProtocol")
 
   @@map("protocols_simplified")
 }
@@ -1900,6 +1906,7 @@ model HousingProgram {
 model HousingRegistration {
   id               String         @id @default(cuid())
   tenantId         String
+  protocolId       String?
   programId        String
   familyHeadName   String
   familyHeadCPF    String
@@ -1916,6 +1923,7 @@ model HousingRegistration {
   updatedAt        DateTime       @updatedAt
   program          HousingProgram @relation(fields: [programId], references: [id])
   tenant           Tenant         @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("HousingRegistrationProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_registrations")
 }
@@ -3744,6 +3752,7 @@ model HousingApplication {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("HousingApplicationProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_applications")
 }
@@ -3751,6 +3760,7 @@ model HousingApplication {
 model HousingUnit {
   id               String    @id @default(cuid())
   tenantId         String
+  protocolId       String?
   unitCode         String    @unique
   unitType         String
   address          String
@@ -3778,6 +3788,7 @@ model HousingUnit {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
   tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  protocolSimplified ProtocolSimplified? @relation("HousingUnitProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_units")
 }
@@ -3785,6 +3796,7 @@ model HousingUnit {
 model LandRegularization {
   id                    String    @id @default(cuid())
   tenantId              String
+  protocolId            String?
   protocol              String    @unique
   applicantName         String
   applicantCpf          String
@@ -3816,8 +3828,50 @@ model LandRegularization {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   tenant                Tenant    @relation(fields: [tenantId], references: [id])
+  protocolSimplified    ProtocolSimplified? @relation("LandRegularizationProtocol", fields: [protocolId], references: [id])
 
   @@map("land_regularizations")
+}
+
+model RentAssistance {
+  id                   String    @id @default(cuid())
+  tenantId             String
+  protocolId           String?
+  protocol             String    @unique
+  applicantName        String
+  applicantCpf         String
+  contact              Json
+  currentAddress       String
+  monthlyRent          Float
+  landlordName         String
+  landlordContact      Json
+  leaseContract        Json?
+  familyIncome         Float
+  familySize           Int
+  hasEmployment        Boolean   @default(false)
+  employmentDetails    Json?
+  vulnerabilityReason  String
+  requestedAmount      Float
+  requestedPeriod      Int       // meses
+  bankAccount          Json?
+  documents            Json
+  socialReport         Json?
+  applicationDate      DateTime  @default(now())
+  analysisDate         DateTime?
+  approvalDate         DateTime?
+  firstPaymentDate     DateTime?
+  lastPaymentDate      DateTime?
+  totalPaid            Float     @default(0)
+  paymentsCount        Int       @default(0)
+  status               String    @default("UNDER_ANALYSIS")
+  analyst              String?
+  observations         String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  tenant               Tenant    @relation(fields: [tenantId], references: [id])
+  protocolSimplified   ProtocolSimplified? @relation("RentAssistanceProtocol", fields: [protocolId], references: [id])
+
+  @@map("rent_assistances")
 }
 
 model SocialProgram {

@@ -6,13 +6,13 @@ import { useAdminAuth } from '@/contexts/AdminAuthContext'
 import { useToast } from '@/hooks/use-toast'
 import { ServiceFormWizard, WizardStep } from '@/components/admin/services/ServiceFormWizard'
 import { BasicInfoStep } from '@/components/admin/services/steps/BasicInfoStep'
+import { ServiceTypeStep } from '@/components/admin/services/steps/ServiceTypeStep'
+import { DataCaptureStep } from '@/components/admin/services/steps/DataCaptureStep'
 import { DocumentsStep } from '@/components/admin/services/steps/DocumentsStep'
-import { FeaturesStep } from '@/components/admin/services/steps/FeaturesStep'
-import { AdvancedConfigStep } from '@/components/admin/services/steps/AdvancedConfigStep'
 import {
   FileText,
-  Settings,
-  Sparkles,
+  Database,
+  Layers,
   CheckCircle,
   ArrowLeft,
 } from 'lucide-react'
@@ -35,31 +35,17 @@ interface ServiceFormData {
   priority: number
   icon: string
   color: string
-  serviceType: 'REQUEST' | 'REGISTRATION' | 'CONSULTATION' | 'BOTH'
+
+  // NOVO: Tipo simplificado (alinhado com backend)
+  serviceType: 'INFORMATIVO' | 'COM_DADOS'
 
   // Documentos
   requiresDocuments: boolean
   requiredDocuments: string[]
 
-  // Feature Flags
-  hasCustomForm: boolean
-  hasLocation: boolean
-  hasScheduling: boolean
-  hasSurvey: boolean
-  hasCustomWorkflow: boolean
-  hasCustomFields: boolean
-  hasAdvancedDocs: boolean
-  hasNotifications: boolean
-
-  // Configurações dos Recursos
-  customFormConfig?: any
-  locationConfig?: any
-  schedulingConfig?: any
-  surveyConfig?: any
-  workflowConfig?: any
-  customFieldsConfig?: any
-  advancedDocsConfig?: any
-  notificationsConfig?: any
+  // NOVO: Campos para serviços COM_DADOS
+  moduleType: string // Ex: "MATRICULA_ALUNO", "ATENDIMENTOS_SAUDE"
+  formSchema: any // JSON Schema do formulário customizado
 }
 
 export default function NewServicePage() {
@@ -81,17 +67,11 @@ export default function NewServicePage() {
     priority: 3,
     icon: '',
     color: '#3b82f6',
-    serviceType: 'REQUEST',
+    serviceType: 'INFORMATIVO', // Padrão: serviço informativo
     requiresDocuments: false,
     requiredDocuments: [],
-    hasCustomForm: false,
-    hasLocation: false,
-    hasScheduling: false,
-    hasSurvey: false,
-    hasCustomWorkflow: false,
-    hasCustomFields: false,
-    hasAdvancedDocs: false,
-    hasNotifications: false,
+    moduleType: '', // Vazio por padrão
+    formSchema: null, // Vazio por padrão
   })
 
   const validateBasicStep = () => {
@@ -112,11 +92,31 @@ export default function NewServicePage() {
   const steps: WizardStep[] = [
     {
       id: 'basic',
-      title: 'Informações',
-      description: 'Dados básicos do serviço',
+      title: 'Informações Básicas',
+      description: 'Nome, categoria e departamento',
       icon: <FileText className="h-5 w-5" />,
       isValid: () => {
         return formData.name.trim() !== '' && formData.departmentId !== ''
+      },
+    },
+    {
+      id: 'serviceType',
+      title: 'Tipo de Serviço',
+      description: 'Informativo ou com dados',
+      icon: <Layers className="h-5 w-5" />,
+      isValid: () => {
+        return formData.serviceType !== ''
+      },
+    },
+    {
+      id: 'dataCapture',
+      title: 'Captura de Dados',
+      description: 'Configure o formulário',
+      icon: <Database className="h-5 w-5" />,
+      isOptional: formData.serviceType === 'INFORMATIVO',
+      isValid: () => {
+        if (formData.serviceType === 'INFORMATIVO') return true
+        return formData.moduleType !== '' && formData.formSchema !== null
       },
     },
     {
@@ -127,14 +127,7 @@ export default function NewServicePage() {
       isOptional: true,
     },
     {
-      id: 'features',
-      title: 'Recursos',
-      description: 'Funcionalidades avançadas',
-      icon: <Sparkles className="h-5 w-5" />,
-      isOptional: true,
-    },
-    {
-      id: 'advanced',
+      id: 'review',
       title: 'Revisão',
       description: 'Revisar e finalizar',
       icon: <CheckCircle className="h-5 w-5" />,
@@ -205,59 +198,38 @@ export default function NewServicePage() {
     setIsSubmitting(true)
 
     try {
+      const payload: any = {
+        // Básico
+        name: formData.name,
+        description: formData.description || null,
+        category: formData.category || null,
+        departmentId: formData.departmentId,
+        serviceType: formData.serviceType,
+        requiresDocuments: formData.requiresDocuments,
+        requiredDocuments: formData.requiredDocuments.length > 0 ? formData.requiredDocuments : null,
+        estimatedDays: formData.estimatedDays ? parseInt(formData.estimatedDays) : null,
+        priority: formData.priority,
+        icon: formData.icon || null,
+        color: formData.color || null,
+      }
+
+      // Adicionar campos de captura de dados se COM_DADOS
+      if (formData.serviceType === 'COM_DADOS') {
+        payload.moduleType = formData.moduleType
+        payload.formSchema = formData.formSchema
+      }
+
       const response = await apiRequest('/api/services', {
         method: 'POST',
-        body: JSON.stringify({
-          // Básico
-          name: formData.name,
-          description: formData.description || null,
-          category: formData.category || null,
-          departmentId: formData.departmentId,
-          serviceType: formData.serviceType,
-          requiresDocuments: formData.requiresDocuments,
-          requiredDocuments: formData.requiredDocuments.length > 0 ? formData.requiredDocuments : null,
-          estimatedDays: formData.estimatedDays ? parseInt(formData.estimatedDays) : null,
-          priority: formData.priority,
-          icon: formData.icon || null,
-          color: formData.color || null,
-
-          // Feature Flags
-          hasCustomForm: formData.hasCustomForm,
-          hasLocation: formData.hasLocation,
-          hasScheduling: formData.hasScheduling,
-          hasSurvey: formData.hasSurvey,
-          hasCustomWorkflow: formData.hasCustomWorkflow,
-          hasCustomFields: formData.hasCustomFields,
-          hasAdvancedDocs: formData.hasAdvancedDocs,
-          hasNotifications: formData.hasNotifications,
-
-          // Configurações dos Recursos (enviadas apenas se flag ativa)
-          customForm: formData.hasCustomForm ? formData.customFormConfig : undefined,
-          locationConfig: formData.hasLocation ? formData.locationConfig : undefined,
-          scheduling: formData.hasScheduling ? formData.schedulingConfig : undefined,
-          survey: formData.hasSurvey ? formData.surveyConfig : undefined,
-          workflow: formData.hasCustomWorkflow ? formData.workflowConfig : undefined,
-          customFields: formData.hasCustomFields ? formData.customFieldsConfig : undefined,
-          documents: formData.hasAdvancedDocs ? formData.advancedDocsConfig : undefined,
-          notifications: formData.hasNotifications ? formData.notificationsConfig : undefined,
-        }),
+        body: JSON.stringify(payload),
       })
 
       toast({
         title: 'Serviço criado com sucesso!',
-        description: 'O serviço foi criado. Configure agora os recursos ativados.',
+        description: `O serviço "${formData.name}" foi criado e está ativo.`,
       })
 
-      // Redirecionar para edição se houver recursos ativos
-      const hasActiveFeatures = Object.entries(formData)
-        .filter(([key]) => key.startsWith('has'))
-        .some(([, value]) => value === true)
-
-      if (hasActiveFeatures && response.service?.id) {
-        router.push(`/admin/servicos/${response.service.id}/editar`)
-      } else {
-        router.push('/admin/servicos')
-      }
+      router.push('/admin/servicos')
     } catch (error: any) {
       console.error('Erro ao criar serviço:', error)
       toast({
@@ -316,23 +288,73 @@ export default function NewServicePage() {
           errors={errors}
         />
 
-        {/* Step 2: Documentos */}
+        {/* Step 2: Tipo de Serviço */}
+        <ServiceTypeStep
+          formData={formData}
+          onChange={handleFieldChange}
+        />
+
+        {/* Step 3: Captura de Dados (só se COM_DADOS) */}
+        <DataCaptureStep
+          formData={formData}
+          onChange={handleFieldChange}
+        />
+
+        {/* Step 4: Documentos */}
         <DocumentsStep
           formData={formData}
           onChange={handleFieldChange}
         />
 
-        {/* Step 3: Recursos */}
-        <FeaturesStep
-          formData={formData}
-          onChange={handleFieldChange}
-        />
+        {/* Step 5: Revisão */}
+        <div className="space-y-6">
+          <div className="text-center">
+            <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold">Pronto para criar!</h2>
+            <p className="text-gray-600 mt-2">
+              Revise as informações abaixo antes de finalizar
+            </p>
+          </div>
 
-        {/* Step 4: Configurações Avançadas */}
-        <AdvancedConfigStep
-          formData={formData}
-          onChange={handleFieldChange}
-        />
+          <div className="grid gap-4">
+            <div className="p-4 border rounded-lg">
+              <h3 className="font-semibold mb-2">Informações Básicas</h3>
+              <dl className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <dt className="text-gray-600">Nome:</dt>
+                  <dd className="font-medium">{formData.name}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-gray-600">Tipo:</dt>
+                  <dd className="font-medium">
+                    {formData.serviceType === 'INFORMATIVO' ? 'Informativo' : 'Com Captura de Dados'}
+                  </dd>
+                </div>
+                {formData.serviceType === 'COM_DADOS' && (
+                  <div className="flex justify-between">
+                    <dt className="text-gray-600">Módulo:</dt>
+                    <dd className="font-medium">{formData.moduleType}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+
+            {formData.serviceType === 'COM_DADOS' && formData.formSchema?.fields && (
+              <div className="p-4 border rounded-lg">
+                <h3 className="font-semibold mb-2">Campos do Formulário</h3>
+                <ul className="space-y-1 text-sm">
+                  {formData.formSchema.fields.map((field: any) => (
+                    <li key={field.id} className="flex items-center gap-2">
+                      <span className="text-gray-600">•</span>
+                      <span>{field.label}</span>
+                      {field.required && <span className="text-red-500">*</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
       </ServiceFormWizard>
     </div>
   )

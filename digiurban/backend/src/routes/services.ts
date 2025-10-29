@@ -149,7 +149,7 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
       description,
       departmentId,
       category,
-      serviceType,
+      serviceType, // INFORMATIVO | COM_DADOS
       requiresDocuments,
       requiredDocuments,
       estimatedDays,
@@ -157,25 +157,9 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
       icon,
       color,
 
-      // Feature Flags (opcionais - padrão: false)
-      hasCustomForm,
-      hasLocation,
-      hasScheduling,
-      hasSurvey,
-      hasCustomWorkflow,
-      hasCustomFields,
-      hasAdvancedDocs,
-      hasNotifications,
-
-      // Configurações de Features (opcionais - só se flags = true)
-      customForm,
-      locationConfig,
-      scheduling,
-      survey,
-      workflow,
-      customFields,
-      documents,
-      notifications,
+      // NOVO: Campos para serviços COM_DADOS
+      moduleType, // Ex: "MATRICULA_ALUNO", "ATENDIMENTOS_SAUDE"
+      formSchema, // JSON Schema do formulário
     } = authReq.body;
 
     // ========== VALIDAÇÃO BÁSICA ==========
@@ -210,222 +194,69 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
       });
     }
 
-    // ========== CRIAR SERVIÇO E FEATURES EM TRANSAÇÃO ==========
-    const result = await prisma.$transaction(async (tx) => {
-      // Criar serviço básico
-      const service = await tx.service.create({
-        data: {
-          // Básico
-          name,
-          description: description || null,
-          category: category || null,
-          departmentId,
-          tenantId: authReq.tenantId,
-          serviceType: serviceType || 'REQUEST',
-          requiresDocuments: requiresDocuments || false,
-          requiredDocuments: requiredDocuments || null,
-          estimatedDays: estimatedDays || null,
-          priority: priority || 1,
-          icon: icon || null,
-          color: color || null,
+    // Validar serviceType
+    if (serviceType && !['INFORMATIVO', 'COM_DADOS'].includes(serviceType)) {
+      return res.status(400).json({
+        error: 'Bad request',
+        message: 'serviceType deve ser INFORMATIVO ou COM_DADOS',
+      });
+    }
 
-          // Feature Flags (padrão: false se não fornecido)
-          hasCustomForm: hasCustomForm || false,
-          hasLocation: hasLocation || false,
-          hasScheduling: hasScheduling || false,
-          hasSurvey: hasSurvey || false,
-          hasCustomWorkflow: hasCustomWorkflow || false,
-          hasCustomFields: hasCustomFields || false,
-          hasAdvancedDocs: hasAdvancedDocs || false,
-          hasNotifications: hasNotifications || false,
-        } as unknown as Prisma.ServiceUncheckedCreateInput,
-        include: {
-          department: {
-            select: {
-              id: true,
-              name: true,
-            },
+    // Validar campos obrigatórios para COM_DADOS
+    if (serviceType === 'COM_DADOS') {
+      if (!moduleType) {
+        return res.status(400).json({
+          error: 'Bad request',
+          message: 'moduleType é obrigatório para serviços COM_DADOS',
+        });
+      }
+      if (!formSchema) {
+        return res.status(400).json({
+          error: 'Bad request',
+          message: 'formSchema é obrigatório para serviços COM_DADOS',
+        });
+      }
+    }
+
+    // Criar serviço simplificado
+    const service = await prisma.serviceSimplified.create({
+      data: {
+        // Básico
+        name,
+        description: description || null,
+        category: category || null,
+        departmentId,
+        tenantId: authReq.tenantId,
+        serviceType: serviceType || 'INFORMATIVO',
+        requiresDocuments: requiresDocuments || false,
+        requiredDocuments: requiredDocuments || null,
+        estimatedDays: estimatedDays || null,
+        priority: priority || 3,
+        icon: icon || null,
+        color: color || null,
+        isActive: true,
+
+        // Campos para COM_DADOS
+        moduleType: serviceType === 'COM_DADOS' ? moduleType : null,
+        formSchema: serviceType === 'COM_DADOS' ? formSchema : null,
+      },
+      include: {
+        department: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
           },
         },
-      });
-
-      const featuresCreated: Record<string, boolean> = {};
-
-      // 1. Formulário Customizado
-      if (hasCustomForm && customForm) {
-        await tx.serviceForm.create({
-        data: {
-          serviceId: service.id,
-          title: customForm.title,
-          description: customForm.description || null,
-          isRequired: customForm.isRequired || false,
-          fields: customForm.fields,
-          validation: customForm.validation || null,
-          conditional: customForm.conditional || null,
-          isMultiStep: customForm.isMultiStep || false,
-          steps: customForm.steps || null,
-        },
-        });
-        featuresCreated.customForm = true;
-      }
-
-      // 2. Geolocalização
-      if (hasLocation && locationConfig) {
-        await tx.serviceLocation.create({
-        data: {
-          serviceId: service.id,
-          requiresLocation: locationConfig.requiresLocation || false,
-          locationType: locationConfig.locationType || 'optional',
-          hasGeofencing: locationConfig.hasGeofencing || false,
-          allowedRadius: locationConfig.allowedRadius || null,
-          centerLat: locationConfig.centerLat || null,
-          centerLng: locationConfig.centerLng || null,
-          requireAddress: locationConfig.requireAddress || false,
-          requireReference: locationConfig.requireReference || false,
-        },
-        });
-        featuresCreated.location = true;
-      }
-
-      // 3. Agendamento
-      if (hasScheduling && scheduling) {
-        await tx.serviceScheduling.create({
-        data: {
-          serviceId: service.id,
-          allowScheduling: scheduling.allowScheduling !== false,
-          type: scheduling.type || 'appointment',
-          workingHours: scheduling.workingHours,
-          blockouts: scheduling.blockouts || null,
-          slotDuration: scheduling.slotDuration || 30,
-          bufferTime: scheduling.bufferTime || 0,
-          maxPerDay: scheduling.maxPerDay || null,
-          maxPerSlot: scheduling.maxPerSlot || 1,
-          advanceBooking: scheduling.advanceBooking || 30,
-          minAdvanceDays: scheduling.minAdvance || 1,
-          maxAdvanceDays: scheduling.maxAdvanceDays || 30,
-          availableDays: scheduling.availableDays || JSON.stringify(['monday', 'tuesday', 'wednesday', 'thursday', 'friday']),
-          timeSlots: scheduling.timeSlots || JSON.stringify([]),
-          sendReminder: scheduling.sendReminders !== false,
-          reminderHours: scheduling.reminderHours || 24,
-        },
-        });
-        featuresCreated.scheduling = true;
-      }
-
-      // 4. Pesquisa
-      if (hasSurvey && survey) {
-        await tx.serviceSurvey.create({
-        data: {
-          serviceId: service.id,
-          title: survey.title,
-          description: survey.description || null,
-          type: survey.type || 'satisfaction',
-          timing: survey.timing || 'after',
-          isRequired: survey.isRequired || false,
-          showAfter: survey.showAfter || 'completion',
-          daysAfter: survey.daysAfter || null,
-          questions: survey.questions,
-        },
-        });
-        featuresCreated.survey = true;
-      }
-
-      // 5. Workflow
-      if (hasCustomWorkflow && workflow) {
-        await tx.serviceWorkflow.create({
-        data: {
-          serviceId: service.id,
-          name: workflow.name,
-          description: workflow.description || null,
-          version: workflow.version ? parseInt(workflow.version) : 1,
-          steps: workflow.stages || workflow.steps, // 'steps' é o campo correto no schema
-          rules: workflow.transitions || workflow.rules,
-          isActive: workflow.isActive !== false,
-        },
-        });
-        featuresCreated.workflow = true;
-      }
-
-      // 6. Campos Customizados
-      if (hasCustomFields && customFields && Array.isArray(customFields)) {
-        await tx.serviceCustomField.createMany({
-        data: customFields.map((field: any) => ({
-          serviceId: service.id,
-          key: field.key,
-          label: field.label,
-          type: field.type,
-          helpText: field.helpText || null,
-          required: field.required || false,
-          validation: field.validation || null,
-          options: field.options || null,
-          defaultValue: field.defaultValue || null,
-          order: field.order || 0,
-          isVisible: field.isVisible !== false,
-          section: field.section || null,
-        })),
-        });
-        featuresCreated.customFields = true;
-      }
-
-      // 7. Documentos Avançados
-      if (hasAdvancedDocs && documents && Array.isArray(documents)) {
-        await tx.serviceDocument.createMany({
-        data: documents.map((doc: any) => ({
-          serviceId: service.id,
-          name: doc.name,
-          description: doc.description || null,
-          category: doc.category || null,
-          required: doc.required !== false,
-          multiple: doc.multiple || false,
-          minFiles: doc.minFiles || 1,
-          maxFiles: doc.maxFiles || 1,
-          acceptedTypes: doc.acceptedTypes,
-          maxSize: doc.maxSize || 5242880,
-          minSize: doc.minSize || null,
-          validateWithAI: doc.validateWithAI || false,
-          extractData: doc.extractData || null,
-          aiProvider: doc.aiProvider || null,
-          templateUrl: doc.templateUrl || null,
-          exampleUrl: doc.exampleUrl || null,
-          order: doc.order || 0,
-        })),
-        });
-        featuresCreated.documents = true;
-      }
-
-      // 8. Notificações
-      if (hasNotifications && notifications) {
-        await tx.serviceNotification.create({
-          data: {
-            serviceId: service.id,
-            enabled: true,
-            templates: Array.isArray(notifications) ? notifications : [],
-            triggers: Array.isArray(notifications)
-              ? notifications.map((n: any) => ({ trigger: n.trigger, conditions: n.conditions }))
-              : [],
-          }
-        });
-        featuresCreated.notifications = true;
-      }
-
-      // Retornar serviço e features criados
-      return { service, featuresCreated };
+      },
     });
 
     return res.status(201).json({
       message: 'Serviço criado com sucesso',
-      service: result.service,
-      featuresEnabled: {
-        customForm: hasCustomForm || false,
-        location: hasLocation || false,
-        scheduling: hasScheduling || false,
-        survey: hasSurvey || false,
-        workflow: hasCustomWorkflow || false,
-        customFields: hasCustomFields || false,
-        advancedDocs: hasAdvancedDocs || false,
-        notifications: hasNotifications || false,
-      },
-      featuresCreated: result.featuresCreated,
+      service,
+      serviceType: service.serviceType,
+      hasDataCapture: service.serviceType === 'COM_DADOS',
+      moduleType: service.moduleType,
     });
   } catch (error) {
     console.error('Create service error:', error);

@@ -18,19 +18,19 @@ interface Service {
   department: {
     name: string;
   };
-  hasCustomForm: boolean;
-  hasLocation: boolean;
-  hasScheduling: boolean;
-  customForm?: {
-    formSchema: {
-      fields: Array<{
-        id: string;
-        type: string;
-        label: string;
-        required: boolean;
-        options?: string[];
-      }>;
-    };
+  serviceType: 'INFORMATIVO' | 'COM_DADOS';
+  moduleType?: string;
+  formSchema?: {
+    type: string;
+    fields: Array<{
+      id: string;
+      type: string;
+      label: string;
+      placeholder?: string;
+      required: boolean;
+      options?: string[];
+    }>;
+    properties?: any;
   };
 }
 
@@ -71,10 +71,10 @@ export default function SolicitarServicoPage() {
       const data = await response.json();
       setService(data.service);
 
-      // Inicializar campos do formulário customizado
-      if (data.service.customForm?.formSchema?.fields) {
+      // Inicializar campos do formulário customizado (nova estrutura)
+      if (data.service.formSchema?.fields) {
         const initialData: Record<string, any> = {};
-        data.service.customForm.formSchema.fields.forEach((field: any) => {
+        data.service.formSchema.fields.forEach((field: any) => {
           initialData[field.id] = '';
         });
         setCustomFormData(initialData);
@@ -96,9 +96,9 @@ export default function SolicitarServicoPage() {
       return;
     }
 
-    // Validar campos obrigatórios do formulário customizado
-    if (service?.customForm?.formSchema?.fields) {
-      for (const field of service.customForm.formSchema.fields) {
+    // Validar campos obrigatórios do formulário customizado (nova estrutura)
+    if (service?.formSchema?.fields) {
+      for (const field of service.formSchema.fields) {
         if (field.required && !customFormData[field.id]) {
           toast.error(`O campo "${field.label}" é obrigatório`);
           return;
@@ -114,7 +114,7 @@ export default function SolicitarServicoPage() {
 
       const payload = {
         description,
-        customFormData: service?.hasCustomForm ? customFormData : undefined,
+        customFormData: service?.serviceType === 'COM_DADOS' ? customFormData : undefined,
         priority: 3,
       };
 
@@ -251,11 +251,11 @@ export default function SolicitarServicoPage() {
                 </p>
               </div>
 
-              {/* Campos do Formulário Customizado */}
-              {service.hasCustomForm && service.customForm?.formSchema?.fields && (
+              {/* Campos do Formulário Customizado (nova estrutura) */}
+              {service.serviceType === 'COM_DADOS' && service.formSchema?.fields && (
                 <div className="space-y-4 pt-4 border-t">
                   <h3 className="font-medium text-gray-900">Informações Específicas</h3>
-                  {service.customForm.formSchema.fields.map((field) => (
+                  {service.formSchema.fields.map((field) => (
                     <div key={field.id} className="space-y-2">
                       <Label htmlFor={field.id}>
                         {field.label}

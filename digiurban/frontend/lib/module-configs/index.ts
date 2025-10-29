@@ -8,11 +8,12 @@
 
 import { ModuleConfig } from './types';
 import { agricultureModules } from './agriculture';
+import { educacaoModuleConfigs } from './educacao';
 
 // Registry de todas as configurações de módulos
 const moduleRegistry: Record<string, Record<string, ModuleConfig>> = {
   agriculture: agricultureModules,
-  // Futuro: health, education, etc
+  education: educacaoModuleConfigs,
 };
 
 /**
@@ -48,3 +49,4 @@ export function hasModule(departmentType: string, moduleKey: string): boolean {
 // Re-exportar tipos
 export * from './types';
 export { agricultureModules } from './agriculture';
+export { educacaoModuleConfigs } from './educacao';

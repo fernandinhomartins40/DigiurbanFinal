@@ -698,6 +698,113 @@ router.get('/dashboard', authenticateToken, handleAsyncRoute(async (req, res) =>
   res.json(createSuccessResponse(indicators, 'Indicadores de saúde'));
 }));
 
+/**
+ * GET /api/secretarias/saude/stats
+ * Estatísticas usando nova estrutura (ProtocolSimplified + MODULE_BY_DEPARTMENT)
+ */
+router.get('/stats', authenticateToken, handleAsyncRoute(async (req, res) => {
+  const tenantId = req.tenantId || req.tenant?.id!;
+
+  // 1. Buscar departamento de Saúde
+  const healthDept = await prisma.department.findFirst({
+    where: { tenantId, code: 'SAUDE' }
+  });
+
+  if (!healthDept) {
+    res.status(404).json(createErrorResponse('NOT_FOUND', 'Departamento de Saúde não encontrado'));
+    return;
+  }
+
+  // 2. Módulos de Saúde conforme MODULE_MAPPING
+  const healthModules = [
+    'ATENDIMENTOS_SAUDE',
+    'AGENDAMENTOS_MEDICOS',
+    'CONTROLE_MEDICAMENTOS',
+    'CAMPANHAS_SAUDE',
+    'PROGRAMAS_SAUDE',
+    'ENCAMINHAMENTOS_TFD',
+    'EXAMES',
+    'TRANSPORTE_PACIENTES',
+    'VACINACAO',
+    'CADASTRO_PACIENTE',
+    'GESTAO_ACS'
+  ];
+
+  // 3. Stats por módulo usando ProtocolSimplified
+  const protocolsByModule = await prisma.protocolSimplified.groupBy({
+    by: ['moduleType', 'status'],
+    where: {
+      tenantId,
+      departmentId: healthDept.id,
+      moduleType: { in: healthModules },
+    },
+    _count: { id: true },
+  });
+
+  // 4. Contar registros em cada módulo
+  const [
+    healthAttendancesCount,
+    healthAppointmentsCount,
+    medicationDispensesCount,
+    healthCampaignsCount,
+    healthProgramsCount,
+    healthTransportsCount,
+    healthExamsCount,
+    healthTransportRequestsCount,
+    vaccinationsCount,
+    patientsCount,
+    communityHealthAgentsCount,
+  ] = await Promise.all([
+    prisma.healthAttendance.count({ where: { tenantId } }),
+    prisma.healthAppointment.count({ where: { tenantId } }),
+    prisma.medicationDispense.count({ where: { tenantId } }),
+    prisma.healthCampaign.count({ where: { tenantId } }),
+    prisma.healthProgram.count({ where: { tenantId } }),
+    prisma.healthTransport.count({ where: { tenantId } }),
+    prisma.healthExam.count({ where: { tenantId } }),
+    prisma.healthTransportRequest.count({ where: { tenantId } }),
+    prisma.vaccination.count({ where: { tenantId } }),
+    prisma.patient.count({ where: { tenantId } }),
+    prisma.communityHealthAgent.count({ where: { tenantId } }),
+  ]);
+
+  // 5. Montar resposta
+  const stats = {
+    department: {
+      id: healthDept.id,
+      name: healthDept.name,
+      code: healthDept.code,
+    },
+    modules: {
+      healthAttendances: healthAttendancesCount,
+      healthAppointments: healthAppointmentsCount,
+      medicationDispenses: medicationDispensesCount,
+      healthCampaigns: healthCampaignsCount,
+      healthPrograms: healthProgramsCount,
+      healthTransports: healthTransportsCount,
+      healthExams: healthExamsCount,
+      healthTransportRequests: healthTransportRequestsCount,
+      vaccinations: vaccinationsCount,
+      patients: patientsCount,
+      communityHealthAgents: communityHealthAgentsCount,
+    },
+    protocolsByModule: protocolsByModule.reduce((acc: any, item) => {
+      const module = item.moduleType;
+      if (!acc[module]) acc[module] = {};
+      acc[module][item.status] = item._count.id;
+      return acc;
+    }, {}),
+    totals: {
+      totalProtocols: protocolsByModule.reduce((sum, item) => sum + item._count.id, 0),
+      totalModuleRecords: healthAttendancesCount + healthAppointmentsCount + medicationDispensesCount +
+        healthCampaignsCount + healthProgramsCount + healthTransportsCount + healthExamsCount +
+        healthTransportRequestsCount + vaccinationsCount + patientsCount + communityHealthAgentsCount,
+    }
+  };
+
+  res.json(createSuccessResponse(stats, 'Estatísticas da Secretaria de Saúde'));
+}));
+
 // ========== ROTAS MIGRADAS DO ARQUIVO -NEW ==========
 // HEALTH ATTENDANCE ENDPOINTS
 router.get('/health-attendances', authenticateToken, requireManager, handleAsyncRoute(async (req, res) => {
@@ -758,7 +865,7 @@ router.post('/health-attendances', authenticateToken, requireManager, handleAsyn
       const citizenId = citizen?.id || validatedData.citizenCPF; // fallback para CPF
 
       // Criar protocolo
-      const protocol = await tx.protocol.create({
+      const protocol = await tx.protocolSimplified.create({
         data: {
           tenantId: req.tenantId,
           citizenId,

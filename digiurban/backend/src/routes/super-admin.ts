@@ -9,7 +9,7 @@ import { prisma } from '../lib/prisma';
 import { Prisma, Plan, TenantStatus, InvoiceStatus } from '@prisma/client';
 import { UNASSIGNED_POOL_ID, isUnassignedPool } from '../config/tenants';
 import { autoLinkCitizens } from '../services/citizen-auto-link';
-import { seedInitialServices } from '../seeds/initial-services';
+import { seedInitialServices } from '../../prisma/seeds/initial-services';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 

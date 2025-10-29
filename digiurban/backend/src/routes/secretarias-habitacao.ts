@@ -344,7 +344,7 @@ router.post('/housing-attendances', handleAsyncRoute(async (req, res) => {
       const citizenId = citizen?.id || validatedData.citizenCPF; // fallback para CPF
 
       // Criar protocolo
-      const protocol = await tx.protocol.create({
+      const protocol = await tx.protocolSimplified.create({
         data: {
           tenantId: req.tenantId,
           citizenId,

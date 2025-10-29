@@ -326,7 +326,7 @@ router.post('/cultural-attendances', authenticateToken, requireManager, asyncHan
       const citizenId = citizen?.id || validatedData.citizenName; // fallback para nome
 
       // Criar protocolo
-      const protocol = await tx.protocol.create({
+      const protocol = await tx.protocolSimplified.create({
         data: {
           tenantId: req.tenantId,
           citizenId,

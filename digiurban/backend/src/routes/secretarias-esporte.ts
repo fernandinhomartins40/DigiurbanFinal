@@ -427,7 +427,7 @@ router.post(
         const citizenId = citizen?.id || data.citizenName; // fallback para nome
 
         // Criar protocolo
-        const protocol = await tx.protocol.create({
+        const protocol = await tx.protocolSimplified.create({
           data: {
             tenantId: req.tenantId,
             citizenId,

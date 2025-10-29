@@ -284,7 +284,7 @@ router.post('/matriculas', authenticateToken, async (req, res) => {
         }
 
         // Criar protocolo
-        const protocol = await tx.protocol.create({
+        const protocol = await tx.protocolSimplified.create({
           data: {
             tenantId: req.tenantId!,
             citizenId: student.id, // usar ID do estudante como citizenId

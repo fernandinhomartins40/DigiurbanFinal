@@ -613,11 +613,30 @@ router.post(
         });
         const citizenId = citizen?.id || data.familyHeadCpf; // fallback para CPF
 
+        // Buscar departamento de Assistência Social
+        const department = await tx.department.findFirst({
+          where: {
+            tenantId: req.tenantId,
+            code: 'ASSISTENCIA_SOCIAL'
+          }
+        });
+
+        // Buscar serviço genérico de benefícios ou criar protocolo sem serviço específico
+        const service = await tx.serviceSimplified.findFirst({
+          where: {
+            tenantId: req.tenantId,
+            departmentId: department?.id,
+            name: { contains: 'Benefício' }
+          }
+        });
+
         // Criar protocolo
-        const protocol = await tx.protocol.create({
+        const protocol = await tx.protocolSimplified.create({
           data: {
             tenantId: req.tenantId,
             citizenId,
+            serviceId: service?.id || 'GENERIC_SERVICE', // Fallback para serviço genérico
+            departmentId: department?.id || 'ASSISTENCIA_SOCIAL',
             number: protocolNumber,
             title: `Solicitação de Benefício - ${data.benefitType}`,
             description: data.reason,

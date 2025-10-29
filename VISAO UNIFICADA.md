@@ -9,7 +9,7 @@ Todo o sistema gira em torno do **MOTOR DE PROTOCOLOS**. Ele é o núcleo que ge
 ## Estrutura Simplificada
 
 ```
-                    ┌─────────────────────┐
+                    ┌──────────────────────┐
                     │  MOTOR DE PROTOCOLOS │
                     │     (NÚCLEO)         │
                     └──────────┬───────────┘
@@ -172,7 +172,7 @@ MÓDULO PADRÃO DA SECRETARIA DE EDUCAÇÃO
 ┌─────────────────────────────────────────────────────────┐
 │  SERVIDOR ACESSA MÓDULO DE MATRÍCULAS                   │
 │                                                         │
-│  Vê solicitação com dados do formulário:               │
+│  Vê solicitação com dados do formulário:                │
 │  - Nome do Aluno: João Silva                            │
 │  - Data Nascimento: 10/05/2015                          │
 │  - Responsável: Maria Silva                             │
@@ -180,7 +180,7 @@ MÓDULO PADRÃO DA SECRETARIA DE EDUCAÇÃO
 │  - Turno: Manhã                                         │
 │                                                         │
 │  AÇÕES:                                                 │
-│  ✓ Aprovar → Vincula a Escola + Turma + Período        │
+│  ✓ Aprovar → Vincula a Escola + Turma + Período         │
 │  ✓ Negar → Informa motivo                               │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
@@ -204,35 +204,35 @@ MÓDULO PADRÃO DA SECRETARIA DE EDUCAÇÃO
 ├───────────────────────────────────────────────────────────────┤
 │                                                               │
 │  ESTATÍSTICAS GERAIS                                          │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
-│  │ Produtores  │  │Propriedades │  │Assistências │          │
-│  │ Ativos: 125 │  │ Total: 89   │  │ Ativas: 42  │          │
-│  └─────────────┘  └─────────────┘  └─────────────┘          │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
+│  │ Produtores  │  │Propriedades │  │Assistências │            │
+│  │ Ativos: 125 │  │ Total: 89   │  │ Ativas: 42  │            │
+│  └─────────────┘  └─────────────┘  └─────────────┘            │
 │                                                               │
 │  AÇÕES RÁPIDAS                                                │
-│  ┌─────────────────┐  ┌─────────────────────┐                │
-│  │ Novo Protocolo  │  │ Protocolos Pendentes│                │
-│  └─────────────────┘  └─────────────────────┘                │
+│  ┌─────────────────┐  ┌─────────────────────┐                 │
+│  │ Novo Protocolo  │  │ Protocolos Pendentes│                 │
+│  └─────────────────┘  └─────────────────────┘                 │
 │                                                               │
-│  MÓDULOS PADRÕES (Base de Dados)                             │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐             │
-│  │ Produtores │  │Propriedades│  │  Programas │             │
-│  │   125 ▸    │  │    89 ▸    │  │    12 ▸    │             │
-│  └────────────┘  └────────────┘  └────────────┘             │
+│  MÓDULOS PADRÕES (Base de Dados)                              │
+│  ┌────────────┐  ┌────────────┐  ┌────────────┐               │
+│  │ Produtores │  │Propriedades│  │  Programas │               │
+│  │   125 ▸    │  │    89 ▸    │  │    12 ▸    │               │
+│  └────────────┘  └────────────┘  └────────────┘               │
 │                                                               │
-│  SERVIÇOS DISPONÍVEIS (Protocolos que podem ser criados)     │
-│  ┌────────────────────────────┐                              │
-│  │ Assistência Técnica (ATER) │ → Cria Protocolo + Dados     │
-│  │ Status: Ativo              │                              │
-│  └────────────────────────────┘                              │
-│  ┌────────────────────────────┐                              │
-│  │ Distribuição de Sementes   │ → Cria Protocolo + Dados     │
-│  │ Status: Ativo              │                              │
-│  └────────────────────────────┘                              │
-│  ┌────────────────────────────┐                              │
-│  │ Análise de Solo            │ → Cria Protocolo + Dados     │
-│  │ Status: Ativo              │                              │
-│  └────────────────────────────┘                              │
+│  SERVIÇOS DISPONÍVEIS (Protocolos que podem ser criados)      │
+│  ┌────────────────────────────┐                               │
+│  │ Assistência Técnica (ATER) │ → Cria Protocolo + Dados      │
+│  │ Status: Ativo              │                               │
+│  └────────────────────────────┘                               │
+│  ┌────────────────────────────┐                               │
+│  │ Distribuição de Sementes   │ → Cria Protocolo + Dados      │
+│  │ Status: Ativo              │                               │
+│  └────────────────────────────┘                               │
+│  ┌────────────────────────────┐                               │
+│  │ Análise de Solo            │ → Cria Protocolo + Dados      │
+│  │ Status: Ativo              │                               │
+│  └────────────────────────────┘                               │
 │                                                               │
 └───────────────────────────────────────────────────────────────┘
 ```

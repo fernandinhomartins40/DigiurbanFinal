@@ -453,6 +453,7 @@ router.post(
         name: data.name,
         description: data.description || null,
         category: data.category || null,
+        serviceType: 'COM_DADOS', // Campo obrigatório adicionado
         requiresDocuments: data.requiresDocuments,
         requiredDocuments: data.requiredDocuments ? data.requiredDocuments as Prisma.InputJsonValue : undefined,
         estimatedDays: data.estimatedDays || null,

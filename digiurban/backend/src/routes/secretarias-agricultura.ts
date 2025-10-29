@@ -1,6 +1,7 @@
 // ============================================================================
 // SECRETARIAS-AGRICULTURA.TS - Rotas da Secretaria de Agricultura
 // ============================================================================
+// VERSÃO SIMPLIFICADA - Usa 100% do sistema novo (ProtocolSimplified + MODULE_MAPPING)
 
 import { Router } from 'express';
 import { prisma } from '../lib/prisma';
@@ -11,6 +12,7 @@ import {
 import { tenantMiddleware } from '../middleware/tenant';
 import { UserRole, ProtocolStatus } from '@prisma/client';
 import { AuthenticatedRequest } from '../types';
+import { MODULE_BY_DEPARTMENT } from '../config/module-mapping';
 
 const router = Router();
 
@@ -21,6 +23,7 @@ router.use(adminAuthMiddleware);
 /**
  * GET /api/admin/secretarias/agricultura/stats
  * Obter estatísticas consolidadas da Secretaria de Agricultura
+ * VERSÃO SIMPLIFICADA - Usa apenas ProtocolSimplified + moduleType
  */
 router.get(
   '/stats',
@@ -46,22 +49,19 @@ router.get(
         });
       }
 
-      // Executar queries em paralelo para melhor performance
-      const [
-        technicalAssistanceStats,
-        protocolStats,
-        seedDistributionStats,
-        soilAnalysisStats,
-        farmerMarketStats,
-      ] = await Promise.all([
-        // 1. Estatísticas de Assistência Técnica
-        prisma.technicalAssistance.groupBy({
-          by: ['status'],
-          where: { tenantId },
-          _count: { id: true },
-        }),
+      // Módulos de agricultura do MODULE_MAPPING
+      const agricultureModules = MODULE_BY_DEPARTMENT.AGRICULTURA || [];
 
-        // 2. Estatísticas de Protocolos
+      // Executar queries em paralelo
+      const [
+        protocolStats,
+        protocolsByModule,
+        producersCount,
+        propertiesCount,
+        programsCount,
+        trainingsCount,
+      ] = await Promise.all([
+        // 1. Estatísticas gerais de Protocolos
         prisma.protocolSimplified.groupBy({
           by: ['status'],
           where: {
@@ -71,155 +71,124 @@ router.get(
           _count: { id: true },
         }),
 
-        // 3. Estatísticas de Distribuição de Sementes
-        prisma.seedDistribution.groupBy({
-          by: ['status'],
-          where: { tenantId },
-          _count: { id: true },
-        }),
-
-        // 4. Estatísticas de Análise de Solo
-        prisma.soilAnalysis.groupBy({
-          by: ['status'],
-          where: { tenantId },
-          _count: { id: true },
-        }),
-
-        // 5. Estatísticas de Feira do Produtor
-        prisma.farmerMarketRegistration.aggregate({
+        // 2. Protocolos por módulo (usando moduleType)
+        prisma.protocolSimplified.groupBy({
+          by: ['moduleType', 'status'],
           where: {
             tenantId,
-            status: 'active',
+            departmentId: agricultureDept.id,
+            moduleType: { in: agricultureModules },
           },
           _count: { id: true },
         }),
+
+        // 3. Produtores Rurais
+        prisma.ruralProducer.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 4. Propriedades Rurais
+        prisma.ruralProperty.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+          _sum: { size: true },
+        }),
+
+        // 5. Programas Rurais
+        prisma.ruralProgram.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 6. Capacitações
+        prisma.ruralTraining.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
       ]);
-
-      // Processar estatísticas de Assistência Técnica
-      const assistanceData = {
-        pending: 0,
-        scheduled: 0,
-        inProgress: 0,
-        completedThisMonth: 0,
-        totalActive: 0,
-      };
-
-      technicalAssistanceStats.forEach((item) => {
-        const count = item._count?.id || 0;
-        switch (item.status) {
-          case 'pending':
-            assistanceData.pending = count;
-            assistanceData.totalActive += count;
-            break;
-          case 'scheduled':
-            assistanceData.scheduled = count;
-            assistanceData.totalActive += count;
-            break;
-          case 'in_progress':
-            assistanceData.inProgress = count;
-            assistanceData.totalActive += count;
-            break;
-          case 'completed':
-            assistanceData.completedThisMonth = count;
-            break;
-        }
-      });
 
       // Processar estatísticas de Protocolos
       const protocolData = {
         total: 0,
         pending: 0,
-        approved: 0,
-        rejected: 0,
-        thisMonth: 0,
+        inProgress: 0,
+        completed: 0,
       };
 
       protocolStats.forEach((item) => {
         const count = item._count?.id || 0;
         protocolData.total += count;
 
-        // Usar os valores corretos do enum ProtocolStatus
         if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
           protocolData.pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          protocolData.inProgress += count;
         } else if (item.status === ProtocolStatus.CONCLUIDO) {
-          protocolData.approved += count;
+          protocolData.completed += count;
         }
       });
 
-      // Processar estatísticas de Distribuição de Sementes
-      const seedData = {
-        activeRequests: 0,
-        completedThisMonth: 0,
-        totalKgDistributed: 0,
-      };
+      // Processar estatísticas por módulo
+      const moduleStats: Record<string, any> = {};
 
-      seedDistributionStats.forEach((item) => {
+      protocolsByModule.forEach((item) => {
+        if (!item.moduleType) return;
+
+        if (!moduleStats[item.moduleType]) {
+          moduleStats[item.moduleType] = {
+            total: 0,
+            pending: 0,
+            inProgress: 0,
+            completed: 0,
+          };
+        }
+
         const count = item._count?.id || 0;
+        moduleStats[item.moduleType].total += count;
 
-        if (item.status === 'pending' || item.status === 'approved') {
-          seedData.activeRequests += count;
-        } else if (item.status === 'delivered') {
-          seedData.completedThisMonth = count;
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          moduleStats[item.moduleType].pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          moduleStats[item.moduleType].inProgress += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          moduleStats[item.moduleType].completed += count;
         }
       });
 
-      // Processar estatísticas de Análise de Solo
-      const soilData = {
+      // Estatísticas de Assistência Técnica
+      const technicalAssistanceStats = moduleStats['ASSISTENCIA_TECNICA'] || {
+        total: 0,
         pending: 0,
         inProgress: 0,
-        completedThisMonth: 0,
+        completed: 0,
       };
-
-      soilAnalysisStats.forEach((item) => {
-        const count = item._count?.id || 0;
-        switch (item.status) {
-          case 'pending':
-            soilData.pending = count;
-            break;
-          case 'in_progress':
-            soilData.inProgress = count;
-            break;
-          case 'completed':
-            soilData.completedThisMonth = count;
-            break;
-        }
-      });
-
-      // Produtores e Propriedades (dados estimados a partir de assistências)
-      const uniqueProducers = await prisma.technicalAssistance.findMany({
-        where: { tenantId },
-        select: { producerCpf: true },
-        distinct: ['producerCpf'],
-      });
-
-      const uniqueProperties = await prisma.technicalAssistance.findMany({
-        where: { tenantId },
-        select: { propertyName: true },
-        distinct: ['propertyName'],
-      });
 
       // Montar resposta consolidada
       const stats = {
         producers: {
-          total: uniqueProducers.length,
-          active: uniqueProducers.length,
+          total: producersCount._count?.id || 0,
+          active: producersCount._count?.id || 0,
           inactive: 0,
-          newThisMonth: 0, // TODO: Implementar quando tiver tabela de produtores
         },
         properties: {
-          total: uniqueProperties.length,
-          active: uniqueProperties.length,
-          totalArea: 0, // TODO: Implementar cálculo de área total
-          withIrrigation: 0, // TODO: Implementar quando tiver dados
+          total: propertiesCount._count?.id || 0,
+          totalArea: propertiesCount._sum?.size || 0,
         },
-        technicalAssistance: assistanceData,
+        programs: {
+          total: programsCount._count?.id || 0,
+        },
+        trainings: {
+          total: trainingsCount._count?.id || 0,
+        },
+        technicalAssistance: {
+          totalActive: technicalAssistanceStats.pending + technicalAssistanceStats.inProgress,
+          pending: technicalAssistanceStats.pending,
+          inProgress: technicalAssistanceStats.inProgress,
+          completedThisMonth: technicalAssistanceStats.completed,
+        },
         protocols: protocolData,
-        seedDistribution: seedData,
-        soilAnalysis: soilData,
-        farmerMarket: {
-          activeStands: farmerMarketStats._count?.id || 0,
-          totalFarmers: farmerMarketStats._count?.id || 0,
-        },
+        moduleStats, // Estatísticas detalhadas por módulo
       };
 
       return res.json({
@@ -238,224 +207,315 @@ router.get(
 );
 
 /**
- * POST /api/admin/secretarias/agricultura/protocols
- * Criar novo protocolo com integração ao Module Handler
+ * GET /api/admin/secretarias/agricultura/services
+ * Listar serviços da Secretaria de Agricultura
  */
-router.post('/protocols', requireMinRole(UserRole.USER), async (req, res) => {
-  try {
-    const authReq = req as AuthenticatedRequest;
-    const tenantId = authReq.tenantId;
-    const userId = authReq.userId;
+router.get(
+  '/services',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
 
-    const { serviceId, citizenData, formData } = req.body;
-
-    // Validações
-    if (!serviceId || !citizenData || !formData) {
-      return res.status(400).json({
-        success: false,
-        error: 'Bad request',
-        message: 'serviceId, citizenData e formData são obrigatórios',
-      });
-    }
-
-    // Buscar serviço
-    const service = await prisma.serviceSimplified.findFirst({
-      where: {
-        id: serviceId,
-        tenantId,
-        isActive: true,
-      },
-    });
-
-    if (!service) {
-      return res.status(404).json({
-        success: false,
-        error: 'Not found',
-        message: 'Serviço não encontrado',
-      });
-    }
-
-    // Buscar ou criar cidadão
-    let citizen = await prisma.citizen.findFirst({
-      where: {
-        tenantId,
-        cpf: citizenData.cpf,
-      },
-    });
-
-    if (!citizen) {
-      // Criar cidadão temporário
-      citizen = await prisma.citizen.create({
-        data: {
+      // Buscar departamento de agricultura
+      const agricultureDept = await prisma.department.findFirst({
+        where: {
           tenantId,
-          cpf: citizenData.cpf,
-          name: citizenData.name,
-          email: citizenData.email || `temp_${citizenData.cpf}@temp.com`,
-          phone: citizenData.phone,
-          password: 'TEMP_PASSWORD', // Será forçado a trocar no primeiro login
-          registrationSource: 'ADMIN',
-        },
-      });
-    }
-
-    // Iniciar transação para criar protocolo + entidade especializada
-    const result = await prisma.$transaction(async (tx) => {
-      // 1. Gerar número de protocolo
-      const protocolCount = await tx.protocol.count({
-        where: { tenantId },
-      });
-      const protocolNumber = `${new Date().getFullYear()}${String(
-        protocolCount + 1
-      ).padStart(6, '0')}`;
-
-      // 2. Criar protocolo
-      const protocol = await tx.protocol.create({
-        data: {
-          number: protocolNumber,
-          title: service.name,
-          description: formData.description || service.description || '',
-          serviceId: service.id,
-          citizenId: citizen.id,
-          tenantId,
-          departmentId: service.departmentId,
-          status: 'VINCULADO',
-          customData: formData,
-          createdById: userId,
+          code: 'AGRICULTURA',
         },
       });
 
-      // 3. Se service tem moduleType, executar handler
-      let entityId = null;
-      let entityType = null;
-
-      if (service.moduleType && service.moduleEntity) {
-        // Executar handler apropriado
-        if (service.moduleEntity === 'TechnicalAssistance') {
-          const assistance = await tx.technicalAssistance.create({
-            data: {
-              tenantId,
-              protocol: protocol.number,
-              serviceId: service.id,
-              source: 'service',
-              producerName: formData.producerName,
-              producerCpf: formData.producerCpf,
-              producerPhone: formData.producerPhone,
-              propertyName: formData.propertyName || formData.producerName,
-              propertyLocation: formData.propertyLocation,
-              propertyArea: formData.propertyArea
-                ? parseFloat(formData.propertyArea)
-                : null,
-              propertySize: formData.propertyArea
-                ? parseFloat(formData.propertyArea)
-                : 0,
-              location: formData.propertyLocation,
-              assistanceType: formData.assistanceType,
-              subject: formData.assistanceType,
-              description: formData.description,
-              cropTypes: formData.cropTypes || null,
-              status: 'pending',
-              priority: 'normal',
-              technician: 'Não designado',
-              visitDate: new Date(),
-              recommendations: '',
-              requestDate: new Date(),
-            },
-          });
-          entityId = assistance.id;
-          entityType = 'TechnicalAssistance';
-        } else if (service.moduleEntity === 'SeedDistribution') {
-          const distribution = await tx.seedDistribution.create({
-            data: {
-              tenantId,
-              protocol: protocol.number,
-              serviceId: service.id,
-              source: 'service',
-              producerName: formData.producerName,
-              producerCpf: formData.producerCpf,
-              producerPhone: formData.producerPhone,
-              propertyLocation: formData.propertyLocation || 'Não informado',
-              propertyArea: formData.propertyArea ? parseFloat(formData.propertyArea) : null,
-              requestType: formData.requestType || 'seeds',
-              items: formData.items || [],
-              purpose: formData.purpose || 'subsistence',
-              status: 'pending',
-            },
-          });
-          entityId = distribution.id;
-          entityType = 'SeedDistribution';
-        } else if (service.moduleEntity === 'SoilAnalysis') {
-          const analysis = await tx.soilAnalysis.create({
-            data: {
-              tenantId,
-              protocol: protocol.number,
-              serviceId: service.id,
-              source: 'service',
-              producerName: formData.producerName,
-              producerCpf: formData.producerCpf,
-              producerPhone: formData.producerPhone || 'Não informado',
-              propertyLocation: formData.propertyLocation || 'Não informado',
-              propertyArea: formData.propertyArea ? parseFloat(formData.propertyArea) : null,
-              analysisType: formData.analysisType || 'basic',
-              purpose: formData.purpose || 'Análise de solo',
-              cropIntended: formData.cropIntended || null,
-              status: 'pending',
-            },
-          });
-          entityId = analysis.id;
-          entityType = 'SoilAnalysis';
-        } else if (service.moduleEntity === 'FarmerMarketRegistration') {
-          const registration = await tx.farmerMarketRegistration.create({
-            data: {
-              tenantId,
-              protocol: protocol.number,
-              serviceId: service.id,
-              source: 'service',
-              producerName: formData.producerName,
-              producerCpf: formData.producerCpf,
-              producerPhone: formData.producerPhone,
-              producerEmail: formData.producerEmail || null,
-              propertyLocation: formData.propertyLocation || 'Não informado',
-              propertyArea: formData.propertyArea ? parseFloat(formData.propertyArea) : null,
-              products: formData.products || [],
-              productionType: formData.productionType || 'conventional',
-              hasOrganicCert: formData.hasOrganicCert || false,
-              needsStall: formData.needsStall || false,
-              stallPreference: formData.stallPreference || null,
-              status: 'pending',
-            },
-          });
-          entityId = registration.id;
-          entityType = 'FarmerMarketRegistration';
-        }
+      if (!agricultureDept) {
+        return res.status(404).json({
+          success: false,
+          error: 'Department not found',
+          message: 'Departamento de Agricultura não encontrado',
+        });
       }
 
-      return {
-        protocol,
-        entityId,
-        entityType,
-        citizen,
-      };
-    });
+      // Buscar serviços simplificados
+      const services = await prisma.serviceSimplified.findMany({
+        where: {
+          tenantId,
+          departmentId: agricultureDept.id,
+          isActive: true,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
 
-    return res.json({
-      success: true,
-      data: {
-        protocol: result.protocol,
-        entityId: result.entityId,
-        entityType: result.entityType,
-        message: service.moduleType
-          ? `Protocolo ${result.protocol.number} criado e vinculado ao módulo ${result.entityType}`
-          : `Protocolo ${result.protocol.number} criado`,
-      },
-    });
-  } catch (error) {
-    console.error('Create protocol error:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      message: 'Erro ao criar protocolo',
-    });
+      return res.json({
+        success: true,
+        data: services,
+      });
+    } catch (error) {
+      console.error('Get agriculture services error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: 'Erro ao buscar serviços',
+      });
+    }
   }
-});
+);
+
+/**
+ * GET /api/admin/secretarias/agricultura/produtores
+ * Listar produtores rurais
+ */
+router.get(
+  '/produtores',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, productionType, search } = req.query;
+
+      const skip = (Number(page) - 1) * Number(limit);
+
+      const where: any = { tenantId };
+
+      if (status && status !== 'all') {
+        where.status = status;
+      }
+
+      if (productionType && productionType !== 'all') {
+        where.productionType = productionType;
+      }
+
+      if (search) {
+        where.OR = [
+          { name: { contains: search as string } },
+          { document: { contains: search as string } },
+        ];
+      }
+
+      const [data, total, activeCount] = await Promise.all([
+        prisma.ruralProducer.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.ruralProducer.count({ where }),
+        prisma.ruralProducer.count({ where: { tenantId, status: 'ACTIVE' } }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+          active: activeCount,
+          inactive: total - activeCount,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get rural producers error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/admin/secretarias/agricultura/propriedades
+ * Listar propriedades rurais
+ */
+router.get(
+  '/propriedades',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, search } = req.query;
+
+      const skip = (Number(page) - 1) * Number(limit);
+
+      const where: any = { tenantId };
+
+      if (status && status !== 'all') {
+        where.status = status;
+      }
+
+      if (search) {
+        where.OR = [
+          { name: { contains: search as string } },
+          { location: { contains: search as string } },
+        ];
+      }
+
+      const [data, total, areaSum] = await Promise.all([
+        prisma.ruralProperty.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+          include: {
+            producer: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        }),
+        prisma.ruralProperty.count({ where }),
+        prisma.ruralProperty.aggregate({
+          where,
+          _sum: { size: true, plantedArea: true },
+        }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+          totalArea: areaSum._sum?.size || 0,
+          totalPlantedArea: areaSum._sum?.plantedArea || 0,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get rural properties error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/admin/secretarias/agricultura/programas
+ * Listar programas rurais
+ */
+router.get(
+  '/programas',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, programType } = req.query;
+
+      const skip = (Number(page) - 1) * Number(limit);
+
+      const where: any = { tenantId };
+
+      if (status && status !== 'all') {
+        where.status = status;
+      }
+
+      if (programType && programType !== 'all') {
+        where.programType = programType;
+      }
+
+      const [data, total, activeCount] = await Promise.all([
+        prisma.ruralProgram.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.ruralProgram.count({ where }),
+        prisma.ruralProgram.count({ where: { tenantId, status: 'ACTIVE' } }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+          active: activeCount,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get rural programs error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/admin/secretarias/agricultura/capacitacoes
+ * Listar capacitações rurais
+ */
+router.get(
+  '/capacitacoes',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, trainingType } = req.query;
+
+      const skip = (Number(page) - 1) * Number(limit);
+
+      const where: any = { tenantId };
+
+      if (trainingType && trainingType !== 'all') {
+        where.trainingType = trainingType;
+      }
+
+      const [data, total] = await Promise.all([
+        prisma.ruralTraining.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { startDate: 'desc' },
+        }),
+        prisma.ruralTraining.count({ where }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get rural trainings error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
+);
 
 export default router;

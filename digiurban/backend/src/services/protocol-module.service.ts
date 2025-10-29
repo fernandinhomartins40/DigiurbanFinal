@@ -1843,6 +1843,121 @@ export class ProtocolModuleService {
         },
       }),
 
+      // OBRAS PÚBLICAS
+      PublicWorksAttendance: () => tx.publicWorksAttendance.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          citizenName: formData.citizenName,
+          citizenCpf: formData.citizenCpf,
+          contact: formData.contact as Prisma.InputJsonValue,
+          serviceType: formData.serviceType,
+          subject: formData.subject,
+          description: formData.description,
+          workType: formData.workType,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.InputJsonValue,
+          urgency: formData.urgency || 'NORMAL',
+          photos: formData.photos as Prisma.InputJsonValue,
+          estimatedCost: formData.estimatedCost ? parseFloat(formData.estimatedCost) : null,
+          priority: formData.priority || 'MEDIUM',
+          status: 'PENDING',
+        },
+      }),
+
+      RoadRepairRequest: () => tx.roadRepairRequest.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          citizenName: formData.citizenName,
+          citizenCpf: formData.citizenCpf,
+          contact: formData.contact as Prisma.InputJsonValue,
+          roadName: formData.roadName,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.InputJsonValue,
+          problemType: formData.problemType,
+          severity: formData.severity || 'MEDIUM',
+          description: formData.description,
+          photos: formData.photos as Prisma.InputJsonValue,
+          affectedArea: formData.affectedArea ? parseFloat(formData.affectedArea) : null,
+          trafficImpact: formData.trafficImpact,
+          urgency: formData.urgency || 'NORMAL',
+          priority: formData.priority || 'MEDIUM',
+          status: 'PENDING',
+        },
+      }),
+
+      TechnicalInspection: () => tx.technicalInspection.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          requestorName: formData.requestorName || formData.citizenName,
+          requestorCpf: formData.requestorCpf || formData.citizenCpf,
+          contact: formData.contact as Prisma.InputJsonValue,
+          inspectionType: formData.inspectionType,
+          subject: formData.subject,
+          description: formData.description,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.InputJsonValue,
+          propertyType: formData.propertyType,
+          constructionStage: formData.constructionStage,
+          documents: formData.documents as Prisma.InputJsonValue,
+          photos: formData.photos as Prisma.InputJsonValue,
+          urgency: formData.urgency || 'NORMAL',
+          status: 'PENDING',
+        },
+      }),
+
+      PublicWork: () => tx.publicWork.create({
+        data: {
+          tenantId,
+          protocolId,
+          title: formData.title,
+          description: formData.description,
+          workType: formData.workType,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.InputJsonValue,
+          contractor: formData.contractor,
+          startDate: formData.startDate ? new Date(formData.startDate) : null,
+          endDate: formData.endDate ? new Date(formData.endDate) : null,
+          plannedBudget: formData.plannedBudget ? parseFloat(formData.plannedBudget) : null,
+          budget: formData.budget as Prisma.InputJsonValue,
+          progressPercent: 0,
+          status: 'PLANNED',
+          priority: formData.priority || 'MEDIUM',
+          beneficiaries: formData.beneficiaries ? parseInt(formData.beneficiaries) : null,
+          photos: formData.photos as Prisma.InputJsonValue,
+          documents: formData.documents as Prisma.InputJsonValue,
+          timeline: formData.timeline as Prisma.InputJsonValue,
+        },
+      }),
+
+      WorkInspection: () => tx.workInspection.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          workName: formData.workName,
+          workType: formData.workType,
+          contractor: formData.contractor,
+          location: formData.location,
+          coordinates: formData.coordinates as Prisma.InputJsonValue,
+          inspectionDate: formData.inspectionDate ? new Date(formData.inspectionDate) : new Date(),
+          inspector: formData.inspector || 'Não designado',
+          inspectionType: formData.inspectionType,
+          findings: formData.findings as Prisma.InputJsonValue,
+          compliance: formData.compliance || 'EM_ANALISE',
+          violations: formData.violations as Prisma.InputJsonValue,
+          recommendations: formData.recommendations as Prisma.InputJsonValue,
+          photos: formData.photos as Prisma.InputJsonValue,
+          documents: formData.documents as Prisma.InputJsonValue,
+          status: 'COMPLETED',
+        },
+      }),
+
       // MEIO AMBIENTE
       EnvironmentalAttendance: () => tx.environmentalAttendance.create({
         data: {
@@ -2516,6 +2631,32 @@ export class ProtocolModuleService {
       }),
 
       HousingRegistration: () => tx.housingRegistration.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      // OBRAS PÚBLICAS
+      PublicWorksAttendance: () => tx.publicWorksAttendance.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      RoadRepairRequest: () => tx.roadRepairRequest.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      TechnicalInspection: () => tx.technicalInspection.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      PublicWork: () => tx.publicWork.updateMany({
+        where: { protocolId },
+        data: { status, ...additionalData },
+      }),
+
+      WorkInspection: () => tx.workInspection.updateMany({
         where: { protocolId },
         data: { status, ...additionalData },
       }),

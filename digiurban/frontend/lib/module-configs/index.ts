@@ -9,11 +9,32 @@
 import { ModuleConfig } from './types';
 import { agricultureModules } from './agriculture';
 import { educacaoModuleConfigs } from './educacao';
+import {
+  atendimentosObrasPublicasConfig,
+  reparosDeViasConfig,
+  vistoriasTecnicasConfig,
+  cadastroDeObrasConfig,
+  inspecaoDeObrasConfig,
+  consultaContratosConfig,
+  consultaMapaObrasConfig,
+} from './obras-publicas';
+
+// Módulos de Obras Públicas (5 COM_DADOS + 2 INFORMATIVOS = 7 TOTAL)
+export const obrasPublicasModuleConfigs: Record<string, ModuleConfig> = {
+  'atendimentos-obras-publicas': atendimentosObrasPublicasConfig,
+  'reparos-de-vias': reparosDeViasConfig,
+  'vistorias-tecnicas': vistoriasTecnicasConfig,
+  'cadastro-de-obras': cadastroDeObrasConfig,
+  'inspecao-de-obras': inspecaoDeObrasConfig,
+  'consulta-contratos': consultaContratosConfig,
+  'consulta-mapa-obras': consultaMapaObrasConfig,
+};
 
 // Registry de todas as configurações de módulos
 const moduleRegistry: Record<string, Record<string, ModuleConfig>> = {
   agriculture: agricultureModules,
   education: educacaoModuleConfigs,
+  obrasPublicas: obrasPublicasModuleConfigs,
 };
 
 /**
@@ -50,3 +71,4 @@ export function hasModule(departmentType: string, moduleKey: string): boolean {
 export * from './types';
 export { agricultureModules } from './agriculture';
 export { educacaoModuleConfigs } from './educacao';
+export { obrasPublicasModuleConfigs } from './obras-publicas';

@@ -54,7 +54,11 @@
       "Bash(git rm:*)",
       "Bash(for dir in atendimentos ocorrencias solicitacao-ronda cameras denuncias-anonimas pontos-criticos alertas patrulhas guarda-municipal vigilancia)",
       "Bash(if exist \"digiurban\\backend\\src\\routes\\nul\" del \"digiurban\\backend\\src\\routes\\nul\")",
-      "Bash(for dir in licencas denuncias programas poda-corte vistorias areas-protegidas)"
+      "Bash(for dir in licencas denuncias programas poda-corte vistorias areas-protegidas)",
+      "Read(//c/c/**)",
+      "Bash(set PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=Sim)",
+      "Bash($env:PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Sim\")",
+      "Bash(export PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Sim\")"
     ],
     "deny": [],
     "ask": []

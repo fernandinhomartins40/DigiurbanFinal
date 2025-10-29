@@ -106,6 +106,8 @@ model Tenant {
   publicServiceRequests            PublicServiceRequest[]
   publicWorks                      PublicWork[]
   publicWorksAttendances           PublicWorksAttendance[]
+  roadRepairRequests               RoadRepairRequest[]
+  technicalInspections             TechnicalInspection[]
   ruralProducers                   RuralProducer[]
   ruralPrograms                    RuralProgram[]
   ruralProperties                  RuralProperty[]
@@ -496,6 +498,13 @@ model ProtocolSimplified {
   treeCuttingAuthorizations    TreeCuttingAuthorization[]    @relation("TreeCuttingAuthorizationProtocol")
   environmentalInspections     EnvironmentalInspection[]     @relation("EnvironmentalInspectionProtocol")
   protectedAreas               ProtectedArea[]               @relation("ProtectedAreaProtocol")
+
+  // Módulos de Obras Públicas
+  publicWorksAttendances PublicWorksAttendance[] @relation("PublicWorksAttendanceProtocol")
+  roadRepairRequests     RoadRepairRequest[]     @relation("RoadRepairRequestProtocol")
+  technicalInspections   TechnicalInspection[]   @relation("TechnicalInspectionProtocol")
+  publicWorks            PublicWork[]            @relation("PublicWorkProtocol")
+  workInspections        WorkInspection[]        @relation("WorkInspectionProtocol")
 
   @@map("protocols_simplified")
 }
@@ -2147,6 +2156,7 @@ model HomeVisit {
 model PublicWork {
   id              String    @id @default(cuid())
   tenantId        String
+  protocolId      String?
   title           String
   description     String
   workType        String
@@ -2167,6 +2177,7 @@ model PublicWork {
   timeline        Json?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  protocol        ProtocolSimplified? @relation("PublicWorkProtocol", fields: [protocolId], references: [id])
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("public_works")
@@ -4157,6 +4168,7 @@ model SocialEquipment {
 model WorkInspection {
   id              String    @id @default(cuid())
   tenantId        String
+  protocolId      String?
   protocol        String    @unique
   workName        String
   workType        String
@@ -4179,6 +4191,7 @@ model WorkInspection {
   observations    String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  protocolRel     ProtocolSimplified? @relation("WorkInspectionProtocol", fields: [protocolId], references: [id])
   tenant          Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("work_inspections")
@@ -4187,6 +4200,7 @@ model WorkInspection {
 model PublicWorksAttendance {
   id               String    @id @default(cuid())
   tenantId         String
+  protocolId       String?
   protocol         String    @unique
   citizenName      String
   citizenCpf       String?
@@ -4212,9 +4226,85 @@ model PublicWorksAttendance {
   followUpDate     DateTime?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+  protocolRel      ProtocolSimplified? @relation("PublicWorksAttendanceProtocol", fields: [protocolId], references: [id])
   tenant           Tenant    @relation(fields: [tenantId], references: [id])
 
   @@map("public_works_attendances")
+}
+
+model RoadRepairRequest {
+  id              String    @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  protocol        String    @unique
+  citizenName     String
+  citizenCpf      String?
+  contact         Json
+  roadName        String
+  location        String
+  coordinates     Json?
+  problemType     String
+  severity        String    @default("MEDIUM")
+  description     String
+  photos          Json?
+  affectedArea    Float?
+  trafficImpact   String?
+  urgency         String    @default("NORMAL")
+  estimatedCost   Float?
+  priority        String    @default("MEDIUM")
+  assignedTeam    String?
+  scheduledDate   DateTime?
+  completionDate  DateTime?
+  status          String    @default("PENDING")
+  resolution      String?
+  materialsUsed   Json?
+  workDuration    Int?
+  satisfaction    Int?
+  observations    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  protocolRel     ProtocolSimplified? @relation("RoadRepairRequestProtocol", fields: [protocolId], references: [id])
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("road_repair_requests")
+}
+
+model TechnicalInspection {
+  id                String    @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  protocol          String    @unique
+  requestorName     String
+  requestorCpf      String?
+  contact           Json
+  inspectionType    String
+  subject           String
+  description       String
+  location          String
+  coordinates       Json?
+  propertyType      String?
+  constructionStage String?
+  documents         Json?
+  photos            Json?
+  urgency           String    @default("NORMAL")
+  scheduledDate     DateTime?
+  inspectionDate    DateTime?
+  inspector         String?
+  findings          Json?
+  technicalOpinion  String?
+  approved          Boolean?
+  conditions        Json?
+  validUntil        DateTime?
+  status            String    @default("PENDING")
+  resolution        String?
+  followUpDate      DateTime?
+  observations      String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  protocolRel       ProtocolSimplified? @relation("TechnicalInspectionProtocol", fields: [protocolId], references: [id])
+  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@map("technical_inspections")
 }
 
 model PublicServiceRequest {

@@ -19,6 +19,7 @@ import {
   consultaMapaObrasConfig,
 } from './obras-publicas';
 import { configsPlanejamentoUrbano } from './planejamento-urbano';
+import { servicosPublicosConfigs } from './servicos-publicos';
 
 // Módulos de Obras Públicas (5 COM_DADOS + 2 INFORMATIVOS = 7 TOTAL)
 export const obrasPublicasModuleConfigs: Record<string, ModuleConfig> = {
@@ -34,12 +35,16 @@ export const obrasPublicasModuleConfigs: Record<string, ModuleConfig> = {
 // Módulos de Planejamento Urbano (7 COM_DADOS + 2 INFORMATIVOS = 9 TOTAL)
 export const planejamentoUrbanoModuleConfigs = configsPlanejamentoUrbano;
 
+// Módulos de Serviços Públicos (9 COM_DADOS)
+export const servicosPublicosModuleConfigs = servicosPublicosConfigs;
+
 // Registry de todas as configurações de módulos
 const moduleRegistry: Record<string, Record<string, ModuleConfig>> = {
   agriculture: agricultureModules,
   education: educacaoModuleConfigs,
   obrasPublicas: obrasPublicasModuleConfigs,
   planejamentoUrbano: configsPlanejamentoUrbano,
+  'servicos-publicos': servicosPublicosConfigs,
 };
 
 /**
@@ -78,3 +83,4 @@ export { agricultureModules } from './agriculture';
 export { educacaoModuleConfigs } from './educacao';
 export { obrasPublicasModuleConfigs } from './obras-publicas';
 export { planejamentoUrbanoModuleConfigs, configsPlanejamentoUrbano } from './planejamento-urbano';
+export { servicosPublicosModuleConfigs, servicosPublicosConfigs } from './servicos-publicos';

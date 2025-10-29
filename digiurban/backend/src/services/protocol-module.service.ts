@@ -2251,6 +2251,248 @@ export class ProtocolModuleService {
           status: 'OPEN',
         },
       }),
+
+      // SERVIÇOS PÚBLICOS
+      PublicServiceRequest: () => tx.publicServiceRequest.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          requestorName: formData.requestorName || formData.name,
+          requestorCpf: formData.requestorCpf || formData.cpf,
+          contact: formData.contact || { phone: formData.phone, email: formData.email } as Prisma.JsonValue,
+          serviceType: formData.serviceType || 'GENERAL',
+          category: formData.category || 'PUBLIC_SERVICE',
+          description: formData.description,
+          location: formData.location || formData.address,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          urgency: formData.urgency || 'NORMAL',
+          photos: formData.photos as Prisma.JsonValue,
+          status: 'PENDING',
+        },
+      }),
+
+      StreetLighting: () => tx.streetLighting.create({
+        data: {
+          tenantId,
+          protocolId,
+          pointCode: formData.pointCode || `PL-${Date.now()}`,
+          streetName: formData.streetName || formData.street,
+          neighborhood: formData.neighborhood,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          poleType: formData.poleType || 'concrete',
+          lampType: formData.lampType || 'LED',
+          power: formData.power ? parseInt(formData.power) : 100,
+          height: formData.height ? parseFloat(formData.height) : 8.0,
+          condition: formData.condition || 'GOOD',
+          status: 'ACTIVE',
+          observations: formData.observations,
+        },
+      }),
+
+      SpecialCollection: () => tx.specialCollection.create({
+        data: {
+          tenantId,
+          protocolId,
+          collectionType: formData.collectionType || 'BULKY_WASTE',
+          requestorName: formData.requestorName || formData.name,
+          requestorCpf: formData.requestorCpf || formData.cpf,
+          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          address: formData.address || formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          description: formData.description,
+          estimatedVolume: formData.estimatedVolume ? parseFloat(formData.estimatedVolume) : null,
+          quantity: formData.quantity ? parseInt(formData.quantity) : null,
+          unit: formData.unit || 'unit',
+          photos: formData.photos as Prisma.JsonValue,
+          preferredDate: formData.preferredDate ? new Date(formData.preferredDate) : null,
+          status: 'REQUESTED',
+        },
+      }),
+
+      CleaningSchedule: () => tx.cleaningSchedule.create({
+        data: {
+          tenantId,
+          protocolId,
+          area: formData.area || formData.location,
+          cleaningType: formData.cleaningType || 'STREET_CLEANING',
+          frequency: formData.frequency || 'WEEKLY',
+          startTime: formData.startTime || '07:00',
+          duration: formData.duration ? parseInt(formData.duration) : 120,
+          teamSize: formData.teamSize ? parseInt(formData.teamSize) : 3,
+          responsibleTeam: formData.responsibleTeam || 'Team 1',
+          nextExecution: formData.nextExecution ? new Date(formData.nextExecution) : new Date(),
+          observations: formData.observations,
+        },
+      }),
+
+      TeamSchedule: () => tx.teamSchedule.create({
+        data: {
+          tenantId,
+          protocolId,
+          teamName: formData.teamName || 'New Team',
+          teamType: formData.teamType || 'CLEANING',
+          shift: formData.shift || 'MORNING',
+          workDays: formData.workDays as Prisma.JsonValue || ['MON', 'TUE', 'WED', 'THU', 'FRI'],
+          startTime: formData.startTime || '07:00',
+          endTime: formData.endTime || '16:00',
+          teamLead: formData.teamLead || 'Team Leader',
+          members: formData.members as Prisma.JsonValue || [],
+          workAreas: formData.workAreas as Prisma.JsonValue || [],
+          dailyTasks: formData.dailyTasks as Prisma.JsonValue || [],
+        },
+      }),
+
+      PublicProblemReport: () => tx.publicProblemReport.create({
+        data: {
+          tenantId,
+          protocolId,
+          protocol: protocolNumber,
+          reporterName: formData.reporterName || formData.name,
+          reporterPhone: formData.reporterPhone || formData.phone,
+          reporterEmail: formData.reporterEmail || formData.email,
+          problemType: formData.problemType || 'OTHER',
+          title: formData.title,
+          severity: formData.severity || 'MEDIUM',
+          description: formData.description,
+          location: formData.location || formData.address,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          photos: formData.photos as Prisma.JsonValue,
+          isAnonymous: formData.isAnonymous || false,
+          status: 'REPORTED',
+          priority: formData.priority || 'MEDIUM',
+        },
+      }),
+
+      WeedingRequest: () => tx.weedingRequest.create({
+        data: {
+          tenantId,
+          protocolId,
+          requestorName: formData.requestorName || formData.name,
+          requestorCpf: formData.requestorCpf || formData.cpf,
+          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          location: formData.location,
+          address: formData.address || formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          areaSize: formData.areaSize ? parseFloat(formData.areaSize) : null,
+          terrainType: formData.terrainType || 'URBAN',
+          accessType: formData.accessType || 'EASY',
+          description: formData.description,
+          photos: formData.photos as Prisma.JsonValue,
+          urgency: formData.urgency || 'NORMAL',
+          status: 'REQUESTED',
+        },
+      }),
+
+      DrainageRequest: () => tx.drainageRequest.create({
+        data: {
+          tenantId,
+          protocolId,
+          requestorName: formData.requestorName || formData.name,
+          requestorCpf: formData.requestorCpf || formData.cpf,
+          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          location: formData.location,
+          address: formData.address || formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          problemType: formData.problemType || 'CLOGGED_DRAIN',
+          severity: formData.severity || 'MEDIUM',
+          description: formData.description,
+          photos: formData.photos as Prisma.JsonValue,
+          waterLevel: formData.waterLevel,
+          affectedArea: formData.affectedArea ? parseFloat(formData.affectedArea) : null,
+          urgency: formData.urgency || 'HIGH',
+          status: 'REQUESTED',
+        },
+      }),
+
+      TreePruningRequest: () => tx.treePruningRequest.create({
+        data: {
+          tenantId,
+          protocolId,
+          requestorName: formData.requestorName || formData.name,
+          requestorCpf: formData.requestorCpf || formData.cpf,
+          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          location: formData.location,
+          address: formData.address || formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          treeSpecies: formData.treeSpecies,
+          treeHeight: formData.treeHeight ? parseFloat(formData.treeHeight) : null,
+          trunkDiameter: formData.trunkDiameter ? parseFloat(formData.trunkDiameter) : null,
+          pruningType: formData.pruningType || 'MAINTENANCE',
+          reason: formData.reason || 'SAFETY',
+          description: formData.description,
+          photos: formData.photos as Prisma.JsonValue,
+          riskLevel: formData.riskLevel,
+          urgency: formData.urgency || 'NORMAL',
+          status: 'REQUESTED',
+        },
+      }),
+
+      UrbanCleaning: () => tx.urbanCleaning.create({
+        data: {
+          tenantId,
+          protocolId,
+          serviceType: formData.serviceType || 'STREET_CLEANING',
+          location: formData.location,
+          address: formData.address || formData.location,
+          neighborhood: formData.neighborhood,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          description: formData.description,
+          areaSize: formData.areaSize ? parseFloat(formData.areaSize) : null,
+          cleaningType: formData.cleaningType || 'GENERAL',
+          frequency: formData.frequency || 'WEEKLY',
+          photos: formData.photos as Prisma.JsonValue,
+          status: 'SCHEDULED',
+          priority: formData.priority || 'NORMAL',
+        },
+      }),
+
+      ServiceTeam: () => tx.serviceTeam.create({
+        data: {
+          tenantId,
+          protocolId,
+          teamCode: formData.teamCode || `ST-${Date.now()}`,
+          teamName: formData.teamName || 'New Team',
+          teamType: formData.teamType || 'CLEANING',
+          department: formData.department || 'PUBLIC_SERVICES',
+          leader: formData.leader || 'Team Leader',
+          leaderContact: formData.leaderContact as Prisma.JsonValue,
+          members: formData.members as Prisma.JsonValue || [],
+          totalMembers: formData.totalMembers ? parseInt(formData.totalMembers) : 0,
+          specialization: formData.specialization,
+          workShift: formData.workShift || 'MORNING',
+          shiftStart: formData.shiftStart || '07:00',
+          shiftEnd: formData.shiftEnd || '16:00',
+          workDays: formData.workDays as Prisma.JsonValue || ['MON', 'TUE', 'WED', 'THU', 'FRI'],
+          equipment: formData.equipment as Prisma.JsonValue,
+          vehicles: formData.vehicles as Prisma.JsonValue,
+          workArea: formData.workArea,
+          coverage: formData.coverage as Prisma.JsonValue,
+          status: 'ACTIVE',
+        },
+      }),
+
+      PublicServiceAttendance: () => tx.publicServiceAttendance.create({
+        data: {
+          tenantId,
+          protocolId,
+          citizenName: formData.citizenName || formData.requestorName,
+          citizenCpf: formData.citizenCpf || formData.requestorCpf,
+          citizenPhone: formData.citizenPhone || formData.phone,
+          citizenEmail: formData.citizenEmail || formData.email,
+          serviceType: formData.serviceType || 'GENERAL',
+          requestType: formData.requestType || 'COMPLAINT',
+          description: formData.description,
+          location: formData.location,
+          address: formData.address || formData.location,
+          coordinates: formData.coordinates as Prisma.JsonValue,
+          urgency: formData.urgency || 'NORMAL',
+          priority: formData.priority || 'MEDIUM',
+          photos: formData.photos as Prisma.JsonValue,
+          documents: formData.documents as Prisma.JsonValue,
+          status: 'PENDING',
+        },
+      }),
     };
 
     const createFn = entityMap[entityName];
@@ -2866,6 +3108,70 @@ export class ProtocolModuleService {
       UrbanPlanningAttendance: () => tx.urbanPlanningAttendance.updateMany({
         where: { protocolId },
         data: { status, ...additionalData },
+      }),
+
+      // SERVIÇOS PÚBLICOS
+      PublicServiceRequest: () => tx.publicServiceRequest.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'IN_PROGRESS' : 'REJECTED' },
+      }),
+
+      StreetLighting: () => tx.streetLighting.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'ACTIVE' : 'INACTIVE' },
+      }),
+
+      SpecialCollection: () => tx.specialCollection.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'SCHEDULED' : 'CANCELLED' },
+      }),
+
+      CleaningSchedule: () => tx.cleaningSchedule.updateMany({
+        where: { protocolId },
+        data: { isActive: status === 'APPROVED' },
+      }),
+
+      TeamSchedule: () => tx.teamSchedule.updateMany({
+        where: { protocolId },
+        data: { isActive: status === 'APPROVED' },
+      }),
+
+      PublicProblemReport: () => tx.publicProblemReport.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'ASSIGNED' : 'CLOSED' },
+      }),
+
+      WeedingRequest: () => tx.weedingRequest.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'SCHEDULED' : 'CANCELLED' },
+      }),
+
+      DrainageRequest: () => tx.drainageRequest.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'SCHEDULED' : 'CANCELLED' },
+      }),
+
+      TreePruningRequest: () => tx.treePruningRequest.updateMany({
+        where: { protocolId },
+        data: {
+          status: status === 'APPROVED' ? 'SCHEDULED' : 'REJECTED',
+          approved: status === 'APPROVED',
+        },
+      }),
+
+      UrbanCleaning: () => tx.urbanCleaning.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'SCHEDULED' : 'CANCELLED', ...additionalData },
+      }),
+
+      ServiceTeam: () => tx.serviceTeam.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'ACTIVE' : 'INACTIVE', isActive: status === 'APPROVED', ...additionalData },
+      }),
+
+      PublicServiceAttendance: () => tx.publicServiceAttendance.updateMany({
+        where: { protocolId },
+        data: { status: status === 'APPROVED' ? 'IN_PROGRESS' : 'REJECTED', ...additionalData },
       }),
     };
 

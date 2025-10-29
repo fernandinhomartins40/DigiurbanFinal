@@ -4,7 +4,7 @@ import { prisma } from '../lib/prisma';
 import { tenantMiddleware } from '../middleware/tenant';
 import { AuthenticatedRequest, SuccessResponse, ErrorResponse, UserRole } from '../types';
 import { asyncHandler } from '../utils/express-helpers';
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 
 // ====================== TIPOS LOCAIS ======================
 
@@ -271,7 +271,7 @@ router.post('/matriculas', authenticateToken, async (req, res) => {
     try {
       const result = await prisma.$transaction(async (tx) => {
         // Gerar número do protocolo
-        const protocolNumber = await getNextProtocolNumber(req.tenantId!);
+        const protocolNumber = generateProtocolNumber();
 
         // Buscar informações do estudante para o protocolo
         const student = await tx.student.findUnique({

@@ -8,7 +8,7 @@ import { prisma } from '../lib/prisma';
 import { Prisma } from '@prisma/client';
 import { tenantMiddleware } from '../middleware/tenant';
 import { authenticateToken, requireManager } from '../middleware/auth';
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -418,7 +418,7 @@ router.post(
     try {
       const result = await prisma.$transaction(async (tx) => {
         // Gerar número do protocolo
-        const protocolNumber = await getNextProtocolNumber(req.tenantId);
+        const protocolNumber = generateProtocolNumber();
 
         // Buscar cidadão pelo nome (esporte não usa CPF)
         const citizen = await tx.citizen.findFirst({

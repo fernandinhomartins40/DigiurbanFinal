@@ -68,9 +68,11 @@ app.get('/health', (_req, res: express.Response) => {
 });
 
 // Import routes
-import protocolRoutes from './routes/protocols';
 import serviceRoutes from './routes/services';
 import tenantRoutes from './routes/tenants';
+
+// Sistema Simplificado de Protocolos
+import protocolsSimplifiedRoutes from './routes/protocols-simplified.routes';
 
 // Fase 2 - Super Admin e SaaS
 import superAdminRoutes from './routes/super-admin';
@@ -78,7 +80,6 @@ import superAdminRoutes from './routes/super-admin';
 // Fase 3 - Portal do Cidadão
 import citizenAuthRoutes from './routes/citizen-auth';
 import citizenServicesRoutes from './routes/citizen-services';
-import citizenProtocolsRoutes from './routes/citizen-protocols';
 import citizenFamilyRoutes from './routes/citizen-family';
 import citizenDocumentsRoutes from './routes/citizen-documents';
 import citizenNotificationsRoutes from './routes/citizen-notifications';
@@ -86,7 +87,6 @@ import citizenTransferRoutes from './routes/citizen-transfer';
 
 // Fase 4 - Rotas Administrativas Específicas
 import adminAuthRoutes from './routes/admin-auth';
-import adminProtocolsRoutes from './routes/admin-protocols';
 import adminManagementRoutes from './routes/admin-management';
 import adminChamadosRoutes from './routes/admin-chamados';
 import adminReportsRoutes from './routes/admin-reports';
@@ -137,9 +137,11 @@ import adminSecretariasRoutes from './routes/admin-secretarias';
 app.use('/api/public', publicRoutes);
 
 // Rotas básicas (Fase 1)
-app.use('/api/protocols', protocolRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/tenants', tenantRoutes);
+
+// Sistema Simplificado de Protocolos (Motor de Protocolos V2)
+app.use('/api/protocols', protocolsSimplifiedRoutes);
 
 // Rotas Super Admin (Fase 2)
 app.use('/api/super-admin', superAdminRoutes);
@@ -147,7 +149,6 @@ app.use('/api/super-admin', superAdminRoutes);
 // Rotas do Portal do Cidadão (Fase 3)
 app.use('/api/auth/citizen', citizenAuthRoutes);
 app.use('/api/citizen/services', citizenServicesRoutes);
-app.use('/api/citizen/protocols', citizenProtocolsRoutes);
 app.use('/api/citizen/family', citizenFamilyRoutes);
 app.use('/api/citizen/documents', citizenDocumentsRoutes);
 app.use('/api/citizen/notifications', citizenNotificationsRoutes);
@@ -155,7 +156,6 @@ app.use('/api/citizen', citizenTransferRoutes);
 
 // Rotas Administrativas (Fase 4)
 app.use('/api/admin/auth', adminAuthRoutes);
-app.use('/api/admin/protocols', adminProtocolsRoutes);
 app.use('/api/admin/management', adminManagementRoutes);
 app.use('/api/admin/chamados', adminChamadosRoutes);
 app.use('/api/admin/relatorios', adminReportsRoutes);

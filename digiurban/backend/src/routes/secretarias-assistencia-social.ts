@@ -6,7 +6,7 @@ import { Router, Request, Response, NextFunction, RequestHandler } from 'express
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { Prisma } from '@prisma/client';
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -605,7 +605,7 @@ router.post(
     try {
       const result = await prisma.$transaction(async (tx) => {
         // Gerar número do protocolo
-        const protocolNumber = await getNextProtocolNumber(req.tenantId);
+        const protocolNumber = generateProtocolNumber();
 
         // Buscar cidadão pelo CPF
         const citizen = await tx.citizen.findFirst({

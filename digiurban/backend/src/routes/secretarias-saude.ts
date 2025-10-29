@@ -5,7 +5,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 
 import {
   adminAuthMiddleware,
@@ -749,7 +749,7 @@ router.post('/health-attendances', authenticateToken, requireManager, handleAsyn
   try {
     const result = await prisma.$transaction(async (tx) => {
       // Gerar número do protocolo
-      const protocolNumber = await getNextProtocolNumber(req.tenantId);
+      const protocolNumber = generateProtocolNumber();
 
       // Buscar cidadão pelo CPF
       const citizen = await tx.citizen.findFirst({

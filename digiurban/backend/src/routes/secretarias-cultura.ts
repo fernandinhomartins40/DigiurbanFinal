@@ -5,7 +5,7 @@ import { tenantMiddleware } from '../middleware/tenant';
 import { authenticateToken, requireManager } from '../middleware/auth';
 import { AuthenticatedRequest, SuccessResponse, ErrorResponse } from '../types';
 import { asyncHandler } from '../utils/express-helpers';
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 
 // ===== TIPOS LOCAIS ISOLADOS - SEM DEPENDÊNCIAS CENTRALIZADAS =====
 
@@ -317,7 +317,7 @@ router.post('/cultural-attendances', authenticateToken, requireManager, asyncHan
 
     const result = await prisma.$transaction(async (tx) => {
       // Gerar número do protocolo
-      const protocolNumber = await getNextProtocolNumber(req.tenantId);
+      const protocolNumber = generateProtocolNumber();
 
       // Buscar cidadão pelo nome (cultura não usa CPF)
       const citizen = await tx.citizen.findFirst({

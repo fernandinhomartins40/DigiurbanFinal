@@ -12,7 +12,7 @@ import {
   addDataFilter,
 } from '../middleware/admin-auth';
 import { tenantMiddleware } from '../middleware/tenant';
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -243,7 +243,7 @@ router.post(
     }
 
     // Gerar número do protocolo
-    const protocolNumber = await getNextProtocolNumber(user.tenantId);
+    const protocolNumber = generateProtocolNumber();
 
     // Criar protocolo automaticamente (FLUXO 1)
     const protocolData = {

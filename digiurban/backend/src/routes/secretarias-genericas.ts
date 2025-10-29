@@ -12,7 +12,7 @@ import {
 } from '../middleware/admin-auth';
 import { tenantMiddleware } from '../middleware/tenant';
 import { Prisma } from '@prisma/client'; // CRIADO: namespace Prisma para InputJsonValue
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -274,7 +274,7 @@ router.post('/:secretaria/:pageCode/protocols', authenticateToken, handleAsyncRo
   }
 
   // Gerar número do protocolo
-  const protocolNumber = await getNextProtocolNumber((req.tenantId || req.tenant?.id)!);
+  const protocolNumber = generateProtocolNumber();
 
   const protocol = await prisma.protocol.create({
     data: {

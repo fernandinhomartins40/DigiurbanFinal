@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma';
 import { tenantMiddleware } from '../middleware/tenant';
 import { citizenAuthMiddleware } from '../middleware/citizen-auth';
 import { AuthenticatedRequest, SuccessResponse, ErrorResponse, GuaranteedTenantRequest, WhereCondition } from '../types';
-import { getNextProtocolNumber } from '../utils/protocol-helpers';
+import { generateProtocolNumber } from '../utils/protocol-number-generator';
 import { ModuleHandler } from '../modules/module-handler';
 
 // FASE 2 - Interface para serviços de cidadãos
@@ -446,7 +446,7 @@ router.post('/:id/request', async (req, res) => {
     }
 
     // Gerar número do protocolo
-    const protocolNumber = await getNextProtocolNumber(tenant.id);
+    const protocolNumber = generateProtocolNumber();
 
     // Criar protocolo em transação
     const result = await prisma.$transaction(async (tx) => {

@@ -20,7 +20,8 @@
       "Bash(curl:*)",
       "Bash(npx ts-node:*)",
       "Bash(json_pp:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

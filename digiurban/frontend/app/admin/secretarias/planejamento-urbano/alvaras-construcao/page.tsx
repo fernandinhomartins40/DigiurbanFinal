@@ -2,10 +2,10 @@
 
 import { ModulePageTemplate } from '@/components/admin/modules/ModulePageTemplate';
 import { PendingProtocolsList } from '@/components/admin/modules/PendingProtocolsList';
-import { certidoesConfig } from '@/lib/module-configs/planejamento-urbano';
+import { alvarasConstrucaoConfig } from '@/lib/module-configs/planejamento-urbano';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function CertidoesPage() {
+export default function AlvarasConstrucaoPage() {
   return (
     <div className="space-y-6">
       <Tabs defaultValue="cadastrados" className="w-full">
@@ -16,14 +16,14 @@ export default function CertidoesPage() {
 
         <TabsContent value="cadastrados">
           <ModulePageTemplate
-            config={certidoesConfig}
+            config={alvarasConstrucaoConfig}
             departmentType="planejamento-urbano"
           />
         </TabsContent>
 
         <TabsContent value="pendentes">
           <PendingProtocolsList
-            config={certidoesConfig}
+            config={alvarasConstrucaoConfig}
             departmentType="planejamento-urbano"
           />
         </TabsContent>

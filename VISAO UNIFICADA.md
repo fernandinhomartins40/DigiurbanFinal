@@ -180,8 +180,8 @@ MÓDULO PADRÃO DA SECRETARIA DE EDUCAÇÃO
 │  - Turno: Manhã                                         │
 │                                                         │
 │  AÇÕES:                                                 │
-│  ✓ Aprovar → Vincula a Escola + Turma + Período         │
-│  ✓ Negar → Informa motivo                               │
+│  Aprovar → Vincula a Escola + Turma + Período           │
+│  Negar → Informa motivo                                 │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
                          ↓
@@ -199,7 +199,7 @@ MÓDULO PADRÃO DA SECRETARIA DE EDUCAÇÃO
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
-│  🌾 SECRETARIA MUNICIPAL DE AGRICULTURA                       │
+│  SECRETARIA MUNICIPAL DE AGRICULTURA                          │
 │  Desenvolvimento rural e agricultura familiar                 │
 ├───────────────────────────────────────────────────────────────┤
 │                                                               │

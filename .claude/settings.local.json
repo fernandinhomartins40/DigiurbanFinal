@@ -58,7 +58,13 @@
       "Read(//c/c/**)",
       "Bash(set PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=Sim)",
       "Bash($env:PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Sim\")",
-      "Bash(export PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Sim\")"
+      "Bash(export PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Sim\")",
+      "Read(//c/Projetos/**)",
+      "Bash(test:*)",
+      "Bash(for dir in public-service-requests street-lighting cleaning-schedule special-collection weeding-request drainage-request tree-pruning-request team-schedule public-problem-report)",
+      "Bash(do echo -n \"$dir: \")",
+      "Bash(git reset:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

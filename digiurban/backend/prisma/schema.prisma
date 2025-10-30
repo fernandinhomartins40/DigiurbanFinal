@@ -148,8 +148,11 @@ model Tenant {
   teamSchedules                    TeamSchedule[]
   technicalAssistances             TechnicalAssistance[]
   tourismAttendances               TourismAttendance[]
+  tourismEvents                    TourismEvent[]
+  tourismGuides                    TourismGuide[]
   tourismInfos                     TourismInfo[]
   tourismPrograms                  TourismProgram[]
+  tourismRoutes                    TourismRoute[]
   touristAttractions               TouristAttraction[]
   urbanInfractions                 UrbanInfraction[]
   urbanPlanningAttendances         UrbanPlanningAttendance[]
@@ -541,6 +544,15 @@ model ProtocolSimplified {
   cleaningSchedules           CleaningSchedule[]           @relation("CleaningScheduleProtocol")
   teamSchedules               TeamSchedule[]               @relation("TeamScheduleProtocol")
   publicProblemReports        PublicProblemReport[]        @relation("PublicProblemReportProtocol")
+
+  // Módulos de Turismo
+  tourismAttendances  TourismAttendance[]  @relation("TourismAttendanceProtocol")
+  touristAttractions  TouristAttraction[]  @relation("TouristAttractionProtocol")
+  localBusinesses     LocalBusiness[]      @relation("LocalBusinessProtocol")
+  tourismPrograms     TourismProgram[]     @relation("TourismProgramProtocol")
+  tourismGuides       TourismGuide[]       @relation("TourismGuideProtocol")
+  tourismRoutes       TourismRoute[]       @relation("TourismRouteProtocol")
+  tourismEvents       TourismEvent[]       @relation("TourismEventProtocol")
 
   @@map("protocols_simplified")
 }
@@ -2680,14 +2692,15 @@ model Athlete {
 }
 
 model TouristAttraction {
-  id            String   @id @default(cuid())
+  id            String              @id @default(cuid())
   tenantId      String
+  protocolId    String?
   name          String
   type          String
   category      String?
   description   String
   address       String
-  neighborhood  String? // Campo adicionado
+  neighborhood  String?
   coordinates   Json?
   openingHours  String?
   ticketPrice   Float?
@@ -2695,17 +2708,18 @@ model TouristAttraction {
   amenities     Json?
   images        Json?
   rating        Float?
-  featured      Boolean  @default(false)
-  isActive      Boolean  @default(true)
-  freeEntry     Boolean  @default(false) // Entrada gratuita
-  protocol      String? // Campo adicionado
-  city          String? // Campo adicionado
-  serviceId     String? // Campo adicionado
-  state         String? // Campo adicionado
+  featured      Boolean             @default(false)
+  isActive      Boolean             @default(true)
+  freeEntry     Boolean             @default(false)
+  protocol      String?
+  city          String?
+  serviceId     String?
+  state         String?
   facilities    Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  tenant        Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel   ProtocolSimplified? @relation("TouristAttractionProtocol", fields: [protocolId], references: [id])
 
   @@map("tourist_attractions")
 }
@@ -3430,17 +3444,18 @@ model SecurityAttendance {
 }
 
 model LocalBusiness {
-  id               String   @id @default(cuid())
+  id               String              @id @default(cuid())
   tenantId         String
+  protocolId       String?
   name             String
   businessType     String
   businessInfo     Json?
   category         String
   description      String
   address          String
-  neighborhood     String? // Bairro do estabelecimento
-  city             String? // Cidade do estabelecimento
-  state            String? // Estado do estabelecimento
+  neighborhood     String?
+  city             String?
+  state            String?
   coordinates      Json?
   contact          Json
   openingHours     Json
@@ -3451,14 +3466,15 @@ model LocalBusiness {
   photos           Json?
   owner            String
   ownerCpf         String?
-  isActive         Boolean  @default(true)
-  isTourismPartner Boolean  @default(false)
-  isPartner        Boolean  @default(false)
+  isActive         Boolean             @default(true)
+  isTourismPartner Boolean             @default(false)
+  isPartner        Boolean             @default(false)
   certifications   Json?
-  protocol         String? // Campo adicionado
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+  protocol         String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel      ProtocolSimplified? @relation("LocalBusinessProtocol", fields: [protocolId], references: [id])
 
   @@map("local_businesses")
 }
@@ -3494,8 +3510,9 @@ model TourismInfo {
 }
 
 model TourismProgram {
-  id                  String   @id @default(cuid())
+  id                  String              @id @default(cuid())
   tenantId            String
+  protocolId          String?
   name                String
   programType         String
   type                String?
@@ -3510,22 +3527,24 @@ model TourismProgram {
   activities          Json
   participants        Json?
   results             Json?
-  status              String   @default("PLANNED")
-  isActive            Boolean  @default(true)
+  status              String              @default("PLANNED")
+  isActive            Boolean             @default(true)
   evaluation          Json?
   photos              Json?
-  currentParticipants Int? // Campo adicionado
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  tenant              Tenant   @relation(fields: [tenantId], references: [id])
+  currentParticipants Int?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  tenant              Tenant              @relation(fields: [tenantId], references: [id])
+  protocol            ProtocolSimplified? @relation("TourismProgramProtocol", fields: [protocolId], references: [id])
 
   @@map("tourism_programs")
 }
 
 model TourismAttendance {
-  id             String    @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
-  protocol       String    @unique
+  protocolId     String?
+  protocol       String              @unique
   citizenId      String?
   visitorName    String
   visitorEmail   String?
@@ -3535,21 +3554,143 @@ model TourismAttendance {
   subject        String
   description    String
   category       String?
-  urgency        String    @default("NORMAL")
-  status         String    @default("PENDING")
+  urgency        String              @default("NORMAL")
+  status         String              @default("PENDING")
   assignedAgent  String?
   resolution     String?
   satisfaction   Int?
   followUpDate   DateTime?
-  touristProfile Json? // Campo adicionado
-  serviceId      String? // Campo adicionado
-  source         String    @default("manual") // Campo adicionado
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  citizen        Citizen?  @relation("TourismAttendanceCitizen", fields: [citizenId], references: [id])
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  touristProfile Json?
+  serviceId      String?
+  source         String              @default("manual")
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  citizen        Citizen?            @relation("TourismAttendanceCitizen", fields: [citizenId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
+  protocolRel    ProtocolSimplified? @relation("TourismAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("tourism_attendances")
+}
+
+model TourismGuide {
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  name               String
+  cpf                String
+  rg                 String?
+  email              String?
+  phone              String
+  address            String?
+  birthDate          DateTime?
+  languages          Json
+  specialties        Json?
+  certifications     Json?
+  licenseNumber      String?
+  licenseExpiry      DateTime?
+  registrationDate   DateTime            @default(now())
+  status             String              @default("ACTIVE")
+  experienceYears    Int?
+  bio                String?
+  photo              String?
+  availableSchedule  Json?
+  rating             Float?
+  totalTours         Int                 @default(0)
+  isActive           Boolean             @default(true)
+  emergencyContact   Json?
+  bankInfo           Json?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocol           ProtocolSimplified? @relation("TourismGuideProtocol", fields: [protocolId], references: [id])
+
+  @@unique([tenantId, cpf])
+  @@map("tourism_guides")
+}
+
+model TourismRoute {
+  id              String              @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  name            String
+  routeType       String
+  description     String
+  duration        String
+  difficulty      String
+  distance        Float?
+  startPoint      String
+  endPoint        String
+  waypoints       Json?
+  attractions     Json
+  services        Json?
+  bestSeason      Json?
+  recommendations String?
+  warnings        String?
+  accessibility   Json?
+  photos          Json?
+  mapData         Json?
+  estimatedCost   Float?
+  guideRequired   Boolean             @default(false)
+  minimumAge      Int?
+  maxGroupSize    Int?
+  featured        Boolean             @default(false)
+  isActive        Boolean             @default(true)
+  rating          Float?
+  totalViews      Int                 @default(0)
+  createdBy       String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  protocol        ProtocolSimplified? @relation("TourismRouteProtocol", fields: [protocolId], references: [id])
+
+  @@map("tourism_routes")
+}
+
+model TourismEvent {
+  id               String              @id @default(cuid())
+  tenantId         String
+  protocolId       String?
+  name             String
+  eventType        String
+  category         String?
+  description      String
+  venue            String
+  address          String
+  coordinates      Json?
+  startDate        DateTime
+  endDate          DateTime
+  startTime        String?
+  endTime          String?
+  duration         String?
+  organizer        String
+  organizerContact Json
+  capacity         Int?
+  registeredCount  Int                 @default(0)
+  ticketPrice      Float?
+  freeEntry        Boolean             @default(false)
+  ageRestriction   String?
+  accessibility    Json?
+  amenities        Json?
+  program          Json?
+  speakers         Json?
+  sponsors         Json?
+  photos           Json?
+  promotional      Json?
+  status           String              @default("PLANNED")
+  isPublic         Boolean             @default(true)
+  featured         Boolean             @default(false)
+  registrationUrl  String?
+  socialMedia      Json?
+  tags             Json?
+  requirements     String?
+  cancellationInfo String?
+  createdBy        String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  protocol         ProtocolSimplified? @relation("TourismEventProtocol", fields: [protocolId], references: [id])
+
+  @@map("tourism_events")
 }
 
 model EnvironmentalLicense {

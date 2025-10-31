@@ -21,16 +21,16 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
-import { AgricultureService } from '@/hooks/api/agriculture/useAgricultureServices';
 import { DynamicServiceForm, FormField } from './DynamicServiceForm';
 import { api } from '@/lib/services/api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Service } from '@/hooks/useSecretariaServices';
 
 interface NewProtocolModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  services: AgricultureService[];
+  services: Service[];
   onSuccess?: () => void;
 }
 
@@ -104,8 +104,8 @@ export function NewProtocolModal({
         name: selectedServiceData.name,
         description: selectedServiceData.description || '',
         formSchema: selectedServiceData.customForm as any,
-        moduleType: selectedServiceData.moduleType,
-        moduleEntity: selectedServiceData.moduleEntity,
+        moduleType: selectedServiceData.moduleType || undefined,
+        moduleEntity: selectedServiceData.moduleEntity || undefined,
       });
     } else {
       setServiceTemplate(null);

@@ -20,12 +20,28 @@ interface Citizen {
   phone?: string;
   address?: any;
   isActive: boolean;
+  verificationStatus: 'PENDING' | 'VERIFIED' | 'GOLD' | 'REJECTED';
   createdAt: string;
   lastLogin?: string;
   protocols?: any[];
   familyAsHead?: any[];
   notifications?: any[];
   tenant?: TenantInfo;
+}
+
+interface UpdateProfileData {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: {
+    street?: string;
+    number?: string;
+    complement?: string;
+    neighborhood?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
+  };
 }
 
 interface CitizenAuthContextType {
@@ -36,7 +52,8 @@ interface CitizenAuthContextType {
   login: (cpfOrEmail: string, password: string) => Promise<boolean>;
   register: (data: RegisterData) => Promise<boolean>;
   logout: () => Promise<void>;
-  refreshCitizenData: () => Promise<void>;
+  refreshCitizenData: () => Promise<boolean>;
+  updateProfile: (data: UpdateProfileData) => Promise<{ success: boolean; message?: string }>;
   apiRequest: (endpoint: string, options?: RequestInit) => Promise<any>;
 }
 
@@ -261,6 +278,33 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
     return await fetchCitizenData();
   };
 
+  const updateProfile = async (data: UpdateProfileData): Promise<{ success: boolean; message?: string }> => {
+    try {
+      setIsLoading(true);
+
+      const response = await apiRequest('/auth/citizen/profile', {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+
+      if (response.success) {
+        // Atualizar dados do cidadão no state
+        setCitizen(response.citizen);
+        return { success: true, message: response.message };
+      }
+
+      return { success: false, message: response.error || 'Erro ao atualizar perfil' };
+    } catch (error: any) {
+      console.error('Erro ao atualizar perfil:', error);
+      return {
+        success: false,
+        message: error.message || 'Erro ao atualizar perfil. Tente novamente.'
+      };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const value: CitizenAuthContextType = {
     citizen,
     tenantId,
@@ -270,6 +314,7 @@ export function CitizenAuthProvider({ children }: { children: React.ReactNode })
     register,
     logout,
     refreshCitizenData,
+    updateProfile,
     apiRequest
   };
 

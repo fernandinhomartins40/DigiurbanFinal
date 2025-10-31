@@ -645,6 +645,155 @@ router.post('/change-password', asyncHandler(async (req: LocalTenantRequest, res
   }
 }));
 
+// PUT /api/auth/citizen/profile - Atualizar dados do perfil
+const updateProfileSchema = z.object({
+  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').optional(),
+  email: z.string().email('Email inválido').optional(),
+  phone: z.string().optional(),
+  address: z
+    .object({
+      street: z.string().optional(),
+      number: z.string().optional(),
+      complement: z.string().optional(),
+      neighborhood: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      zipCode: z.string().optional(),
+    })
+    .optional(),
+});
+
+router.put('/profile', asyncHandler(async (req: LocalTenantRequest, res: Response) => {
+  try {
+    // ✅ Tentar obter token do cookie primeiro, depois do header (fallback)
+    let token = req.cookies?.digiurban_citizen_token;
+
+    if (!token) {
+      const authHeader = req.headers.authorization;
+      if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
+    }
+
+    if (!token) {
+      return res.status(401).json({ error: 'Token não fornecido' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload & { type: string; tenantId: string; citizenId: string };
+
+    if (decoded.type !== 'citizen') {
+      return res.status(401).json({ error: 'Token inválido para cidadão' });
+    }
+
+    const data = updateProfileSchema.parse(req.body);
+    const { tenant } = req;
+
+    if (!tenant) {
+      return res.status(400).json({ error: 'Tenant não identificado' });
+    }
+
+    // Buscar cidadão
+    const citizen = await prisma.citizen.findFirst({
+      where: {
+        id: decoded.citizenId,
+        tenantId: tenant.id,
+        isActive: true,
+      },
+    });
+
+    if (!citizen) {
+      return res.status(404).json({ error: 'Cidadão não encontrado' });
+    }
+
+    // Verificar se o email já está em uso por outro cidadão do mesmo tenant
+    if (data.email && data.email !== citizen.email) {
+      const existingEmail = await prisma.citizen.findFirst({
+        where: {
+          tenantId: tenant.id,
+          email: data.email,
+          id: { not: citizen.id },
+        },
+      });
+
+      if (existingEmail) {
+        return res.status(400).json({ error: 'Email já está em uso por outro cidadão' });
+      }
+    }
+
+    // Preparar dados para atualização
+    const updateData: any = {};
+
+    if (data.name) updateData.name = data.name;
+    if (data.email) updateData.email = data.email;
+    if (data.phone !== undefined) updateData.phone = data.phone;
+
+    // Mesclar endereço existente com novos dados
+    if (data.address) {
+      updateData.address = {
+        ...citizen.address as any,
+        ...data.address,
+      };
+    }
+
+    // Atualizar cidadão
+    const updatedCitizen = await prisma.citizen.update({
+      where: { id: citizen.id },
+      data: updateData,
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true,
+            nomeMunicipio: true,
+            ufMunicipio: true,
+            codigoIbge: true,
+            status: true,
+          },
+        },
+      },
+    });
+
+    // Log de auditoria: atualização de perfil
+    await logAuditEvent({
+      citizenId: citizen.id,
+      tenantId: tenant.id,
+      action: AUDIT_EVENTS.CITIZEN_UPDATED,
+      resource: '/api/auth/citizen/profile',
+      method: 'PUT',
+      details: {
+        updatedFields: Object.keys(updateData),
+      },
+      ip: req.ip || req.socket.remoteAddress,
+      userAgent: req.headers['user-agent'],
+      success: true,
+    });
+
+    // Remover senha da resposta
+    const { password: _, ...citizenData } = updatedCitizen;
+
+    return res.json({
+      success: true,
+      message: 'Perfil atualizado com sucesso',
+      citizen: citizenData,
+    });
+  } catch (error: unknown) {
+    console.error('Erro ao atualizar perfil:', error);
+
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+      return res.status(400).json({
+        error: 'Dados inválidos',
+        details: 'issues' in error ? error.issues : [],
+      });
+    }
+
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Token inválido' });
+    }
+
+    return res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+}));
+
 // POST /api/auth/citizen/logout - Logout (limpar cookie)
 router.post('/logout', asyncHandler(async (req: LocalTenantRequest, res: Response) => {
   // ✅ Limpar cookie httpOnly

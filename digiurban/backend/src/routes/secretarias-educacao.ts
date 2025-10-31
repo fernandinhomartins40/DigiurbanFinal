@@ -1,536 +1,263 @@
 // ============================================================================
-// SECRETARIAS-EDUCACAO.TS - INTEGRAÃ‡ÃƒO PROTOCOLO â†” MÃ“DULOS DE EDUCAÃ‡ÃƒO
+// SECRETARIAS-EDUCACAO.TS - Rotas da Secretaria de Educação
 // ============================================================================
+// VERSÃO SIMPLIFICADA - Usa 100% do sistema novo (ProtocolSimplified + MODULE_MAPPING)
 
 import { Router } from 'express';
 import { prisma } from '../lib/prisma';
-import { adminAuthMiddleware } from '../middleware/admin-auth';
+import {
+  adminAuthMiddleware,
+  requireMinRole,
+} from '../middleware/admin-auth';
+import { tenantMiddleware } from '../middleware/tenant';
+import { UserRole, ProtocolStatus } from '@prisma/client';
+import { AuthenticatedRequest } from '../types';
 import { MODULE_BY_DEPARTMENT } from '../config/module-mapping';
 
 const router = Router();
 
-// Aplicar autenticaÃ§Ã£o admin
+// Aplicar middlewares
+router.use(tenantMiddleware);
 router.use(adminAuthMiddleware);
 
-// ============================================================================
-// STATS - DASHBOARD DA SECRETARIA
-// ============================================================================
+/**
+ * GET /api/admin/secretarias/educacao/stats
+ * Obter estatísticas consolidadas da Secretaria de Educação
+ * VERSÃO SIMPLIFICADA - Usa apenas ProtocolSimplified + moduleType
+ */
+router.get(
+  '/stats',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
 
-router.get('/stats', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
+      // Buscar departamento de educação
+      const educationDept = await prisma.department.findFirst({
+        where: {
+          tenantId,
+          code: 'EDUCACAO',
+        },
+      });
 
-    // Buscar departamento de educaÃ§Ã£o
-    const department = await prisma.department.findFirst({
-      where: {
-        tenantId,
-        code: 'EDUCACAO',
-      },
-    });
+      if (!educationDept) {
+        return res.status(404).json({
+          success: false,
+          error: 'Department not found',
+          message: 'Departamento de Educação não encontrado',
+        });
+      }
 
-    if (!department) {
-      return res.status(404).json({
+      // Módulos de educação do MODULE_MAPPING
+      const educationModules = MODULE_BY_DEPARTMENT.EDUCACAO || [];
+
+      // Executar queries em paralelo
+      const [
+        protocolStats,
+        protocolsByModule,
+        schoolsCount,
+        studentsCount,
+        schoolTransportsCount,
+        educationAttendancesCount,
+        disciplinaryRecordsCount,
+        schoolDocumentsCount,
+        studentTransfersCount,
+        attendanceRecordsCount,
+        gradeRecordsCount,
+        schoolManagementsCount,
+        schoolMealsCount,
+      ] = await Promise.all([
+        // 1. Estatísticas gerais de Protocolos
+        prisma.protocolSimplified.groupBy({
+          by: ['status'],
+          where: {
+            tenantId,
+            departmentId: educationDept.id,
+          },
+          _count: { id: true },
+        }),
+
+        // 2. Protocolos por módulo (usando moduleType)
+        prisma.protocolSimplified.groupBy({
+          by: ['moduleType', 'status'],
+          where: {
+            tenantId,
+            departmentId: educationDept.id,
+            moduleType: { in: educationModules },
+          },
+          _count: { id: true },
+        }),
+
+        // 3. Escolas
+        prisma.school.count({ where: { tenantId } }),
+
+        // 4. Alunos
+        prisma.student.count({ where: { tenantId } }),
+
+        // 5. Transporte Escolar
+        prisma.schoolTransport.count({ where: { tenantId } }),
+
+        // 6. Atendimentos Educacionais
+        prisma.educationAttendance.count({ where: { tenantId } }),
+
+        // 7. Ocorrências Disciplinares
+        prisma.disciplinaryRecord.count({ where: { tenantId } }),
+
+        // 8. Documentos Escolares
+        prisma.schoolDocument.count({ where: { tenantId } }),
+
+        // 9. Transferências
+        prisma.studentTransfer.count({ where: { tenantId } }),
+
+        // 10. Frequência
+        prisma.attendanceRecord.count({ where: { tenantId } }),
+
+        // 11. Notas
+        prisma.gradeRecord.count({ where: { tenantId } }),
+
+        // 12. Gestão Escolar
+        prisma.schoolManagement.count({ where: { tenantId } }),
+
+        // 13. Merenda Escolar
+        prisma.schoolMeal.count({ where: { tenantId } }),
+      ]);
+
+      // Processar estatísticas de Protocolos
+      const protocolData = {
+        total: 0,
+        pending: 0,
+        inProgress: 0,
+        completed: 0,
+      };
+
+      protocolStats.forEach((item) => {
+        const count = item._count?.id || 0;
+        protocolData.total += count;
+
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          protocolData.pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          protocolData.inProgress += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          protocolData.completed += count;
+        }
+      });
+
+      // Processar estatísticas por módulo
+      const moduleStats: Record<string, any> = {};
+
+      protocolsByModule.forEach((item) => {
+        if (!item.moduleType) return;
+
+        if (!moduleStats[item.moduleType]) {
+          moduleStats[item.moduleType] = {
+            total: 0,
+            pending: 0,
+            inProgress: 0,
+            completed: 0,
+          };
+        }
+
+        const count = item._count?.id || 0;
+        moduleStats[item.moduleType].total += count;
+
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          moduleStats[item.moduleType].pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          moduleStats[item.moduleType].inProgress += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          moduleStats[item.moduleType].completed += count;
+        }
+      });
+
+      // Montar resposta consolidada
+      const stats = {
+        schools: schoolsCount,
+        modules: {
+          educationAttendances: educationAttendancesCount,
+          students: studentsCount,
+          schoolTransports: schoolTransportsCount,
+          disciplinaryRecords: disciplinaryRecordsCount,
+          schoolDocuments: schoolDocumentsCount,
+          studentTransfers: studentTransfersCount,
+          attendanceRecords: attendanceRecordsCount,
+          gradeRecords: gradeRecordsCount,
+          schoolManagements: schoolManagementsCount,
+          schoolMeals: schoolMealsCount,
+        },
+        protocols: protocolData,
+        moduleStats, // Estatísticas detalhadas por módulo
+      };
+
+      return res.json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      console.error('Education stats error:', error);
+      return res.status(500).json({
         success: false,
-        error: 'Departamento de EducaÃ§Ã£o nÃ£o encontrado',
+        error: 'Internal server error',
+        message: 'Erro ao buscar estatísticas da educação',
       });
     }
+  }
+);
 
-    // Stats por mÃ³dulo usando ProtocolSimplified
-    const protocolsByModule = await prisma.protocolSimplified.groupBy({
-      by: ['moduleType', 'status'],
-      where: {
-        tenantId,
-        departmentId: department.id,
-        moduleType: {
-          in: MODULE_BY_DEPARTMENT.EDUCACAO || [],
+/**
+ * GET /api/admin/secretarias/educacao/services
+ * Listar serviços da Secretaria de Educação
+ */
+router.get(
+  '/services',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+
+      // Buscar departamento de educação
+      const educationDept = await prisma.department.findFirst({
+        where: {
+          tenantId,
+          code: 'EDUCACAO',
         },
-      },
-      _count: true,
-    });
+      });
 
-    // Contar registros nos mÃ³dulos
-    const [
-      educationAttendanceCount,
-      studentCount,
-      schoolTransportCount,
-      disciplinaryRecordCount,
-      schoolDocumentCount,
-      studentTransferCount,
-      attendanceRecordCount,
-      gradeRecordCount,
-      schoolManagementCount,
-      schoolMealCount,
-    ] = await Promise.all([
-      prisma.educationAttendance.count({ where: { tenantId } }),
-      prisma.student.count({ where: { tenantId, isActive: true } }),
-      prisma.schoolTransport.count({ where: { tenantId, isActive: true } }),
-      prisma.disciplinaryRecord.count({ where: { tenantId } }),
-      prisma.schoolDocument.count({ where: { tenantId } }),
-      prisma.studentTransfer.count({ where: { tenantId } }),
-      prisma.attendanceRecord.count({ where: { tenantId } }),
-      prisma.gradeRecord.count({ where: { tenantId } }),
-      prisma.schoolManagement.count({ where: { tenantId } }),
-      prisma.schoolMeal.count({ where: { tenantId } }),
-    ]);
+      if (!educationDept) {
+        return res.status(404).json({
+          success: false,
+          error: 'Department not found',
+          message: 'Departamento de Educação não encontrado',
+        });
+      }
 
-    // Contar escolas
-    const schoolCount = await prisma.school.count({
-      where: { tenantId, isActive: true },
-    });
-
-    return res.json({
-      success: true,
-      data: {
-        protocolsByModule,
-        modules: {
-          educationAttendances: educationAttendanceCount,
-          students: studentCount,
-          schoolTransports: schoolTransportCount,
-          disciplinaryRecords: disciplinaryRecordCount,
-          schoolDocuments: schoolDocumentCount,
-          studentTransfers: studentTransferCount,
-          attendanceRecords: attendanceRecordCount,
-          gradeRecords: gradeRecordCount,
-          schoolManagements: schoolManagementCount,
-          schoolMeals: schoolMealCount,
+      // Buscar serviços simplificados
+      const services = await prisma.serviceSimplified.findMany({
+        where: {
+          tenantId,
+          departmentId: educationDept.id,
+          isActive: true,
         },
-        schools: schoolCount,
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar stats de educaÃ§Ã£o:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar estatÃ­sticas',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// EDUCATION ATTENDANCE - Atendimentos Educacionais
-// ============================================================================
-
-router.get('/education-attendances', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.educationAttendance.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.educationAttendance.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar atendimentos:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar atendimentos',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// STUDENTS - MatrÃ­culas de Alunos
-// ============================================================================
-
-router.get('/students', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.student.findMany({
-        where: { tenantId },
-        include: {
-          school: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
+        orderBy: {
+          name: 'asc',
         },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.student.count({ where: { tenantId } }),
-    ]);
+      });
 
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar alunos:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar alunos',
-      message: error.message,
-    });
+      return res.json({
+        success: true,
+        data: services,
+      });
+    } catch (error) {
+      console.error('Get education services error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: 'Erro ao buscar serviços',
+      });
+    }
   }
-});
-
-// ============================================================================
-// SCHOOL TRANSPORTS - Transporte Escolar
-// ============================================================================
-
-router.get('/school-transports', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.schoolTransport.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.schoolTransport.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar transportes:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar transportes',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// DISCIPLINARY RECORDS - OcorrÃªncias Disciplinares
-// ============================================================================
-
-router.get('/disciplinary-records', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.disciplinaryRecord.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.disciplinaryRecord.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar ocorrÃªncias:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar ocorrÃªncias',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// SCHOOL DOCUMENTS - Documentos Escolares
-// ============================================================================
-
-router.get('/school-documents', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.schoolDocument.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.schoolDocument.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar documentos:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar documentos',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// STUDENT TRANSFERS - TransferÃªncias de Alunos
-// ============================================================================
-
-router.get('/student-transfers', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.studentTransfer.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.studentTransfer.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar transferÃªncias:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar transferÃªncias',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// ATTENDANCE RECORDS - Registros de FrequÃªncia
-// ============================================================================
-
-router.get('/attendance-records', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.attendanceRecord.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.attendanceRecord.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar frequÃªncias:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar frequÃªncias',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// GRADE RECORDS - Registros de Notas
-// ============================================================================
-
-router.get('/grade-records', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.gradeRecord.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.gradeRecord.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar notas:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar notas',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// SCHOOL MANAGEMENT - GestÃ£o Escolar
-// ============================================================================
-
-router.get('/school-management', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.schoolManagement.findMany({
-        where: { tenantId },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.schoolManagement.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar gestÃ£o escolar:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar gestÃ£o escolar',
-      message: error.message,
-    });
-  }
-});
-
-// ============================================================================
-// SCHOOL MEALS - Merenda Escolar
-// ============================================================================
-
-router.get('/school-meals', async (req, res) => {
-  try {
-    const tenantId = req.tenantId!;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await Promise.all([
-      prisma.schoolMeal.findMany({
-        where: { tenantId },
-        include: {
-          school: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.schoolMeal.count({ where: { tenantId } }),
-    ]);
-
-    return res.json({
-      success: true,
-      data,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    });
-  } catch (error: any) {
-    console.error('Erro ao buscar merendas:', error);
-    return res.status(500).json({
-      success: false,
-      error: 'Erro ao buscar merendas',
-      message: error.message,
-    });
-  }
-});
+);
 
 export default router;

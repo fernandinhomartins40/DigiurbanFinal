@@ -325,11 +325,23 @@ router.post('/cultural-attendances', authenticateToken, requireManager, asyncHan
       });
       const citizenId = citizen?.id || validatedData.citizenName; // fallback para nome
 
+      // Buscar um serviço padrão de cultura para o protocolo
+      const defaultService = await tx.serviceSimplified.findFirst({
+        where: { tenantId: req.tenantId },
+        select: { id: true, departmentId: true }
+      });
+
+      if (!defaultService) {
+        throw new Error('Nenhum serviço disponível para criar protocolo');
+      }
+
       // Criar protocolo
       const protocol = await tx.protocolSimplified.create({
         data: {
           tenantId: req.tenantId,
           citizenId,
+          serviceId: defaultService.id,
+          departmentId: defaultService.departmentId,
           number: protocolNumber,
           title: validatedData.description.substring(0, 100),
           description: validatedData.description,

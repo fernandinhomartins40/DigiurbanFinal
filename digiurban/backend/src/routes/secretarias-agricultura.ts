@@ -218,6 +218,10 @@ router.get(
       const authReq = req as AuthenticatedRequest;
       const tenantId = authReq.tenantId;
 
+      console.log('\n========== GET /api/admin/secretarias/agricultura/services ==========');
+      console.log('[GET /services] TenantId:', tenantId);
+      console.log('[GET /services] User:', authReq.user?.email);
+
       // Buscar departamento de agricultura
       const agricultureDept = await prisma.department.findFirst({
         where: {
@@ -226,7 +230,10 @@ router.get(
         },
       });
 
+      console.log('[GET /services] Agriculture Dept:', agricultureDept ? `${agricultureDept.name} (${agricultureDept.id})` : 'NÃO ENCONTRADO');
+
       if (!agricultureDept) {
+        console.log('[GET /services] ❌ Retornando 404 - Departamento não encontrado');
         return res.status(404).json({
           success: false,
           error: 'Department not found',
@@ -246,12 +253,26 @@ router.get(
         },
       });
 
-      return res.json({
+      console.log('[GET /services] ✅ Services found:', services.length);
+      console.log('[GET /services] Services details:');
+      services.forEach((s, i) => {
+        console.log(`  ${i + 1}. ${s.name}`);
+        console.log(`     - moduleType: ${s.moduleType || 'null'}`);
+        console.log(`     - serviceType: ${s.serviceType}`);
+        console.log(`     - isActive: ${s.isActive}`);
+      });
+
+      const response = {
         success: true,
         data: services,
-      });
+      };
+
+      console.log('[GET /services] Retornando resposta com', services.length, 'serviços');
+      console.log('========== FIM GET /services ==========\n');
+
+      return res.json(response);
     } catch (error) {
-      console.error('Get agriculture services error:', error);
+      console.error('[GET /services] ❌ ERROR:', error);
       return res.status(500).json({
         success: false,
         error: 'Internal server error',
@@ -261,73 +282,11 @@ router.get(
   }
 );
 
-/**
- * GET /api/admin/secretarias/agricultura/produtores
- * Listar produtores rurais
- */
-router.get(
-  '/produtores',
-  requireMinRole(UserRole.USER),
-  async (req, res) => {
-    try {
-      const authReq = req as AuthenticatedRequest;
-      const tenantId = authReq.tenantId;
-      const { page = 1, limit = 20, status, productionType, search } = req.query;
-
-      const skip = (Number(page) - 1) * Number(limit);
-
-      const where: any = { tenantId };
-
-      if (status && status !== 'all') {
-        where.status = status;
-      }
-
-      if (productionType && productionType !== 'all') {
-        where.productionType = productionType;
-      }
-
-      if (search) {
-        where.OR = [
-          { name: { contains: search as string } },
-          { document: { contains: search as string } },
-        ];
-      }
-
-      const [data, total, activeCount] = await Promise.all([
-        prisma.ruralProducer.findMany({
-          where,
-          skip,
-          take: Number(limit),
-          orderBy: { createdAt: 'desc' },
-        }),
-        prisma.ruralProducer.count({ where }),
-        prisma.ruralProducer.count({ where: { tenantId, status: 'ACTIVE' } }),
-      ]);
-
-      return res.json({
-        success: true,
-        data,
-        stats: {
-          total,
-          active: activeCount,
-          inactive: total - activeCount,
-        },
-        pagination: {
-          page: Number(page),
-          limit: Number(limit),
-          total,
-          pages: Math.ceil(total / Number(limit)),
-        },
-      });
-    } catch (error) {
-      console.error('Get rural producers error:', error);
-      return res.status(500).json({
-        success: false,
-        error: 'Internal server error',
-      });
-    }
-  }
-);
+// ❌ ROTA REMOVIDA: GET /produtores
+// Motivo: Duplicada com secretarias-agricultura-produtores.ts
+// A rota dedicada em secretarias-agricultura-produtores.ts
+// implementa CRUD completo (GET, POST, PUT, DELETE)
+// Mantida apenas a rota dedicada para evitar conflitos
 
 /**
  * GET /api/admin/secretarias/agricultura/propriedades

@@ -4,12 +4,123 @@ import { adminAuthMiddleware, requirePermission } from '../middleware/admin-auth
 import { tenantMiddleware } from '../middleware/tenant';
 import { asyncHandler } from '../utils/express-helpers';
 import type { AuthenticatedRequest } from '../types';
+import * as bcrypt from 'bcryptjs';
+import { BCRYPT_ROUNDS } from '../config/security';
 
 const router = Router();
 
 // Apply middleware
 router.use(tenantMiddleware);
 router.use(adminAuthMiddleware);
+
+// POST /api/admin/citizens - Criar cidadão administrativamente (Prata/Verificado)
+router.post(
+  '/',
+  requirePermission('citizens:create'),
+  asyncHandler(async (req, res: Response): Promise<void> => {
+    const authReq = req as AuthenticatedRequest;
+    const { cpf, name, email, phone, birthDate, password, address } = authReq.body;
+
+    // Validações básicas
+    if (!cpf || !name || !email) {
+      res.status(400).json({
+        success: false,
+        error: 'CPF, nome e email são obrigatórios',
+      });
+      return;
+    }
+
+    // Limpar CPF (remover pontos e traços)
+    const cleanCpf = cpf.replace(/\D/g, '');
+
+    if (cleanCpf.length !== 11) {
+      res.status(400).json({
+        success: false,
+        error: 'CPF inválido',
+      });
+      return;
+    }
+
+    // Verificar se CPF já existe no tenant
+    const existingCitizen = await prisma.citizen.findFirst({
+      where: {
+        tenantId: authReq.user.tenantId,
+        cpf: cleanCpf,
+      },
+    });
+
+    if (existingCitizen) {
+      res.status(400).json({
+        success: false,
+        error: 'CPF já cadastrado neste município',
+      });
+      return;
+    }
+
+    // Verificar se email já existe no tenant
+    const existingEmail = await prisma.citizen.findFirst({
+      where: {
+        tenantId: authReq.user.tenantId,
+        email: email.toLowerCase(),
+      },
+    });
+
+    if (existingEmail) {
+      res.status(400).json({
+        success: false,
+        error: 'Email já cadastrado neste município',
+      });
+      return;
+    }
+
+    // Gerar senha hash (ou senha temporária se não fornecida)
+    let hashedPassword: string;
+    if (password && password.length >= 8) {
+      hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    } else {
+      // Senha temporária aleatória (cidadão pode redefinir depois)
+      const tempPassword = Math.random().toString(36).slice(-12) + 'Aa1!';
+      hashedPassword = await bcrypt.hash(tempPassword, BCRYPT_ROUNDS);
+    }
+
+    // Criar cidadão
+    const newCitizen = await prisma.citizen.create({
+      data: {
+        tenantId: authReq.user.tenantId,
+        cpf: cleanCpf,
+        name,
+        email: email.toLowerCase(),
+        phone: phone || null,
+        birthDate: birthDate ? new Date(birthDate) : null,
+        password: hashedPassword,
+        address: address || null,
+        verificationStatus: 'VERIFIED', // Admin cria já verificado (Prata)
+        registrationSource: 'ADMIN',
+        verifiedAt: new Date(),
+        verifiedBy: authReq.user.id,
+        isActive: true,
+      },
+      select: {
+        id: true,
+        cpf: true,
+        name: true,
+        email: true,
+        phone: true,
+        birthDate: true,
+        address: true,
+        verificationStatus: true,
+        registrationSource: true,
+        createdAt: true,
+      },
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Cidadão cadastrado como Prata (Verificado)',
+      data: { citizen: newCitizen },
+    });
+  })
+);
 
 // GET /api/admin/citizens/search - Buscar cidadãos por nome ou CPF
 router.get(
@@ -41,6 +152,8 @@ router.get(
         name: true,
         cpf: true,
         email: true,
+        phone: true,
+        address: true,
       },
       take: 10,
       orderBy: { name: 'asc' },
@@ -295,6 +408,74 @@ router.put(
     res.json({
       success: true,
       message: 'Cadastro rejeitado',
+    });
+  })
+);
+
+// PUT /api/admin/citizens/:id/promote-gold - Promover cidadão para nível GOLD
+router.put(
+  '/:id/promote-gold',
+  requirePermission('citizens:verify'),
+  asyncHandler(async (req, res: Response): Promise<void> => {
+    const authReq = req as AuthenticatedRequest;
+    const { id } = authReq.params;
+    const { notes } = authReq.body;
+
+    // Validação: cidadão deve estar no status VERIFIED (Prata)
+    const citizen = await prisma.citizen.findFirst({
+      where: {
+        id,
+        tenantId: authReq.user.tenantId,
+        verificationStatus: 'VERIFIED',
+      },
+    });
+
+    if (!citizen) {
+      res.status(404).json({
+        success: false,
+        error: 'Cidadão não encontrado ou não possui nível Prata',
+      });
+      return;
+    }
+
+    // Transação para garantir integridade
+    const updatedCitizen = await prisma.$transaction(async (tx) => {
+      // 1. Promover para GOLD
+      const updated = await tx.citizen.update({
+        where: { id },
+        data: {
+          verificationStatus: 'GOLD',
+          verificationNotes: notes,
+        },
+        select: {
+          id: true,
+          name: true,
+          cpf: true,
+          email: true,
+          verificationStatus: true,
+        },
+      });
+
+      // 2. Criar notificação para o cidadão
+      await tx.notification.create({
+        data: {
+          tenantId: authReq.user.tenantId,
+          citizenId: id,
+          title: 'Cadastro Promovido para Ouro! 🥇',
+          message:
+            'Parabéns! Seu cadastro foi promovido para o nível OURO. Agora você tem acesso prioritário máximo a todos os serviços e programas municipais.',
+          type: 'VERIFICATION_UPGRADED',
+          isRead: false,
+        },
+      });
+
+      return updated;
+    });
+
+    res.json({
+      success: true,
+      message: 'Cidadão promovido para nível GOLD com sucesso',
+      data: { citizen: updatedCitizen },
     });
   })
 );

@@ -789,6 +789,8 @@ router.post('/critical-points', authenticateToken, requireManager, asyncHandler(
     data: {
       tenantId,
       ...validated,
+      monitoringLevel: validated.monitoringLevel || 'NORMAL',
+      recommendations: validated.recommendations || '',
     },
   });
 
@@ -888,6 +890,8 @@ router.post('/alerts', authenticateToken, requireManager, asyncHandler(async (re
       startDate: validated.startDate ? new Date(validated.startDate) : new Date(),
       endDate: validated.endDate ? new Date(validated.endDate) : null,
       validUntil: validated.validUntil ? new Date(validated.validUntil) : null,
+      channels: (validated as any).channels || [],
+      createdBy: req.user?.id || 'system',
     },
   });
 
@@ -1100,6 +1104,7 @@ router.post('/guards', authenticateToken, requireManager, asyncHandler(async (re
       tenantId,
       ...validated,
       badge,
+      position: (validated as any).position || 'guard',
       birthDate: validated.birthDate ? new Date(validated.birthDate) : null,
       admissionDate: validated.admissionDate ? new Date(validated.admissionDate) : new Date(),
     },

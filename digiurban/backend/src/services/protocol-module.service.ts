@@ -79,6 +79,11 @@ export class ProtocolModuleService {
 
     // 4. Criar protocolo em transação
     const result = await prisma.$transaction(async (tx) => {
+      // Converter attachments de array para string JSON se necessário
+      const attachmentsData = rest.attachments
+        ? (Array.isArray(rest.attachments) ? JSON.stringify(rest.attachments) : rest.attachments)
+        : undefined;
+
       // Criar protocolo
       const protocol = await tx.protocolSimplified.create({
         data: {
@@ -93,7 +98,10 @@ export class ProtocolModuleService {
           moduleType: service.moduleType || null,
           customData: formData as Prisma.JsonObject,
           createdById,
-          ...rest,
+          latitude: rest.latitude,
+          longitude: rest.longitude,
+          address: rest.address,
+          attachments: attachmentsData,
         },
       });
 
@@ -118,11 +126,12 @@ export class ProtocolModuleService {
       }
 
       // Criar histórico
-      await tx.protocolHistory.create({
+      await prisma.protocolHistorySimplified.create({
         data: {
           protocolId: protocol.id,
-          status: ProtocolStatus.VINCULADO,
+          action: 'CREATED',
           comment: 'Protocolo criado',
+          newStatus: ProtocolStatus.VINCULADO,
           userId: createdById,
         },
       });
@@ -155,21 +164,64 @@ export class ProtocolModuleService {
 
     // Mapear entityName para model Prisma
     const entityMap: Record<string, any> = {
-      // AGRICULTURA
-      RuralProducer: () => tx.ruralProducer.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.producerName,
-          document: formData.document || formData.producerCpf,
-          email: formData.email,
-          phone: formData.phone || formData.producerPhone,
-          address: formData.address,
-          productionType: formData.productionType,
-          mainCrop: formData.mainCrop,
-          status: 'PENDING_APPROVAL',
-        },
-      }),
+      // AGRICULTURA - RuralProducer (Produtor Rural)
+      RuralProducer: async () => {
+        // ========== VALIDAÇÃO 1: citizenId obrigatório ==========
+        if (!formData.citizenId) {
+          throw new Error('citizenId é obrigatório para cadastro de produtor rural');
+        }
+
+        // ========== VALIDAÇÃO 2: Verificar se cidadão existe ==========
+        const citizen = await tx.citizen.findFirst({
+          where: {
+            id: formData.citizenId,
+            tenantId
+          }
+        });
+
+        if (!citizen) {
+          throw new Error('Cidadão não encontrado ou não pertence a este município');
+        }
+
+        // ========== VALIDAÇÃO 3: Evitar duplicação ==========
+        const existingProducer = await tx.ruralProducer.findFirst({
+          where: {
+            tenantId,
+            citizenId: formData.citizenId
+          }
+        });
+
+        if (existingProducer) {
+          throw new Error('Este cidadão já está cadastrado como produtor rural');
+        }
+
+        // ========== VALIDAÇÃO 4: Campos obrigatórios ==========
+        if (!formData.productionType && !formData.tipoProducao) {
+          throw new Error('Tipo de produção é obrigatório');
+        }
+
+        if (!formData.mainCrop && !formData.principaisCulturas) {
+          throw new Error('Cultura principal é obrigatória');
+        }
+
+        // ========== CRIAÇÃO com fallback de dados do cidadão ==========
+        return tx.ruralProducer.create({
+          data: {
+            tenantId,
+            citizenId: formData.citizenId,
+            protocolId,
+            name: formData.name || formData.producerName || formData.nomeProdutor || citizen.name,
+            document: formData.document || formData.producerCpf || formData.cpf || citizen.cpf,
+            email: formData.email || citizen.email,
+            phone: formData.phone || formData.producerPhone || formData.telefone || citizen.phone || '',
+            address: formData.address || formData.endereco || JSON.stringify(citizen.address),
+            productionType: formData.productionType || formData.tipoProducao || 'conventional',
+            mainCrop: formData.mainCrop || formData.principaisCulturas || '',
+            status: 'PENDING_APPROVAL',
+            isActive: false,
+          },
+        });
+      },
 
       RuralProperty: () => tx.ruralProperty.create({
         data: {
@@ -180,7 +232,7 @@ export class ProtocolModuleService {
           size: formData.size ? parseFloat(formData.size) : 0,
           location: formData.location || formData.propertyLocation,
           plantedArea: formData.plantedArea ? parseFloat(formData.plantedArea) : null,
-          mainCrops: formData.mainCrops as Prisma.JsonValue,
+          mainCrops: formData.mainCrops ,
           status: 'PENDING_APPROVAL',
         },
       }),
@@ -195,6 +247,11 @@ export class ProtocolModuleService {
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : null,
           budget: formData.budget ? parseFloat(formData.budget) : null,
+          objectives: formData.objectives || {},
+          targetAudience: formData.targetAudience || 'Produtores rurais',
+          requirements: formData.requirements || {},
+          benefits: formData.benefits || {},
+          coordinator: formData.coordinator || 'A definir',
           status: 'PENDING_APPROVAL',
         },
       }),
@@ -211,6 +268,10 @@ export class ProtocolModuleService {
           duration: formData.duration ? parseInt(formData.duration) : 0,
           maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : 0,
           location: formData.location,
+          objectives: formData.objectives || {},
+          targetAudience: formData.targetAudience || 'Produtores rurais',
+          content: formData.content || {},
+          schedule: formData.schedule || {},
         },
       }),
 
@@ -231,7 +292,7 @@ export class ProtocolModuleService {
           assistanceType: formData.assistanceType,
           subject: formData.assistanceType,
           description: formData.description,
-          cropTypes: formData.cropTypes as Prisma.JsonValue,
+          cropTypes: formData.cropTypes ,
           status: 'pending',
           priority: 'normal',
           technician: 'Não designado',
@@ -307,7 +368,7 @@ export class ProtocolModuleService {
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : new Date(),
           targetAudience: formData.targetAudience,
-          goals: formData.goals as Prisma.JsonValue || {},
+          goals: formData.goals  || {},
           coordinatorName: formData.coordinatorName,
           budget: formData.budget ? parseFloat(formData.budget) : null,
           status: 'ACTIVE',
@@ -326,7 +387,7 @@ export class ProtocolModuleService {
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : null,
           budget: formData.budget ? parseFloat(formData.budget) : null,
-          goals: formData.goals as Prisma.JsonValue,
+          goals: formData.goals ,
           observations: formData.observations,
         },
       }),
@@ -439,7 +500,7 @@ export class ProtocolModuleService {
           healthUnit: formData.healthUnit,
           supervisor: formData.supervisor,
           familiesServed: formData.familiesServed ? parseInt(formData.familiesServed) : 0,
-          workSchedule: formData.workSchedule as Prisma.JsonValue,
+          workSchedule: formData.workSchedule ,
           observations: formData.observations,
         },
       }),
@@ -474,7 +535,7 @@ export class ProtocolModuleService {
           parentPhone: formData.parentPhone,
           parentEmail: formData.parentEmail,
           address: formData.address,
-          medicalInfo: formData.medicalInfo as Prisma.JsonValue,
+          medicalInfo: formData.medicalInfo ,
           schoolId: formData.schoolId,
           isActive: false,
         },
@@ -489,7 +550,7 @@ export class ProtocolModuleService {
           vehicle: formData.vehicle,
           capacity: formData.capacity ? parseInt(formData.capacity) : 0,
           shift: formData.shift,
-          stops: formData.stops as Prisma.JsonValue,
+          stops: formData.stops ,
           isActive: false,
         },
       }),
@@ -543,7 +604,7 @@ export class ProtocolModuleService {
           requestDate: new Date(),
           transferDate: formData.transferDate ? new Date(formData.transferDate) : null,
           status: 'PENDING',
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
           observations: formData.observations,
         },
       }),
@@ -599,7 +660,7 @@ export class ProtocolModuleService {
           assignedTo: formData.assignedTo,
           completedDate: formData.completedDate ? new Date(formData.completedDate) : null,
           observations: formData.observations,
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
         },
       }),
 
@@ -610,7 +671,7 @@ export class ProtocolModuleService {
           schoolId: formData.schoolId,
           date: formData.date ? new Date(formData.date) : new Date(),
           shift: formData.shift,
-          menu: formData.menu as Prisma.JsonValue,
+          menu: formData.menu ,
           studentsServed: formData.studentsServed ? parseInt(formData.studentsServed) : 0,
           cost: formData.cost ? parseFloat(formData.cost) : null,
         },
@@ -625,7 +686,7 @@ export class ProtocolModuleService {
           citizenId: formData.citizenId,
           citizenName: formData.citizenName,
           citizenCpf: formData.citizenCpf,
-          contact: formData.contact as Prisma.JsonValue,
+          contact: formData.contact ,
           familyIncome: formData.familyIncome ? parseFloat(formData.familyIncome) : null,
           familySize: formData.familySize ? parseInt(formData.familySize) : null,
           serviceType: formData.serviceType,
@@ -637,15 +698,14 @@ export class ProtocolModuleService {
           referredBy: formData.referredBy,
           socialWorker: formData.socialWorker,
           socialWorkerId: formData.socialWorkerId,
-          assessment: formData.assessment as Prisma.JsonValue,
-          interventionPlan: formData.interventionPlan as Prisma.JsonValue,
-          referrals: formData.referrals as Prisma.JsonValue,
-          followUpPlan: formData.followUpPlan as Prisma.JsonValue,
+          assessment: formData.assessment ,
+          interventionPlan: formData.interventionPlan ,
+          referrals: formData.referrals ,
+          followUpPlan: formData.followUpPlan ,
           followUpNeeded: formData.followUpNeeded || false,
           followUpDate: formData.followUpDate ? new Date(formData.followUpDate) : null,
           priority: formData.priority,
           status: 'PENDING',
-          observations: formData.observations,
         },
       }),
 
@@ -678,7 +738,7 @@ export class ProtocolModuleService {
           status: 'PENDING',
           urgency: formData.urgency || 'NORMAL',
           reason: formData.reason,
-          documentsProvided: formData.documentsProvided as Prisma.JsonValue,
+          documentsProvided: formData.documentsProvided ,
           observations: formData.observations,
         },
       }),
@@ -715,7 +775,7 @@ export class ProtocolModuleService {
           frequency: formData.frequency,
           observations: formData.observations,
           instructor: formData.instructor,
-          schedule: formData.schedule as Prisma.JsonValue,
+          schedule: formData.schedule ,
         },
       }),
 
@@ -754,7 +814,7 @@ export class ProtocolModuleService {
           approvedDate: formData.approvedDate ? new Date(formData.approvedDate) : null,
           startDate: formData.startDate ? new Date(formData.startDate) : null,
           endDate: formData.endDate ? new Date(formData.endDate) : null,
-          benefits: formData.benefits as Prisma.JsonValue,
+          benefits: formData.benefits ,
           observations: formData.observations,
         },
       }),
@@ -786,15 +846,15 @@ export class ProtocolModuleService {
           equipmentName: formData.equipmentName,
           equipmentType: formData.equipmentType,
           address: formData.address,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           capacity: formData.capacity ? parseInt(formData.capacity) : null,
           currentOccupancy: formData.currentOccupancy ? parseInt(formData.currentOccupancy) : 0,
           coordinator: formData.coordinator,
           coordinatorId: formData.coordinatorId,
           phone: formData.phone,
           email: formData.email,
-          services: formData.services as Prisma.JsonValue,
-          schedule: formData.schedule as Prisma.JsonValue,
+          services: formData.services ,
+          schedule: formData.schedule ,
           status: 'ACTIVE',
           isActive: true,
           observations: formData.observations,
@@ -817,7 +877,7 @@ export class ProtocolModuleService {
           description: formData.description,
           observations: formData.observations,
           responsible: formData.responsible,
-          attachments: formData.attachments as Prisma.JsonValue,
+          attachments: formData.attachments ,
           subject: formData.subject,
           category: formData.category,
           requestedLocation: formData.requestedLocation,
@@ -850,7 +910,7 @@ export class ProtocolModuleService {
           endTime: formData.endTime,
           expectedPeople: formData.expectedPeople ? parseInt(formData.expectedPeople) : 0,
           needsEquipment: formData.needsEquipment || false,
-          equipment: formData.equipment as Prisma.JsonValue,
+          equipment: formData.equipment ,
           status: 'PENDING',
           observations: formData.observations,
         },
@@ -883,7 +943,7 @@ export class ProtocolModuleService {
           foundationDate: formData.foundationDate ? new Date(formData.foundationDate) : null,
           responsible: formData.responsible,
           contact: formData.contact,
-          members: formData.members as Prisma.JsonValue,
+          members: formData.members ,
           status: 'ACTIVE',
         },
       }),
@@ -902,8 +962,8 @@ export class ProtocolModuleService {
           currentStatus: 'PLANNING',
           status: 'ACTIVE',
           protocol: protocolNumber,
-          contact: formData.contact as Prisma.JsonValue,
-          funding: formData.funding as Prisma.JsonValue,
+          contact: formData.contact ,
+          funding: formData.funding ,
           targetAudience: formData.targetAudience,
           participants: formData.participants ? parseInt(formData.participants) : null,
           serviceId: formData.serviceId,
@@ -929,7 +989,7 @@ export class ProtocolModuleService {
           expectedImpact: formData.expectedImpact,
           startDate: formData.startDate ? new Date(formData.startDate) : null,
           endDate: formData.endDate ? new Date(formData.endDate) : null,
-          attachments: formData.attachments as Prisma.JsonValue,
+          attachments: formData.attachments ,
           status: 'UNDER_REVIEW',
         },
       }),
@@ -946,24 +1006,24 @@ export class ProtocolModuleService {
           type: formData.type,
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : new Date(),
-          schedule: formData.schedule as Prisma.JsonValue,
+          schedule: formData.schedule ,
           duration: formData.duration ? parseInt(formData.duration) : null,
           venue: formData.venue,
-          address: formData.address as Prisma.JsonValue,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          address: formData.address ,
+          coordinates: formData.coordinates ,
           capacity: formData.capacity ? parseInt(formData.capacity) : 0,
           targetAudience: formData.targetAudience,
           ageRating: formData.ageRating,
           ticketPrice: formData.ticketPrice ? parseFloat(formData.ticketPrice) : null,
           freeEvent: formData.freeEvent !== false,
-          organizer: formData.organizer as Prisma.JsonValue,
+          organizer: formData.organizer ,
           producer: formData.producer,
-          contact: formData.contact as Prisma.JsonValue,
-          performers: formData.performers as Prisma.JsonValue,
-          guests: formData.guests as Prisma.JsonValue,
-          requirements: formData.requirements as Prisma.JsonValue,
-          setup: formData.setup as Prisma.JsonValue,
-          technical: formData.technical as Prisma.JsonValue,
+          contact: formData.contact ,
+          performers: formData.performers ,
+          guests: formData.guests ,
+          requirements: formData.requirements ,
+          setup: formData.setup ,
+          technical: formData.technical ,
           status: 'planned',
           approved: false,
           observations: formData.observations,
@@ -981,8 +1041,8 @@ export class ProtocolModuleService {
           type: formData.type,
           description: formData.description,
           currentSituation: formData.currentSituation,
-          knowledgeHolders: formData.knowledgeHolders as Prisma.JsonValue,
-          safeguardActions: formData.safeguardActions as Prisma.JsonValue,
+          knowledgeHolders: formData.knowledgeHolders ,
+          safeguardActions: formData.safeguardActions ,
           status: 'ACTIVE',
         },
       }),
@@ -1027,11 +1087,11 @@ export class ProtocolModuleService {
           team: formData.team,
           teamId: formData.teamId,
           position: formData.position,
-          medicalInfo: formData.medicalInfo as Prisma.JsonValue,
-          emergencyContact: formData.emergencyContact as Prisma.JsonValue,
+          medicalInfo: formData.medicalInfo ,
+          emergencyContact: formData.emergencyContact ,
           federationNumber: formData.federationNumber,
           federationExpiry: formData.federationExpiry ? new Date(formData.federationExpiry) : null,
-          medicalCertificate: formData.medicalCertificate as Prisma.JsonValue,
+          medicalCertificate: formData.medicalCertificate ,
           modalityId: formData.modalityId,
           isActive: true,
           protocol: protocolNumber,
@@ -1053,14 +1113,14 @@ export class ProtocolModuleService {
           coachCpf: formData.coachCpf,
           coachPhone: formData.coachPhone,
           foundationDate: formData.foundationDate ? new Date(formData.foundationDate) : null,
-          trainingSchedule: formData.trainingSchedule as Prisma.JsonValue,
+          trainingSchedule: formData.trainingSchedule ,
           maxPlayers: formData.maxPlayers ? parseInt(formData.maxPlayers) : null,
           currentPlayers: formData.currentPlayers ? parseInt(formData.currentPlayers) : 0,
           status: 'ACTIVE',
           homeVenue: formData.homeVenue,
           description: formData.description,
-          achievements: formData.achievements as Prisma.JsonValue,
-          roster: formData.roster as Prisma.JsonValue,
+          achievements: formData.achievements ,
+          roster: formData.roster ,
           modalityId: formData.modalityId,
           isActive: true,
           protocol: protocolNumber,
@@ -1085,14 +1145,14 @@ export class ProtocolModuleService {
           registeredTeams: formData.registeredTeams ? parseInt(formData.registeredTeams) : null,
           registrationFee: formData.registrationFee ? parseFloat(formData.registrationFee) : null,
           entryFee: formData.entryFee ? parseFloat(formData.entryFee) : null,
-          prizes: formData.prizes as Prisma.JsonValue,
+          prizes: formData.prizes ,
           rules: formData.rules,
           status: 'PLANNED',
           organizer: formData.organizer,
           venue: formData.venue,
           location: formData.location,
-          contact: formData.contact as Prisma.JsonValue,
-          results: formData.results as Prisma.JsonValue,
+          contact: formData.contact ,
+          results: formData.results ,
           modalityId: formData.modalityId,
         },
       }),
@@ -1103,23 +1163,23 @@ export class ProtocolModuleService {
           protocolId,
           name: formData.name || formData.infrastructureName,
           type: formData.type || formData.infrastructureType,
-          sports: formData.sports as Prisma.JsonValue,
-          modalities: formData.modalities as Prisma.JsonValue,
+          sports: formData.sports ,
+          modalities: formData.modalities ,
           address: formData.address,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           capacity: formData.capacity ? parseInt(formData.capacity) : null,
           dimensions: formData.dimensions,
           surface: formData.surface,
           lighting: formData.lighting === true || formData.lighting === 'true',
           covered: formData.covered === true || formData.covered === 'true',
           accessibility: formData.accessibility === true || formData.accessibility === 'true',
-          equipment: formData.equipment as Prisma.JsonValue,
-          facilities: formData.facilities as Prisma.JsonValue,
+          equipment: formData.equipment ,
+          facilities: formData.facilities ,
           operatingHours: formData.operatingHours,
           status: 'ACTIVE',
-          maintenanceSchedule: formData.maintenanceSchedule as Prisma.JsonValue,
+          maintenanceSchedule: formData.maintenanceSchedule ,
           lastMaintenance: formData.lastMaintenance ? new Date(formData.lastMaintenance) : null,
-          bookingRules: formData.bookingRules as Prisma.JsonValue,
+          bookingRules: formData.bookingRules ,
           contact: formData.contact,
           manager: formData.manager,
           isPublic: formData.isPublic === true || formData.isPublic === 'true',
@@ -1138,10 +1198,10 @@ export class ProtocolModuleService {
           instructorCpf: formData.instructorCpf,
           maxStudents: formData.maxStudents ? parseInt(formData.maxStudents) : 0,
           currentStudents: formData.currentStudents ? parseInt(formData.currentStudents) : 0,
-          schedule: formData.schedule as Prisma.JsonValue,
+          schedule: formData.schedule ,
           location: formData.location,
           monthlyFee: formData.monthlyFee ? parseFloat(formData.monthlyFee) : null,
-          equipment: formData.equipment as Prisma.JsonValue,
+          equipment: formData.equipment ,
           requirements: formData.requirements,
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : null,
@@ -1180,11 +1240,11 @@ export class ProtocolModuleService {
           level: formData.level,
           enrollmentDate: new Date(),
           status: 'ACTIVE',
-          medicalCertificate: formData.medicalCertificate as Prisma.JsonValue,
-          emergencyContact: formData.emergencyContact as Prisma.JsonValue,
+          medicalCertificate: formData.medicalCertificate ,
+          emergencyContact: formData.emergencyContact ,
           observations: formData.observations,
-          uniforms: formData.uniforms as Prisma.JsonValue,
-          attendance: formData.attendance as Prisma.JsonValue,
+          uniforms: formData.uniforms ,
+          attendance: formData.attendance ,
           serviceId: formData.serviceId,
           source: 'service',
         },
@@ -1207,7 +1267,7 @@ export class ProtocolModuleService {
           startTime: formData.startTime,
           endTime: formData.endTime,
           expectedPeople: formData.expectedPeople ? parseInt(formData.expectedPeople) : null,
-          equipment: formData.equipment as Prisma.JsonValue,
+          equipment: formData.equipment ,
           status: 'PENDING',
           observations: formData.observations,
           serviceId: formData.serviceId,
@@ -1230,10 +1290,10 @@ export class ProtocolModuleService {
           coachPhone: formData.coachPhone,
           coachEmail: formData.coachEmail,
           playersCount: formData.playersCount ? parseInt(formData.playersCount) : 0,
-          playersList: formData.playersList as Prisma.JsonValue,
+          playersList: formData.playersList ,
           enrollmentDate: new Date(),
           paymentStatus: 'PENDING',
-          paymentProof: formData.paymentProof as Prisma.JsonValue,
+          paymentProof: formData.paymentProof ,
           status: 'PENDING',
           observations: formData.observations,
           serviceId: formData.serviceId,
@@ -1258,10 +1318,10 @@ export class ProtocolModuleService {
           coachPhone: formData.coachPhone,
           coachEmail: formData.coachEmail,
           playersCount: formData.playersCount ? parseInt(formData.playersCount) : null,
-          playersList: formData.playersList as Prisma.JsonValue,
+          playersList: formData.playersList ,
           enrollmentDate: new Date(),
           paymentStatus: 'PENDING',
-          paymentProof: formData.paymentProof as Prisma.JsonValue,
+          paymentProof: formData.paymentProof ,
           status: 'PENDING',
           observations: formData.observations,
           serviceId: formData.serviceId,
@@ -1284,7 +1344,7 @@ export class ProtocolModuleService {
           description: formData.description,
           urgency: formData.urgency || 'NORMAL',
           location: formData.location,
-          evidence: formData.evidence as Prisma.JsonValue,
+          evidence: formData.evidence ,
           status: 'PENDING',
           referredTo: formData.referredTo,
         },
@@ -1299,16 +1359,16 @@ export class ProtocolModuleService {
           severity: formData.severity || 'MEDIUM',
           description: formData.description,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           reporterName: formData.reporterName,
           reporterPhone: formData.reporterPhone,
           reporterCpf: formData.reporterCpf,
-          victimInfo: formData.victimInfo as Prisma.JsonValue,
+          victimInfo: formData.victimInfo ,
           officerName: formData.officerName,
           occurrenceDate: formData.occurrenceDate ? new Date(formData.occurrenceDate) : new Date(),
           status: 'OPEN',
-          evidence: formData.evidence as Prisma.JsonValue,
-          witnesses: formData.witnesses as Prisma.JsonValue,
+          evidence: formData.evidence ,
+          witnesses: formData.witnesses ,
         },
       }),
 
@@ -1319,7 +1379,7 @@ export class ProtocolModuleService {
           type: formData.type,
           reason: formData.reason,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           area: formData.area,
           requestedDate: formData.requestedDate ? new Date(formData.requestedDate) : null,
           requestedTime: formData.requestedTime,
@@ -1330,7 +1390,7 @@ export class ProtocolModuleService {
           requesterEmail: formData.requesterEmail,
           requesterAddress: formData.requesterAddress,
           description: formData.description,
-          concerns: formData.concerns as Prisma.JsonValue,
+          concerns: formData.concerns ,
           additionalInfo: formData.additionalInfo,
           status: 'pending',
           priority: formData.priority || 'normal',
@@ -1347,7 +1407,7 @@ export class ProtocolModuleService {
           type: formData.type,
           purpose: formData.purpose,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           area: formData.area,
           address: formData.address,
           cameraType: formData.cameraType,
@@ -1355,7 +1415,7 @@ export class ProtocolModuleService {
           justification: formData.justification,
           incidentDate: formData.incidentDate ? new Date(formData.incidentDate) : null,
           incidentTime: formData.incidentTime,
-          timeRange: formData.timeRange as Prisma.JsonValue,
+          timeRange: formData.timeRange ,
           incidentDescription: formData.incidentDescription,
           requesterName: formData.requesterName,
           requesterPhone: formData.requesterPhone,
@@ -1378,13 +1438,13 @@ export class ProtocolModuleService {
           category: formData.category,
           description: formData.description,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
-          suspectInfo: formData.suspectInfo as Prisma.JsonValue,
-          vehicleInfo: formData.vehicleInfo as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
+          suspectInfo: formData.suspectInfo ,
+          vehicleInfo: formData.vehicleInfo ,
           timeframe: formData.timeframe,
           frequency: formData.frequency,
           hasEvidence: formData.hasEvidence || false,
-          evidenceType: formData.evidenceType as Prisma.JsonValue,
+          evidenceType: formData.evidenceType ,
           evidenceNotes: formData.evidenceNotes,
           isUrgent: formData.isUrgent || false,
           dangerLevel: formData.dangerLevel,
@@ -1407,13 +1467,13 @@ export class ProtocolModuleService {
           name: formData.name,
           location: formData.location,
           address: formData.address,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           pointType: formData.pointType,
-          riskType: formData.riskType as Prisma.JsonValue,
+          riskType: formData.riskType ,
           riskLevel: formData.riskLevel,
           description: formData.description,
           recommendations: formData.recommendations || '',
-          recommendedActions: formData.recommendedActions as Prisma.JsonValue,
+          recommendedActions: formData.recommendedActions ,
           patrolFrequency: formData.patrolFrequency,
           monitoringLevel: formData.monitoringLevel || 'NORMAL',
           isActive: true,
@@ -1431,7 +1491,7 @@ export class ProtocolModuleService {
           description: formData.description,
           location: formData.location,
           targetArea: formData.targetArea,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           severity: formData.severity,
           priority: formData.priority || 'MEDIUM',
           isActive: true,
@@ -1439,8 +1499,8 @@ export class ProtocolModuleService {
           endDate: formData.endDate ? new Date(formData.endDate) : null,
           validUntil: formData.validUntil ? new Date(formData.validUntil) : null,
           targetAudience: formData.targetAudience,
-          affectedAreas: formData.affectedAreas as Prisma.JsonValue,
-          channels: formData.channels as Prisma.JsonValue || ['web', 'app'],
+          affectedAreas: formData.affectedAreas ,
+          channels: formData.channels  || ['web', 'app'],
           createdBy: formData.createdBy || 'Sistema',
         },
       }),
@@ -1459,10 +1519,10 @@ export class ProtocolModuleService {
           officerBadge: formData.officerBadge,
           vehicle: formData.vehicle,
           status: 'ACTIVE',
-          checkpoints: formData.checkpoints as Prisma.JsonValue,
-          incidents: formData.incidents as Prisma.JsonValue,
+          checkpoints: formData.checkpoints ,
+          incidents: formData.incidents ,
           observations: formData.observations,
-          gpsTrack: formData.gpsTrack as Prisma.JsonValue,
+          gpsTrack: formData.gpsTrack ,
         },
       }),
 
@@ -1481,16 +1541,16 @@ export class ProtocolModuleService {
           position: formData.position || 'guard',
           admissionDate: formData.admissionDate ? new Date(formData.admissionDate) : new Date(),
           status: 'active',
-          specialties: formData.specialties as Prisma.JsonValue,
-          certifications: formData.certifications as Prisma.JsonValue,
+          specialties: formData.specialties ,
+          certifications: formData.certifications ,
           assignedVehicle: formData.assignedVehicle,
           assignedRadio: formData.assignedRadio,
-          equipment: formData.equipment as Prisma.JsonValue,
+          equipment: formData.equipment ,
           shift: formData.shift,
-          workSchedule: formData.workSchedule as Prisma.JsonValue,
+          workSchedule: formData.workSchedule ,
           availability: 'available',
           notes: formData.notes,
-          emergencyContact: formData.emergencyContact as Prisma.JsonValue,
+          emergencyContact: formData.emergencyContact ,
           isActive: true,
         },
       }),
@@ -1504,7 +1564,7 @@ export class ProtocolModuleService {
           type: formData.type,
           location: formData.location,
           address: formData.address,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           area: formData.area,
           zone: formData.zone,
           manufacturer: formData.manufacturer,
@@ -1525,188 +1585,13 @@ export class ProtocolModuleService {
           bandwidth: formData.bandwidth,
           isMonitored: formData.isMonitored !== false,
           monitoringCenter: formData.monitoringCenter,
-          alerts: formData.alerts as Prisma.JsonValue,
-          integratedWith: formData.integratedWith as Prisma.JsonValue,
+          alerts: formData.alerts ,
+          integratedWith: formData.integratedWith ,
           apiAccess: formData.apiAccess || false,
           notes: formData.notes,
-          technicalSpecs: formData.technicalSpecs as Prisma.JsonValue,
+          technicalSpecs: formData.technicalSpecs ,
           isActive: true,
           createdBy: formData.createdBy || 'Sistema',
-        },
-      }),
-
-      // ESPORTES
-      SportsAttendance: () => tx.sportsAttendance.create({
-        data: {
-          tenantId,
-          protocolId,
-          protocol: protocolNumber,
-          citizenName: formData.citizenName,
-          contact: formData.contact || formData.phone,
-          type: formData.type || 'GENERAL',
-          status: 'PENDING',
-          description: formData.description,
-          observations: formData.observations,
-          sportType: formData.sportType,
-          sport: formData.sport,
-          eventDate: formData.eventDate ? new Date(formData.eventDate) : null,
-          location: formData.location,
-          expectedParticipants: formData.expectedParticipants ? parseInt(formData.expectedParticipants) : null,
-          followUpNeeded: formData.followUpNeeded || false,
-          followUpDate: formData.followUpDate ? new Date(formData.followUpDate) : null,
-          priority: formData.priority || 'MEDIUM',
-          serviceId: formData.serviceId,
-          source: 'service',
-        },
-      }),
-
-      Athlete: () => tx.athlete.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.athleteName,
-          birthDate: formData.birthDate ? new Date(formData.birthDate) : new Date(),
-          cpf: formData.cpf,
-          rg: formData.rg,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          sport: formData.sport,
-          category: formData.category,
-          team: formData.team,
-          teamId: formData.teamId,
-          position: formData.position,
-          medicalInfo: formData.medicalInfo as Prisma.JsonValue,
-          emergencyContact: formData.emergencyContact as Prisma.JsonValue,
-          federationNumber: formData.federationNumber,
-          federationExpiry: formData.federationExpiry ? new Date(formData.federationExpiry) : null,
-          medicalCertificate: formData.medicalCertificate as Prisma.JsonValue,
-          modalityId: formData.modalityId,
-          isActive: false,
-          protocol: protocolNumber,
-          serviceId: formData.serviceId,
-          source: 'service',
-        },
-      }),
-
-      SportsTeam: () => tx.sportsTeam.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.teamName,
-          sport: formData.sport,
-          category: formData.category,
-          gender: formData.gender,
-          ageGroup: formData.ageGroup,
-          coach: formData.coach,
-          coachCpf: formData.coachCpf,
-          coachPhone: formData.coachPhone,
-          foundationDate: formData.foundationDate ? new Date(formData.foundationDate) : null,
-          trainingSchedule: formData.trainingSchedule as Prisma.JsonValue,
-          maxPlayers: formData.maxPlayers ? parseInt(formData.maxPlayers) : null,
-          currentPlayers: 0,
-          status: 'PENDING_APPROVAL',
-          homeVenue: formData.homeVenue,
-          description: formData.description,
-          achievements: formData.achievements as Prisma.JsonValue,
-          roster: formData.roster as Prisma.JsonValue,
-          modalityId: formData.modalityId,
-          isActive: false,
-          protocol: protocolNumber,
-          serviceId: formData.serviceId,
-          source: 'service',
-        },
-      }),
-
-      SportsModality: () => tx.sportsModality.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.modalityName,
-          description: formData.description,
-          category: formData.category || 'individual',
-          isActive: false,
-        },
-      }),
-
-      SportsSchool: () => tx.sportsSchool.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.schoolName,
-          sport: formData.sport,
-          description: formData.description,
-          targetAge: formData.targetAge,
-          instructor: formData.instructor,
-          instructorCpf: formData.instructorCpf,
-          maxStudents: formData.maxStudents ? parseInt(formData.maxStudents) : 0,
-          currentStudents: 0,
-          schedule: (formData.schedule || {}) as Prisma.InputJsonValue,
-          location: formData.location,
-          monthlyFee: formData.monthlyFee ? parseFloat(formData.monthlyFee) : null,
-          equipment: formData.equipment as Prisma.InputJsonValue,
-          requirements: formData.requirements,
-          startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
-          endDate: formData.endDate ? new Date(formData.endDate) : null,
-          status: 'PENDING_APPROVAL',
-          isActive: false,
-        },
-      }),
-
-      SportsInfrastructure: () => tx.sportsInfrastructure.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.facilityName,
-          type: formData.type,
-          sports: (formData.sports || []) as Prisma.InputJsonValue,
-          modalities: formData.modalities as Prisma.InputJsonValue,
-          address: formData.address,
-          coordinates: formData.coordinates as Prisma.InputJsonValue,
-          capacity: formData.capacity ? parseInt(formData.capacity) : null,
-          dimensions: formData.dimensions,
-          surface: formData.surface,
-          lighting: formData.lighting || false,
-          covered: formData.covered || false,
-          accessibility: formData.accessibility || false,
-          equipment: formData.equipment as Prisma.InputJsonValue,
-          facilities: formData.facilities as Prisma.InputJsonValue,
-          operatingHours: formData.operatingHours,
-          status: 'PENDING_APPROVAL',
-          maintenanceSchedule: formData.maintenanceSchedule as Prisma.InputJsonValue,
-          lastMaintenance: formData.lastMaintenance ? new Date(formData.lastMaintenance) : null,
-          bookingRules: formData.bookingRules as Prisma.InputJsonValue,
-          contact: formData.contact,
-          manager: formData.manager,
-          isPublic: formData.isPublic !== false,
-        },
-      }),
-
-      Competition: () => tx.competition.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.competitionName,
-          sport: formData.sport,
-          competitionType: formData.competitionType || formData.type,
-          type: formData.type,
-          startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
-          endDate: formData.endDate ? new Date(formData.endDate) : new Date(),
-          category: formData.category,
-          ageGroup: formData.ageGroup,
-          maxTeams: formData.maxTeams ? parseInt(formData.maxTeams) : null,
-          registeredTeams: 0,
-          registrationFee: formData.registrationFee ? parseFloat(formData.registrationFee) : null,
-          entryFee: formData.entryFee ? parseFloat(formData.entryFee) : null,
-          prizes: formData.prizes as Prisma.InputJsonValue,
-          rules: formData.rules,
-          status: 'PENDING_APPROVAL',
-          organizer: formData.organizer,
-          venue: formData.venue,
-          location: formData.location,
-          contact: formData.contact as Prisma.InputJsonValue,
-          results: formData.results as Prisma.InputJsonValue,
-          modalityId: formData.modalityId,
         },
       }),
 
@@ -1973,7 +1858,7 @@ export class ProtocolModuleService {
           category: formData.category,
           urgency: formData.urgency || 'NORMAL',
           location: formData.location,
-          evidence: formData.evidence as Prisma.JsonValue,
+          evidence: formData.evidence ,
           status: 'PENDING',
         },
       }),
@@ -1992,13 +1877,13 @@ export class ProtocolModuleService {
           activity: formData.activity,
           description: formData.description,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           area: formData.area ? parseFloat(formData.area) : null,
           applicationDate: new Date(),
           status: 'UNDER_ANALYSIS',
-          conditions: formData.conditions as Prisma.JsonValue,
+          conditions: formData.conditions ,
           fee: formData.fee ? parseFloat(formData.fee) : null,
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
           observations: formData.observations,
         },
       }),
@@ -2016,13 +1901,13 @@ export class ProtocolModuleService {
           severity: formData.severity || 'MEDIUM',
           description: formData.description,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
-          evidence: formData.evidence as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
+          evidence: formData.evidence ,
           occurrenceDate: formData.occurrenceDate ? new Date(formData.occurrenceDate) : new Date(),
           reportDate: new Date(),
           status: 'OPEN',
           isAnonymous: formData.isAnonymous || false,
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
         },
       }),
 
@@ -2033,15 +1918,15 @@ export class ProtocolModuleService {
           name: formData.name || formData.programName,
           programType: formData.programType,
           description: formData.description,
-          objectives: formData.objectives as Prisma.JsonValue,
+          objectives: formData.objectives ,
           targetAudience: formData.targetAudience,
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : null,
           budget: formData.budget ? parseFloat(formData.budget) : null,
           coordinator: formData.coordinator,
-          activities: formData.activities as Prisma.JsonValue,
-          indicators: formData.indicators as Prisma.JsonValue,
-          partnerships: formData.partnerships as Prisma.JsonValue,
+          activities: formData.activities ,
+          indicators: formData.indicators ,
+          partnerships: formData.partnerships ,
           status: 'ACTIVE',
         },
       }),
@@ -2056,7 +1941,7 @@ export class ProtocolModuleService {
           applicantPhone: formData.applicantPhone,
           applicantEmail: formData.applicantEmail,
           propertyAddress: formData.propertyAddress,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           requestType: formData.requestType, // PODA, CORTE, TRANSPLANTE
           treeSpecies: formData.treeSpecies,
           treeQuantity: formData.treeQuantity ? parseInt(formData.treeQuantity) : 1,
@@ -2064,7 +1949,7 @@ export class ProtocolModuleService {
           trunkDiameter: formData.trunkDiameter ? parseFloat(formData.trunkDiameter) : null,
           justification: formData.justification,
           technicalReport: formData.technicalReport,
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           requestDate: new Date(),
           status: 'UNDER_ANALYSIS',
           fee: formData.fee ? parseFloat(formData.fee) : null,
@@ -2080,10 +1965,10 @@ export class ProtocolModuleService {
           inspectionType: formData.inspectionType, // LICENCIAMENTO, DENUNCIA, ROTINA, SEGUIMENTO
           subject: formData.subject,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           scheduledDate: formData.scheduledDate ? new Date(formData.scheduledDate) : new Date(),
           inspector: formData.inspector,
-          inspectorTeam: formData.inspectorTeam as Prisma.JsonValue,
+          inspectorTeam: formData.inspectorTeam ,
           status: 'SCHEDULED',
           priority: formData.priority || 'NORMAL',
           relatedLicenseId: formData.relatedLicenseId,
@@ -2100,18 +1985,18 @@ export class ProtocolModuleService {
           areaType: formData.areaType,
           description: formData.description,
           location: formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           totalArea: formData.totalArea ? parseFloat(formData.totalArea) : 0,
           protectionLevel: formData.protectionLevel,
           legalBasis: formData.legalBasis,
-          managementPlan: formData.managementPlan as Prisma.JsonValue,
-          biodiversity: formData.biodiversity as Prisma.JsonValue,
-          threats: formData.threats as Prisma.JsonValue,
-          activities: formData.activities as Prisma.JsonValue,
-          restrictions: formData.restrictions as Prisma.JsonValue,
+          managementPlan: formData.managementPlan ,
+          biodiversity: formData.biodiversity ,
+          threats: formData.threats ,
+          activities: formData.activities ,
+          restrictions: formData.restrictions ,
           guardian: formData.guardian,
           contact: formData.contact,
-          visitationRules: formData.visitationRules as Prisma.JsonValue,
+          visitationRules: formData.visitationRules ,
           isPublicAccess: formData.isPublicAccess || false,
           status: 'ACTIVE',
         },
@@ -2126,7 +2011,7 @@ export class ProtocolModuleService {
           applicantName: formData.applicantName,
           projectType: formData.projectType,
           description: formData.description,
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
           status: 'UNDER_REVIEW',
         },
       }),
@@ -2153,7 +2038,7 @@ export class ProtocolModuleService {
           projectValue: formData.projectValue ? parseFloat(formData.projectValue) : null,
           description: formData.description,
           observations: formData.observations,
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
           status: 'PENDING',
         },
       }),
@@ -2174,7 +2059,7 @@ export class ProtocolModuleService {
           neighborhood: formData.neighborhood,
           licenseType: formData.licenseType,
           observations: formData.observations,
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
           status: 'PENDING',
         },
       }),
@@ -2193,7 +2078,7 @@ export class ProtocolModuleService {
           propertyNumber: formData.propertyNumber,
           neighborhood: formData.neighborhood,
           observations: formData.observations,
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
           status: 'PENDING',
         },
       }),
@@ -2212,10 +2097,10 @@ export class ProtocolModuleService {
           neighborhood: formData.neighborhood,
           latitude: formData.latitude ? parseFloat(formData.latitude) : null,
           longitude: formData.longitude ? parseFloat(formData.longitude) : null,
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           priority: formData.priority || 'MEDIUM',
           observations: formData.observations,
-          documents: formData.documents as Prisma.JsonValue,
+          documents: formData.documents ,
           status: 'OPEN',
         },
       }),
@@ -2230,11 +2115,11 @@ export class ProtocolModuleService {
           type: formData.type,
           zoneType: formData.zoneType,
           description: formData.description,
-          regulations: formData.regulations as Prisma.JsonValue,
-          permitedUses: formData.permitedUses as Prisma.JsonValue,
-          restrictions: formData.restrictions as Prisma.JsonValue,
-          coordinates: formData.coordinates as Prisma.JsonValue,
-          boundaries: formData.boundaries as Prisma.JsonValue,
+          regulations: formData.regulations ,
+          permitedUses: formData.permitedUses ,
+          restrictions: formData.restrictions ,
+          coordinates: formData.coordinates ,
+          boundaries: formData.boundaries ,
           isActive: formData.isActive !== false,
         },
       }),
@@ -2260,14 +2145,14 @@ export class ProtocolModuleService {
           protocol: protocolNumber,
           requestorName: formData.requestorName || formData.name,
           requestorCpf: formData.requestorCpf || formData.cpf,
-          contact: formData.contact || { phone: formData.phone, email: formData.email } as Prisma.JsonValue,
+          contact: formData.contact || { phone: formData.phone, email: formData.email } ,
           serviceType: formData.serviceType || 'GENERAL',
           category: formData.category || 'PUBLIC_SERVICE',
           description: formData.description,
           location: formData.location || formData.address,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           urgency: formData.urgency || 'NORMAL',
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           status: 'PENDING',
         },
       }),
@@ -2279,7 +2164,7 @@ export class ProtocolModuleService {
           pointCode: formData.pointCode || `PL-${Date.now()}`,
           streetName: formData.streetName || formData.street,
           neighborhood: formData.neighborhood,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           poleType: formData.poleType || 'concrete',
           lampType: formData.lampType || 'LED',
           power: formData.power ? parseInt(formData.power) : 100,
@@ -2297,14 +2182,14 @@ export class ProtocolModuleService {
           collectionType: formData.collectionType || 'BULKY_WASTE',
           requestorName: formData.requestorName || formData.name,
           requestorCpf: formData.requestorCpf || formData.cpf,
-          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          contact: formData.contact || { phone: formData.phone } ,
           address: formData.address || formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           description: formData.description,
           estimatedVolume: formData.estimatedVolume ? parseFloat(formData.estimatedVolume) : null,
           quantity: formData.quantity ? parseInt(formData.quantity) : null,
           unit: formData.unit || 'unit',
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           preferredDate: formData.preferredDate ? new Date(formData.preferredDate) : null,
           status: 'REQUESTED',
         },
@@ -2333,13 +2218,13 @@ export class ProtocolModuleService {
           teamName: formData.teamName || 'New Team',
           teamType: formData.teamType || 'CLEANING',
           shift: formData.shift || 'MORNING',
-          workDays: formData.workDays as Prisma.JsonValue || ['MON', 'TUE', 'WED', 'THU', 'FRI'],
+          workDays: formData.workDays  || ['MON', 'TUE', 'WED', 'THU', 'FRI'],
           startTime: formData.startTime || '07:00',
           endTime: formData.endTime || '16:00',
           teamLead: formData.teamLead || 'Team Leader',
-          members: formData.members as Prisma.JsonValue || [],
-          workAreas: formData.workAreas as Prisma.JsonValue || [],
-          dailyTasks: formData.dailyTasks as Prisma.JsonValue || [],
+          members: formData.members  || [],
+          workAreas: formData.workAreas  || [],
+          dailyTasks: formData.dailyTasks  || [],
         },
       }),
 
@@ -2356,8 +2241,8 @@ export class ProtocolModuleService {
           severity: formData.severity || 'MEDIUM',
           description: formData.description,
           location: formData.location || formData.address,
-          coordinates: formData.coordinates as Prisma.JsonValue,
-          photos: formData.photos as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
+          photos: formData.photos ,
           isAnonymous: formData.isAnonymous || false,
           status: 'REPORTED',
           priority: formData.priority || 'MEDIUM',
@@ -2370,15 +2255,15 @@ export class ProtocolModuleService {
           protocolId,
           requestorName: formData.requestorName || formData.name,
           requestorCpf: formData.requestorCpf || formData.cpf,
-          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          contact: formData.contact || { phone: formData.phone } ,
           location: formData.location,
           address: formData.address || formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           areaSize: formData.areaSize ? parseFloat(formData.areaSize) : null,
           terrainType: formData.terrainType || 'URBAN',
           accessType: formData.accessType || 'EASY',
           description: formData.description,
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           urgency: formData.urgency || 'NORMAL',
           status: 'REQUESTED',
         },
@@ -2390,14 +2275,14 @@ export class ProtocolModuleService {
           protocolId,
           requestorName: formData.requestorName || formData.name,
           requestorCpf: formData.requestorCpf || formData.cpf,
-          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          contact: formData.contact || { phone: formData.phone } ,
           location: formData.location,
           address: formData.address || formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           problemType: formData.problemType || 'CLOGGED_DRAIN',
           severity: formData.severity || 'MEDIUM',
           description: formData.description,
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           waterLevel: formData.waterLevel,
           affectedArea: formData.affectedArea ? parseFloat(formData.affectedArea) : null,
           urgency: formData.urgency || 'HIGH',
@@ -2411,17 +2296,17 @@ export class ProtocolModuleService {
           protocolId,
           requestorName: formData.requestorName || formData.name,
           requestorCpf: formData.requestorCpf || formData.cpf,
-          contact: formData.contact || { phone: formData.phone } as Prisma.JsonValue,
+          contact: formData.contact || { phone: formData.phone } ,
           location: formData.location,
           address: formData.address || formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           treeSpecies: formData.treeSpecies,
           treeHeight: formData.treeHeight ? parseFloat(formData.treeHeight) : null,
           trunkDiameter: formData.trunkDiameter ? parseFloat(formData.trunkDiameter) : null,
           pruningType: formData.pruningType || 'MAINTENANCE',
           reason: formData.reason || 'SAFETY',
           description: formData.description,
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           riskLevel: formData.riskLevel,
           urgency: formData.urgency || 'NORMAL',
           status: 'REQUESTED',
@@ -2436,12 +2321,12 @@ export class ProtocolModuleService {
           location: formData.location,
           address: formData.address || formData.location,
           neighborhood: formData.neighborhood,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           description: formData.description,
           areaSize: formData.areaSize ? parseFloat(formData.areaSize) : null,
           cleaningType: formData.cleaningType || 'GENERAL',
           frequency: formData.frequency || 'WEEKLY',
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           status: 'SCHEDULED',
           priority: formData.priority || 'NORMAL',
         },
@@ -2456,18 +2341,18 @@ export class ProtocolModuleService {
           teamType: formData.teamType || 'CLEANING',
           department: formData.department || 'PUBLIC_SERVICES',
           leader: formData.leader || 'Team Leader',
-          leaderContact: formData.leaderContact as Prisma.JsonValue,
-          members: formData.members as Prisma.JsonValue || [],
+          leaderContact: formData.leaderContact ,
+          members: formData.members  || [],
           totalMembers: formData.totalMembers ? parseInt(formData.totalMembers) : 0,
           specialization: formData.specialization,
           workShift: formData.workShift || 'MORNING',
           shiftStart: formData.shiftStart || '07:00',
           shiftEnd: formData.shiftEnd || '16:00',
-          workDays: formData.workDays as Prisma.JsonValue || ['MON', 'TUE', 'WED', 'THU', 'FRI'],
-          equipment: formData.equipment as Prisma.JsonValue,
-          vehicles: formData.vehicles as Prisma.JsonValue,
+          workDays: formData.workDays  || ['MON', 'TUE', 'WED', 'THU', 'FRI'],
+          equipment: formData.equipment ,
+          vehicles: formData.vehicles ,
           workArea: formData.workArea,
-          coverage: formData.coverage as Prisma.JsonValue,
+          coverage: formData.coverage ,
           status: 'ACTIVE',
         },
       }),
@@ -2485,11 +2370,11 @@ export class ProtocolModuleService {
           description: formData.description,
           location: formData.location,
           address: formData.address || formData.location,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           urgency: formData.urgency || 'NORMAL',
           priority: formData.priority || 'MEDIUM',
-          photos: formData.photos as Prisma.JsonValue,
-          documents: formData.documents as Prisma.JsonValue,
+          photos: formData.photos ,
+          documents: formData.documents ,
           status: 'PENDING',
         },
       }),
@@ -2511,7 +2396,7 @@ export class ProtocolModuleService {
           category: formData.category,
           urgency: formData.urgency || 'NORMAL',
           status: 'PENDING',
-          touristProfile: formData.touristProfile as Prisma.JsonValue,
+          touristProfile: formData.touristProfile ,
           source: 'service',
         },
       }),
@@ -2528,14 +2413,14 @@ export class ProtocolModuleService {
           neighborhood: formData.neighborhood,
           city: formData.city,
           state: formData.state,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           openingHours: formData.openingHours,
           ticketPrice: formData.ticketPrice ? parseFloat(formData.ticketPrice) : null,
-          accessibility: formData.accessibility as Prisma.JsonValue,
-          amenities: formData.amenities as Prisma.JsonValue,
-          images: formData.images as Prisma.JsonValue,
+          accessibility: formData.accessibility ,
+          amenities: formData.amenities ,
+          images: formData.images ,
           freeEntry: formData.freeEntry || false,
-          facilities: formData.facilities as Prisma.JsonValue,
+          facilities: formData.facilities ,
         },
       }),
 
@@ -2545,24 +2430,24 @@ export class ProtocolModuleService {
           protocolId,
           name: formData.name,
           businessType: formData.businessType || 'RESTAURANT',
-          businessInfo: formData.businessInfo as Prisma.JsonValue,
+          businessInfo: formData.businessInfo ,
           category: formData.category,
           description: formData.description,
           address: formData.address,
           neighborhood: formData.neighborhood,
           city: formData.city,
           state: formData.state,
-          coordinates: formData.coordinates as Prisma.JsonValue,
-          contact: formData.contact as Prisma.JsonValue,
-          openingHours: formData.openingHours as Prisma.JsonValue,
-          services: formData.services as Prisma.JsonValue,
-          amenities: formData.amenities as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
+          contact: formData.contact ,
+          openingHours: formData.openingHours ,
+          services: formData.services ,
+          amenities: formData.amenities ,
           priceRange: formData.priceRange,
-          photos: formData.photos as Prisma.JsonValue,
+          photos: formData.photos ,
           owner: formData.owner,
           ownerCpf: formData.ownerCpf,
           isTourismPartner: formData.isTourismPartner || false,
-          certifications: formData.certifications as Prisma.JsonValue,
+          certifications: formData.certifications ,
         },
       }),
 
@@ -2575,15 +2460,15 @@ export class ProtocolModuleService {
           type: formData.type,
           category: formData.category,
           description: formData.description,
-          objectives: formData.objectives as Prisma.JsonValue,
+          objectives: formData.objectives ,
           targetAudience: formData.targetAudience,
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : new Date(),
           budget: formData.budget ? parseFloat(formData.budget) : null,
           coordinator: formData.coordinator,
-          activities: formData.activities as Prisma.JsonValue,
-          participants: formData.participants as Prisma.JsonValue,
-          photos: formData.photos as Prisma.JsonValue,
+          activities: formData.activities ,
+          participants: formData.participants ,
+          photos: formData.photos ,
           status: 'PLANNED',
         },
       }),
@@ -2599,17 +2484,17 @@ export class ProtocolModuleService {
           phone: formData.phone,
           address: formData.address,
           birthDate: formData.birthDate ? new Date(formData.birthDate) : null,
-          languages: formData.languages as Prisma.JsonValue,
-          specialties: formData.specialties as Prisma.JsonValue,
-          certifications: formData.certifications as Prisma.JsonValue,
+          languages: formData.languages ,
+          specialties: formData.specialties ,
+          certifications: formData.certifications ,
           licenseNumber: formData.licenseNumber,
           licenseExpiry: formData.licenseExpiry ? new Date(formData.licenseExpiry) : null,
           experienceYears: formData.experienceYears ? parseInt(formData.experienceYears) : null,
           bio: formData.bio,
           photo: formData.photo,
-          availableSchedule: formData.availableSchedule as Prisma.JsonValue,
-          emergencyContact: formData.emergencyContact as Prisma.JsonValue,
-          bankInfo: formData.bankInfo as Prisma.JsonValue,
+          availableSchedule: formData.availableSchedule ,
+          emergencyContact: formData.emergencyContact ,
+          bankInfo: formData.bankInfo ,
           status: 'ACTIVE',
         },
       }),
@@ -2626,15 +2511,15 @@ export class ProtocolModuleService {
           distance: formData.distance ? parseFloat(formData.distance) : null,
           startPoint: formData.startPoint,
           endPoint: formData.endPoint,
-          waypoints: formData.waypoints as Prisma.JsonValue,
-          attractions: formData.attractions as Prisma.JsonValue,
-          services: formData.services as Prisma.JsonValue,
-          bestSeason: formData.bestSeason as Prisma.JsonValue,
+          waypoints: formData.waypoints ,
+          attractions: formData.attractions ,
+          services: formData.services ,
+          bestSeason: formData.bestSeason ,
           recommendations: formData.recommendations,
           warnings: formData.warnings,
-          accessibility: formData.accessibility as Prisma.JsonValue,
-          photos: formData.photos as Prisma.JsonValue,
-          mapData: formData.mapData as Prisma.JsonValue,
+          accessibility: formData.accessibility ,
+          photos: formData.photos ,
+          mapData: formData.mapData ,
           estimatedCost: formData.estimatedCost ? parseFloat(formData.estimatedCost) : null,
           guideRequired: formData.guideRequired || false,
           minimumAge: formData.minimumAge ? parseInt(formData.minimumAge) : null,
@@ -2653,28 +2538,28 @@ export class ProtocolModuleService {
           description: formData.description,
           venue: formData.venue,
           address: formData.address,
-          coordinates: formData.coordinates as Prisma.JsonValue,
+          coordinates: formData.coordinates ,
           startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
           endDate: formData.endDate ? new Date(formData.endDate) : new Date(),
           startTime: formData.startTime,
           endTime: formData.endTime,
           duration: formData.duration,
           organizer: formData.organizer,
-          organizerContact: formData.organizerContact as Prisma.JsonValue,
+          organizerContact: formData.organizerContact ,
           capacity: formData.capacity ? parseInt(formData.capacity) : null,
           ticketPrice: formData.ticketPrice ? parseFloat(formData.ticketPrice) : null,
           freeEntry: formData.freeEntry || false,
           ageRestriction: formData.ageRestriction,
-          accessibility: formData.accessibility as Prisma.JsonValue,
-          amenities: formData.amenities as Prisma.JsonValue,
-          program: formData.program as Prisma.JsonValue,
-          speakers: formData.speakers as Prisma.JsonValue,
-          sponsors: formData.sponsors as Prisma.JsonValue,
-          photos: formData.photos as Prisma.JsonValue,
-          promotional: formData.promotional as Prisma.JsonValue,
+          accessibility: formData.accessibility ,
+          amenities: formData.amenities ,
+          program: formData.program ,
+          speakers: formData.speakers ,
+          sponsors: formData.sponsors ,
+          photos: formData.photos ,
+          promotional: formData.promotional ,
           registrationUrl: formData.registrationUrl,
-          socialMedia: formData.socialMedia as Prisma.JsonValue,
-          tags: formData.tags as Prisma.JsonValue,
+          socialMedia: formData.socialMedia ,
+          tags: formData.tags ,
           requirements: formData.requirements,
           cancellationInfo: formData.cancellationInfo,
           createdBy: formData.createdBy,
@@ -2737,11 +2622,12 @@ export class ProtocolModuleService {
       }
 
       // Criar histórico
-      await tx.protocolHistory.create({
+      await prisma.protocolHistorySimplified.create({
         data: {
           protocolId,
-          status: ProtocolStatus.CONCLUIDO,
+          action: 'APPROVED',
           comment: comment || 'Protocolo aprovado',
+          newStatus: ProtocolStatus.CONCLUIDO,
           userId,
         },
       });
@@ -2791,11 +2677,12 @@ export class ProtocolModuleService {
       }
 
       // Criar histórico
-      await tx.protocolHistory.create({
+      await prisma.protocolHistorySimplified.create({
         data: {
           protocolId,
-          status: ProtocolStatus.CANCELADO,
+          action: 'REJECTED',
           comment: `Rejeitado: ${reason}`,
+          newStatus: ProtocolStatus.CANCELADO,
           userId,
         },
       });
@@ -2819,58 +2706,58 @@ export class ProtocolModuleService {
     const updateMap: Record<string, any> = {
       RuralProducer: () => tx.ruralProducer.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       RuralProperty: () => tx.ruralProperty.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       RuralProgram: () => tx.ruralProgram.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // SAÚDE
       HealthAttendance: () => tx.healthAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HealthAppointment: () => tx.healthAppointment.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       MedicationDispense: () => tx.medicationDispense.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HealthCampaign: () => tx.healthCampaign.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HealthProgram: () => tx.healthProgram.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HealthTransport: () => tx.healthTransport.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HealthExam: () => tx.healthExam.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HealthTransportRequest: () => tx.healthTransportRequest.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       Vaccination: () => tx.vaccination.updateMany({
@@ -2880,18 +2767,18 @@ export class ProtocolModuleService {
 
       Patient: () => tx.patient.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CommunityHealthAgent: () => tx.communityHealthAgent.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // EDUCAÇÃO
       EducationAttendance: () => tx.educationAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       Student: () => tx.student.updateMany({
@@ -2906,32 +2793,32 @@ export class ProtocolModuleService {
 
       DisciplinaryRecord: () => tx.disciplinaryRecord.updateMany({
         where: { protocolId },
-        data: { status, resolved: true, ...additionalData },
+        data: { status: status as any, resolved: true, ...additionalData },
       }),
 
       SchoolDocument: () => tx.schoolDocument.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       StudentTransfer: () => tx.studentTransfer.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       AttendanceRecord: () => tx.attendanceRecord.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       GradeRecord: () => tx.gradeRecord.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SchoolManagement: () => tx.schoolManagement.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SchoolMeal: () => tx.schoolMeal.updateMany({
@@ -2942,94 +2829,94 @@ export class ProtocolModuleService {
       // ASSISTÊNCIA SOCIAL
       SocialAssistanceAttendance: () => tx.socialAssistanceAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       VulnerableFamily: () => tx.vulnerableFamily.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       BenefitRequest: () => tx.benefitRequest.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       EmergencyDelivery: () => tx.emergencyDelivery.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SocialGroupEnrollment: () => tx.socialGroupEnrollment.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HomeVisit: () => tx.homeVisit.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SocialProgramEnrollment: () => tx.socialProgramEnrollment.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SocialAppointment: () => tx.socialAppointment.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SocialEquipment: () => tx.socialEquipment.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // CULTURA
       CulturalAttendance: () => tx.culturalAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CulturalSpaceReservation: () => tx.culturalSpaceReservation.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CulturalWorkshopEnrollment: () => tx.culturalWorkshopEnrollment.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       ArtisticGroup: () => tx.artisticGroup.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CulturalProject: () => tx.culturalProject.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CulturalProjectSubmission: () => tx.culturalProjectSubmission.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CulturalEvent: () => tx.culturalEvent.updateMany({
         where: { protocolId },
-        data: { status, approved: status === 'ACTIVE', ...additionalData },
+        data: { status: status as any, approved: status === 'ACTIVE', ...additionalData },
       }),
 
       CulturalManifestation: () => tx.culturalManifestation.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // ESPORTES
       SportsAttendance: () => tx.sportsAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       Athlete: () => tx.athlete.updateMany({
@@ -3039,22 +2926,22 @@ export class ProtocolModuleService {
 
       SportsTeam: () => tx.sportsTeam.updateMany({
         where: { protocolId },
-        data: { status, isActive: status === 'ACTIVE', ...additionalData },
+        data: { status: status as any, isActive: status === 'ACTIVE', ...additionalData },
       }),
 
       Competition: () => tx.competition.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SportsInfrastructure: () => tx.sportsInfrastructure.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SportsSchool: () => tx.sportsSchool.updateMany({
         where: { protocolId },
-        data: { status, isActive: status === 'ACTIVE', ...additionalData },
+        data: { status: status as any, isActive: status === 'ACTIVE', ...additionalData },
       }),
 
       SportsModality: () => tx.sportsModality.updateMany({
@@ -3064,48 +2951,48 @@ export class ProtocolModuleService {
 
       SportsSchoolEnrollment: () => tx.sportsSchoolEnrollment.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SportsInfrastructureReservation: () => tx.sportsInfrastructureReservation.updateMany({
         where: { protocolId },
-        data: { status, approvedBy: additionalData?.approvedBy, approvedAt: status === 'APPROVED' ? new Date() : null, ...additionalData },
+        data: { status: status as any, approvedBy: additionalData?.approvedBy, approvedAt: status === 'APPROVED' ? new Date() : null, ...additionalData },
       }),
 
       CompetitionEnrollment: () => tx.competitionEnrollment.updateMany({
         where: { protocolId },
-        data: { status, approvedBy: additionalData?.approvedBy, approvedAt: status === 'APPROVED' ? new Date() : null, ...additionalData },
+        data: { status: status as any, approvedBy: additionalData?.approvedBy, approvedAt: status === 'APPROVED' ? new Date() : null, ...additionalData },
       }),
 
       TournamentEnrollment: () => tx.tournamentEnrollment.updateMany({
         where: { protocolId },
-        data: { status, approvedBy: additionalData?.approvedBy, approvedAt: status === 'APPROVED' ? new Date() : null, ...additionalData },
+        data: { status: status as any, approvedBy: additionalData?.approvedBy, approvedAt: status === 'APPROVED' ? new Date() : null, ...additionalData },
       }),
 
       // SEGURANÇA PÚBLICA
       SecurityAttendance: () => tx.securityAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       SecurityOccurrence: () => tx.securityOccurrence.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       PatrolRequest: () => tx.patrolRequest.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CameraRequest: () => tx.cameraRequest.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       AnonymousTip: () => tx.anonymousTip.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CriticalPoint: () => tx.criticalPoint.updateMany({
@@ -3120,172 +3007,136 @@ export class ProtocolModuleService {
 
       SecurityPatrol: () => tx.securityPatrol.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       MunicipalGuard: () => tx.municipalGuard.updateMany({
         where: { protocolId },
-        data: { status, isActive: status === 'active', ...additionalData },
+        data: { status: status as any, isActive: status === 'active', ...additionalData },
       }),
 
       SurveillanceSystem: () => tx.surveillanceSystem.updateMany({
         where: { protocolId },
-        data: { status, isActive: status === 'operational', ...additionalData },
-      }),
-
-      // ESPORTES
-      SportsAttendance: () => tx.sportsAttendance.updateMany({
-        where: { protocolId },
-        data: { ...additionalData },
-      }),
-
-      Athlete: () => tx.athlete.updateMany({
-        where: { protocolId },
-        data: { isActive: status === 'ACTIVE', ...additionalData },
-      }),
-
-      SportsTeam: () => tx.sportsTeam.updateMany({
-        where: { protocolId },
-        data: { status, isActive: status === 'ACTIVE', ...additionalData },
-      }),
-
-      SportsModality: () => tx.sportsModality.updateMany({
-        where: { protocolId },
-        data: { isActive: status === 'ACTIVE', ...additionalData },
-      }),
-
-      SportsSchool: () => tx.sportsSchool.updateMany({
-        where: { protocolId },
-        data: { status, isActive: status === 'ACTIVE', ...additionalData },
-      }),
-
-      SportsInfrastructure: () => tx.sportsInfrastructure.updateMany({
-        where: { protocolId },
-        data: { status, ...additionalData },
-      }),
-
-      Competition: () => tx.competition.updateMany({
-        where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, isActive: status === 'operational', ...additionalData },
       }),
 
       // HABITAÇÃO
       HousingAttendance: () => tx.housingAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HousingApplication: () => tx.housingApplication.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       LandRegularization: () => tx.landRegularization.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       RentAssistance: () => tx.rentAssistance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HousingUnit: () => tx.housingUnit.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       HousingRegistration: () => tx.housingRegistration.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // OBRAS PÚBLICAS
       PublicWorksAttendance: () => tx.publicWorksAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       RoadRepairRequest: () => tx.roadRepairRequest.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       TechnicalInspection: () => tx.technicalInspection.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       PublicWork: () => tx.publicWork.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       WorkInspection: () => tx.workInspection.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // MEIO AMBIENTE
       EnvironmentalAttendance: () => tx.environmentalAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       EnvironmentalLicense: () => tx.environmentalLicense.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       EnvironmentalComplaint: () => tx.environmentalComplaint.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       EnvironmentalProgram: () => tx.environmentalProgram.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       TreeCuttingAuthorization: () => tx.treeCuttingAuthorization.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       EnvironmentalInspection: () => tx.environmentalInspection.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       ProtectedArea: () => tx.protectedArea.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // PLANEJAMENTO URBANO
       ProjectApproval: () => tx.projectApproval.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       BuildingPermit: () => tx.buildingPermit.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       BusinessLicense: () => tx.businessLicense.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       CertificateRequest: () => tx.certificateRequest.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       UrbanInfraction: () => tx.urbanInfraction.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       UrbanZoning: () => tx.urbanZoning.updateMany({
@@ -3295,7 +3146,7 @@ export class ProtocolModuleService {
 
       UrbanPlanningAttendance: () => tx.urbanPlanningAttendance.updateMany({
         where: { protocolId },
-        data: { status, ...additionalData },
+        data: { status: status as any, ...additionalData },
       }),
 
       // SERVIÇOS PÚBLICOS

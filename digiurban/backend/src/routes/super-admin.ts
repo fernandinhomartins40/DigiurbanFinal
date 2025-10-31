@@ -9,7 +9,7 @@ import { prisma } from '../lib/prisma';
 import { Prisma, Plan, TenantStatus, InvoiceStatus } from '@prisma/client';
 import { UNASSIGNED_POOL_ID, isUnassignedPool } from '../config/tenants';
 import { autoLinkCitizens } from '../services/citizen-auto-link';
-import { seedInitialServices } from '../../prisma/seeds/initial-services';
+import { seedServices } from '../seeds/services-simplified-complete';
 
 // ====================== TIPOS E INTERFACES ISOLADAS ======================
 
@@ -547,21 +547,22 @@ router.post(
       data: tenantData as unknown as Prisma.TenantUncheckedCreateInput,
     });
 
-    // Criar departamentos padrão com códigos padronizados
+    // Criar departamentos padrão com códigos padronizados (ALINHADO COM SEED)
     const defaultDepartments = [
-      { name: 'Secretaria de Saúde', code: 'SAUDE', description: 'Secretaria Municipal de Saúde' },
-      { name: 'Secretaria de Educação', code: 'EDUCACAO', description: 'Secretaria Municipal de Educação' },
-      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Secretaria Municipal de Serviços Públicos' },
-      { name: 'Secretaria de Assistência Social', code: 'ASSISTENCIA_SOCIAL', description: 'Secretaria Municipal de Assistência Social' },
-      { name: 'Secretaria de Cultura', code: 'CULTURA', description: 'Secretaria Municipal de Cultura' },
-      { name: 'Secretaria de Segurança Pública', code: 'SEGURANCA', description: 'Secretaria Municipal de Segurança Pública' },
-      { name: 'Secretaria de Planejamento Urbano', code: 'PLANEJAMENTO', description: 'Secretaria Municipal de Planejamento Urbano' },
-      { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Secretaria Municipal de Agricultura' },
-      { name: 'Secretaria de Esportes', code: 'ESPORTES', description: 'Secretaria Municipal de Esportes' },
-      { name: 'Secretaria de Turismo', code: 'TURISMO', description: 'Secretaria Municipal de Turismo' },
-      { name: 'Secretaria de Habitação', code: 'HABITACAO', description: 'Secretaria Municipal de Habitação' },
-      { name: 'Secretaria de Meio Ambiente', code: 'MEIO_AMBIENTE', description: 'Secretaria Municipal de Meio Ambiente' },
-      { name: 'Secretaria de Obras Públicas', code: 'OBRAS', description: 'Secretaria Municipal de Obras Públicas' },
+      { name: 'Secretaria de Saúde', code: 'SAUDE', description: 'Gestão de saúde pública, consultas, exames e programas de saúde' },
+      { name: 'Secretaria de Educação', code: 'EDUCACAO', description: 'Gestão educacional, matrículas, transporte escolar e merenda' },
+      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Limpeza urbana, iluminação pública e manutenção de vias' },
+      { name: 'Secretaria de Assistência Social', code: 'ASSISTENCIA_SOCIAL', description: 'Programas sociais, acolhimento e atendimento psicossocial' },
+      { name: 'Secretaria de Cultura', code: 'CULTURA', description: 'Eventos culturais, patrimônio histórico e incentivo à cultura' },
+      { name: 'Secretaria de Esporte e Lazer', code: 'ESPORTES', description: 'Gestão de equipamentos esportivos, eventos e programas de esporte' },
+      { name: 'Secretaria de Habitação', code: 'HABITACAO', description: 'Programas habitacionais, regularização fundiária e auxílio moradia' },
+      { name: 'Secretaria de Meio Ambiente', code: 'MEIO_AMBIENTE', description: 'Licenciamento ambiental, fiscalização e educação ambiental' },
+      { name: 'Secretaria de Obras Públicas', code: 'OBRAS_PUBLICAS', description: 'Obras públicas, pavimentação, drenagem e fiscalização de obras' },
+      { name: 'Secretaria de Planejamento Urbano', code: 'PLANEJAMENTO_URBANO', description: 'Planejamento urbano, plano diretor, alvarás e licenciamento' },
+      { name: 'Secretaria de Segurança Pública', code: 'SEGURANCA_PUBLICA', description: 'Guarda municipal, videomonitoramento e segurança pública' },
+      { name: 'Secretaria de Fazenda', code: 'FAZENDA', description: 'Arrecadação, IPTU, ISS, certidões e gestão fiscal' },
+      { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Apoio ao produtor rural, assistência técnica e fomento agrícola' },
+      { name: 'Secretaria de Turismo', code: 'TURISMO', description: 'Promoção turística, cadastro de guias e apoio a eventos' },
     ];
 
     await Promise.all(
@@ -578,19 +579,15 @@ router.post(
       )
     );
 
-    // Popular serviços padrão automaticamente (52 serviços padrão)
-    // Saúde: 20 serviços | Educação: 14 serviços | Serviços Públicos: 18 serviços
+    // ✅ Popular serviços padrão automaticamente (108 serviços - Arquitetura Simplificada)
+    console.log(`📦 Populando 108 serviços padrão para tenant ${tenant.name} (${tenant.id})...`);
     try {
-      const result = await seedInitialServices(tenant.id);
-      console.log(`✅ Serviços padrão criados para tenant ${tenant.name} (${tenant.id}):`, {
-        created: result.created,
-        skipped: result.skipped,
-        errors: result.errors
-      });
+      const servicesCreated = await seedServices(tenant.id);
+      console.log(`✅ ${servicesCreated} serviços criados com sucesso para tenant ${tenant.name}`);
     } catch (error) {
-      console.error(`⚠️ Erro ao popular serviços para tenant ${tenant.id}:`, error);
+      console.error(`❌ Erro ao popular serviços para tenant ${tenant.name}:`, error);
       // Não falhar a criação do tenant se os serviços falharem
-      // Serviços podem ser criados manualmente depois
+      // Os serviços podem ser populados manualmente depois
     }
 
     // Criar usuário administrador se fornecido
@@ -1098,7 +1095,7 @@ router.get(
         },
       },
       orderBy: {
-        protocols: {
+        protocolsSimplified: {
           _count: 'desc',
         },
       },
@@ -1155,8 +1152,8 @@ router.get(
         id: tenant.id,
         name: tenant.name,
         plan: tenant.plan,
-        protocolCount: tenant._count.protocolsSimplified,
-        userCount: tenant._count.users,
+        protocolCount: (tenant as any)._count?.protocolsSimplified || 0,
+        userCount: (tenant as any)._count?.users || 0,
         createdAt: tenant.createdAt,
       })),
     });
@@ -2006,6 +2003,16 @@ const createUserSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+// Schema de validação para atualização de usuário
+const updateUserSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório'),
+  email: z.string().email('Email inválido'),
+  role: z.string().optional(),
+  tenantId: z.string().min(1, 'Tenant é obrigatório'),
+  departmentId: z.string().optional().nullable(),
+  isActive: z.boolean().optional(),
+});
+
 /**
  * POST /api/super-admin/users
  * Criar novo usuário em um tenant específico
@@ -2110,6 +2117,131 @@ router.post(
     return res.status(201).json({
       success: true,
       message: 'Usuário criado com sucesso',
+      user: userWithoutPassword
+    });
+  })
+);
+
+/**
+ * PUT /api/super-admin/users/:userId
+ * Atualizar informações de um usuário
+ */
+router.put(
+  '/users/:userId',
+  authenticateToken,
+  requireSuperAdmin,
+  handleAsyncRoute(async (req, res) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json(
+        createErrorResponse('BAD_REQUEST', 'ID do usuário é obrigatório')
+      );
+    }
+
+    // Validar dados com Zod
+    let validatedData;
+    try {
+      validatedData = updateUserSchema.parse(req.body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json(
+          createErrorResponse('VALIDATION_ERROR', 'Dados inválidos', error.issues)
+        );
+      }
+      throw error;
+    }
+
+    const { name, email, role, tenantId, departmentId, isActive } = validatedData;
+
+    // Verificar se usuário existe
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!existingUser) {
+      return res.status(404).json(
+        createErrorResponse('USER_NOT_FOUND', 'Usuário não encontrado')
+      );
+    }
+
+    // Verificar se tenant existe
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: tenantId }
+    });
+
+    if (!tenant) {
+      return res.status(404).json(
+        createErrorResponse('TENANT_NOT_FOUND', 'Tenant não encontrado')
+      );
+    }
+
+    // Verificar se email já existe em outro usuário
+    if (email.toLowerCase() !== existingUser.email.toLowerCase()) {
+      const emailExists = await prisma.user.findUnique({
+        where: { email: email.toLowerCase() }
+      });
+
+      if (emailExists) {
+        return res.status(409).json(
+          createErrorResponse('EMAIL_EXISTS', 'Este email já está cadastrado')
+        );
+      }
+    }
+
+    // Verificar se departamento existe (se fornecido)
+    if (departmentId) {
+      const department = await prisma.department.findUnique({
+        where: { id: departmentId }
+      });
+
+      if (!department) {
+        return res.status(404).json(
+          createErrorResponse('DEPARTMENT_NOT_FOUND', 'Departamento não encontrado')
+        );
+      }
+
+      // Verificar se departamento pertence ao tenant
+      if (department.tenantId !== tenantId) {
+        return res.status(400).json(
+          createErrorResponse('INVALID_DEPARTMENT', 'Departamento não pertence ao tenant selecionado')
+        );
+      }
+    }
+
+    // Atualizar usuário
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        role: (role || 'USER') as any,
+        tenantId,
+        departmentId: departmentId || null,
+        isActive: isActive !== undefined ? isActive : existingUser.isActive,
+      },
+      include: {
+        tenant: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
+        department: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    // Remover senha do retorno
+    const { password: _, ...userWithoutPassword } = updatedUser;
+
+    return res.status(200).json({
+      success: true,
+      message: 'Usuário atualizado com sucesso',
       user: userWithoutPassword
     });
   })

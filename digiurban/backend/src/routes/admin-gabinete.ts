@@ -295,8 +295,7 @@ router.get('/mapa-demandas/protocols', adminAuthMiddleware, requireAdmin, async 
         status: true,
         latitude: true,
         longitude: true,
-        // endereco: true, // REMOVED: Campo custom removido do ProtocolSimplified (usar data.endereco)
-        data: true, // Campo JSON genérico que pode conter endereco
+        address: true,
         createdAt: true,
         service: {
           select: {

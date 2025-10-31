@@ -1,6 +1,6 @@
 import { PrismaClient, TenantStatus, Plan } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import { seedInitialServices } from './seeds/initial-services';
+import { seedServices } from '../src/seeds/services-simplified-complete';
 
 const prisma = new PrismaClient();
 
@@ -167,10 +167,12 @@ async function main() {
       { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Limpeza urbana, iluminação pública e manutenção de vias' },
       { name: 'Secretaria de Assistência Social', code: 'ASSISTENCIA_SOCIAL', description: 'Programas sociais, acolhimento e atendimento psicossocial' },
       { name: 'Secretaria de Cultura', code: 'CULTURA', description: 'Eventos culturais, patrimônio histórico e incentivo à cultura' },
-      { name: 'Secretaria de Esporte e Lazer', code: 'ESPORTE_LAZER', description: 'Gestão de equipamentos esportivos, eventos e programas de esporte' },
+      { name: 'Secretaria de Esporte e Lazer', code: 'ESPORTES', description: 'Gestão de equipamentos esportivos, eventos e programas de esporte' },
+      { name: 'Secretaria de Habitação', code: 'HABITACAO', description: 'Programas habitacionais, regularização fundiária e auxílio moradia' },
       { name: 'Secretaria de Meio Ambiente', code: 'MEIO_AMBIENTE', description: 'Licenciamento ambiental, fiscalização e educação ambiental' },
-      { name: 'Secretaria de Obras e Infraestrutura', code: 'OBRAS_INFRAESTRUTURA', description: 'Obras públicas, pavimentação, drenagem e fiscalização de obras' },
-      { name: 'Secretaria de Planejamento', code: 'PLANEJAMENTO', description: 'Planejamento urbano, plano diretor e projetos municipais' },
+      { name: 'Secretaria de Obras Públicas', code: 'OBRAS_PUBLICAS', description: 'Obras públicas, pavimentação, drenagem e fiscalização de obras' },
+      { name: 'Secretaria de Planejamento Urbano', code: 'PLANEJAMENTO_URBANO', description: 'Planejamento urbano, plano diretor, alvarás e licenciamento' },
+      { name: 'Secretaria de Segurança Pública', code: 'SEGURANCA_PUBLICA', description: 'Guarda municipal, videomonitoramento e segurança pública' },
       { name: 'Secretaria de Fazenda', code: 'FAZENDA', description: 'Arrecadação, IPTU, ISS, certidões e gestão fiscal' },
       { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Apoio ao produtor rural, assistência técnica e fomento agrícola' },
       { name: 'Secretaria de Turismo', code: 'TURISMO', description: 'Promoção turística, cadastro de guias e apoio a eventos' },
@@ -196,8 +198,8 @@ async function main() {
       console.log(`   ✅ ${dept.name} (${dept.code})`);
     }
 
-    // ========== 6. POPULAR SERVIÇOS INICIAIS ==========
-    await seedInitialServices(demoTenant.id);
+    // ========== 6. POPULAR SERVIÇOS INICIAIS (ARQUITETURA SIMPLIFICADA) ==========
+    await seedServices(demoTenant.id);
 
     // ========== RESUMO FINAL ==========
     console.log('\n✅ Seed concluído com sucesso!');

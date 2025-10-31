@@ -8,7 +8,7 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { seedInitialServices } from '../src/seeds/initial-services';
+import { seedServices } from '../src/seeds/services-simplified-complete';
 
 const prisma = new PrismaClient();
 
@@ -47,7 +47,7 @@ async function main() {
         console.log(`\n🏢 Tenant: ${tenant.name} (${tenant.id})`);
 
         // Verificar se já tem serviços
-        const servicesCount = await prisma.service.count({
+        const servicesCount = await prisma.serviceSimplified.count({
           where: { tenantId: tenant.id },
         });
 
@@ -57,12 +57,9 @@ async function main() {
         }
 
         // Popular serviços
-        const result = await seedInitialServices(tenant.id);
+        const created = await seedServices(tenant.id);
 
-        console.log(`   ✅ Resultado:`);
-        console.log(`      - Criados: ${result.created}`);
-        console.log(`      - Pulados: ${result.skipped}`);
-        console.log(`      - Erros: ${result.errors || 0}`);
+        console.log(`   ✅ ${created} serviços criados com sucesso`);
       }
 
       console.log('\n✅ Processo concluído!\n');
@@ -94,13 +91,9 @@ async function main() {
       console.log(`   📁 ${departmentsCount} departamentos encontrados`);
 
       // Popular serviços
-      const result = await seedInitialServices(tenant.id);
+      const created = await seedServices(tenant.id);
 
-      console.log(`\n✅ Resultado:`);
-      console.log(`   - Criados: ${result.created}`);
-      console.log(`   - Pulados: ${result.skipped}`);
-      console.log(`   - Erros: ${result.errors || 0}`);
-      console.log('');
+      console.log(`\n✅ ${created} serviços criados com sucesso\n`);
     }
   } catch (error) {
     console.error('❌ Erro ao popular serviços:', error);

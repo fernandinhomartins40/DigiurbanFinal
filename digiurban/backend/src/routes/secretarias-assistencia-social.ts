@@ -1,985 +1,725 @@
 // ============================================================================
-// SECRETARIAS-ASSISTENCIA-SOCIAL.TS - ISOLAMENTO PROFISSIONAL COMPLETO
+// SECRETARIAS-ASSISTENCIA-SOCIAL.TS - Rotas da Secretaria de Assistência Social
 // ============================================================================
+// VERSÃO SIMPLIFICADA - Usa 100% do sistema novo (ProtocolSimplified + MODULE_MAPPING)
 
-import { Router, Request, Response, NextFunction, RequestHandler } from 'express';
-import { z } from 'zod';
+import { Router } from 'express';
 import { prisma } from '../lib/prisma';
-import { Prisma } from '@prisma/client';
-import { generateProtocolNumber } from '../utils/protocol-number-generator';
-
-// ====================== TIPOS E INTERFACES ISOLADAS ======================
-
-interface User {
-  id: string;
-  email: string;
-  name?: string;
-  role: string;
-  isActive: boolean;
-  tenantId?: string;
-  departmentId?: string;
-}
-
-interface Tenant {
-  id: string;
-  name: string;
-  cnpj?: string;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface AuthenticatedRequest {
-  user: User;
-  tenant?: Tenant;
-  tenantId: string;
-  params: Record<string, string>;
-  query: Record<string, string | string[]>;
-  body: Record<string, unknown>;
-}
-
-interface SuccessResponse<T> {
-  success: true;
-  data?: T;
-  message?: string;
-  [key: string]: unknown;
-}
-
-interface ErrorResponse {
-  success: false;
-  error: string;
-  message: string;
-  details?: unknown;
-}
-
-
-interface FamilyStats {
-  total: number;
-  highRisk: number;
-  mediumRisk: number;
-  lowRisk: number;
-  active: number;
-}
-
-interface BenefitStats {
-  total: number;
-  pending: number;
-  approved: number;
-  denied: number;
-  highUrgency: number;
-}
-
-interface DeliveryStats {
-  total: number;
-  pending: number;
-  inTransit: number;
-  delivered: number;
-  today: number;
-}
-
-interface VisitStats {
-  total: number;
-  scheduled: number;
-  completed: number;
-  canceled: number;
-  today: number;
-}
-
-interface ProgramStats {
-  total: number;
-  active: number;
-  totalEnrollments: number;
-}
-
-// ====================== INTERFACES ESPECÍFICAS ======================
-
-interface VulnerableFamilyWhereInput {
-  tenantId: string;
-  riskLevel?: string;
-  status?: string;
-  vulnerabilityType?: string;
-  OR?: Array<{
-    citizen?: { name?: { contains: string }; cpf?: { contains: string } };
-    responsibleName?: { contains: string };
-    familyCode?: { contains: string };
-  }>;
-}
-
-interface BenefitRequestWhereInput {
-  tenantId: string;
-  benefitType?: string;
-  status?: string;
-  urgency?: string;
-  OR?: Array<{
-    familyId?: { contains: string };
-    reason?: { contains: string };
-  }>;
-}
-
-interface EmergencyDeliveryWhereInput {
-  tenantId: string;
-  deliveryType?: string;
-  status?: string;
-  deliveryDate?: {
-    gte?: Date;
-    lte?: Date;
-  };
-  OR?: Array<{
-    recipientName?: { contains: string };
-  }>;
-}
-
-interface HomeVisitWhereInput {
-  tenantId: string;
-  status?: string;
-  socialWorker?: string;
-  visitDate?: {
-    gte?: Date;
-    lte?: Date;
-  };
-  OR?: Array<{
-    familyId?: { contains: string };
-    visitPurpose?: { contains: string };
-  }>;
-}
-
-interface SocialProgramWhereInput {
-  tenantId: string;
-  programType?: string;
-  OR?: Array<{
-    name?: { contains: string };
-    description?: { contains: string };
-  }>;
-}
-
-// ====================== HELPER FUNCTIONS ======================
-
-function getStringParam(param: string | string[] | undefined): string {
-  if (Array.isArray(param)) return param[0] || '';
-  if (typeof param === 'string') return param;
-  return '';
-}
-
-
-function createSuccessResponse<T>(data?: T, message?: string): SuccessResponse<T> {
-  const response: SuccessResponse<T> = {
-    success: true,
-  };
-
-  if (data !== undefined) {
-    response.data = data;
-  }
-
-  if (message) {
-    response.message = message;
-  }
-
-  return response;
-}
-
-function createErrorResponse(error: string, message: string, details?: unknown): ErrorResponse {
-  return {
-    success: false,
-    error,
-    message,
-    details
-  };
-}
-
-function handleAsyncRoute(
-  fn: (req: AuthenticatedRequest, res: Response) => Promise<Response | void>
-): RequestHandler {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req as unknown as AuthenticatedRequest, res)).catch(next);
-  };
-}
-
-function isError(error: unknown): error is Error {
-  return error instanceof Error;
-}
-
-function createVulnerableFamilyWhereClause(params: {
-  tenantId: string;
-  search?: string;
-  riskLevel?: string;
-  status?: string;
-  vulnerabilityType?: string;
-}): VulnerableFamilyWhereInput {
-  const where: VulnerableFamilyWhereInput = {
-    tenantId: params.tenantId,
-  };
-
-  if (params.search) {
-    where.OR = [
-      { citizen: { name: { contains: params.search } } },
-      { citizen: { cpf: { contains: params.search } } },
-      { responsibleName: { contains: params.search } },
-      { familyCode: { contains: params.search } },
-    ];
-  }
-
-  if (params.riskLevel) {
-    where.riskLevel = params.riskLevel;
-  }
-
-  if (params.status) {
-    where.status = params.status;
-  }
-
-  if (params.vulnerabilityType) {
-    where.vulnerabilityType = params.vulnerabilityType;
-  }
-
-  return where;
-}
-
-function createBenefitRequestWhereClause(params: {
-  tenantId: string;
-  search?: string;
-  benefitType?: string;
-  status?: string;
-  urgency?: string;
-}): BenefitRequestWhereInput {
-  const where: BenefitRequestWhereInput = {
-    tenantId: params.tenantId,
-  };
-
-  if (params.search) {
-    where.OR = [
-      { familyId: { contains: params.search } },
-      { reason: { contains: params.search } },
-    ];
-  }
-
-  if (params.benefitType) {
-    where.benefitType = params.benefitType;
-  }
-
-  if (params.status) {
-    where.status = params.status;
-  }
-
-  if (params.urgency) {
-    where.urgency = params.urgency;
-  }
-
-  return where;
-}
-
-function createEmergencyDeliveryWhereClause(params: {
-  tenantId: string;
-  search?: string;
-  deliveryType?: string;
-  status?: string;
-  date?: string;
-}): EmergencyDeliveryWhereInput {
-  const where: EmergencyDeliveryWhereInput = {
-    tenantId: params.tenantId,
-  };
-
-  if (params.search) {
-    where.OR = [
-      { recipientName: { contains: params.search } },
-    ];
-  }
-
-  if (params.deliveryType) {
-    where.deliveryType = params.deliveryType;
-  }
-
-  if (params.status) {
-    where.status = params.status;
-  }
-
-  if (params.date) {
-    const dateObj = new Date(params.date);
-    where.deliveryDate = {
-      gte: new Date(dateObj.setHours(0, 0, 0, 0)),
-      lte: new Date(dateObj.setHours(23, 59, 59, 999)),
-    };
-  }
-
-  return where;
-}
-
-function createHomeVisitWhereClause(params: {
-  tenantId: string;
-  search?: string;
-  status?: string;
-  date?: string;
-  socialWorker?: string;
-}): HomeVisitWhereInput {
-  const where: HomeVisitWhereInput = {
-    tenantId: params.tenantId,
-  };
-
-  if (params.search) {
-    where.OR = [
-      { familyId: { contains: params.search } },
-      { visitPurpose: { contains: params.search } },
-    ];
-  }
-
-  if (params.status) {
-    where.status = params.status;
-  }
-
-  if (params.date) {
-    const dateObj = new Date(params.date);
-    where.visitDate = {
-      gte: new Date(dateObj.setHours(0, 0, 0, 0)),
-      lte: new Date(dateObj.setHours(23, 59, 59, 999)),
-    };
-  }
-
-  if (params.socialWorker) {
-    where.socialWorker = params.socialWorker;
-  }
-
-  return where;
-}
-
-function createSocialProgramWhereClause(params: {
-  tenantId: string;
-  search?: string;
-  programType?: string;
-}): SocialProgramWhereInput {
-  const where: SocialProgramWhereInput = {
-    tenantId: params.tenantId,
-  };
-
-  if (params.search) {
-    where.OR = [
-      { name: { contains: params.search } },
-      { description: { contains: params.search } },
-    ];
-  }
-
-  if (params.programType) {
-    where.programType = params.programType;
-  }
-
-  return where;
-}
-
-function isToday(date: Date): boolean {
-  const today = new Date();
-  return date.toDateString() === today.toDateString();
-}
-
-// ====================== MIDDLEWARE FUNCTIONS ======================
-
-const tenantMiddleware: RequestHandler = (_req: Request, _res: Response, next: NextFunction) => {
-  // Tenant middleware implementation
-  next();
-};
-
-const authenticateToken: RequestHandler = (_req: Request, _res: Response, next: NextFunction) => {
-  // Authentication implementation
-  next();
-};
-
-// ====================== VALIDATION SCHEMAS ======================
-
-const vulnerableFamilySchema = z.object({
-  citizenId: z.string().min(1, 'ID do cidadão é obrigatório'),
-  responsibleName: z.string().optional(),
-  familyCode: z.string().optional(),
-  memberCount: z.number().min(1).optional(),
-  monthlyIncome: z.number().optional(),
-  riskLevel: z.enum(['LOW', 'MEDIUM', 'HIGH']),
-  vulnerabilityType: z.string().optional(),
-  vulnerabilities: z.string().optional(),
-  socialWorker: z.string().optional(),
-  status: z.string().optional(),
-  observations: z.string().optional(),
-  lastVisitDate: z.date().optional(),
-  nextVisitDate: z.date().optional(),
-});
-
-const benefitRequestSchema = z.object({
-  familyHeadName: z.string().min(1, 'Nome é obrigatório'),
-  familyHeadCpf: z.string().min(11, 'CPF é obrigatório'),
-  familyHeadBirthDate: z.string().optional(),
-  familyHeadPhone: z.string().optional(),
-  benefitType: z.string().min(1, 'Tipo de benefício é obrigatório'),
-  description: z.string().optional(),
-  urgency: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
-  monthlyIncome: z.number().optional(),
-  memberCount: z.number().min(1).optional(),
-  reason: z.string().min(1, 'Justificativa é obrigatória'),
-  documents: z.string().optional(),
-  observations: z.string().optional(),
-});
-
-const emergencyDeliverySchema = z.object({
-  recipientName: z.string().min(1, 'Nome é obrigatório'),
-  recipientCpf: z.string().optional(),
-  recipientPhone: z.string().optional(),
-  address: z.string().min(1, 'Endereço é obrigatório'),
-  deliveryType: z.string().min(1, 'Tipo de entrega é obrigatório'),
-  items: z.string().min(1, 'Itens são obrigatórios'),
-  quantity: z.number().min(1).optional(),
-  urgency: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
-  scheduledDate: z.string().min(1, 'Data é obrigatória'),
-  scheduledTime: z.string().optional(),
-  urgencyReason: z.string().optional(),
-  observations: z.string().optional(),
-});
-
-const homeVisitSchema = z.object({
-  familyName: z.string().min(1, 'Nome da família é obrigatório'),
-  address: z.string().min(1, 'Endereço é obrigatório'),
-  phone: z.string().optional(),
-  visitDate: z.string().min(1, 'Data é obrigatória'),
-  visitTime: z.string().optional(),
-  purpose: z.string().min(1, 'Propósito é obrigatório'),
-  assignedUserId: z.string().optional(),
-  urgency: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional(),
-  observations: z.string().optional(),
-});
-
-// ====================== ROUTER SETUP ======================
+import {
+  adminAuthMiddleware,
+  requireMinRole,
+} from '../middleware/admin-auth';
+import { tenantMiddleware } from '../middleware/tenant';
+import { UserRole, ProtocolStatus } from '@prisma/client';
+import { AuthenticatedRequest } from '../types';
+import { MODULE_BY_DEPARTMENT } from '../config/module-mapping';
 
 const router = Router();
 
-// Aplicar middleware de tenant em todas as rotas
+// Aplicar middlewares
 router.use(tenantMiddleware);
-
-// ====================== ROUTES ======================
+router.use(adminAuthMiddleware);
 
 /**
- * GET /api/secretarias/assistencia-social/familias-vulneraveis
- * Listar famílias em situação de vulnerabilidade
+ * GET /api/admin/secretarias/assistencia-social/stats
+ * Obter estatísticas consolidadas da Secretaria de Assistência Social
+ * VERSÃO SIMPLIFICADA - Usa apenas ProtocolSimplified + moduleType
  */
 router.get(
-  '/familias-vulneraveis',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const search = getStringParam(req.query.search);
-    const riskLevel = getStringParam(req.query.risk_level);
-    const status = getStringParam(req.query.status);
+  '/stats',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
 
-    const whereParams: {
-      tenantId: string;
-      search?: string;
-      riskLevel?: string;
-      status?: string;
-      vulnerabilityType?: string;
-    } = {
-      tenantId: req.tenantId,
-    };
-
-    if (search) whereParams.search = search;
-    if (riskLevel) whereParams.riskLevel = riskLevel;
-    if (status) whereParams.status = status;
-
-    const where = createVulnerableFamilyWhereClause(whereParams);
-
-    const families = await prisma.vulnerableFamily.findMany({
-      where,
-      include: {
-        citizen: {
-          select: {
-            name: true,
-            cpf: true,
-          },
+      // Buscar departamento de assistência social
+      const socialDept = await prisma.department.findFirst({
+        where: {
+          tenantId,
+          code: 'ASSISTENCIA_SOCIAL',
         },
-      },
-      orderBy: [{ riskLevel: 'desc' }, { responsibleName: 'asc' }],
-    });
+      });
 
-    const stats: FamilyStats = {
-      total: families.length,
-      highRisk: families.filter(f => f.riskLevel === 'HIGH').length,
-      mediumRisk: families.filter(f => f.riskLevel === 'MEDIUM').length,
-      lowRisk: families.filter(f => f.riskLevel === 'LOW').length,
-      active: families.filter(f => f.status === 'ACTIVE').length,
-    };
+      if (!socialDept) {
+        return res.status(404).json({
+          success: false,
+          error: 'Department not found',
+          message: 'Departamento de Assistência Social não encontrado',
+        });
+      }
 
-    return res.json(createSuccessResponse({ families, stats }));
-  })
-);
+      // Módulos de assistência social do MODULE_MAPPING
+      const socialModules = MODULE_BY_DEPARTMENT.ASSISTENCIA_SOCIAL || [];
 
-/**
- * POST /api/secretarias/assistencia-social/familias-vulneraveis
- * Cadastrar nova família vulnerável
- */
-router.post(
-  '/familias-vulneraveis',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const data = vulnerableFamilySchema.parse(req.body);
+      // Executar queries em paralelo
+      const [
+        protocolStats,
+        protocolsByModule,
+        familiesCount,
+        benefitsCount,
+        deliveriesCount,
+        visitsCount,
+        programsCount,
+        unitsCount,
+      ] = await Promise.all([
+        // 1. Estatísticas gerais de Protocolos
+        prisma.protocolSimplified.groupBy({
+          by: ['status'],
+          where: {
+            tenantId,
+            departmentId: socialDept.id,
+          },
+          _count: { id: true },
+        }),
 
-    // Verificar se cidadão já tem família cadastrada
-    const existingFamily = await prisma.vulnerableFamily.findFirst({
-      where: {
-        citizenId: data.citizenId,
-        tenantId: req.tenantId,
-        status: 'ACTIVE',
-      },
-    });
+        // 2. Protocolos por módulo (usando moduleType)
+        prisma.protocolSimplified.groupBy({
+          by: ['moduleType', 'status'],
+          where: {
+            tenantId,
+            departmentId: socialDept.id,
+            moduleType: { in: socialModules },
+          },
+          _count: { id: true },
+        }),
 
-    if (existingFamily) {
-      return res.status(400).json(
-        createErrorResponse('FAMILY_EXISTS', 'Cidadão já possui família cadastrada no sistema')
-      );
+        // 3. Famílias Vulneráveis
+        prisma.vulnerableFamily.groupBy({
+          by: ['status', 'riskLevel'],
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 4. Benefícios
+        prisma.benefitRequest.groupBy({
+          by: ['status'],
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 5. Entregas Emergenciais
+        prisma.emergencyDelivery.groupBy({
+          by: ['status'],
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 6. Visitas Domiciliares
+        prisma.homeVisit.groupBy({
+          by: ['status'],
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 7. Programas Sociais
+        prisma.socialProgram.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 8. Unidades SUAS (CRAS/CREAS)
+        prisma.socialEquipment.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+      ]);
+
+      // Processar estatísticas de Protocolos
+      const protocolData = {
+        total: 0,
+        pending: 0,
+        inProgress: 0,
+        completed: 0,
+      };
+
+      protocolStats.forEach((item: any) => {
+        const count = item._count?.id || 0;
+        protocolData.total += count;
+
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          protocolData.pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          protocolData.inProgress += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          protocolData.completed += count;
+        }
+      });
+
+      // Processar estatísticas por módulo
+      const moduleStats: Record<string, any> = {};
+
+      protocolsByModule.forEach((item: any) => {
+        if (!item.moduleType) return;
+
+        if (!moduleStats[item.moduleType]) {
+          moduleStats[item.moduleType] = {
+            total: 0,
+            pending: 0,
+            inProgress: 0,
+            completed: 0,
+          };
+        }
+
+        const count = item._count?.id || 0;
+        moduleStats[item.moduleType].total += count;
+
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          moduleStats[item.moduleType].pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          moduleStats[item.moduleType].inProgress += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          moduleStats[item.moduleType].completed += count;
+        }
+      });
+
+      // Processar famílias
+      const familyData = {
+        total: 0,
+        vulnerable: 0,
+        highRisk: 0,
+        mediumRisk: 0,
+        lowRisk: 0,
+        active: 0,
+      };
+
+      familiesCount.forEach((item: any) => {
+        const count = item._count?.id || 0;
+        familyData.total += count;
+
+        if (item.status === 'ACTIVE') {
+          familyData.active += count;
+          familyData.vulnerable += count;
+        }
+
+        if (item.riskLevel === 'HIGH') familyData.highRisk += count;
+        if (item.riskLevel === 'MEDIUM') familyData.mediumRisk += count;
+        if (item.riskLevel === 'LOW') familyData.lowRisk += count;
+      });
+
+      // Processar benefícios
+      const benefitData = {
+        total: 0,
+        pending: 0,
+        approved: 0,
+        denied: 0,
+      };
+
+      benefitsCount.forEach((item: any) => {
+        const count = item._count?.id || 0;
+        benefitData.total += count;
+
+        if (item.status === 'PENDING') benefitData.pending += count;
+        if (item.status === 'APPROVED') benefitData.approved += count;
+        if (item.status === 'DENIED') benefitData.denied += count;
+      });
+
+      // Processar entregas
+      const deliveryData = {
+        total: 0,
+        pending: 0,
+        inTransit: 0,
+        delivered: 0,
+      };
+
+      deliveriesCount.forEach((item: any) => {
+        const count = item._count?.id || 0;
+        deliveryData.total += count;
+
+        if (item.status === 'PENDING') deliveryData.pending += count;
+        if (item.status === 'IN_TRANSIT') deliveryData.inTransit += count;
+        if (item.status === 'DELIVERED') deliveryData.delivered += count;
+      });
+
+      // Processar visitas
+      const visitData = {
+        total: 0,
+        scheduled: 0,
+        completed: 0,
+        canceled: 0,
+      };
+
+      visitsCount.forEach((item: any) => {
+        const count = item._count?.id || 0;
+        visitData.total += count;
+
+        if (item.status === 'SCHEDULED') visitData.scheduled += count;
+        if (item.status === 'COMPLETED') visitData.completed += count;
+        if (item.status === 'CANCELED') visitData.canceled += count;
+      });
+
+      // Montar resposta consolidada
+      const stats = {
+        families: familyData,
+        attendances: {
+          total: protocolData.total,
+          thisMonth: protocolData.total,
+          variation: 0,
+        },
+        beneficiaries: {
+          total: benefitData.approved,
+          active: benefitData.approved,
+        },
+        units: {
+          total: unitsCount._count?.id || 0,
+          cras: 0, // TODO: filtrar por tipo
+          creas: 0, // TODO: filtrar por tipo
+        },
+        benefits: benefitData,
+        deliveries: deliveryData,
+        visits: visitData,
+        programs: {
+          total: programsCount._count?.id || 0,
+          active: programsCount._count?.id || 0,
+        },
+        protocols: protocolData,
+        moduleStats, // Estatísticas detalhadas por módulo
+      };
+
+      return res.json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      console.error('Social assistance stats error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: 'Erro ao buscar estatísticas da assistência social',
+      });
     }
-
-    const family = await prisma.vulnerableFamily.create({
-      data: {
-        citizenId: data.citizenId,
-        tenantId: req.tenantId,
-        responsibleName: data.responsibleName,
-        familyCode: data.familyCode,
-        memberCount: data.memberCount || 1,
-        monthlyIncome: data.monthlyIncome || null,
-        riskLevel: data.riskLevel,
-        vulnerabilityType: data.vulnerabilities || 'ECONOMIC',
-        status: 'ACTIVE',
-        observations: data.observations || null,
-      },
-    });
-
-    return res.status(201).json(
-      createSuccessResponse(family, 'Família cadastrada com sucesso')
-    );
-  })
+  }
 );
 
 /**
- * GET /api/secretarias/assistencia-social/beneficios
+ * GET /api/admin/secretarias/assistencia-social/services
+ * Listar serviços da Secretaria de Assistência Social
+ */
+router.get(
+  '/services',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+
+      // Buscar departamento de assistência social
+      const socialDept = await prisma.department.findFirst({
+        where: {
+          tenantId,
+          code: 'ASSISTENCIA_SOCIAL',
+        },
+      });
+
+      if (!socialDept) {
+        return res.status(404).json({
+          success: false,
+          error: 'Department not found',
+          message: 'Departamento de Assistência Social não encontrado',
+        });
+      }
+
+      // Buscar serviços simplificados
+      const services = await prisma.serviceSimplified.findMany({
+        where: {
+          tenantId,
+          departmentId: socialDept.id,
+          isActive: true,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
+
+      return res.json({
+        success: true,
+        data: services,
+      });
+    } catch (error) {
+      console.error('Get social assistance services error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: 'Erro ao buscar serviços',
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/admin/secretarias/assistencia-social/familias
+ * Listar famílias vulneráveis
+ */
+router.get(
+  '/familias',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, riskLevel, status, search } = req.query;
+
+      const skip = (Number(page) - 1) * Number(limit);
+
+      const where: any = { tenantId };
+
+      if (riskLevel && riskLevel !== 'all') {
+        where.riskLevel = riskLevel;
+      }
+
+      if (status && status !== 'all') {
+        where.status = status;
+      }
+
+      if (search) {
+        where.OR = [
+          { responsibleName: { contains: search as string } },
+          { familyCode: { contains: search as string } },
+        ];
+      }
+
+      const [data, total, highRiskCount] = await Promise.all([
+        prisma.vulnerableFamily.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: [{ riskLevel: 'desc' }, { createdAt: 'desc' }],
+          include: {
+            citizen: {
+              select: {
+                id: true,
+                name: true,
+                cpf: true,
+              },
+            },
+          },
+        }),
+        prisma.vulnerableFamily.count({ where }),
+        prisma.vulnerableFamily.count({
+          where: { tenantId, status: 'ACTIVE', riskLevel: 'HIGH' }
+        }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+          highRisk: highRiskCount,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get vulnerable families error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
+);
+
+/**
+ * GET /api/admin/secretarias/assistencia-social/beneficios
  * Listar solicitações de benefícios
  */
 router.get(
   '/beneficios',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const search = getStringParam(req.query.search);
-    const benefitType = getStringParam(req.query.benefit_type);
-    const status = getStringParam(req.query.status);
-
-    const whereParams: {
-      tenantId: string;
-      search?: string;
-      benefitType?: string;
-      status?: string;
-      urgency?: string;
-    } = {
-      tenantId: req.tenantId,
-    };
-
-    if (search) whereParams.search = search;
-    if (benefitType) whereParams.benefitType = benefitType;
-    if (status) whereParams.status = status;
-
-    const where = createBenefitRequestWhereClause(whereParams);
-
-    const benefits = await prisma.benefitRequest.findMany({
-      where,
-      orderBy: [{ urgency: 'desc' }, { requestDate: 'desc' }],
-    });
-
-    const stats: BenefitStats = {
-      total: benefits.length,
-      pending: benefits.filter(b => b.status === 'PENDING').length,
-      approved: benefits.filter(b => b.status === 'APPROVED').length,
-      denied: benefits.filter(b => b.status === 'DENIED').length,
-      highUrgency: benefits.filter(b => b.urgency === 'HIGH').length,
-    };
-
-    return res.json(createSuccessResponse({ benefits, stats }));
-  })
-);
-
-/**
- * POST /api/secretarias/assistencia-social/beneficios
- * Solicitar novo benefício
- */
-router.post(
-  '/beneficios',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const data = benefitRequestSchema.parse(req.body);
-
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
     try {
-      const result = await prisma.$transaction(async (tx) => {
-        // Gerar número do protocolo
-        const protocolNumber = generateProtocolNumber();
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, benefitType, status, search } = req.query;
 
-        // Buscar cidadão pelo CPF
-        const citizen = await tx.citizen.findFirst({
-          where: { cpf: data.familyHeadCpf, tenantId: req.tenantId }
-        });
-        const citizenId = citizen?.id || data.familyHeadCpf; // fallback para CPF
+      const skip = (Number(page) - 1) * Number(limit);
 
-        // Buscar departamento de Assistência Social
-        const department = await tx.department.findFirst({
-          where: {
-            tenantId: req.tenantId,
-            code: 'ASSISTENCIA_SOCIAL'
-          }
-        });
+      const where: any = { tenantId };
 
-        // Buscar serviço genérico de benefícios ou criar protocolo sem serviço específico
-        const service = await tx.serviceSimplified.findFirst({
-          where: {
-            tenantId: req.tenantId,
-            departmentId: department?.id,
-            name: { contains: 'Benefício' }
-          }
-        });
+      if (benefitType && benefitType !== 'all') {
+        where.benefitType = benefitType;
+      }
 
-        // Criar protocolo
-        const protocol = await tx.protocolSimplified.create({
-          data: {
-            tenantId: req.tenantId,
-            citizenId,
-            serviceId: service?.id || 'GENERIC_SERVICE', // Fallback para serviço genérico
-            departmentId: department?.id || 'ASSISTENCIA_SOCIAL',
-            number: protocolNumber,
-            title: `Solicitação de Benefício - ${data.benefitType}`,
-            description: data.reason,
-            status: 'VINCULADO' as any,
-            priority: 3,
-          },
-        });
+      if (status && status !== 'all') {
+        where.status = status;
+      }
 
-        // Criar solicitação de benefício vinculada ao protocolo
-        const benefitRequest = await tx.benefitRequest.create({
-          data: {
-            tenantId: req.tenantId,
-            familyId: data.familyHeadCpf, // Using CPF as family identifier
-            benefitType: data.benefitType,
-            reason: data.reason,
-            status: 'PENDING',
-            urgency: data.urgency || 'NORMAL',
-            documentsProvided: data.documents ? JSON.parse(data.documents) : null,
-            observations: data.observations || null,
-          },
-        });
+      if (search) {
+        where.OR = [
+          { familyId: { contains: search as string } },
+          { reason: { contains: search as string } },
+        ];
+      }
 
-        return { protocol, benefitRequest };
-      });
+      const [data, total, pendingCount] = await Promise.all([
+        prisma.benefitRequest.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: [{ urgency: 'desc' }, { requestDate: 'desc' }],
+        }),
+        prisma.benefitRequest.count({ where }),
+        prisma.benefitRequest.count({ where: { tenantId, status: 'PENDING' } }),
+      ]);
 
-      return res.status(201).json({
+      return res.json({
         success: true,
-        message: 'Solicitação de benefício criada com sucesso',
-        data: {
-          protocol: result.protocol,
-          benefitRequest: result.benefitRequest,
+        data,
+        stats: {
+          total,
+          pending: pendingCount,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
         },
       });
     } catch (error) {
-      console.error('Error creating benefit request with protocol:', error);
-      return res.status(500).json(
-        createErrorResponse('INTERNAL_ERROR', 'Erro ao criar solicitação de benefício')
-      );
+      console.error('Get benefit requests error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
     }
-  })
+  }
 );
 
 /**
- * GET /api/secretarias/assistencia-social/entregas-emergenciais
+ * GET /api/admin/secretarias/assistencia-social/entregas
  * Listar entregas emergenciais
  */
 router.get(
-  '/entregas-emergenciais',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const search = getStringParam(req.query.search);
-    const deliveryType = getStringParam(req.query.delivery_type);
-    const status = getStringParam(req.query.status);
-    const date = getStringParam(req.query.date);
+  '/entregas',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, deliveryType, status } = req.query;
 
-    const whereParams: {
-      tenantId: string;
-      search?: string;
-      deliveryType?: string;
-      status?: string;
-      date?: string;
-    } = {
-      tenantId: req.tenantId,
-    };
+      const skip = (Number(page) - 1) * Number(limit);
 
-    if (search) whereParams.search = search;
-    if (deliveryType) whereParams.deliveryType = deliveryType;
-    if (status) whereParams.status = status;
-    if (date) whereParams.date = date;
+      const where: any = { tenantId };
 
-    const where = createEmergencyDeliveryWhereClause(whereParams);
+      if (deliveryType && deliveryType !== 'all') {
+        where.deliveryType = deliveryType;
+      }
 
-    const deliveries = await prisma.emergencyDelivery.findMany({
-      where,
-      orderBy: [{ status: 'desc' }, { deliveryDate: 'asc' }],
-    });
+      if (status && status !== 'all') {
+        where.status = status;
+      }
 
-    const stats: DeliveryStats = {
-      total: deliveries.length,
-      pending: deliveries.filter(d => d.status === 'PENDING').length,
-      inTransit: deliveries.filter(d => d.status === 'IN_TRANSIT').length,
-      delivered: deliveries.filter(d => d.status === 'DELIVERED').length,
-      today: deliveries.filter(d => isToday(new Date(d.deliveryDate))).length,
-    };
+      const [data, total] = await Promise.all([
+        prisma.emergencyDelivery.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { deliveryDate: 'asc' },
+        }),
+        prisma.emergencyDelivery.count({ where }),
+      ]);
 
-    return res.json(createSuccessResponse({ deliveries, stats }));
-  })
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get emergency deliveries error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
 );
 
 /**
- * POST /api/secretarias/assistencia-social/entregas-emergenciais
- * Agendar nova entrega emergencial
- */
-router.post(
-  '/entregas-emergenciais',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const data = emergencyDeliverySchema.parse(req.body);
-
-    const delivery = await prisma.emergencyDelivery.create({
-      data: {
-        tenantId: req.tenantId,
-        benefitRequestId: req.user.id, // Using user id as placeholder for now
-        deliveryType: data.deliveryType,
-        quantity: data.quantity || 1,
-        deliveryDate: new Date(data.scheduledDate),
-        recipientName: data.recipientName,
-        deliveredBy: req.user.name || req.user.email,
-        status: 'PENDING',
-        observations: data.observations || null,
-      },
-    });
-
-    return res.status(201).json(
-      createSuccessResponse(delivery, 'Entrega emergencial agendada com sucesso')
-    );
-  })
-);
-
-/**
- * GET /api/secretarias/assistencia-social/visitas
+ * GET /api/admin/secretarias/assistencia-social/visitas
  * Listar visitas domiciliares
  */
 router.get(
   '/visitas',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const search = getStringParam(req.query.search);
-    const status = getStringParam(req.query.status);
-    const date = getStringParam(req.query.date);
-    const socialWorker = getStringParam(req.query.social_worker);
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, socialWorker } = req.query;
 
-    const whereParams: {
-      tenantId: string;
-      search?: string;
-      status?: string;
-      date?: string;
-      socialWorker?: string;
-    } = {
-      tenantId: req.tenantId,
-    };
+      const skip = (Number(page) - 1) * Number(limit);
 
-    if (search) whereParams.search = search;
-    if (status) whereParams.status = status;
-    if (date) whereParams.date = date;
-    if (socialWorker) whereParams.socialWorker = socialWorker;
+      const where: any = { tenantId };
 
-    const where = createHomeVisitWhereClause(whereParams);
+      if (status && status !== 'all') {
+        where.status = status;
+      }
 
-    const visits = await prisma.homeVisit.findMany({
-      where,
-      orderBy: [{ visitDate: 'asc' }],
-    });
+      if (socialWorker) {
+        where.socialWorker = socialWorker;
+      }
 
-    const stats: VisitStats = {
-      total: visits.length,
-      scheduled: visits.filter(v => v.status === 'SCHEDULED').length,
-      completed: visits.filter(v => v.status === 'COMPLETED').length,
-      canceled: visits.filter(v => v.status === 'CANCELED').length,
-      today: visits.filter(v => isToday(new Date(v.visitDate))).length,
-    };
+      const [data, total] = await Promise.all([
+        prisma.homeVisit.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { visitDate: 'desc' },
+        }),
+        prisma.homeVisit.count({ where }),
+      ]);
 
-    return res.json(createSuccessResponse({ visits, stats }));
-  })
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get home visits error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
 );
 
 /**
- * POST /api/secretarias/assistencia-social/visitas
- * Agendar nova visita domiciliar
- */
-router.post(
-  '/visitas',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const data = homeVisitSchema.parse(req.body);
-
-    const visit = await prisma.homeVisit.create({
-      data: {
-        tenantId: req.tenantId,
-        familyId: data.familyName, // Using family name as identifier for now
-        visitDate: new Date(data.visitDate),
-        socialWorker: req.user.name || req.user.email,
-        visitType: 'ROUTINE',
-        visitPurpose: data.purpose,
-        status: 'SCHEDULED',
-      },
-    });
-
-    return res.status(201).json(
-      createSuccessResponse(visit, 'Visita domiciliar agendada com sucesso')
-    );
-  })
-);
-
-/**
- * GET /api/secretarias/assistencia-social/programas-sociais
- * Listar programas sociais ativos
+ * GET /api/admin/secretarias/assistencia-social/programas
+ * Listar programas sociais
  */
 router.get(
-  '/programas-sociais',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const search = getStringParam(req.query.search);
-    const programType = getStringParam(req.query.program_type);
-    const whereParams: {
-      tenantId: string;
-      search?: string;
-      programType?: string;
-    } = {
-      tenantId: req.tenantId,
-    };
+  '/programas',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, programType } = req.query;
 
-    if (search) whereParams.search = search;
-    if (programType) whereParams.programType = programType;
+      const skip = (Number(page) - 1) * Number(limit);
 
-    const where = createSocialProgramWhereClause(whereParams);
+      const where: any = { tenantId };
 
-    const programs = await prisma.socialProgram.findMany({
-      where,
-      orderBy: [{ name: 'asc' }],
-    });
+      if (programType && programType !== 'all') {
+        where.programType = programType;
+      }
 
-    const stats: ProgramStats = {
-      total: programs.length,
-      active: programs.filter(p => p.startDate <= new Date() && (!p.endDate || p.endDate >= new Date())).length,
-      totalEnrollments: 0, // No enrollments relation in schema
-    };
+      const [data, total, activeCount] = await Promise.all([
+        prisma.socialProgram.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { name: 'asc' },
+        }),
+        prisma.socialProgram.count({ where }),
+        prisma.socialProgram.count({
+          where: {
+            tenantId,
+            startDate: { lte: new Date() },
+            OR: [
+              { endDate: null },
+              { endDate: { gte: new Date() } },
+            ],
+          },
+        }),
+      ]);
 
-    return res.json(createSuccessResponse({ programs, stats }));
-  })
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
+          active: activeCount,
+        },
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get social programs error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
 );
 
 /**
- * GET /api/secretarias/assistencia-social/dashboard
- * Dashboard com indicadores da assistência social
+ * GET /api/admin/secretarias/assistencia-social/cras-creas
+ * Listar unidades SUAS (CRAS/CREAS)
  */
 router.get(
-  '/dashboard',
-  authenticateToken,
-  handleAsyncRoute(async (req, res) => {
-    const today = new Date();
-    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  '/cras-creas',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20 } = req.query;
 
-    // Famílias vulneráveis cadastradas
-    const vulnerableFamilies = await prisma.vulnerableFamily.count({
-      where: {
-        tenantId: req.tenantId,
-        status: 'ACTIVE',
-      },
-    });
+      const skip = (Number(page) - 1) * Number(limit);
 
-    // Benefícios pendentes
-    const pendingBenefits = await prisma.benefitRequest.count({
-      where: {
-        tenantId: req.tenantId,
-        status: 'PENDING',
-      },
-    });
+      const where: any = { tenantId };
 
-    // Entregas emergenciais hoje
-    const todayDeliveries = await prisma.emergencyDelivery.count({
-      where: {
-        tenantId: req.tenantId,
-        deliveryDate: {
-          gte: new Date(today.setHours(0, 0, 0, 0)),
-          lte: new Date(today.setHours(23, 59, 59, 999)),
+      const [data, total] = await Promise.all([
+        prisma.socialEquipment.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { equipmentName: 'asc' },
+        }),
+        prisma.socialEquipment.count({ where }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        stats: {
+          total,
         },
-      },
-    });
-
-    // Visitas agendadas
-    const scheduledVisits = await prisma.homeVisit.count({
-      where: {
-        tenantId: req.tenantId,
-        status: 'SCHEDULED',
-      },
-    });
-
-    // Famílias por nível de risco
-    const familiesByRisk = await prisma.vulnerableFamily.groupBy({
-      by: ['riskLevel'],
-      where: {
-        tenantId: req.tenantId,
-        status: 'ACTIVE',
-      },
-      _count: {
-        id: true,
-      },
-    });
-
-    // Benefícios mais solicitados
-    const topBenefits = await prisma.benefitRequest.groupBy({
-      by: ['benefitType'],
-      where: {
-        tenantId: req.tenantId,
-        requestDate: {
-          gte: startOfMonth,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
         },
-      },
-      _count: {
-        id: true,
-      },
-      orderBy: {
-        _count: {
-          id: 'desc',
-        },
-      },
-      take: 5,
-    });
-
-    const indicators = {
-      vulnerableFamilies,
-      pendingBenefits,
-      todayDeliveries,
-      scheduledVisits,
-      familiesByRisk,
-      topBenefits,
-    };
-
-    return res.json(createSuccessResponse({ indicators }));
-  })
+      });
+    } catch (error) {
+      console.error('Get service units error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
 );
-
-// ====================== ERROR HANDLING ======================
-
-router.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  console.error('Erro nas rotas de assistência social:', error);
-
-  if (error instanceof z.ZodError) {
-    return res.status(400).json(
-      createErrorResponse('VALIDATION_ERROR', 'Dados inválidos', error.issues)
-    );
-  }
-
-  if (isError(error)) {
-    return res.status(500).json(
-      createErrorResponse('INTERNAL_SERVER_ERROR', 'Erro interno do servidor', error.message)
-    );
-  }
-
-  return res.status(500).json(
-    createErrorResponse('UNKNOWN_ERROR', 'Erro desconhecido')
-  );
-});
 
 export default router;

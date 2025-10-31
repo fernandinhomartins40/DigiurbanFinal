@@ -789,9 +789,10 @@ router.get('/stats', authenticateToken, handleAsyncRoute(async (req, res) => {
       communityHealthAgents: communityHealthAgentsCount,
     },
     protocolsByModule: protocolsByModule.reduce((acc: any, item) => {
-      const module = item.moduleType;
+      const module = item.moduleType || 'unknown';
       if (!acc[module]) acc[module] = {};
-      acc[module][item.status] = item._count.id;
+      const status = item.status || 'unknown';
+      acc[module][status] = item._count.id;
       return acc;
     }, {}),
     totals: {
@@ -864,11 +865,23 @@ router.post('/health-attendances', authenticateToken, requireManager, handleAsyn
       });
       const citizenId = citizen?.id || validatedData.citizenCPF; // fallback para CPF
 
+      // Buscar um serviço padrão de saúde para o protocolo
+      const defaultService = await tx.serviceSimplified.findFirst({
+        where: { tenantId: req.tenantId },
+        select: { id: true, departmentId: true }
+      });
+
+      if (!defaultService) {
+        throw new Error('Nenhum serviço disponível para criar protocolo');
+      }
+
       // Criar protocolo
       const protocol = await tx.protocolSimplified.create({
         data: {
           tenantId: req.tenantId,
           citizenId,
+          serviceId: defaultService.id,
+          departmentId: defaultService.departmentId,
           number: protocolNumber,
           title: validatedData.description.substring(0, 100),
           description: validatedData.description,

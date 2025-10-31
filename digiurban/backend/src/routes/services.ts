@@ -287,16 +287,6 @@ router.put('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async 
       isActive,
       icon,
       color,
-
-      // Feature Flags
-      hasCustomForm,
-      hasLocation,
-      hasScheduling,
-      hasSurvey,
-      hasCustomWorkflow,
-      hasCustomFields,
-      hasAdvancedDocs,
-      hasNotifications,
     } = authReq.body;
 
     // Verificar se serviço existe
@@ -335,16 +325,6 @@ router.put('/:id', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async 
         isActive: isActive !== undefined ? isActive : service.isActive,
         icon: icon !== undefined ? icon : service.icon,
         color: color !== undefined ? color : service.color,
-
-        // Feature Flags
-        hasCustomForm: hasCustomForm !== undefined ? hasCustomForm : service.hasCustomForm,
-        hasLocation: hasLocation !== undefined ? hasLocation : service.hasLocation,
-        hasScheduling: hasScheduling !== undefined ? hasScheduling : service.hasScheduling,
-        hasSurvey: hasSurvey !== undefined ? hasSurvey : service.hasSurvey,
-        hasCustomWorkflow: hasCustomWorkflow !== undefined ? hasCustomWorkflow : service.hasCustomWorkflow,
-        hasCustomFields: hasCustomFields !== undefined ? hasCustomFields : service.hasCustomFields,
-        hasAdvancedDocs: hasAdvancedDocs !== undefined ? hasAdvancedDocs : service.hasAdvancedDocs,
-        hasNotifications: hasNotifications !== undefined ? hasNotifications : service.hasNotifications,
       },
       include: {
         department: {

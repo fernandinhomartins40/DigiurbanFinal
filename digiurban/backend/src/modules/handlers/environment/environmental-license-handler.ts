@@ -58,7 +58,7 @@ export class EnvironmentalLicenseHandler extends BaseModuleHandler {
         applicationDate: new Date(),
         status: 'pending',
         documents: data.documents || null,
-        protocol,
+        protocolId: protocol,
         serviceId,
         source: 'service'
       }

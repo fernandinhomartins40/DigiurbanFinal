@@ -69,11 +69,50 @@ router.get(
       .sort((a, b) => (b.populacao || 0) - (a.populacao || 0))
       .slice(0, 50);
 
+    // Buscar tenants ativos no banco para cruzar com os municípios
+    const tenantsAtivos = await prisma.tenant.findMany({
+      where: {
+        status: { in: ['ACTIVE', 'TRIAL'] },
+      },
+      select: {
+        id: true,
+        name: true,
+        codigoIbge: true,
+      },
+    });
+
+    // Criar um mapa de código IBGE -> tenant
+    const tenantMap = new Map<string, any>();
+    tenantsAtivos.forEach(tenant => {
+      if (tenant.codigoIbge) {
+        tenantMap.set(tenant.codigoIbge, tenant);
+      }
+    });
+
+    // Enriquecer resultados com informação de tenant existente
+    const resultadosEnriquecidos = resultados.map(municipio => {
+      const tenant = tenantMap.get(municipio.codigo_ibge);
+      if (tenant) {
+        // Tenant já existe - retornar com id do tenant
+        return {
+          ...municipio,
+          id: tenant.id,
+          domain: tenant.name?.toLowerCase().replace(/\s+/g, '-'),
+          hasTenant: true,
+        };
+      }
+      // Tenant não existe - será criado automaticamente
+      return {
+        ...municipio,
+        hasTenant: false,
+      };
+    });
+
     res.json({
       success: true,
       data: {
-        municipios: resultados,
-        total: resultados.length,
+        municipios: resultadosEnriquecidos,
+        total: resultadosEnriquecidos.length,
       },
     });
   })

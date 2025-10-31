@@ -426,7 +426,7 @@ router.post('/:id/request', async (req, res) => {
           status: 'VINCULADO' as any,
           latitude: locationData?.latitude,
           longitude: locationData?.longitude,
-          endereco: locationData?.address,
+          address: locationData?.address,
           customData: customFormData as any,
           documents: attachments as any,
         },

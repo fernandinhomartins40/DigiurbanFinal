@@ -305,6 +305,7 @@ function getRolePermissions(role: UserRole): string[] {
       'department:read',
       // Permissões de cidadãos para todos servidores
       'citizens:read',
+      'citizens:create',
       'citizens:verify',
       'citizens:update',
       'social-assistance:read',
@@ -321,6 +322,7 @@ function getRolePermissions(role: UserRole): string[] {
       'department:read',
       // Permissões de cidadãos para todos servidores
       'citizens:read',
+      'citizens:create',
       'citizens:verify',
       'citizens:update',
       'social-assistance:read',
@@ -340,6 +342,7 @@ function getRolePermissions(role: UserRole): string[] {
       'department:manage',
       // Permissões de cidadãos para todos servidores
       'citizens:read',
+      'citizens:create',
       'citizens:verify',
       'citizens:update',
       'citizens:manage',
@@ -359,6 +362,7 @@ function getRolePermissions(role: UserRole): string[] {
       'team:read',
       'team:manage',
       'citizens:read',
+      'citizens:create',
       'citizens:verify',
       'citizens:update',
       'citizens:manage',

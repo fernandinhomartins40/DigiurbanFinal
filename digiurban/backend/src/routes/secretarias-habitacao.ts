@@ -207,12 +207,12 @@ router.get('/atendimentos', authenticateToken, requireManager, asyncHandler(asyn
 
   const [attendances, total] = await Promise.all([
     prisma.housingAttendance.findMany({
-      where,
+      where: where as any,
       skip: (page - 1) * limit,
       take: limit,
       orderBy: { createdAt: 'desc' },
     }),
-    prisma.housingAttendance.count({ where }),
+    prisma.housingAttendance.count({ where: where as any }),
   ]);
 
   res.json({

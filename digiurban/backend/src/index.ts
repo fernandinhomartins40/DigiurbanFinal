@@ -172,7 +172,7 @@ app.use('/api/admin', adminTransferRoutes);
 
 // Rotas das Secretarias Especializadas (Fase 5)
 app.use('/api/secretarias/saude', secretariasSaudeRoutes);
-app.use('/api/secretarias/educacao', secretariasEducacaoRoutes);
+app.use('/api/admin/secretarias/educacao', secretariasEducacaoRoutes);
 app.use('/api/secretarias/assistencia-social', secretariasAssistenciaSocialRoutes);
 app.use('/api/secretarias/genericas', secretariasGenericasRoutes);
 app.use('/api/secretarias/cultura', secretariasCulturaRoutes);
@@ -227,8 +227,35 @@ registerAllHandlers();
 
 console.log('✅ Todos os module handlers registrados com sucesso');
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 DigiUrban Backend server running on port ${PORT}`);
   console.log(`📱 API Documentation: http://localhost:${PORT}/health`);
+  console.log(`⏰ Server is now listening and will stay alive...`);
+});
+
+server.on('error', (error: NodeJS.ErrnoException) => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`❌ Port ${PORT} is already in use`);
+    process.exit(1);
+  } else {
+    console.error('❌ Server error:', error);
+    process.exit(1);
+  }
+});
+
+// Keep process alive
+process.on('SIGTERM', () => {
+  console.log('👋 SIGTERM signal received: closing HTTP server');
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('👋 SIGINT signal received: closing HTTP server');
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+    process.exit(0);
+  });
 });
 

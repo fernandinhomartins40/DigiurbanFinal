@@ -241,7 +241,7 @@ model Citizen {
   password                    String
   failedLoginAttempts         Int                          @default(0)
   lockedUntil                 DateTime?
-  verificationStatus          String                       @default("PENDING")
+  verificationStatus          VerificationStatus           @default(PENDING)
   verifiedAt                  DateTime?
   verifiedBy                  String?
   verificationNotes           String?
@@ -275,6 +275,7 @@ model Citizen {
   drainageRequests            DrainageRequest[]            @relation("DrainageRequestCitizen")
   treePruningRequests         TreePruningRequest[]         @relation("TreePruningRequestCitizen")
   publicServiceAttendances    PublicServiceAttendance[]    @relation("PublicServiceAttendanceCitizen")
+  ruralProducers              RuralProducer[]              @relation("RuralProducerCitizen")
 
   @@unique([tenantId, cpf])
   @@map("citizens")
@@ -1121,6 +1122,7 @@ model AuditLog {
 model RuralProducer {
   id             String              @id @default(cuid())
   tenantId       String
+  citizenId      String
   protocolId     String?
   name           String
   document       String
@@ -1133,11 +1135,14 @@ model RuralProducer {
   isActive       Boolean             @default(true)
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
+  citizen        Citizen             @relation("RuralProducerCitizen", fields: [citizenId], references: [id])
   protocol       ProtocolSimplified? @relation("RuralProducerProtocol", fields: [protocolId], references: [id])
   tenant         Tenant              @relation(fields: [tenantId], references: [id])
   properties     RuralProperty[]
 
   @@unique([tenantId, document])
+  @@unique([tenantId, citizenId])
+  @@index([citizenId])
   @@map("rural_producers")
 }
 
@@ -5279,6 +5284,13 @@ enum EmailPlan {
   STANDARD
   PREMIUM
   ENTERPRISE
+}
+
+enum VerificationStatus {
+  PENDING  // Bronze - Cadastro pendente de verificação
+  VERIFIED // Prata - Cadastro verificado pelo admin
+  GOLD     // Ouro - Cadastro completo com documentação adicional
+  REJECTED // Rejeitado
 }
 
 enum CulturalAttendanceType {

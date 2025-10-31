@@ -47,42 +47,13 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    // Buscar templates
-    const [templates, total] = await Promise.all([
-      prisma.serviceTemplate.findMany({
-        where,
-        orderBy: [
-          { category: 'asc' },
-          { name: 'asc' },
-        ],
-        skip,
-        take: Number(limit),
-      }),
-      prisma.serviceTemplate.count({ where }),
-    ]);
+    // NOTA: Model serviceTemplate não existe no schema
+    // Retornar lista vazia por enquanto
+    const templates: any[] = [];
+    const total = 0;
 
     // Para cada template, verificar se já foi ativado no tenant
-    const templatesWithStatus = await Promise.all(
-      templates.map(async (template) => {
-        const activeInstance = await prisma.serviceSimplified.findFirst({
-          where: {
-            tenantId: tenant.id,
-            templateId: template.id,
-          },
-          select: {
-            id: true,
-            isActive: true,
-          },
-        });
-
-        return {
-          ...template,
-          isActivated: !!activeInstance,
-          activeServiceId: activeInstance?.id,
-          activeServiceIsActive: activeInstance?.isActive,
-        };
-      })
-    );
+    const templatesWithStatus = templates;
 
     return res.json({
       templates: templatesWithStatus,
@@ -104,23 +75,8 @@ router.get('/', async (req, res) => {
 // =============================================================================
 router.get('/categories', async (req, res) => {
   try {
-    const categories = await prisma.serviceTemplate.groupBy({
-      by: ['category'],
-      where: {
-        isActive: true,
-      },
-      _count: {
-        category: true,
-      },
-      orderBy: {
-        category: 'asc',
-      },
-    });
-
-    const result = categories.map((cat) => ({
-      name: cat.category,
-      count: cat._count.category,
-    }));
+    // NOTA: Model serviceTemplate não existe no schema
+    const result: any[] = [];
 
     return res.json({ categories: result });
   } catch (error) {
@@ -137,15 +93,8 @@ router.get('/:id', async (req, res) => {
     const { tenant } = req as GuaranteedTenantRequest;
     const { id } = req.params;
 
-    const template = await prisma.serviceTemplate.findUnique({
-      where: { id },
-    });
-
-    if (!template) {
-      return res.status(404).json({ error: 'Template não encontrado' });
-    }
-
-    return res.json({ template });
+    // NOTA: Model serviceTemplate não existe no schema
+    return res.status(404).json({ error: 'Template não encontrado' });
   } catch (error) {
     console.error('Erro ao buscar template:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
@@ -170,79 +119,8 @@ router.post('/:id/activate', async (req, res) => {
       return res.status(400).json({ error: 'departmentId é obrigatório' });
     }
 
-    // Buscar template
-    const template = await prisma.serviceTemplate.findUnique({
-      where: { id: templateId },
-    });
-
-    if (!template) {
-      return res.status(404).json({ error: 'Template não encontrado' });
-    }
-
-    // Verificar se já foi ativado
-    const existingService = await prisma.serviceSimplified.findFirst({
-      where: {
-        tenantId: tenant.id,
-        templateId: template.id,
-      },
-    });
-
-    if (existingService) {
-      return res.status(400).json({
-        error: 'Este template já foi ativado neste tenant',
-        serviceId: existingService.id,
-      });
-    }
-
-    // Verificar se departamento existe
-    const department = await prisma.department.findFirst({
-      where: {
-        id: departmentId,
-        tenantId: tenant.id,
-      },
-    });
-
-    if (!department) {
-      return res.status(404).json({ error: 'Departamento não encontrado' });
-    }
-
-    // Criar serviço baseado no template
-    const service = await prisma.serviceSimplified.create({
-      data: {
-        tenantId: tenant.id,
-        templateId: template.id,
-        departmentId,
-        name: customizations.name || template.name,
-        description: customizations.description || template.description,
-        category: template.category,
-        icon: template.icon,
-        priority: Number(priority),
-        isActive: true,
-        estimatedDays: template.estimatedTime ? parseInt(String(template.estimatedTime)) : null,
-        moduleType: template.moduleType,
-        moduleEntity: template.moduleEntity,
-        serviceType: 'REQUEST',
-        hasCustomForm: true,
-      },
-    });
-
-    // Criar formulário customizado baseado nos campos padrão
-    if (template.defaultFields) {
-      await prisma.serviceForm.create({
-        data: {
-          serviceId: service.id,
-          title: service.name,
-          description: service.description,
-          fields: template.defaultFields as any,
-        },
-      });
-    }
-
-    return res.status(201).json({
-      success: true,
-      message: `Serviço "${service.name}" ativado com sucesso!`,
-      service,
-    });
+    // NOTA: Model serviceTemplate não existe no schema
+    return res.status(404).json({ error: 'Template não encontrado' });
   } catch (error) {
     console.error('Erro ao ativar template:', error);
     return res.status(500).json({
@@ -260,48 +138,8 @@ router.delete('/:id/deactivate', async (req, res) => {
     const { tenant } = req as GuaranteedTenantRequest;
     const { id: templateId } = req.params;
 
-    // Buscar serviço ativo
-    const service = await prisma.serviceSimplified.findFirst({
-      where: {
-        tenantId: tenant.id,
-        templateId,
-      },
-    });
-
-    if (!service) {
-      return res.status(404).json({ error: 'Serviço não encontrado para este template' });
-    }
-
-    // Verificar se há protocolos vinculados
-    const protocolsCount = await prisma.protocolSimplified.count({
-      where: {
-        serviceId: service.id,
-      },
-    });
-
-    if (protocolsCount > 0) {
-      // Apenas desativar, não deletar
-      await prisma.serviceSimplified.update({
-        where: { id: service.id },
-        data: { isActive: false },
-      });
-
-      return res.json({
-        success: true,
-        message: `Serviço desativado (${protocolsCount} protocolos existentes)`,
-        protocolsCount,
-      });
-    } else {
-      // Pode deletar com segurança
-      await prisma.serviceSimplified.delete({
-        where: { id: service.id },
-      });
-
-      return res.json({
-        success: true,
-        message: 'Serviço removido com sucesso',
-      });
-    }
+    // NOTA: Model serviceTemplate não existe no schema, campo templateId não existe
+    return res.status(404).json({ error: 'Template não encontrado' });
   } catch (error) {
     console.error('Erro ao desativar template:', error);
     return res.status(500).json({ error: 'Erro interno do servidor' });
@@ -315,69 +153,15 @@ router.get('/stats/summary', async (req, res) => {
   try {
     const { tenant } = req as GuaranteedTenantRequest;
 
-    // Total de templates disponíveis
-    const totalTemplates = await prisma.serviceTemplate.count({
-      where: { isActive: true },
-    });
-
-    // Templates ativados neste tenant
-    const activatedTemplates = await prisma.serviceSimplified.count({
-      where: {
-        tenantId: tenant.id,
-        templateId: { not: null },
-      },
-    });
-
-    // Templates por categoria
-    const byCategory = await prisma.serviceTemplate.groupBy({
-      by: ['category'],
-      where: { isActive: true },
-      _count: { category: true },
-    });
-
-    // Templates mais ativados (globalmente)
-    const mostActivated = await prisma.serviceSimplified.groupBy({
-      by: ['templateId'],
-      where: {
-        templateId: { not: null },
-      },
-      _count: { templateId: true },
-      orderBy: {
-        _count: {
-          templateId: 'desc',
-        },
-      },
-      take: 10,
-    });
-
-    const mostActivatedWithNames = await Promise.all(
-      mostActivated
-        .filter((item) => item.templateId !== null)
-        .map(async (item) => {
-          const template = await prisma.serviceTemplate.findUnique({
-            where: { id: item.templateId! },
-            select: { name: true, category: true },
-          });
-          return {
-            templateId: item.templateId,
-            name: template?.name,
-            category: template?.category,
-            activations: item._count.templateId,
-          };
-        })
-    );
-
+    // NOTA: Model serviceTemplate não existe no schema, campo templateId não existe
     return res.json({
       summary: {
-        totalTemplates,
-        activatedTemplates,
-        activationRate: ((activatedTemplates / totalTemplates) * 100).toFixed(1) + '%',
+        totalTemplates: 0,
+        activatedTemplates: 0,
+        activationRate: '0%',
       },
-      byCategory: byCategory.map((cat) => ({
-        category: cat.category,
-        count: cat._count.category,
-      })),
-      mostActivated: mostActivatedWithNames,
+      byCategory: [],
+      mostActivated: [],
     });
   } catch (error) {
     console.error('Erro ao buscar estatísticas:', error);

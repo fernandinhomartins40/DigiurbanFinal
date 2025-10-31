@@ -11,7 +11,7 @@ type PrismaTransaction = Omit<
 >;
 
 export class TechnicalAssistanceHandler extends BaseModuleHandler {
-  moduleType = 'agriculture';
+  moduleType = 'ASSISTENCIA_TECNICA';
   entityName = 'TechnicalAssistance';
 
   async execute(action: ModuleAction, tx: PrismaTransaction): Promise<any> {

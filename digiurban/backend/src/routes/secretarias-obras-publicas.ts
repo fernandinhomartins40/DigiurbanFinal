@@ -1,674 +1,554 @@
-import { Router, Response } from 'express';
-import { z } from 'zod';
+// ============================================================================
+// SECRETARIAS-OBRAS-PUBLICAS.TS - Rotas da Secretaria de Obras Públicas
+// ============================================================================
+// VERSÃO SIMPLIFICADA - Usa 100% do sistema novo (ProtocolSimplified + MODULE_MAPPING)
+
+import { Router } from 'express';
 import { prisma } from '../lib/prisma';
+import {
+  adminAuthMiddleware,
+  requireMinRole,
+} from '../middleware/admin-auth';
 import { tenantMiddleware } from '../middleware/tenant';
-import { authenticateToken, requireManager } from '../middleware/auth';
+import { UserRole, ProtocolStatus } from '@prisma/client';
 import { AuthenticatedRequest } from '../types';
-import { asyncHandler } from '../utils/express-helpers';
 import { MODULE_BY_DEPARTMENT } from '../config/module-mapping';
 
 const router = Router();
 
-// Apply middleware
+// Aplicar middlewares
 router.use(tenantMiddleware);
+router.use(adminAuthMiddleware);
 
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
+/**
+ * GET /api/admin/secretarias/obras-publicas/stats
+ * Obter estatísticas consolidadas da Secretaria de Obras Públicas
+ * VERSÃO SIMPLIFICADA - Usa apenas ProtocolSimplified + moduleType
+ */
+router.get(
+  '/stats',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
 
-function getStringParam(param: unknown): string {
-  if (Array.isArray(param)) return String(param[0] || '');
-  if (typeof param === 'string') return param;
-  return '';
-}
-
-interface PrismaWhereClause {
-  tenantId: string;
-  OR?: Array<Record<string, { contains: string; mode: 'insensitive' }>>;
-  status?: string;
-  type?: string;
-  [key: string]: unknown;
-}
-
-function createSafeWhereClause(params: {
-  tenantId: string;
-  search?: string;
-  status?: string;
-  type?: string;
-  searchFields?: string[];
-}): PrismaWhereClause {
-  const where: PrismaWhereClause = {
-    tenantId: params.tenantId
-  };
-
-  if (params.search && params.searchFields) {
-    const searchConditions: Array<Record<string, { contains: string; mode: 'insensitive' }>> = [];
-    params.searchFields.forEach(field => {
-      searchConditions.push({
-        [field]: { contains: params.search!, mode: 'insensitive' }
+      // Buscar departamento de Obras Públicas
+      const publicWorksDept = await prisma.department.findFirst({
+        where: {
+          tenantId,
+          code: 'OBRAS_PUBLICAS',
+        },
       });
-    });
-    if (searchConditions.length > 0) {
-      where.OR = searchConditions;
+
+      if (!publicWorksDept) {
+        return res.status(404).json({
+          success: false,
+          error: 'Department not found',
+          message: 'Departamento de Obras Públicas não encontrado',
+        });
+      }
+
+      // Módulos de obras públicas do MODULE_MAPPING
+      const publicWorksModules = MODULE_BY_DEPARTMENT.OBRAS_PUBLICAS || [];
+
+      // Executar queries em paralelo
+      const [
+        protocolStats,
+        protocolsByModule,
+        attendancesCount,
+        roadRepairsCount,
+        technicalInspectionsCount,
+        publicWorksCount,
+        workInspectionsCount,
+      ] = await Promise.all([
+        // 1. Estatísticas gerais de Protocolos
+        prisma.protocolSimplified.groupBy({
+          by: ['status'],
+          where: {
+            tenantId,
+            departmentId: publicWorksDept.id,
+          },
+          _count: { id: true },
+        }),
+
+        // 2. Protocolos por módulo (usando moduleType)
+        prisma.protocolSimplified.groupBy({
+          by: ['moduleType', 'status'],
+          where: {
+            tenantId,
+            departmentId: publicWorksDept.id,
+            moduleType: { in: publicWorksModules },
+          },
+          _count: { id: true },
+        }),
+
+        // 3. Atendimentos de Obras Públicas
+        prisma.publicWorksAttendance.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 4. Reparos de Vias
+        prisma.roadRepairRequest.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 5. Vistorias Técnicas
+        prisma.technicalInspection.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 6. Cadastro de Obras
+        prisma.publicWork.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+
+        // 7. Inspeções de Obras
+        prisma.workInspection.aggregate({
+          where: { tenantId },
+          _count: { id: true },
+        }),
+      ]);
+
+      // Processar estatísticas de Protocolos
+      const protocolData = {
+        total: 0,
+        pending: 0,
+        inProgress: 0,
+        completed: 0,
+      };
+
+      protocolStats.forEach((item) => {
+        const count = item._count?.id || 0;
+        protocolData.total += count;
+
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          protocolData.pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          protocolData.inProgress += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          protocolData.completed += count;
+        }
+      });
+
+      // Processar estatísticas por módulo
+      const moduleStats: Record<string, any> = {};
+
+      protocolsByModule.forEach((item) => {
+        if (!item.moduleType) return;
+
+        if (!moduleStats[item.moduleType]) {
+          moduleStats[item.moduleType] = {
+            total: 0,
+            pending: 0,
+            inProgress: 0,
+            completed: 0,
+          };
+        }
+
+        const count = item._count?.id || 0;
+        moduleStats[item.moduleType].total += count;
+
+        if (item.status === ProtocolStatus.VINCULADO || item.status === ProtocolStatus.PENDENCIA) {
+          moduleStats[item.moduleType].pending += count;
+        } else if (item.status === ProtocolStatus.PROGRESSO) {
+          moduleStats[item.moduleType].inProgress += count;
+        } else if (item.status === ProtocolStatus.CONCLUIDO) {
+          moduleStats[item.moduleType].completed += count;
+        }
+      });
+
+      // Montar resposta consolidada
+      const stats = {
+        repairs: {
+          total: roadRepairsCount._count?.id || 0,
+          active: roadRepairsCount._count?.id || 0,
+        },
+        inspections: {
+          total: technicalInspectionsCount._count?.id || 0,
+          pending: 0,
+        },
+        projects: {
+          total: publicWorksCount._count?.id || 0,
+          active: 0,
+          completed: 0,
+        },
+        attendances: {
+          total: attendancesCount._count?.id || 0,
+        },
+        workInspections: {
+          total: workInspectionsCount._count?.id || 0,
+        },
+        protocols: protocolData,
+        moduleStats, // Estatísticas detalhadas por módulo
+      };
+
+      return res.json({
+        success: true,
+        data: stats,
+      });
+    } catch (error) {
+      console.error('Public works stats error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: 'Erro ao buscar estatísticas de obras públicas',
+      });
     }
   }
+);
 
-  if (params.status) {
-    where.status = params.status;
-  }
+/**
+ * GET /api/admin/secretarias/obras-publicas/services
+ * Listar serviços da Secretaria de Obras Públicas
+ */
+router.get(
+  '/services',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
 
-  if (params.type) {
-    where.type = params.type;
-  }
+      // Buscar departamento de Obras Públicas
+      const publicWorksDept = await prisma.department.findFirst({
+        where: {
+          tenantId,
+          code: 'OBRAS_PUBLICAS',
+        },
+      });
 
-  return where;
-}
+      if (!publicWorksDept) {
+        return res.status(404).json({
+          success: false,
+          error: 'Department not found',
+          message: 'Departamento de Obras Públicas não encontrado',
+        });
+      }
 
-// ============================================================================
-// STATS - Dashboard principal
-// ============================================================================
+      // Buscar serviços simplificados
+      const services = await prisma.serviceSimplified.findMany({
+        where: {
+          tenantId,
+          departmentId: publicWorksDept.id,
+          isActive: true,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
 
-router.get('/stats', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const tenantId = req.tenantId;
-
-  if (!tenantId) {
-    res.status(400).json({ error: 'TenantId é obrigatório' });
-    return;
-  }
-
-  // 1. Buscar departamento de Obras Públicas
-  const dept = await prisma.department.findFirst({
-    where: {
-      tenantId,
-      code: 'OBRAS_PUBLICAS'
+      return res.json({
+        success: true,
+        data: services,
+      });
+    } catch (error) {
+      console.error('Get public works services error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+        message: 'Erro ao buscar serviços',
+      });
     }
-  });
-
-  if (!dept) {
-    res.status(404).json({ error: 'Departamento de Obras Públicas não encontrado' });
-    return;
   }
+);
 
-  // 2. Stats dos protocolos por módulo
-  const protocolsByModule = await prisma.protocolSimplified.groupBy({
-    by: ['moduleType', 'status'],
-    where: {
-      tenantId,
-      departmentId: dept.id,
-      moduleType: {
-        in: MODULE_BY_DEPARTMENT.OBRAS_PUBLICAS || []
-      },
-    },
-    _count: true,
-  });
+/**
+ * GET /api/admin/secretarias/obras-publicas/atendimentos
+ * Listar atendimentos de obras públicas
+ */
+router.get(
+  '/atendimentos',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, search } = req.query;
 
-  // 3. Contagem de registros em cada módulo
-  const [
-    attendancesCount,
-    roadRepairsCount,
-    technicalInspectionsCount,
-    publicWorksCount,
-    workInspectionsCount,
-  ] = await Promise.all([
-    prisma.publicWorksAttendance.count({ where: { tenantId } }),
-    prisma.roadRepairRequest.count({ where: { tenantId } }),
-    prisma.technicalInspection.count({ where: { tenantId } }),
-    prisma.publicWork.count({ where: { tenantId } }),
-    prisma.workInspection.count({ where: { tenantId } }),
-  ]);
+      const skip = (Number(page) - 1) * Number(limit);
 
-  // 4. Stats específicas de obras públicas
-  const [
-    pendingAttendances,
-    inProgressAttendances,
-    completedAttendances,
-    pendingRoadRepairs,
-    inProgressRoadRepairs,
-    completedRoadRepairs,
-    pendingTechnicalInspections,
-    scheduledTechnicalInspections,
-    completedTechnicalInspections,
-    plannedWorks,
-    inProgressWorks,
-    completedWorks,
-    scheduledWorkInspections,
-    completedWorkInspections,
-    nonCompliantWorkInspections,
-  ] = await Promise.all([
-    prisma.publicWorksAttendance.count({ where: { tenantId, status: 'PENDING' } }),
-    prisma.publicWorksAttendance.count({ where: { tenantId, status: 'IN_EXECUTION' } }),
-    prisma.publicWorksAttendance.count({ where: { tenantId, status: 'COMPLETED' } }),
-    prisma.roadRepairRequest.count({ where: { tenantId, status: 'PENDING' } }),
-    prisma.roadRepairRequest.count({ where: { tenantId, status: 'IN_EXECUTION' } }),
-    prisma.roadRepairRequest.count({ where: { tenantId, status: 'COMPLETED' } }),
-    prisma.technicalInspection.count({ where: { tenantId, status: 'PENDING' } }),
-    prisma.technicalInspection.count({ where: { tenantId, status: 'SCHEDULED' } }),
-    prisma.technicalInspection.count({ where: { tenantId, status: 'COMPLETED' } }),
-    prisma.publicWork.count({ where: { tenantId, status: 'PLANNED' } }),
-    prisma.publicWork.count({ where: { tenantId, status: 'IN_PROGRESS' } }),
-    prisma.publicWork.count({ where: { tenantId, status: 'COMPLETED' } }),
-    prisma.workInspection.count({ where: { tenantId, status: 'SCHEDULED' } }),
-    prisma.workInspection.count({ where: { tenantId, status: 'COMPLETED' } }),
-    prisma.workInspection.count({ where: { tenantId, compliance: 'NAO_CONFORME' } }),
-  ]);
+      const where: any = { tenantId };
 
-  res.json({
-    protocolsByModule,
-    modules: {
-      attendances: attendancesCount,
-      roadRepairs: roadRepairsCount,
-      technicalInspections: technicalInspectionsCount,
-      publicWorks: publicWorksCount,
-      workInspections: workInspectionsCount,
-    },
-    metrics: {
-      attendances: {
-        pending: pendingAttendances,
-        inProgress: inProgressAttendances,
-        completed: completedAttendances,
-      },
-      roadRepairs: {
-        pending: pendingRoadRepairs,
-        inProgress: inProgressRoadRepairs,
-        completed: completedRoadRepairs,
-      },
-      technicalInspections: {
-        pending: pendingTechnicalInspections,
-        scheduled: scheduledTechnicalInspections,
-        completed: completedTechnicalInspections,
-      },
-      publicWorks: {
-        planned: plannedWorks,
-        inProgress: inProgressWorks,
-        completed: completedWorks,
-      },
-      workInspections: {
-        scheduled: scheduledWorkInspections,
-        completed: completedWorkInspections,
-        nonCompliant: nonCompliantWorkInspections,
-      },
-    },
-  });
-}));
+      if (status && status !== 'all') {
+        where.status = status;
+      }
 
-// ============================================================================
-// ATENDIMENTOS DE OBRAS PÚBLICAS
-// ============================================================================
+      if (search) {
+        where.OR = [
+          { citizenName: { contains: search as string } },
+          { protocol: { contains: search as string } },
+        ];
+      }
 
-router.get('/atendimentos', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const tenantId = req.tenantId!;
-  const page = parseInt(getStringParam(req.query.page)) || 1;
-  const limit = parseInt(getStringParam(req.query.limit)) || 50;
-  const search = getStringParam(req.query.search);
-  const status = getStringParam(req.query.status);
+      const [data, total] = await Promise.all([
+        prisma.publicWorksAttendance.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.publicWorksAttendance.count({ where }),
+      ]);
 
-  const where = createSafeWhereClause({
-    tenantId,
-    search,
-    status,
-    searchFields: ['citizenName', 'citizenCpf', 'protocol']
-  });
-
-  const [attendances, total] = await Promise.all([
-    prisma.publicWorksAttendance.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.publicWorksAttendance.count({ where }),
-  ]);
-
-  res.json({
-    data: attendances,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  });
-}));
-
-router.get('/atendimentos/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const attendance = await prisma.publicWorksAttendance.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!attendance) {
-    res.status(404).json({ error: 'Atendimento não encontrado' });
-    return;
+      return res.json({
+        success: true,
+        data,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get public works attendances error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
   }
+);
 
-  res.json(attendance);
-}));
+/**
+ * GET /api/admin/secretarias/obras-publicas/reparos-de-vias
+ * Listar reparos de vias
+ */
+router.get(
+  '/reparos-de-vias',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, search } = req.query;
 
-router.put('/atendimentos/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
+      const skip = (Number(page) - 1) * Number(limit);
 
-  const attendance = await prisma.publicWorksAttendance.findFirst({
-    where: { id, tenantId },
-  });
+      const where: any = { tenantId };
 
-  if (!attendance) {
-    res.status(404).json({ error: 'Atendimento não encontrado' });
-    return;
+      if (status && status !== 'all') {
+        where.status = status;
+      }
+
+      if (search) {
+        where.OR = [
+          { citizenName: { contains: search as string } },
+          { roadName: { contains: search as string } },
+          { protocol: { contains: search as string } },
+        ];
+      }
+
+      const [data, total] = await Promise.all([
+        prisma.roadRepairRequest.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.roadRepairRequest.count({ where }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get road repairs error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
   }
+);
 
-  const updated = await prisma.publicWorksAttendance.update({
-    where: { id },
-    data: req.body,
-  });
+/**
+ * GET /api/admin/secretarias/obras-publicas/vistorias-tecnicas
+ * Listar vistorias técnicas
+ */
+router.get(
+  '/vistorias-tecnicas',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, search } = req.query;
 
-  res.json(updated);
-}));
+      const skip = (Number(page) - 1) * Number(limit);
 
-router.delete('/atendimentos/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
+      const where: any = { tenantId };
 
-  const attendance = await prisma.publicWorksAttendance.findFirst({
-    where: { id, tenantId },
-  });
+      if (status && status !== 'all') {
+        where.status = status;
+      }
 
-  if (!attendance) {
-    res.status(404).json({ error: 'Atendimento não encontrado' });
-    return;
+      if (search) {
+        where.OR = [
+          { requestorName: { contains: search as string } },
+          { location: { contains: search as string } },
+          { protocol: { contains: search as string } },
+        ];
+      }
+
+      const [data, total] = await Promise.all([
+        prisma.technicalInspection.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.technicalInspection.count({ where }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get technical inspections error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
   }
+);
 
-  await prisma.publicWorksAttendance.delete({
-    where: { id },
-  });
+/**
+ * GET /api/admin/secretarias/obras-publicas/cadastro-de-obras
+ * Listar cadastro de obras
+ */
+router.get(
+  '/cadastro-de-obras',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, search } = req.query;
 
-  res.json({ success: true });
-}));
+      const skip = (Number(page) - 1) * Number(limit);
 
-// ============================================================================
-// REPAROS DE VIAS
-// ============================================================================
+      const where: any = { tenantId };
 
-router.get('/reparos-de-vias', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const tenantId = req.tenantId!;
-  const page = parseInt(getStringParam(req.query.page)) || 1;
-  const limit = parseInt(getStringParam(req.query.limit)) || 50;
-  const search = getStringParam(req.query.search);
-  const status = getStringParam(req.query.status);
+      if (status && status !== 'all') {
+        where.status = status;
+      }
 
-  const where = createSafeWhereClause({
-    tenantId,
-    search,
-    status,
-    searchFields: ['citizenName', 'roadName', 'protocol']
-  });
+      if (search) {
+        where.OR = [
+          { title: { contains: search as string } },
+          { contractor: { contains: search as string } },
+          { location: { contains: search as string } },
+        ];
+      }
 
-  const [roadRepairs, total] = await Promise.all([
-    prisma.roadRepairRequest.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.roadRepairRequest.count({ where }),
-  ]);
+      const [data, total] = await Promise.all([
+        prisma.publicWork.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.publicWork.count({ where }),
+      ]);
 
-  res.json({
-    data: roadRepairs,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  });
-}));
-
-router.get('/reparos-de-vias/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const roadRepair = await prisma.roadRepairRequest.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!roadRepair) {
-    res.status(404).json({ error: 'Solicitação de reparo não encontrada' });
-    return;
+      return res.json({
+        success: true,
+        data,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get public works error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
   }
+);
 
-  res.json(roadRepair);
-}));
+/**
+ * GET /api/admin/secretarias/obras-publicas/inspecao-de-obras
+ * Listar inspeções de obras
+ */
+router.get(
+  '/inspecao-de-obras',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const { page = 1, limit = 20, status, search } = req.query;
 
-router.put('/reparos-de-vias/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
+      const skip = (Number(page) - 1) * Number(limit);
 
-  const roadRepair = await prisma.roadRepairRequest.findFirst({
-    where: { id, tenantId },
-  });
+      const where: any = { tenantId };
 
-  if (!roadRepair) {
-    res.status(404).json({ error: 'Solicitação de reparo não encontrada' });
-    return;
+      if (status && status !== 'all') {
+        where.status = status;
+      }
+
+      if (search) {
+        where.OR = [
+          { workName: { contains: search as string } },
+          { contractor: { contains: search as string } },
+          { protocol: { contains: search as string } },
+        ];
+      }
+
+      const [data, total] = await Promise.all([
+        prisma.workInspection.findMany({
+          where,
+          skip,
+          take: Number(limit),
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.workInspection.count({ where }),
+      ]);
+
+      return res.json({
+        success: true,
+        data,
+        pagination: {
+          page: Number(page),
+          limit: Number(limit),
+          total,
+          pages: Math.ceil(total / Number(limit)),
+        },
+      });
+    } catch (error) {
+      console.error('Get work inspections error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
   }
-
-  const updated = await prisma.roadRepairRequest.update({
-    where: { id },
-    data: req.body,
-  });
-
-  res.json(updated);
-}));
-
-router.delete('/reparos-de-vias/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const roadRepair = await prisma.roadRepairRequest.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!roadRepair) {
-    res.status(404).json({ error: 'Solicitação de reparo não encontrada' });
-    return;
-  }
-
-  await prisma.roadRepairRequest.delete({
-    where: { id },
-  });
-
-  res.json({ success: true });
-}));
-
-// ============================================================================
-// VISTORIAS TÉCNICAS
-// ============================================================================
-
-router.get('/vistorias-tecnicas', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const tenantId = req.tenantId!;
-  const page = parseInt(getStringParam(req.query.page)) || 1;
-  const limit = parseInt(getStringParam(req.query.limit)) || 50;
-  const search = getStringParam(req.query.search);
-  const status = getStringParam(req.query.status);
-
-  const where = createSafeWhereClause({
-    tenantId,
-    search,
-    status,
-    searchFields: ['requestorName', 'protocol', 'location']
-  });
-
-  const [inspections, total] = await Promise.all([
-    prisma.technicalInspection.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.technicalInspection.count({ where }),
-  ]);
-
-  res.json({
-    data: inspections,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  });
-}));
-
-router.get('/vistorias-tecnicas/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const inspection = await prisma.technicalInspection.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!inspection) {
-    res.status(404).json({ error: 'Vistoria não encontrada' });
-    return;
-  }
-
-  res.json(inspection);
-}));
-
-router.put('/vistorias-tecnicas/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const inspection = await prisma.technicalInspection.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!inspection) {
-    res.status(404).json({ error: 'Vistoria não encontrada' });
-    return;
-  }
-
-  const updated = await prisma.technicalInspection.update({
-    where: { id },
-    data: req.body,
-  });
-
-  res.json(updated);
-}));
-
-router.delete('/vistorias-tecnicas/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const inspection = await prisma.technicalInspection.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!inspection) {
-    res.status(404).json({ error: 'Vistoria não encontrada' });
-    return;
-  }
-
-  await prisma.technicalInspection.delete({
-    where: { id },
-  });
-
-  res.json({ success: true });
-}));
-
-// ============================================================================
-// CADASTRO DE OBRAS
-// ============================================================================
-
-router.get('/cadastro-de-obras', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const tenantId = req.tenantId!;
-  const page = parseInt(getStringParam(req.query.page)) || 1;
-  const limit = parseInt(getStringParam(req.query.limit)) || 50;
-  const search = getStringParam(req.query.search);
-  const status = getStringParam(req.query.status);
-
-  const where = createSafeWhereClause({
-    tenantId,
-    search,
-    status,
-    searchFields: ['title', 'contractor', 'location']
-  });
-
-  const [publicWorks, total] = await Promise.all([
-    prisma.publicWork.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.publicWork.count({ where }),
-  ]);
-
-  res.json({
-    data: publicWorks,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  });
-}));
-
-router.get('/cadastro-de-obras/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const publicWork = await prisma.publicWork.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!publicWork) {
-    res.status(404).json({ error: 'Obra não encontrada' });
-    return;
-  }
-
-  res.json(publicWork);
-}));
-
-router.put('/cadastro-de-obras/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const publicWork = await prisma.publicWork.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!publicWork) {
-    res.status(404).json({ error: 'Obra não encontrada' });
-    return;
-  }
-
-  const updated = await prisma.publicWork.update({
-    where: { id },
-    data: req.body,
-  });
-
-  res.json(updated);
-}));
-
-router.delete('/cadastro-de-obras/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const publicWork = await prisma.publicWork.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!publicWork) {
-    res.status(404).json({ error: 'Obra não encontrada' });
-    return;
-  }
-
-  await prisma.publicWork.delete({
-    where: { id },
-  });
-
-  res.json({ success: true });
-}));
-
-// ============================================================================
-// INSPEÇÃO DE OBRAS
-// ============================================================================
-
-router.get('/inspecao-de-obras', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const tenantId = req.tenantId!;
-  const page = parseInt(getStringParam(req.query.page)) || 1;
-  const limit = parseInt(getStringParam(req.query.limit)) || 50;
-  const search = getStringParam(req.query.search);
-  const status = getStringParam(req.query.status);
-
-  const where = createSafeWhereClause({
-    tenantId,
-    search,
-    status,
-    searchFields: ['workName', 'contractor', 'protocol']
-  });
-
-  const [workInspections, total] = await Promise.all([
-    prisma.workInspection.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.workInspection.count({ where }),
-  ]);
-
-  res.json({
-    data: workInspections,
-    pagination: {
-      page,
-      limit,
-      total,
-      pages: Math.ceil(total / limit),
-    },
-  });
-}));
-
-router.get('/inspecao-de-obras/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const workInspection = await prisma.workInspection.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!workInspection) {
-    res.status(404).json({ error: 'Inspeção não encontrada' });
-    return;
-  }
-
-  res.json(workInspection);
-}));
-
-router.put('/inspecao-de-obras/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const workInspection = await prisma.workInspection.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!workInspection) {
-    res.status(404).json({ error: 'Inspeção não encontrada' });
-    return;
-  }
-
-  const updated = await prisma.workInspection.update({
-    where: { id },
-    data: req.body,
-  });
-
-  res.json(updated);
-}));
-
-router.delete('/inspecao-de-obras/:id', authenticateToken, requireManager, asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-  const { id } = req.params;
-  const tenantId = req.tenantId!;
-
-  const workInspection = await prisma.workInspection.findFirst({
-    where: { id, tenantId },
-  });
-
-  if (!workInspection) {
-    res.status(404).json({ error: 'Inspeção não encontrada' });
-    return;
-  }
-
-  await prisma.workInspection.delete({
-    where: { id },
-  });
-
-  res.json({ success: true });
-}));
+);
 
 export default router;

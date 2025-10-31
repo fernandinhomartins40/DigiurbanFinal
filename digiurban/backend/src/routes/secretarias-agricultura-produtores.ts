@@ -58,6 +58,17 @@ router.get('/', async (req, res) => {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
+        include: {
+          citizen: {
+            select: {
+              id: true,
+              name: true,
+              cpf: true,
+              email: true,
+              phone: true,
+            },
+          },
+        },
       }),
       prisma.ruralProducer.count({ where }),
     ]);
@@ -120,6 +131,16 @@ router.get('/:id', async (req, res) => {
         tenantId: tenant.id,
       },
       include: {
+        citizen: {
+          select: {
+            id: true,
+            name: true,
+            cpf: true,
+            email: true,
+            phone: true,
+            address: true,
+          },
+        },
         properties: true,
       },
     });
@@ -141,24 +162,64 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { tenant } = req as GuaranteedTenantRequest;
-    const { name, document, email, phone, address, productionType, mainCrop, status } = req.body;
+    const { citizenId, name, document, email, phone, address, productionType, mainCrop, status } = req.body;
 
     // Validações
+    if (!citizenId) {
+      return res.status(400).json({
+        error: 'Cidadão é obrigatório. O produtor rural deve ser vinculado a um cidadão existente.',
+      });
+    }
+
     if (!name || !document) {
       return res.status(400).json({
         error: 'Campos obrigatórios: name, document',
       });
     }
 
-    // Verificar se já existe
-    const existing = await prisma.ruralProducer.findFirst({
+    if (!productionType || !mainCrop) {
+      return res.status(400).json({
+        error: 'Campos obrigatórios: productionType, mainCrop',
+      });
+    }
+
+    // Verificar se o cidadão existe e pertence ao tenant
+    const citizen = await prisma.citizen.findFirst({
+      where: {
+        id: citizenId,
+        tenantId: tenant.id,
+      },
+    });
+
+    if (!citizen) {
+      return res.status(404).json({
+        error: 'Cidadão não encontrado ou não pertence a este município',
+      });
+    }
+
+    // Verificar se o cidadão já é um produtor rural
+    const existingProducer = await prisma.ruralProducer.findFirst({
+      where: {
+        tenantId: tenant.id,
+        citizenId,
+      },
+    });
+
+    if (existingProducer) {
+      return res.status(400).json({
+        error: 'Este cidadão já está cadastrado como produtor rural',
+      });
+    }
+
+    // Verificar se já existe produtor com este documento
+    const existingDocument = await prisma.ruralProducer.findFirst({
       where: {
         tenantId: tenant.id,
         document,
       },
     });
 
-    if (existing) {
+    if (existingDocument) {
       return res.status(400).json({
         error: 'Já existe um produtor cadastrado com este documento',
       });
@@ -167,6 +228,7 @@ router.post('/', async (req, res) => {
     const producer = await prisma.ruralProducer.create({
       data: {
         tenantId: tenant.id,
+        citizenId,
         name,
         document,
         email,
@@ -176,6 +238,17 @@ router.post('/', async (req, res) => {
         mainCrop,
         status: status || 'ACTIVE',
         isActive: true,
+      },
+      include: {
+        citizen: {
+          select: {
+            id: true,
+            name: true,
+            cpf: true,
+            email: true,
+            phone: true,
+          },
+        },
       },
     });
 

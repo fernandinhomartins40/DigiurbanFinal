@@ -7,7 +7,9 @@ import { ModuleConfig } from './types';
 export const healthAttendanceConfig: ModuleConfig = {
   key: 'health-attendance',
   entityName: 'HealthAttendance',
+  departmentType: 'health',
   displayName: 'Atendimentos de Saúde',
+  displayNameSingular: 'Atendimentos de Saúde',
 
   fields: [
     { name: 'citizenName', label: 'Nome do Paciente', type: 'text', required: true, showInList: true },
@@ -65,8 +67,10 @@ export const healthAttendanceConfig: ModuleConfig = {
 
 export const healthAppointmentConfig: ModuleConfig = {
   key: 'health-appointment',
+  departmentType: 'health',
   entityName: 'HealthAppointment',
   displayName: 'Agendamentos Médicos',
+  displayNameSingular: 'Agendamento Médico',
 
   fields: [
     { name: 'patientName', label: 'Nome do Paciente', type: 'text', required: true, showInList: true },
@@ -117,8 +121,10 @@ export const healthAppointmentConfig: ModuleConfig = {
 
 export const medicationDispenseConfig: ModuleConfig = {
   key: 'medication-dispense',
+  departmentType: 'health',
   entityName: 'MedicationDispense',
   displayName: 'Dispensação de Medicamentos',
+  displayNameSingular: 'Dispensação de Medicamento',
 
   fields: [
     { name: 'patientName', label: 'Nome do Paciente', type: 'text', required: true, showInList: true },
@@ -148,8 +154,10 @@ export const medicationDispenseConfig: ModuleConfig = {
 
 export const healthCampaignConfig: ModuleConfig = {
   key: 'health-campaign',
+  departmentType: 'health',
   entityName: 'HealthCampaign',
   displayName: 'Campanhas de Saúde',
+  displayNameSingular: 'Campanhas de Saúde',
 
   fields: [
     { name: 'name', label: 'Nome da Campanha', type: 'text', required: true, showInList: true },
@@ -197,8 +205,10 @@ export const healthCampaignConfig: ModuleConfig = {
 
 export const healthProgramConfig: ModuleConfig = {
   key: 'health-program',
+  departmentType: 'health',
   entityName: 'HealthProgram',
   displayName: 'Programas de Saúde',
+  displayNameSingular: 'Programas de Saúde',
 
   fields: [
     { name: 'name', label: 'Nome do Programa', type: 'text', required: true, showInList: true },
@@ -239,8 +249,10 @@ export const healthProgramConfig: ModuleConfig = {
 
 export const healthTransportConfig: ModuleConfig = {
   key: 'health-transport',
+  departmentType: 'health',
   entityName: 'HealthTransport',
   displayName: 'Transporte TFD',
+  displayNameSingular: 'Transporte TFD',
 
   fields: [
     { name: 'patientName', label: 'Nome do Paciente', type: 'text', required: true, showInList: true },
@@ -284,8 +296,10 @@ export const healthTransportConfig: ModuleConfig = {
 
 export const healthExamConfig: ModuleConfig = {
   key: 'health-exam',
+  departmentType: 'health',
   entityName: 'HealthExam',
   displayName: 'Exames',
+  displayNameSingular: 'Exame',
 
   fields: [
     { name: 'patientName', label: 'Nome do Paciente', type: 'text', required: true, showInList: true },
@@ -336,8 +350,10 @@ export const healthExamConfig: ModuleConfig = {
 
 export const healthTransportRequestConfig: ModuleConfig = {
   key: 'health-transport-request',
+  departmentType: 'health',
   entityName: 'HealthTransportRequest',
   displayName: 'Solicitações de Transporte',
+  displayNameSingular: 'Solicitações de Transporte',
 
   fields: [
     { name: 'patientName', label: 'Nome do Paciente', type: 'text', required: true, showInList: true },
@@ -385,8 +401,10 @@ export const healthTransportRequestConfig: ModuleConfig = {
 
 export const vaccinationConfig: ModuleConfig = {
   key: 'vaccination',
+  departmentType: 'health',
   entityName: 'Vaccination',
   displayName: 'Vacinação',
+  displayNameSingular: 'Vacinação',
 
   fields: [
     { name: 'patientId', label: 'ID do Paciente', type: 'text', required: true },
@@ -421,8 +439,10 @@ export const vaccinationConfig: ModuleConfig = {
 
 export const patientConfig: ModuleConfig = {
   key: 'patient',
+  departmentType: 'health',
   entityName: 'Patient',
   displayName: 'Cadastro de Pacientes',
+  displayNameSingular: 'Cadastro de Paciente',
 
   fields: [
     { name: 'fullName', label: 'Nome Completo', type: 'text', required: true, showInList: true },
@@ -477,8 +497,10 @@ export const patientConfig: ModuleConfig = {
 
 export const communityHealthAgentConfig: ModuleConfig = {
   key: 'community-health-agent',
+  departmentType: 'health',
   entityName: 'CommunityHealthAgent',
   displayName: 'Agentes Comunitários de Saúde',
+  displayNameSingular: 'Agentes Comunitários de Saúde',
 
   fields: [
     { name: 'fullName', label: 'Nome Completo', type: 'text', required: true, showInList: true },

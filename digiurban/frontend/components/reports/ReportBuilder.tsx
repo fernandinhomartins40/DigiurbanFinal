@@ -22,7 +22,7 @@ import {
   Filter,
   Eye
 } from 'lucide-react'
-import { useReports } from '@/hooks/api/analytics'
+// LEGADO: import { useReports } from '@/hooks/api/analytics'
 
 interface ReportField {
   id: string
@@ -77,7 +77,11 @@ export function ReportBuilder({
   initialData,
   className
 }: ReportBuilderProps) {
-  const { createReport, loading } = useReports()
+  const [loading, setLoading] = useState(false);
+  const createReport = async (report: any) => {
+    // TODO: Implementar via API
+    return null;
+  };
   const [reportState, setReportState] = useState<ReportBuilderState>({
     name: '',
     description: '',
@@ -634,7 +638,11 @@ export function ReportBuilder({
                       type="time"
                       value={reportState.schedule?.time || '09:00'}
                       onChange={(e) => updateReportState({
-                        schedule: { ...reportState.schedule, time: e.target.value }
+                        schedule: {
+                          frequency: reportState.schedule?.frequency || 'manual',
+                          ...reportState.schedule,
+                          time: e.target.value
+                        }
                       })}
                     />
                   </div>
@@ -646,6 +654,7 @@ export function ReportBuilder({
                       value={reportState.schedule?.recipients?.join(', ') || ''}
                       onChange={(e) => updateReportState({
                         schedule: {
+                          frequency: reportState.schedule?.frequency || 'manual',
                           ...reportState.schedule,
                           recipients: e.target.value.split(',').map(email => email.trim()).filter(Boolean)
                         }

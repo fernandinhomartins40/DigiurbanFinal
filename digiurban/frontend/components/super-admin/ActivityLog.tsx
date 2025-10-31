@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Clock, User, FileText, AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 
 interface ActivityLogEntry {
   id: string;
@@ -27,6 +28,7 @@ export function ActivityLog({
   showFilters = false,
   className = ''
 }: ActivityLogProps) {
+  const { apiRequest } = useSuperAdminAuth();
   const [activities, setActivities] = useState<ActivityLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'success' | 'error'>('all');
@@ -38,20 +40,16 @@ export function ActivityLog({
   const fetchActivityLog = async () => {
     setLoading(true);
     try {
-      // Token via useSuperAdminAuth;
       const params = new URLSearchParams();
       if (tenantId) params.append('tenantId', tenantId);
       params.append('limit', limit.toString());
       if (filter !== 'all') params.append('success', (filter === 'success').toString());
 
-      const response = await fetch(`http://localhost:3001/api/super-admin/audit-log?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+      const data = await apiRequest(`/api/super-admin/audit-log?${params}`, {
+        method: 'GET',
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      if (data) {
         setActivities(data.logs || []);
       }
     } catch (error) {
@@ -194,7 +192,9 @@ export function ActivityLog({
                   </div>
                   {activity.details && (
                     <p className="text-xs text-gray-600 mt-2 line-clamp-2">
-                      {activity.details}
+                      {typeof activity.details === 'string'
+                        ? activity.details
+                        : JSON.stringify(activity.details)}
                     </p>
                   )}
                 </div>

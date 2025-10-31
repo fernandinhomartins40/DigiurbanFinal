@@ -9,23 +9,34 @@ import { AlertList } from './AlertList'
 import { AlertCard } from './AlertCard'
 import { KPICard } from '../analytics/KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart } from '../analytics/Charts'
-import { useAlerts } from '@/hooks/api/analytics'
+import type { Alert as AlertType } from './index'
+
+type Alert = AlertType & {
+  message: string;
+  timestamp: string;
+}
 
 interface AlertDashboardProps {
   className?: string
 }
 
 export function AlertDashboard({ className }: AlertDashboardProps) {
-  const { alerts, loading, fetchAlerts, fetchAlertDashboard } = useAlerts()
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [loading, setLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null)
 
+  const fetchAlerts = async () => {
+    // TODO: Implementar busca de alertas via API
+    setLoading(true);
+    // Mock data
+    setAlerts([]);
+    setDashboardData(null);
+    setLoading(false);
+  }
+
   useEffect(() => {
-    const loadDashboard = async () => {
-      const data = await fetchAlertDashboard()
-      setDashboardData(data)
-    }
-    loadDashboard()
-  }, [fetchAlertDashboard])
+    fetchAlerts();
+  }, [])
 
   // Calculate metrics from current alerts
   const metrics = {

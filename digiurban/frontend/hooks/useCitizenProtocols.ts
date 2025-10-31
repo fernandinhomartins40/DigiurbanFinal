@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { api } from '@/lib/api';
 import { useCitizenAuth } from '@/contexts/CitizenAuthContext';
 import { toast } from 'sonner';
 
@@ -80,7 +79,7 @@ export function useCitizenProtocols(params?: FetchProtocolsParams): UseProtocols
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
 
-  const { citizen, tenant } = useCitizenAuth();
+  const { citizen, tenant, apiRequest } = useCitizenAuth();
 
   const fetchProtocols = async () => {
     if (!tenant || !citizen) {
@@ -106,23 +105,20 @@ export function useCitizenProtocols(params?: FetchProtocolsParams): UseProtocols
         queryParams.append('include_family', 'true');
       }
 
-      const response = await api.get(
-        `/api/protocols${queryParams.toString() ? `?${queryParams.toString()}` : ''}`,
-        {
-          headers: {
-            'X-Tenant-ID': tenant.id,
-          },
-        }
+      // ✅ CORRIGIDO: Usar apiRequest do contexto (httpOnly cookies com tenant correto)
+      const data = await apiRequest(
+        `/citizen/protocols${queryParams.toString() ? `?${queryParams.toString()}` : ''}`
       );
 
-      if (response.data.success) {
-        setProtocols(response.data.data.protocols);
-        setPagination(response.data.data.pagination);
+      // A API retorna { protocols, pagination } diretamente
+      if (data.protocols) {
+        setProtocols(data.protocols);
+        setPagination(data.pagination);
       } else {
-        throw new Error(response.data.message || 'Erro ao buscar protocolos');
+        throw new Error('Erro ao buscar protocolos');
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Erro ao buscar protocolos';
+      const errorMessage = err.message || 'Erro ao buscar protocolos';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

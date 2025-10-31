@@ -5,6 +5,7 @@ export { PerformanceDashboard } from './PerformanceDashboard'
 // Re-export performance hooks for convenience
 export { usePerformance, useAsyncPerformance, withPerformance, performanceUtils } from '@/hooks/usePerformance'
 export { useCache, usePersistentCache, useSessionCache, useMemoryCache, cacheManager } from '@/hooks/useCache'
+import { cacheManager } from '@/hooks/useCache'
 export { useOptimizedQuery, useOptimizedMutation, useInfiniteQuery, queryUtils } from '@/hooks/useOptimizedQuery'
 
 // Performance types and interfaces

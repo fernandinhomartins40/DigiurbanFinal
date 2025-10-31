@@ -50,7 +50,7 @@ model Tenant {
   culturalWorkshopEnrollments      CulturalWorkshopEnrollment[]
   culturalProjectSubmissions       CulturalProjectSubmission[]
   culturalSpaceReservations        CulturalSpaceReservation[]
-  departments                      Department[]
+  // ✅ REMOVIDO: departments (agora são globais)
   disciplinaryRecords              DisciplinaryRecord[]
   educationAttendances             EducationAttendance[]
   schoolDocuments                  SchoolDocument[]
@@ -213,19 +213,17 @@ model User {
 
 model Department {
   id                  String               @id @default(cuid())
-  name                String
-  code                String?
+  name                String               @unique // ✅ GLOBAL: nome único
+  code                String?              @unique // ✅ GLOBAL: código único
   description         String?
   isActive            Boolean              @default(true)
-  tenantId            String
+  // ✅ REMOVIDO: tenantId (departamentos são globais)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
-  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   protocolsSimplified ProtocolSimplified[]
   servicesSimplified  ServiceSimplified[]
   users               User[]
 
-  @@unique([tenantId, name])
   @@map("departments")
 }
 

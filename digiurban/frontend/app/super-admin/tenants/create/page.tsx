@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, ArrowRight, Check, Building2, User, Settings,
-  FileCheck, Upload, Mail, Phone, MapPin
+  FileCheck, Upload, Mail, Phone, MapPin, Eye, EyeOff
 } from 'lucide-react';
 import { getFullApiUrl } from '@/lib/api-config';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
@@ -117,6 +117,8 @@ export default function CreateTenantPage() {
   const municipioRef = useRef<HTMLDivElement>(null);
 
   const totalSteps = 4;
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Buscar municípios com debounce
   useEffect(() => {
@@ -312,10 +314,18 @@ export default function CreateTenantPage() {
         body: JSON.stringify(payload)
       });
 
+      console.log('Resultado da criação do tenant:', result);
+      console.log('ID do tenant:', result.tenant?.id);
+
+      if (!result.tenant || !result.tenant.id) {
+        throw new Error('Resposta inválida da API - tenant.id não encontrado');
+      }
+
       toast({
         title: 'Tenant criado com sucesso',
         description: `O tenant "${formData.name}" foi criado. Credenciais enviadas para: ${formData.adminEmail}`,
       });
+
       router.push(`/super-admin/dashboard/tenant/${result.tenant.id}`);
     } catch (error) {
       toast({
@@ -682,28 +692,54 @@ export default function CreateTenantPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Senha *
                   </label>
-                  <input
-                    type="password"
-                    value={formData.adminPassword}
-                    onChange={(e) => updateField('adminPassword', e.target.value)}
-                    placeholder="Mínimo 8 caracteres"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={formData.adminPassword}
+                      onChange={(e) => updateField('adminPassword', e.target.value)}
+                      placeholder="Mínimo 8 caracteres"
+                      className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Confirmar Senha *
                   </label>
-                  <input
-                    type="password"
-                    value={formData.adminPasswordConfirm}
-                    onChange={(e) => updateField('adminPasswordConfirm', e.target.value)}
-                    placeholder="Digite a senha novamente"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={formData.adminPasswordConfirm}
+                      onChange={(e) => updateField('adminPasswordConfirm', e.target.value)}
+                      placeholder="Digite a senha novamente"
+                      className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-5 w-5" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Indicador de força de senha */}

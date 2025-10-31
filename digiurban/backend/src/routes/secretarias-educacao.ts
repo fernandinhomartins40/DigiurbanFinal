@@ -1,7 +1,7 @@
 // ============================================================================
-// SECRETARIAS-EDUCACAO.TS - Rotas da Secretaria de Educação
+// SECRETARIAS-EDUCACAO.TS - Rotas da Secretaria de Educaï¿½ï¿½o
 // ============================================================================
-// VERSÃO SIMPLIFICADA - Usa 100% do sistema novo (ProtocolSimplified + MODULE_MAPPING)
+// VERSï¿½O SIMPLIFICADA - Usa 100% do sistema novo (ProtocolSimplified + MODULE_MAPPING)
 
 import { Router } from 'express';
 import { prisma } from '../lib/prisma';
@@ -22,8 +22,8 @@ router.use(adminAuthMiddleware);
 
 /**
  * GET /api/admin/secretarias/educacao/stats
- * Obter estatísticas consolidadas da Secretaria de Educação
- * VERSÃO SIMPLIFICADA - Usa apenas ProtocolSimplified + moduleType
+ * Obter estatï¿½sticas consolidadas da Secretaria de Educaï¿½ï¿½o
+ * VERSï¿½O SIMPLIFICADA - Usa apenas ProtocolSimplified + moduleType
  */
 router.get(
   '/stats',
@@ -33,23 +33,21 @@ router.get(
       const authReq = req as AuthenticatedRequest;
       const tenantId = authReq.tenantId;
 
-      // Buscar departamento de educação
+      // Buscar departamento de educaï¿½ï¿½o
+      // âœ… Buscar departamento global
       const educationDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'EDUCACAO',
-        },
+        where: { code: 'EDUCACAO' }
       });
 
       if (!educationDept) {
         return res.status(404).json({
           success: false,
           error: 'Department not found',
-          message: 'Departamento de Educação não encontrado',
+          message: 'Departamento de Educaï¿½ï¿½o nï¿½o encontrado',
         });
       }
 
-      // Módulos de educação do MODULE_MAPPING
+      // Mï¿½dulos de educaï¿½ï¿½o do MODULE_MAPPING
       const educationModules = MODULE_BY_DEPARTMENT.EDUCACAO || [];
 
       // Executar queries em paralelo
@@ -68,7 +66,7 @@ router.get(
         schoolManagementsCount,
         schoolMealsCount,
       ] = await Promise.all([
-        // 1. Estatísticas gerais de Protocolos
+        // 1. Estatï¿½sticas gerais de Protocolos
         prisma.protocolSimplified.groupBy({
           by: ['status'],
           where: {
@@ -78,7 +76,7 @@ router.get(
           _count: { id: true },
         }),
 
-        // 2. Protocolos por módulo (usando moduleType)
+        // 2. Protocolos por mï¿½dulo (usando moduleType)
         prisma.protocolSimplified.groupBy({
           by: ['moduleType', 'status'],
           where: {
@@ -101,29 +99,29 @@ router.get(
         // 6. Atendimentos Educacionais
         prisma.educationAttendance.count({ where: { tenantId } }),
 
-        // 7. Ocorrências Disciplinares
+        // 7. Ocorrï¿½ncias Disciplinares
         prisma.disciplinaryRecord.count({ where: { tenantId } }),
 
         // 8. Documentos Escolares
         prisma.schoolDocument.count({ where: { tenantId } }),
 
-        // 9. Transferências
+        // 9. Transferï¿½ncias
         prisma.studentTransfer.count({ where: { tenantId } }),
 
-        // 10. Frequência
+        // 10. Frequï¿½ncia
         prisma.attendanceRecord.count({ where: { tenantId } }),
 
         // 11. Notas
         prisma.gradeRecord.count({ where: { tenantId } }),
 
-        // 12. Gestão Escolar
+        // 12. Gestï¿½o Escolar
         prisma.schoolManagement.count({ where: { tenantId } }),
 
         // 13. Merenda Escolar
         prisma.schoolMeal.count({ where: { tenantId } }),
       ]);
 
-      // Processar estatísticas de Protocolos
+      // Processar estatï¿½sticas de Protocolos
       const protocolData = {
         total: 0,
         pending: 0,
@@ -144,7 +142,7 @@ router.get(
         }
       });
 
-      // Processar estatísticas por módulo
+      // Processar estatï¿½sticas por mï¿½dulo
       const moduleStats: Record<string, any> = {};
 
       protocolsByModule.forEach((item) => {
@@ -187,7 +185,7 @@ router.get(
           schoolMeals: schoolMealsCount,
         },
         protocols: protocolData,
-        moduleStats, // Estatísticas detalhadas por módulo
+        moduleStats, // Estatï¿½sticas detalhadas por mï¿½dulo
       };
 
       return res.json({
@@ -199,7 +197,7 @@ router.get(
       return res.status(500).json({
         success: false,
         error: 'Internal server error',
-        message: 'Erro ao buscar estatísticas da educação',
+        message: 'Erro ao buscar estatï¿½sticas da educaï¿½ï¿½o',
       });
     }
   }
@@ -207,7 +205,7 @@ router.get(
 
 /**
  * GET /api/admin/secretarias/educacao/services
- * Listar serviços da Secretaria de Educação
+ * Listar serviï¿½os da Secretaria de Educaï¿½ï¿½o
  */
 router.get(
   '/services',
@@ -217,23 +215,21 @@ router.get(
       const authReq = req as AuthenticatedRequest;
       const tenantId = authReq.tenantId;
 
-      // Buscar departamento de educação
+      // Buscar departamento de educaï¿½ï¿½o
+      // âœ… Buscar departamento global
       const educationDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'EDUCACAO',
-        },
+        where: { code: 'EDUCACAO' }
       });
 
       if (!educationDept) {
         return res.status(404).json({
           success: false,
           error: 'Department not found',
-          message: 'Departamento de Educação não encontrado',
+          message: 'Departamento de Educaï¿½ï¿½o nï¿½o encontrado',
         });
       }
 
-      // Buscar serviços simplificados
+      // Buscar serviï¿½os simplificados
       const services = await prisma.serviceSimplified.findMany({
         where: {
           tenantId,
@@ -254,7 +250,7 @@ router.get(
       return res.status(500).json({
         success: false,
         error: 'Internal server error',
-        message: 'Erro ao buscar serviços',
+        message: 'Erro ao buscar serviï¿½os',
       });
     }
   }

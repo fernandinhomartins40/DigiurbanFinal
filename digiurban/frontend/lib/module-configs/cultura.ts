@@ -8,7 +8,9 @@ import { ModuleConfig } from './types';
 export const culturalAttendanceConfig: ModuleConfig = {
   key: 'cultural-attendance',
   entityName: 'CulturalAttendance',
+  departmentType: 'culture',
   displayName: 'Atendimentos Culturais',
+  displayNameSingular: 'Atendimento Culturai',
 
   fields: [
     { name: 'citizenName', label: 'Nome do Cidadão', type: 'text', required: true, showInList: true },
@@ -81,8 +83,10 @@ export const culturalAttendanceConfig: ModuleConfig = {
 // 2. RESERVAS DE ESPAÇOS CULTURAIS
 export const culturalSpaceReservationConfig: ModuleConfig = {
   key: 'cultural-space-reservation',
+  departmentType: 'culture',
   entityName: 'CulturalSpaceReservation',
   displayName: 'Reservas de Espaços Culturais',
+  displayNameSingular: 'Reserva de Espaço Culturai',
 
   fields: [
     { name: 'requesterName', label: 'Nome do Solicitante', type: 'text', required: true, showInList: true },
@@ -145,8 +149,10 @@ export const culturalSpaceReservationConfig: ModuleConfig = {
 // 3. INSCRIÇÕES EM OFICINAS CULTURAIS
 export const culturalWorkshopEnrollmentConfig: ModuleConfig = {
   key: 'cultural-workshop-enrollment',
+  departmentType: 'culture',
   entityName: 'CulturalWorkshopEnrollment',
   displayName: 'Inscrições em Oficinas Culturais',
+  displayNameSingular: 'Inscriçõe em Oficina Culturai',
 
   fields: [
     { name: 'participantName', label: 'Nome do Participante', type: 'text', required: true, showInList: true },
@@ -217,8 +223,10 @@ export const culturalWorkshopEnrollmentConfig: ModuleConfig = {
 // 4. GRUPOS ARTÍSTICOS
 export const artisticGroupConfig: ModuleConfig = {
   key: 'artistic-group',
+  departmentType: 'culture',
   entityName: 'ArtisticGroup',
   displayName: 'Grupos Artísticos',
+  displayNameSingular: 'Grupo Artístico',
 
   fields: [
     { name: 'groupName', label: 'Nome do Grupo', type: 'text', required: true, showInList: true },
@@ -276,8 +284,10 @@ export const artisticGroupConfig: ModuleConfig = {
 // 5. PROJETOS CULTURAIS
 export const culturalProjectConfig: ModuleConfig = {
   key: 'cultural-project',
+  departmentType: 'culture',
   entityName: 'CulturalProject',
   displayName: 'Projetos Culturais',
+  displayNameSingular: 'Projeto Culturai',
 
   fields: [
     { name: 'projectName', label: 'Nome do Projeto', type: 'text', required: true, showInList: true },
@@ -360,8 +370,10 @@ export const culturalProjectConfig: ModuleConfig = {
 // 6. SUBMISSÕES DE PROJETOS CULTURAIS
 export const culturalProjectSubmissionConfig: ModuleConfig = {
   key: 'cultural-project-submission',
+  departmentType: 'culture',
   entityName: 'CulturalProjectSubmission',
   displayName: 'Submissões de Projetos Culturais',
+  displayNameSingular: 'Submisõe de Projeto Culturai',
 
   fields: [
     { name: 'submitterName', label: 'Nome do Proponente', type: 'text', required: true, showInList: true },
@@ -424,8 +436,10 @@ export const culturalProjectSubmissionConfig: ModuleConfig = {
 // 7. EVENTOS CULTURAIS
 export const culturalEventConfig: ModuleConfig = {
   key: 'cultural-event',
+  departmentType: 'culture',
   entityName: 'CulturalEvent',
   displayName: 'Eventos Culturais',
+  displayNameSingular: 'Evento Culturai',
 
   fields: [
     { name: 'eventName', label: 'Nome do Evento', type: 'text', required: true, showInList: true },
@@ -499,8 +513,10 @@ export const culturalEventConfig: ModuleConfig = {
 // 8. MANIFESTAÇÕES CULTURAIS
 export const culturalManifestationConfig: ModuleConfig = {
   key: 'cultural-manifestation',
+  departmentType: 'culture',
   entityName: 'CulturalManifestation',
   displayName: 'Manifestações Culturais',
+  displayNameSingular: 'Manifestaçõe Culturai',
 
   fields: [
     { name: 'manifestationName', label: 'Nome da Manifestação', type: 'text', required: true, showInList: true },
@@ -573,8 +589,10 @@ export const culturalManifestationConfig: ModuleConfig = {
 // 9. ESPAÇOS CULTURAIS (INFORMATIVO)
 export const culturalSpaceConfig: ModuleConfig = {
   key: 'cultural-space',
+  departmentType: 'culture',
   entityName: 'CulturalSpace',
   displayName: 'Espaços Culturais',
+  displayNameSingular: 'Espaço Culturai',
 
   fields: [
     { name: 'spaceName', label: 'Nome do Espaço', type: 'text', required: true, showInList: true },

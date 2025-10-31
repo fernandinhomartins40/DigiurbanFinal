@@ -34,11 +34,9 @@ router.get(
       const tenantId = authReq.tenantId;
 
       // Buscar departamento de turismo
+      // ✅ Buscar departamento global
       const tourismDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'TURISMO',
-        },
+        where: { code: 'TURISMO' }
       });
 
       if (!tourismDept) {

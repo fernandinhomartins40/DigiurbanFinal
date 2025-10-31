@@ -30,7 +30,7 @@ import {
   User,
   TrendingUp
 } from 'lucide-react'
-import { useReports } from '@/hooks/api/analytics'
+// LEGADO: import { useReports } from '@/hooks/api/analytics'
 
 interface Report {
   id: string
@@ -67,7 +67,12 @@ export function ReportList({
   showTabs = true,
   className
 }: ReportListProps) {
-  const { reports, loading, fetchReports, deleteReport, cloneReport, executeReport } = useReports()
+  const [reports, setReports] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const fetchReports = async () => { /* TODO: Implementar via API */ };
+  const deleteReport = async (id: string) => { /* TODO: Implementar via API */ };
+  const cloneReport = async (id: string) => { /* TODO: Implementar via API */ };
+  const executeReport = async (id: string) => { /* TODO: Implementar via API */ };
   const [searchTerm, setSearchTerm] = useState('')
   const [typeFilter, setTypeFilter] = useState<string>('all')
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
@@ -119,7 +124,7 @@ export function ReportList({
       if (onExecuteReport) {
         onExecuteReport(reportId)
       } else {
-        await executeReport(reportId, {})
+        await executeReport(reportId)
       }
     } catch (error) {
       console.error('Failed to execute report:', error)

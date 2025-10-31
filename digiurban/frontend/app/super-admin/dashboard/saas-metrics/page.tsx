@@ -239,7 +239,6 @@ export default function SaaSMetricsPage() {
               value: item.revenue
             })) || []}
             showLegend={true}
-            height={300}
           />
           <div className="mt-4 space-y-2">
             {metrics?.breakdown.revenueByPlan.map((item, index) => (

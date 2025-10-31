@@ -259,7 +259,7 @@ export default function IntegradorPaginasEspecializadas() {
     const dados = {
       dataGeracao: new Date().toISOString(),
       totalPaginas: state.paginasEspecializadas.length,
-      totalServicos: state.paginasEspecializadas.reduce((acc, p) => acc + p.servicosGerados, 0),
+      totalServicos: state.paginasEspecializadas.reduce((acc, p) => acc + ((p as any).servicosGerados || 0), 0),
       sugestoesIA: state.sugestoesGeradas.length,
       paginas: state.paginasEspecializadas,
       ultimaAnalise: state.ultimaAnalise

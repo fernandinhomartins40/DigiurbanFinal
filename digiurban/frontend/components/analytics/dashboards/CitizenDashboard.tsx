@@ -8,23 +8,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { FileText, Clock, CheckCircle, AlertCircle, MessageSquare, Star } from 'lucide-react'
 import { KPICard } from '../KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart } from '../Charts'
-import { useAnalytics, useDashboards } from '@/hooks/api/analytics'
+// LEGADO: import { useAnalytics, useDashboards } from '@/hooks/api/analytics'
 
 interface CitizenDashboardProps {
   citizenId?: string
 }
 
 export function CitizenDashboard({ citizenId }: CitizenDashboardProps) {
-  const { fetchDashboard, loading: dashboardLoading } = useDashboards()
+  const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
-      const data = await fetchDashboard('citizen', citizenId)
-      setDashboardData(data)
+      setDashboardLoading(true);
+      // TODO: Implementar via API
+      setDashboardData(null);
+      setDashboardLoading(false);
     }
     loadDashboard()
-  }, [fetchDashboard, citizenId])
+  }, [citizenId])
 
   if (dashboardLoading || !dashboardData) {
     return (

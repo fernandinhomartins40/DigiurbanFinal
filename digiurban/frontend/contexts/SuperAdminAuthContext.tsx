@@ -29,7 +29,7 @@ interface SuperAdminAuthContextType {
   logout: () => Promise<void>
   loading: boolean
   error: string | null
-  refreshUser: () => Promise<void>
+  refreshUser: () => Promise<boolean>
   apiRequest: (endpoint: string, options?: RequestInit) => Promise<any>
 }
 

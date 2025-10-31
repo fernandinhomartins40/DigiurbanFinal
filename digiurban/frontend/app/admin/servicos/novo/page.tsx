@@ -105,7 +105,7 @@ export default function NewServicePage() {
       description: 'Informativo ou com dados',
       icon: <Layers className="h-5 w-5" />,
       isValid: () => {
-        return formData.serviceType !== ''
+        return formData.serviceType === 'INFORMATIVO' || formData.serviceType === 'COM_DADOS'
       },
     },
     {

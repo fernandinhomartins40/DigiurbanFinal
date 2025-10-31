@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AlertTriangle, Bell, Filter, RefreshCcw, Search } from 'lucide-react'
 import { AlertCard } from './AlertCard'
-import { useAlerts } from '@/hooks/api/analytics'
+import type { Alert } from './index'
+// LEGADO: import { useAlerts } from '@/hooks/api/analytics'
 
 interface AlertListProps {
   title?: string
@@ -32,7 +33,12 @@ export function AlertList({
   refreshInterval = 30000, // 30 seconds
   className
 }: AlertListProps) {
-  const { alerts, loading, error, fetchAlerts } = useAlerts()
+  // LEGADO: const { alerts, loading, error, fetchAlerts } = useAlerts()
+  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const fetchAlerts = async () => { /* TODO: Implementar via API */ }
+
   const [searchTerm, setSearchTerm] = useState('')
   const [severityFilter, setSeverityFilter] = useState<string>('all')
   const [typeFilter, setTypeFilter] = useState<string>('all')
@@ -50,7 +56,7 @@ export function AlertList({
   }, [autoRefresh, refreshInterval, fetchAlerts])
 
   // Filter alerts based on current filters
-  const filteredAlerts = alerts.filter(alert => {
+  const filteredAlerts = alerts.filter((alert: Alert) => {
     const matchesSearch = searchTerm === '' ||
       alert.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       alert.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -65,19 +71,19 @@ export function AlertList({
   // Group alerts by status for tabs
   const alertsByStatus = {
     all: filteredAlerts,
-    active: filteredAlerts.filter(alert => alert.status === 'active'),
-    acknowledged: filteredAlerts.filter(alert => alert.status === 'acknowledged'),
-    resolved: filteredAlerts.filter(alert => alert.status === 'resolved')
+    active: filteredAlerts.filter((alert: Alert) => alert.status === 'active'),
+    acknowledged: filteredAlerts.filter((alert: Alert) => alert.status === 'acknowledged'),
+    resolved: filteredAlerts.filter((alert: Alert) => alert.status === 'resolved')
   }
 
   const getStatusCount = (status: string) => {
     switch (status) {
       case 'active':
-        return alerts.filter(alert => alert.status === 'active').length
+        return alerts.filter((alert: Alert) => alert.status === 'active').length
       case 'acknowledged':
-        return alerts.filter(alert => alert.status === 'acknowledged').length
+        return alerts.filter((alert: Alert) => alert.status === 'acknowledged').length
       case 'resolved':
-        return alerts.filter(alert => alert.status === 'resolved').length
+        return alerts.filter((alert: Alert) => alert.status === 'resolved').length
       default:
         return alerts.length
     }
@@ -215,7 +221,7 @@ export function AlertList({
                       ))}
                     </div>
                   ) : statusAlerts.length > 0 ? (
-                    statusAlerts.map(alert => (
+                    statusAlerts.map((alert: Alert) => (
                       <AlertCard
                         key={alert.id}
                         alert={alert}
@@ -257,7 +263,7 @@ export function AlertList({
                 ))}
               </div>
             ) : filteredAlerts.length > 0 ? (
-              filteredAlerts.map(alert => (
+              filteredAlerts.map((alert: Alert) => (
                 <AlertCard
                   key={alert.id}
                   alert={alert}

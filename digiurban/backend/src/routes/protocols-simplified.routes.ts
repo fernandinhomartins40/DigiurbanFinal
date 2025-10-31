@@ -118,11 +118,160 @@ router.post('/', requireMinRole(UserRole.USER), async (req, res) => {
 });
 
 // ========================================
-// BUSCAR PROTOCOLO
+// LISTAR TODOS OS PROTOCOLOS (NOVO)
 // ========================================
 
 /**
- * GET /api/protocols-simplified/:number
+ * GET /api/protocols
+ * Lista todos os protocolos com filtros
+ */
+router.get('/', requireMinRole(UserRole.USER), async (req, res) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const tenantId = authReq.tenantId;
+    const userId = authReq.userId;
+    const user = authReq.user;
+
+    const {
+      status,
+      priority,
+      search,
+      departmentId,
+      assignedUserId,
+      page = '1',
+      limit = '50'
+    } = req.query;
+
+    // Montar filtros baseado no role do usuário
+    const where: any = {
+      tenantId,
+    };
+
+    // Filtros opcionais
+    if (status && status !== 'all') {
+      where.status = status;
+    }
+
+    if (priority && priority !== 'all') {
+      where.priority = parseInt(priority as string);
+    }
+
+    if (departmentId) {
+      where.departmentId = departmentId;
+    }
+
+    if (assignedUserId) {
+      where.assignedUserId = assignedUserId;
+    }
+
+    // Busca por número, título ou nome do cidadão
+    if (search) {
+      where.OR = [
+        { number: { contains: search as string, mode: 'insensitive' } },
+        { title: { contains: search as string, mode: 'insensitive' } },
+        { citizen: { name: { contains: search as string, mode: 'insensitive' } } },
+      ];
+    }
+
+    // Restrição de acesso baseado no role
+    if (user.role === 'USER') {
+      // Usuários comuns veem apenas protocolos atribuídos a eles
+      where.assignedUserId = userId;
+    } else if (user.role === 'MANAGER') {
+      // Gerentes veem protocolos do seu departamento
+      if (user.departmentId) {
+        where.departmentId = user.departmentId;
+      }
+    }
+    // ADMIN vê todos os protocolos
+
+    // Paginação
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Buscar protocolos
+    const [protocols, total] = await Promise.all([
+      prisma.protocolSimplified.findMany({
+        where,
+        include: {
+          citizen: {
+            select: {
+              id: true,
+              name: true,
+              cpf: true,
+              email: true,
+            },
+          },
+          service: {
+            select: {
+              id: true,
+              name: true,
+              category: true,
+            },
+          },
+          department: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+          assignedUser: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+            },
+          },
+          createdBy: {
+            select: {
+              id: true,
+              name: true,
+              role: true,
+            },
+          },
+          _count: {
+            select: {
+              history: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take: limitNum,
+      }),
+      prisma.protocolSimplified.count({ where }),
+    ]);
+
+    return res.json({
+      success: true,
+      protocols,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    });
+  } catch (error: any) {
+    console.error('Erro ao listar protocolos:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Erro ao listar protocolos',
+    });
+  }
+});
+
+// ========================================
+// BUSCAR PROTOCOLO POR NÚMERO
+// ========================================
+
+/**
+ * GET /api/protocols/:number
  * Busca protocolo por número
  */
 router.get('/:number', async (req: Request, res: Response) => {

@@ -8,7 +8,9 @@ import { ModuleConfig } from './types';
 export const securityAttendanceConfig: ModuleConfig = {
   key: 'security-attendance',
   entityName: 'SecurityAttendance',
+  departmentType: 'public-security',
   displayName: 'Atendimentos de Segurança',
+  displayNameSingular: 'Atendimentos de Segurança',
 
   fields: [
     { name: 'citizenName', label: 'Nome do Cidadão', type: 'text', required: true, showInList: true },
@@ -67,8 +69,10 @@ export const securityAttendanceConfig: ModuleConfig = {
 // 2. OCORRÊNCIAS DE SEGURANÇA
 export const securityOccurrenceConfig: ModuleConfig = {
   key: 'security-occurrence',
+  departmentType: 'public-security',
   entityName: 'SecurityOccurrence',
   displayName: 'Ocorrências de Segurança',
+  displayNameSingular: 'Ocorrências de Segurança',
 
   fields: [
     { name: 'occurrenceType', label: 'Tipo de Ocorrência', type: 'select', required: true, showInList: true, options: [
@@ -130,8 +134,10 @@ export const securityOccurrenceConfig: ModuleConfig = {
 // 3. SOLICITAÇÕES DE RONDA
 export const patrolRequestConfig: ModuleConfig = {
   key: 'patrol-request',
+  departmentType: 'public-security',
   entityName: 'PatrolRequest',
   displayName: 'Solicitações de Ronda',
+  displayNameSingular: 'Solicitações de Ronda',
 
   fields: [
     { name: 'type', label: 'Tipo de Solicitação', type: 'select', required: true, showInList: true, options: [
@@ -193,8 +199,10 @@ export const patrolRequestConfig: ModuleConfig = {
 // 4. SOLICITAÇÕES DE CÂMERAS
 export const cameraRequestConfig: ModuleConfig = {
   key: 'camera-request',
+  departmentType: 'public-security',
   entityName: 'CameraRequest',
   displayName: 'Solicitações de Câmeras',
+  displayNameSingular: 'Solicitaçõe de Câmera',
 
   fields: [
     { name: 'type', label: 'Tipo de Solicitação', type: 'select', required: true, showInList: true, options: [
@@ -260,8 +268,10 @@ export const cameraRequestConfig: ModuleConfig = {
 // 5. DENÚNCIAS ANÔNIMAS
 export const anonymousTipConfig: ModuleConfig = {
   key: 'anonymous-tip',
+  departmentType: 'public-security',
   entityName: 'AnonymousTip',
   displayName: 'Denúncias Anônimas',
+  displayNameSingular: 'Denúncia Anônima',
 
   fields: [
     { name: 'type', label: 'Tipo de Denúncia', type: 'select', required: true, showInList: true, options: [
@@ -329,8 +339,10 @@ export const anonymousTipConfig: ModuleConfig = {
 // 6. PONTOS CRÍTICOS
 export const criticalPointConfig: ModuleConfig = {
   key: 'critical-point',
+  departmentType: 'public-security',
   entityName: 'CriticalPoint',
   displayName: 'Pontos Críticos',
+  displayNameSingular: 'Ponto Crítico',
 
   fields: [
     { name: 'name', label: 'Nome do Ponto', type: 'text', required: true, showInList: true },
@@ -395,8 +407,10 @@ export const criticalPointConfig: ModuleConfig = {
 // 7. ALERTAS DE SEGURANÇA
 export const securityAlertConfig: ModuleConfig = {
   key: 'security-alert',
+  departmentType: 'public-security',
   entityName: 'SecurityAlert',
   displayName: 'Alertas de Segurança',
+  displayNameSingular: 'Alertas de Segurança',
 
   fields: [
     { name: 'title', label: 'Título', type: 'text', required: true, showInList: true },
@@ -459,8 +473,10 @@ export const securityAlertConfig: ModuleConfig = {
 // 8. PATRULHAS
 export const securityPatrolConfig: ModuleConfig = {
   key: 'security-patrol',
+  departmentType: 'public-security',
   entityName: 'SecurityPatrol',
   displayName: 'Patrulhas',
+  displayNameSingular: 'Patrulha',
 
   fields: [
     { name: 'patrolType', label: 'Tipo de Patrulha', type: 'select', required: true, showInList: true, options: [
@@ -513,8 +529,10 @@ export const securityPatrolConfig: ModuleConfig = {
 // 9. GUARDA MUNICIPAL
 export const municipalGuardConfig: ModuleConfig = {
   key: 'municipal-guard',
+  departmentType: 'public-security',
   entityName: 'MunicipalGuard',
   displayName: 'Guarda Municipal',
+  displayNameSingular: 'Guarda Municipal',
 
   fields: [
     { name: 'name', label: 'Nome Completo', type: 'text', required: true, showInList: true },
@@ -582,8 +600,10 @@ export const municipalGuardConfig: ModuleConfig = {
 // 10. SISTEMA DE VIGILÂNCIA
 export const surveillanceSystemConfig: ModuleConfig = {
   key: 'surveillance-system',
+  departmentType: 'public-security',
   entityName: 'SurveillanceSystem',
   displayName: 'Sistema de Vigilância',
+  displayNameSingular: 'Sistema de Vigilância',
 
   fields: [
     { name: 'systemName', label: 'Nome do Sistema', type: 'text', required: true, showInList: true },

@@ -494,7 +494,7 @@ export function useInfiniteQuery<T>(
   const { getNextPageParam, getPreviousPageParam } = options
 
   const baseQuery = useOptimizedQuery(
-    Array.isArray(queryKey) ? [...queryKey, pageParams] : [queryKey, pageParams],
+    Array.isArray(queryKey) ? [...queryKey, JSON.stringify(pageParams)] : [queryKey, JSON.stringify(pageParams)],
     () => queryFn({ pageParam: pageParams[pageParams.length - 1] }),
     options
   )

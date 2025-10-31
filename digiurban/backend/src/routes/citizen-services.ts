@@ -3,8 +3,8 @@ import { prisma } from '../lib/prisma';
 import { tenantMiddleware } from '../middleware/tenant';
 import { citizenAuthMiddleware } from '../middleware/citizen-auth';
 import { AuthenticatedRequest, SuccessResponse, ErrorResponse, GuaranteedTenantRequest, WhereCondition } from '../types';
-import { generateProtocolNumber } from '../utils/protocol-number-generator';
-import { ModuleHandler } from '../modules/module-handler';
+// REMOVED: generateProtocolNumber - agora usa protocolModuleService.createProtocolWithModule
+// REMOVED: ModuleHandler - agora usa protocolModuleService.createProtocolWithModule
 
 // FASE 2 - Interface para serviços de cidadãos
 // WhereClause interface removida - usando WhereCondition do sistema centralizado
@@ -141,9 +141,9 @@ router.get('/popular', async (req, res) => {
         },
         _count: {
           select: {
-            protocolsSimplified: true,
+            protocols: true,
           },
-        } as any, // TODO: Prisma _count não suporta select em relações
+        },
       },
       orderBy: {
         protocols: {
@@ -184,9 +184,9 @@ router.get('/:id', async (req, res) => {
         },
         _count: {
           select: {
-            protocolsSimplified: true,
+            protocols: true,
           },
-        } as any, // TODO: Prisma _count não suporta select em relações
+        },
       },
     });
 
@@ -230,11 +230,30 @@ router.get('/:id', async (req, res) => {
       averageCompletionDays = Math.round(totalDays / completedProtocols.length);
     }
 
+    // Converter formSchema de JSON Schema para formato fields[] do frontend
+    let formSchemaConverted = service.formSchema;
+    if (service.formSchema && typeof service.formSchema === 'object' && 'properties' in service.formSchema) {
+      const properties = (service.formSchema as any).properties || {};
+      const required = (service.formSchema as any).required || [];
+
+      const fields = Object.entries(properties).map(([id, prop]: [string, any]) => ({
+        id,
+        label: prop.title || id,
+        type: prop.enum ? 'select' : (prop.type === 'number' ? 'number' : 'text'),
+        required: required.includes(id),
+        placeholder: prop.description,
+        options: prop.enum || undefined,
+      }));
+
+      formSchemaConverted = { fields };
+    }
+
     return res.json({
       service: {
         ...service,
+        formSchema: formSchemaConverted,
         stats: {
-          protocolsCount: (service._count as any)?.protocolsSimplified || 0,
+          protocolsCount: service._count?.protocols || 0,
           statusDistribution: stats,
           averageCompletionDays,
         },
@@ -327,9 +346,9 @@ router.get('/:id/similar', async (req, res) => {
         },
         _count: {
           select: {
-            protocolsSimplified: true,
+            protocols: true,
           },
-        } as any, // TODO: Prisma _count não suporta select em relações
+        },
       },
       orderBy: {
         protocols: {
@@ -407,75 +426,36 @@ router.post('/:id/request', async (req, res) => {
     // Validar formulário customizado (DEPRECATED)
     // if (service.hasCustomForm && service.customForm) { ... }
 
-    // Gerar número do protocolo
-    const protocolNumber = generateProtocolNumber();
+    // ========== CRIAR PROTOCOLO COM MÓDULO ==========
+    // ✅ Usar protocolModuleService para criar protocolo + entidade do módulo
+    const { protocolModuleService } = await import('../services/protocol-module.service');
 
-    // Criar protocolo em transação
-    const result = await prisma.$transaction(async (tx) => {
-      // Criar protocolo
-      const protocol = await tx.protocolSimplified.create({
-        data: {
-          tenantId: tenant.id,
-          number: protocolNumber,
-          title: description.substring(0, 100),
-          description,
-          citizenId,
-          serviceId,
-          departmentId: service.departmentId,
-          priority: Number(priority),
-          status: 'VINCULADO' as any,
-          latitude: locationData?.latitude,
-          longitude: locationData?.longitude,
-          address: locationData?.address,
-          customData: customFormData as any,
-          documents: attachments as any,
-        },
-      });
+    // Preparar formData com citizenId
+    const moduleFormData = {
+      citizenId,
+      ...customFormData,
+    };
 
-      // DEPRECATED: Appointment e ProtocolLocation removidos do MVP simplificado
-      // TODO: Armazenar scheduling/location em protocol.data JSON se necessário
-
-      // Se tem agendamento, armazenar no campo data (DEPRECATED - antes criava appointment)
-      // if (schedulingData && schedulingData.scheduledDate) { ... }
-
-      // Se tem localização, armazenar no campo data (DEPRECATED - antes criava protocolLocation)
-      // if (locationData && locationData.latitude) { ... }
-
-      return protocol;
+    const result = await protocolModuleService.createProtocolWithModule({
+      tenantId: tenant.id,
+      citizenId,
+      serviceId,
+      formData: moduleFormData,
+      createdById: undefined, // Cidadão criando
+      latitude: locationData?.latitude,
+      longitude: locationData?.longitude,
+      address: locationData?.address,
+      attachments: attachments as any,
     });
 
-    // ========== EXECUTAR MODULE HANDLER ==========
-    // Rotear automaticamente para o módulo especializado
-    if (service.moduleType) {
-      try {
-        const moduleResult = await ModuleHandler.execute({
-          tenantId: tenant.id,
-          protocol: result,
-          service,
-          requestData: {
-            ...customFormData,
-            ...locationData,
-            ...schedulingData,
-            description,
-          },
-          citizenId,
-        });
-
-        if (!moduleResult.success) {
-          console.error('Erro ao executar módulo:', moduleResult.error);
-          // Não falha a requisição, mas loga o erro
-        } else {
-          console.log(`Módulo ${service.moduleType} executado com sucesso:`, moduleResult);
-        }
-      } catch (moduleError) {
-        console.error('Erro crítico no ModuleHandler:', moduleError);
-        // Não falha a requisição para garantir que o protocolo seja criado
-      }
+    console.log(`✅ Protocolo ${result.protocol.number} criado ${result.hasModule ? 'COM módulo' : 'SEM módulo'}`);
+    if (result.hasModule && result.moduleEntity) {
+      console.log(`   Entidade do módulo criada: ${result.protocol.moduleType}`);
     }
 
     // Buscar protocolo completo
     const fullProtocol = await prisma.protocolSimplified.findUnique({
-      where: { id: result.id },
+      where: { id: result.protocol.id },
       include: {
         service: {
           select: {
@@ -497,7 +477,7 @@ router.post('/:id/request', async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: `Protocolo ${protocolNumber} gerado com sucesso!`,
+      message: `Protocolo ${result.protocol.number} gerado com sucesso!`,
       protocol: fullProtocol,
     });
   } catch (error) {

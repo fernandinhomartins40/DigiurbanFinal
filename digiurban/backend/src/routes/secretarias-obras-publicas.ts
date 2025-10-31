@@ -35,10 +35,7 @@ router.get(
 
       // Buscar departamento de Obras Públicas
       const publicWorksDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'OBRAS_PUBLICAS',
-        },
+        where: { code: 'OBRAS_PUBLICAS' },
       });
 
       if (!publicWorksDept) {
@@ -216,10 +213,7 @@ router.get(
 
       // Buscar departamento de Obras Públicas
       const publicWorksDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'OBRAS_PUBLICAS',
-        },
+        where: { code: 'OBRAS_PUBLICAS' },
       });
 
       if (!publicWorksDept) {

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Users, TrendingUp, AlertTriangle, Target, Activity, BarChart3, Clock } from 'lucide-react'
 import { KPICard } from '../KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart, AnalyticsAreaChart, GaugeChart } from '../Charts'
-import { useDashboards } from '@/hooks/api/analytics'
+// LEGADO: import { useDashboards } from '@/hooks/api/analytics'
 
 interface CoordinatorDashboardProps {
   coordinatorId?: string
@@ -16,16 +16,19 @@ interface CoordinatorDashboardProps {
 }
 
 export function CoordinatorDashboard({ coordinatorId, department }: CoordinatorDashboardProps) {
-  const { fetchDashboard, loading: dashboardLoading } = useDashboards()
+  const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
-      const data = await fetchDashboard('coordinator', coordinatorId)
+      setDashboardLoading(true);
+      // TODO: Implementar via API
+      const data = null;
+      setDashboardLoading(false);
       setDashboardData(data)
     }
     loadDashboard()
-  }, [fetchDashboard, coordinatorId])
+  }, [coordinatorId])
 
   if (dashboardLoading || !dashboardData) {
     return (

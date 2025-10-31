@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Shield, Lock, Mail } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Loader2, Shield, Lock, Mail, Eye, EyeOff } from 'lucide-react'
 import { getFullApiUrl } from '@/lib/api-config'
 
 export default function SuperAdminLoginPage() {
@@ -14,7 +15,20 @@ export default function SuperAdminLoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const router = useRouter()
+
+  // Carregar credenciais salvas ao montar componente
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('digiurban_superadmin_email')
+    const savedRememberMe = localStorage.getItem('digiurban_superadmin_remember') === 'true'
+
+    if (savedEmail && savedRememberMe) {
+      setEmail(savedEmail)
+      setRememberMe(true)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -54,6 +68,15 @@ export default function SuperAdminLoginPage() {
       // ✅ Autenticação via cookie httpOnly - não precisa localStorage
       // O cookie já foi setado pelo backend automaticamente
       localStorage.setItem('super_admin_user', JSON.stringify(data.user))
+
+      // Salvar ou remover credenciais baseado no checkbox
+      if (rememberMe) {
+        localStorage.setItem('digiurban_superadmin_email', email)
+        localStorage.setItem('digiurban_superadmin_remember', 'true')
+      } else {
+        localStorage.removeItem('digiurban_superadmin_email')
+        localStorage.removeItem('digiurban_superadmin_remember')
+      }
 
       // Redirecionar para dashboard do super admin
       // Usar window.location para garantir reload completo e carregar o contexto
@@ -117,16 +140,42 @@ export default function SuperAdminLoginPage() {
                 <Lock className="absolute left-3 top-3 h-4 w-4 text-purple-500" />
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Digite sua senha mestra"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
+                  className="pl-10 pr-10 border-purple-200 focus:border-purple-500 focus:ring-purple-500"
                   autoComplete="current-password"
                   required
                   disabled={loading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="remember-superadmin"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked === true)}
+                disabled={loading}
+              />
+              <label
+                htmlFor="remember-superadmin"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-gray-700"
+              >
+                Lembrar meu email
+              </label>
             </div>
 
             <Button

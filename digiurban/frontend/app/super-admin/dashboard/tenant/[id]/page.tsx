@@ -65,23 +65,41 @@ export default function TenantDetailPage() {
   const { apiRequest } = useSuperAdminAuth();
   const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirmDialog();
-  const tenantId = params.id as string;
+
+  // Garantir que tenantId seja sempre uma string
+  const tenantId = typeof params.id === 'string' ? params.id : Array.isArray(params.id) ? params.id[0] : String(params.id || '');
 
   const [tenant, setTenant] = useState<TenantDetail | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (tenantId) {
+    if (tenantId && typeof tenantId === 'string' && tenantId.length > 0) {
       fetchTenantDetail();
+    } else if (!tenantId) {
+      console.error('TenantId inválido:', params.id);
+      toast({
+        title: 'Erro',
+        description: 'ID do tenant inválido',
+        variant: 'destructive'
+      });
+      router.push('/super-admin/tenants');
     }
   }, [tenantId]);
 
   const fetchTenantDetail = async () => {
     setLoading(true);
     try {
+      console.log('[TenantDetail] Fetching tenant with ID:', tenantId);
+      console.log('[TenantDetail] tenantId type:', typeof tenantId);
+
       const data = await apiRequest(`/super-admin/tenants/${tenantId}/detail`);
+
+      console.log('[TenantDetail] API response:', data);
+      console.log('[TenantDetail] Tenant data:', data.tenant);
+
       setTenant(data.tenant);
     } catch (error) {
+      console.error('[TenantDetail] Error fetching tenant:', error);
       // Error already handled by apiRequest
     } finally {
       setLoading(false);

@@ -15,7 +15,6 @@ import {
   Loader2
 } from 'lucide-react';
 import { useCitizenServices } from '@/hooks/useCitizenServices';
-import { toast } from 'sonner';
 
 export default function ServicosPage() {
   const router = useRouter();
@@ -23,7 +22,7 @@ export default function ServicosPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('todos');
 
-  const handleSolicitar = (serviceId: string, serviceName: string) => {
+  const handleSolicitar = (serviceId: string) => {
     router.push(`/cidadao/servicos/${serviceId}/solicitar`);
   };
 
@@ -54,19 +53,19 @@ export default function ServicosPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Catálogo de Serviços</h1>
-          <p className="text-gray-600 mt-1">Encontre e solicite os serviços municipais disponíveis</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Catálogo de Serviços</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Encontre e solicite os serviços municipais disponíveis</p>
         </div>
 
         {/* Busca e Filtros */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             <Input
               placeholder="Buscar serviços..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-12 text-base"
+              className="pl-9 sm:pl-10 h-10 sm:h-12 text-sm sm:text-base"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
@@ -76,7 +75,7 @@ export default function ServicosPage() {
                 variant={selectedCategory === category.id ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setSelectedCategory(category.id)}
-                className="whitespace-nowrap flex-shrink-0"
+                className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm"
               >
                 {category.name}
               </Button>
@@ -101,37 +100,37 @@ export default function ServicosPage() {
 
         {/* Estatísticas */}
         {!loading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Total de Serviços</p>
-                    <p className="text-2xl font-bold text-gray-900">{services.length}</p>
+                  <div className="flex-1">
+                    <p className="text-xs sm:text-sm text-gray-600">Total de Serviços</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">{services.length}</p>
                   </div>
-                  <FileText className="h-8 w-8 text-blue-600" />
+                  <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 flex-shrink-0" />
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Categorias</p>
-                    <p className="text-2xl font-bold text-gray-900">{categories.length - 1}</p>
+                  <div className="flex-1">
+                    <p className="text-xs sm:text-sm text-gray-600">Categorias</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">{categories.length - 1}</p>
                   </div>
-                  <Filter className="h-8 w-8 text-green-600" />
+                  <Filter className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 flex-shrink-0" />
                 </div>
               </CardContent>
             </Card>
             <Card>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Resultados</p>
-                    <p className="text-2xl font-bold text-gray-900">{filteredServices.length}</p>
+                  <div className="flex-1">
+                    <p className="text-xs sm:text-sm text-gray-600">Resultados</p>
+                    <p className="text-xl sm:text-2xl font-bold text-gray-900">{filteredServices.length}</p>
                   </div>
-                  <Search className="h-8 w-8 text-purple-600" />
+                  <Search className="h-6 w-6 sm:h-8 sm:w-8 text-purple-600 flex-shrink-0" />
                 </div>
               </CardContent>
             </Card>
@@ -160,7 +159,7 @@ export default function ServicosPage() {
                       </p>
 
                       <div className="space-y-2 sm:space-y-3">
-                        {service.requiredDocuments && service.requiredDocuments.length > 0 && (
+                        {service.requiredDocuments && Array.isArray(service.requiredDocuments) && service.requiredDocuments.length > 0 && (
                           <div>
                             <p className="text-xs font-medium text-gray-700 mb-1 sm:mb-2">Documentos:</p>
                             <div className="flex flex-wrap gap-1">
@@ -184,7 +183,7 @@ export default function ServicosPage() {
                           <Button
                             size="sm"
                             className="w-full sm:w-auto text-xs sm:text-sm"
-                            onClick={() => handleSolicitar(service.id, service.name)}
+                            onClick={() => handleSolicitar(service.id)}
                           >
                             <span className="hidden sm:inline">Solicitar</span>
                             <span className="sm:hidden">Solicitar Serviço</span>

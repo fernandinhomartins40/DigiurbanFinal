@@ -12,8 +12,8 @@ import { ModuleConfig } from './types';
 
 export const atendimentosAmbientaisConfig: ModuleConfig = {
   key: 'atendimentos',
-  departmentType: 'meio-ambiente',
   entityName: 'EnvironmentalAttendance',
+  departmentType: 'environment',
   displayName: 'Atendimentos Ambientais',
   displayNameSingular: 'Atendimento Ambiental',
   description: 'Registro de atendimentos gerais sobre questões ambientais',

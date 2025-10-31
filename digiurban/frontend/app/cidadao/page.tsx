@@ -203,13 +203,13 @@ export default function CitizenDashboard() {
 
         {/* Serviços Populares */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Serviços Disponíveis</h2>
-              <p className="text-sm text-gray-600 mt-1">Serviços oferecidos pelo município</p>
+              <h2 className="text-base sm:text-lg font-semibold text-gray-900">Serviços Disponíveis</h2>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">Serviços oferecidos pelo município</p>
             </div>
-            <Link href="/cidadao/servicos">
-              <Button variant="outline" size="sm">
+            <Link href="/cidadao/servicos" className="sm:flex-shrink-0">
+              <Button variant="outline" size="sm" className="w-full sm:w-auto">
                 Ver todos
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -232,39 +232,39 @@ export default function CitizenDashboard() {
           )}
 
           {!servicesLoading && popularServices.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
               {popularServices.map((service) => (
                 <Card key={service.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
+                  <CardContent className="p-4 sm:p-5">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="bg-blue-50 p-2.5 rounded-lg">
-                        <FileText className="h-5 w-5 text-blue-600" />
+                      <div className="bg-blue-50 p-2 sm:p-2.5 rounded-lg">
+                        <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                       </div>
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full whitespace-nowrap">
                         Disponível
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-1">
+                    <h3 className="text-xs sm:text-sm font-semibold text-gray-900 mb-1 line-clamp-2">
                       {service.name}
                     </h3>
 
-                    <p className="text-xs text-gray-500 mb-3">
+                    <p className="text-xs text-gray-500 mb-2 sm:mb-3 truncate">
                       {service.department?.name || 'Sem departamento'}
                     </p>
 
-                    <p className="text-xs text-gray-600 mb-4 line-clamp-2">
+                    <p className="text-xs text-gray-600 mb-3 sm:mb-4 line-clamp-2">
                       {service.description || 'Sem descrição'}
                     </p>
 
-                    <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between text-xs text-gray-500 pt-2 sm:pt-3 border-t border-gray-100">
                       <div className="flex items-center gap-1">
-                        <Activity className="h-3.5 w-3.5" />
-                        <span>Prioridade {service.priority}</span>
+                        <Activity className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
+                        <span className="truncate">Prior. {service.priority}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>{service.estimatedDays ? `${service.estimatedDays}d` : 'A definir'}</span>
+                        <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 flex-shrink-0" />
+                        <span className="whitespace-nowrap">{service.estimatedDays ? `${service.estimatedDays}d` : 'A definir'}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -275,14 +275,14 @@ export default function CitizenDashboard() {
         </div>
 
         {/* Informações Importantes */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+            <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <div>
-              <h3 className="text-base font-semibold text-blue-900 mb-2">
+              <h3 className="text-sm sm:text-base font-semibold text-blue-900 mb-2">
                 Sistema em Desenvolvimento
               </h3>
-              <p className="text-sm text-blue-700">
+              <p className="text-xs sm:text-sm text-blue-700">
                 Este portal está sendo desenvolvido para melhor atendê-lo.
                 Em breve você poderá acessar todos os serviços municipais,
                 acompanhar protocolos e muito mais.
@@ -293,28 +293,28 @@ export default function CitizenDashboard() {
 
         {/* Informações do Perfil */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Meus Dados</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-base sm:text-lg">Meus Dados</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm font-medium text-gray-500">Nome Completo</p>
-                <p className="text-sm text-gray-900 mt-1">{citizen?.name || '-'}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Nome Completo</p>
+                <p className="text-xs sm:text-sm text-gray-900 mt-1 break-words">{citizen?.name || '-'}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">CPF</p>
-                <p className="text-sm text-gray-900 mt-1">
+                <p className="text-xs sm:text-sm font-medium text-gray-500">CPF</p>
+                <p className="text-xs sm:text-sm text-gray-900 mt-1">
                   {citizen?.cpf?.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4') || '-'}
                 </p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">E-mail</p>
-                <p className="text-sm text-gray-900 mt-1">{citizen?.email || '-'}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">E-mail</p>
+                <p className="text-xs sm:text-sm text-gray-900 mt-1 break-all">{citizen?.email || '-'}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Telefone</p>
-                <p className="text-sm text-gray-900 mt-1">{citizen?.phone || '-'}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Telefone</p>
+                <p className="text-xs sm:text-sm text-gray-900 mt-1">{citizen?.phone || '-'}</p>
               </div>
             </div>
           </CardContent>

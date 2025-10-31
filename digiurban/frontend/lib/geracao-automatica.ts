@@ -102,7 +102,7 @@ export class GeradorAutomaticoInteligente {
       // Agrupar por categoria e secretaria
       const grupos = this.agruparServicos(servicosBackend)
 
-      for (const [chave, servicos] of grupos.entries()) {
+      for (const [chave, servicos] of Array.from(grupos.entries())) {
         const [categoria, secretaria] = chave.split('|')
 
         const padrao: PadraoServico = {

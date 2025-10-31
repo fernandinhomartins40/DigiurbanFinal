@@ -12,8 +12,8 @@ import { ModuleConfig } from './types';
 
 export const atendimentosUrbanosConfig: ModuleConfig = {
   key: 'atendimentos',
-  departmentType: 'planejamento-urbano',
   entityName: 'UrbanPlanningAttendance',
+  departmentType: 'urban-planning',
   displayName: 'Atendimentos Urbanísticos',
   displayNameSingular: 'Atendimento Urbanístico',
   description: 'Registro de atendimentos gerais sobre questões urbanísticas',

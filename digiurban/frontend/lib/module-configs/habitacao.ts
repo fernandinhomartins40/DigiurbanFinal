@@ -8,7 +8,7 @@ import { ModuleConfig } from './types';
 
 export const programasHabitacionaisConfig: ModuleConfig = {
   key: 'programas-habitacionais',
-  departmentType: 'habitacao',
+  departmentType: 'housing',
   entityName: 'HousingApplication',
   displayName: 'Programas Habitacionais',
   displayNameSingular: 'Inscrição em Programa',

@@ -9,6 +9,7 @@ import { ModuleDashboard } from './ModuleDashboard';
 import { ModuleFilters } from './ModuleFilters';
 import { ModuleDataTable } from './ModuleDataTable';
 import { useToast } from '@/components/ui/use-toast';
+import { apiClient } from '@/lib/api-client';
 
 interface ModulePageTemplateProps {
   config: ModuleConfig;
@@ -31,7 +32,9 @@ export function ModulePageTemplate({ config, departmentType }: ModulePageTemplat
     limit: 20,
   });
 
-  const apiEndpoint = config.apiEndpoint || `/api/admin/secretarias/${departmentType}/${config.key}`;
+  const apiPath = config.apiEndpoint
+    ? config.apiEndpoint.replace('/api', '')
+    : `/admin/secretarias/${departmentType}/${config.key}`;
 
   useEffect(() => {
     fetchData();
@@ -46,9 +49,7 @@ export function ModulePageTemplate({ config, departmentType }: ModulePageTemplat
         ...filters,
       });
 
-      const response = await fetch(`${apiEndpoint}?${queryParams}`, {
-        credentials: 'include',
-      });
+      const response = await apiClient.get(`${apiPath}?${queryParams}`);
 
       if (!response.ok) throw new Error('Erro ao carregar dados');
 
@@ -90,7 +91,7 @@ export function ModulePageTemplate({ config, departmentType }: ModulePageTemplat
     if (!confirm(`Tem certeza que deseja excluir este registro?`)) return;
 
     try {
-      const response = await fetch(`${apiEndpoint}/${record.id}`, {
+      const response = await fetch(apiClient.getUrl(`${apiPath}/${record.id}`), {
         method: 'DELETE',
         credentials: 'include',
       });

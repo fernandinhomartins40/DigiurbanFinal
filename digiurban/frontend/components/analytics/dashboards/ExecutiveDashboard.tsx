@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TrendingUp, Target, Users, DollarSign, BarChart3, Crown, Building2, Zap, Award } from 'lucide-react'
 import { KPICard } from '../KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart, AnalyticsAreaChart, GaugeChart, HeatMap } from '../Charts'
-import { useDashboards, useBenchmarks, useKPIs } from '@/hooks/api/analytics'
+// LEGADO: import { useDashboards, useBenchmarks, useKPIs } from '@/hooks/api/analytics'
 
 interface ExecutiveDashboardProps {
   executiveId?: string
@@ -16,17 +16,21 @@ interface ExecutiveDashboardProps {
 }
 
 export function ExecutiveDashboard({ executiveId, municipality }: ExecutiveDashboardProps) {
-  const { fetchDashboard, loading: dashboardLoading } = useDashboards()
-  const { calculateOverallScore } = useKPIs()
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  // LEGADO: const { calculateOverallScore } = useKPIs()
+  const calculateOverallScore = (data: any) => 0; // TODO: Implementar
   const [dashboardData, setDashboardData] = useState<any>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
-      const data = await fetchDashboard('executive', executiveId)
+      setDashboardLoading(true);
+      // TODO: Implementar via API
+      const data = null;
+      setDashboardLoading(false);
       setDashboardData(data)
     }
     loadDashboard()
-  }, [fetchDashboard, executiveId])
+  }, [executiveId])
 
   if (dashboardLoading || !dashboardData) {
     return (

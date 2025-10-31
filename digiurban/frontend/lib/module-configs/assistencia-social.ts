@@ -8,7 +8,9 @@ import { ModuleConfig } from './types';
 export const socialAssistanceAttendanceConfig: ModuleConfig = {
   key: 'social-assistance-attendance',
   entityName: 'SocialAssistanceAttendance',
+  departmentType: 'social-assistance',
   displayName: 'Atendimentos de Assistência Social',
+  displayNameSingular: 'Atendimentos de Assistência Social',
 
   fields: [
     { name: 'citizenName', label: 'Nome do Cidadão', type: 'text', required: true, showInList: true },
@@ -88,8 +90,10 @@ export const socialAssistanceAttendanceConfig: ModuleConfig = {
 // 2. FAMÍLIAS VULNERÁVEIS (Cadastro Único)
 export const vulnerableFamilyConfig: ModuleConfig = {
   key: 'vulnerable-family',
+  departmentType: 'social-assistance',
   entityName: 'VulnerableFamily',
   displayName: 'Cadastro Único - Famílias Vulneráveis',
+  displayNameSingular: 'Cadastro Único - Famílias Vulneráveis',
 
   fields: [
     { name: 'responsibleName', label: 'Nome do Responsável', type: 'text', required: true, showInList: true },
@@ -148,8 +152,10 @@ export const vulnerableFamilyConfig: ModuleConfig = {
 // 3. SOLICITAÇÃO DE BENEFÍCIOS
 export const benefitRequestConfig: ModuleConfig = {
   key: 'benefit-request',
+  departmentType: 'social-assistance',
   entityName: 'BenefitRequest',
   displayName: 'Solicitação de Benefícios',
+  displayNameSingular: 'Solicitação de Benefício',
 
   fields: [
     { name: 'familyId', label: 'ID da Família', type: 'text', required: true },
@@ -209,8 +215,10 @@ export const benefitRequestConfig: ModuleConfig = {
 // 4. ENTREGAS EMERGENCIAIS
 export const emergencyDeliveryConfig: ModuleConfig = {
   key: 'emergency-delivery',
+  departmentType: 'social-assistance',
   entityName: 'EmergencyDelivery',
   displayName: 'Entregas Emergenciais',
+  displayNameSingular: 'Entrega Emergenciai',
 
   fields: [
     { name: 'recipientName', label: 'Nome do Beneficiário', type: 'text', required: true, showInList: true },
@@ -266,8 +274,10 @@ export const emergencyDeliveryConfig: ModuleConfig = {
 // 5. INSCRIÇÕES EM GRUPOS E OFICINAS
 export const socialGroupEnrollmentConfig: ModuleConfig = {
   key: 'social-group-enrollment',
+  departmentType: 'social-assistance',
   entityName: 'SocialGroupEnrollment',
   displayName: 'Grupos e Oficinas Sociais',
+  displayNameSingular: 'Grupo e Oficina Sociai',
 
   fields: [
     { name: 'participantName', label: 'Nome do Participante', type: 'text', required: true, showInList: true },
@@ -324,8 +334,10 @@ export const socialGroupEnrollmentConfig: ModuleConfig = {
 // 6. VISITAS DOMICILIARES
 export const homeVisitConfig: ModuleConfig = {
   key: 'home-visit',
+  departmentType: 'social-assistance',
   entityName: 'HomeVisit',
   displayName: 'Visitas Domiciliares',
+  displayNameSingular: 'Visita Domiciliare',
 
   fields: [
     { name: 'familyId', label: 'ID da Família', type: 'text', required: true },
@@ -374,8 +386,10 @@ export const homeVisitConfig: ModuleConfig = {
 // 7. INSCRIÇÕES EM PROGRAMAS SOCIAIS
 export const socialProgramEnrollmentConfig: ModuleConfig = {
   key: 'social-program-enrollment',
+  departmentType: 'social-assistance',
   entityName: 'SocialProgramEnrollment',
   displayName: 'Programas Sociais',
+  displayNameSingular: 'Programa Sociai',
 
   fields: [
     { name: 'beneficiaryName', label: 'Nome do Beneficiário', type: 'text', required: true, showInList: true },
@@ -438,8 +452,10 @@ export const socialProgramEnrollmentConfig: ModuleConfig = {
 // 8. AGENDAMENTOS SOCIAIS
 export const socialAppointmentConfig: ModuleConfig = {
   key: 'social-appointment',
+  departmentType: 'social-assistance',
   entityName: 'SocialAppointment',
   displayName: 'Agendamentos Sociais',
+  displayNameSingular: 'Agendamento Sociai',
 
   fields: [
     { name: 'citizenName', label: 'Nome do Cidadão', type: 'text', required: true, showInList: true },
@@ -494,8 +510,10 @@ export const socialAppointmentConfig: ModuleConfig = {
 // 9. EQUIPAMENTOS SOCIAIS (CRAS/CREAS)
 export const socialEquipmentConfig: ModuleConfig = {
   key: 'social-equipment',
+  departmentType: 'social-assistance',
   entityName: 'SocialEquipment',
   displayName: 'Gestão de Equipamentos Sociais (CRAS/CREAS)',
+  displayNameSingular: 'Gestão de Equipamentos Sociais (CRAS/CREAS)',
 
   fields: [
     { name: 'equipmentName', label: 'Nome do Equipamento', type: 'text', required: true, showInList: true },

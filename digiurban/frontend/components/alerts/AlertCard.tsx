@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Bell, CheckCircle, Clock, Info, X, ExternalLink } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useAlerts } from '@/hooks/api/analytics'
+// LEGADO: import { useAlerts } from '@/hooks/api/analytics'
 
 interface Alert {
   id: string
@@ -46,7 +46,9 @@ export function AlertCard({
   className
 }: AlertCardProps) {
   const [isProcessing, setIsProcessing] = useState(false)
-  const { resolveAlert, acknowledgeAlert } = useAlerts()
+  // TODO: Implementar via API
+  const resolveAlert = async (id: string) => {};
+  const acknowledgeAlert = async (id: string) => {};
 
   const handleAction = async (action: 'acknowledge' | 'resolve' | 'dismiss') => {
     setIsProcessing(true)
@@ -58,7 +60,7 @@ export function AlertCard({
           onAcknowledge?.(alert.id)
           break
         case 'resolve':
-          await resolveAlert(alert.id, { resolution: 'Resolvido manualmente' })
+          await resolveAlert(alert.id)
           onResolve?.(alert.id)
           break
         case 'dismiss':

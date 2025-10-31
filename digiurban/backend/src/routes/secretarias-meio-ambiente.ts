@@ -77,11 +77,9 @@ router.get('/stats', authenticateToken, requireManager, asyncHandler(async (req:
   }
 
   // 1. Buscar departamento de Meio Ambiente
+  // ✅ Buscar departamento global
   const dept = await prisma.department.findFirst({
-    where: {
-      tenantId,
-      code: 'MEIO_AMBIENTE'
-    }
+    where: { code: 'MEIO_AMBIENTE' }
   });
 
   if (!dept) {

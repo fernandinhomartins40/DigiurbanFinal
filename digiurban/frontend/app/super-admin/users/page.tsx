@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   Users, Search, Filter, Download, UserPlus, Shield, UserX,
-  Mail, Calendar, Building2, Key, Trash2, CheckCircle, XCircle
+  Mail, Calendar, Building2, Key, Trash2, CheckCircle, XCircle, Edit
 } from 'lucide-react';
-import { SuperAdminCard, MetricCard, TenantSelector, UserCreateModal } from '@/components/super-admin';
+import { SuperAdminCard, MetricCard, TenantSelector, UserCreateModal, UserEditModal } from '@/components/super-admin';
 import { useSuperAdminAuth } from '@/contexts/SuperAdminAuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog';
@@ -50,6 +50,8 @@ export default function UsersManagementPage() {
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     fetchUsers();
@@ -73,6 +75,11 @@ export default function UsersManagementPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setShowEditModal(true);
   };
 
   const handleResetPassword = async (userId: string, userEmail: string) => {
@@ -484,6 +491,13 @@ export default function UsersManagementPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <button
+                          onClick={() => handleEditUser(user)}
+                          className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                          title="Editar usuário"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
                           onClick={() => handleResetPassword(user.id, user.email)}
                           className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           title="Resetar senha"
@@ -535,6 +549,19 @@ export default function UsersManagementPage() {
         onSuccess={() => {
           fetchUsers();
         }}
+      />
+
+      {/* User Edit Modal */}
+      <UserEditModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedUser(null);
+        }}
+        onSuccess={() => {
+          fetchUsers();
+        }}
+        user={selectedUser}
       />
 
       {/* Confirm Dialog */}

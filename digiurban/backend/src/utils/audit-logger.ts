@@ -120,6 +120,7 @@ export const AUDIT_EVENTS = {
   USER_UPDATED: 'user_updated',
   USER_DELETED: 'user_deleted',
   CITIZEN_REGISTERED: 'citizen_registered',
+  CITIZEN_UPDATED: 'citizen_updated',
   CITIZEN_VERIFIED: 'citizen_verified',
 
   // Acessos Sensíveis (LGPD)

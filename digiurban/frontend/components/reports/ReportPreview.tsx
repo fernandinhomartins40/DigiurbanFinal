@@ -22,7 +22,7 @@ import {
 } from 'lucide-react'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart } from '../analytics/Charts'
 import { KPICard } from '../analytics/KPICard'
-import { useReports } from '@/hooks/api/analytics'
+// LEGADO: import { useReports } from '@/hooks/api/analytics'
 
 interface ReportPreviewData {
   id?: string
@@ -75,7 +75,8 @@ export function ReportPreview({
   onRefresh,
   className
 }: ReportPreviewProps) {
-  const { executeReport, downloadReport } = useReports()
+  const executeReport = async (id: string) => { /* TODO: Implementar via API */ return null; };
+  const downloadReport = async (id: string, format: string) => { /* TODO: Implementar via API */ };
   const [previewData, setPreviewData] = useState<ReportPreviewData | null>(reportData || null)
   const [isGenerating, setIsGenerating] = useState(false)
 
@@ -90,7 +91,7 @@ export function ReportPreview({
 
     try {
       setIsGenerating(true)
-      const result = await executeReport(reportId, {})
+      const result = await executeReport(reportId)
       setPreviewData(result)
     } catch (error) {
       console.error('Failed to load report data:', error)

@@ -12,12 +12,16 @@ export type FieldType =
   | 'email'
   | 'phone'
   | 'number'
+  | 'currency'
   | 'date'
   | 'datetime'
+  | 'time'
   | 'select'
   | 'multiselect'
   | 'textarea'
   | 'boolean'
+  | 'checkbox'
+  | 'file'
   | 'json';
 
 export interface ModuleField {
@@ -38,14 +42,17 @@ export interface ModuleField {
   showInDetails?: boolean;    // Exibir nos detalhes
   sortable?: boolean;         // Permitir ordenação
   filterable?: boolean;       // Permitir filtro
+  subfields?: ModuleField[];  // Subcampos aninhados
 }
 
 export interface ModuleStatConfig {
   key: string;
   label: string;
+  description?: string;
   icon?: string;
   color?: string;
-  format?: 'number' | 'currency' | 'percentage' | 'area';
+  variant?: string;
+  format?: 'number' | 'currency' | 'percentage' | 'area' | 'decimal';
   getValue?: (stats: any) => number | string;
 }
 
@@ -94,6 +101,9 @@ export interface ModuleConfig {
 
   // API endpoints (gerados automaticamente se não fornecidos)
   apiEndpoint?: string;               // '/api/admin/secretarias/agricultura/produtores'
+
+  // Controle de criação
+  canCreate?: boolean;                 // Permite criar novos registros
 
   // Permissões (para futuro)
   permissions?: {

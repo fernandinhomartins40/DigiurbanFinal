@@ -138,61 +138,36 @@ async function main() {
       console.log('   ℹ️  Admin demo já existe (senha atualizada):', adminUser.email);
     }
 
-    // ========== 4. CRIAR DEPARTAMENTO ==========
-    console.log('\n🏢 Criando departamento...');
+    // ========== 4. CRIAR DEPARTAMENTOS GLOBAIS (14 SECRETARIAS PADRÃO) ==========
+    console.log('\n🏢 Criando departamentos globais (padrão SaaS)...');
 
-    const department = await prisma.department.upsert({
-      where: {
-        tenantId_name: {
-          tenantId: demoTenant.id,
-          name: 'Administração Geral'
-        }
-      },
-      update: {},
-      create: {
-        name: 'Administração Geral',
-        code: 'ADM',
-        tenantId: demoTenant.id,
-        isActive: true
-      }
-    });
-    console.log('   ✅ Departamento criado:', department.name);
-
-    // ========== 5. CRIAR DEPARTAMENTOS PRINCIPAIS (13 SECRETARIAS) ==========
-    console.log('\n🏢 Criando departamentos principais (13 secretarias)...');
-
-    const mainDepartments = [
+    const globalDepartments = [
       { name: 'Secretaria de Saúde', code: 'SAUDE', description: 'Gestão de saúde pública, consultas, exames e programas de saúde' },
       { name: 'Secretaria de Educação', code: 'EDUCACAO', description: 'Gestão educacional, matrículas, transporte escolar e merenda' },
-      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Limpeza urbana, iluminação pública e manutenção de vias' },
       { name: 'Secretaria de Assistência Social', code: 'ASSISTENCIA_SOCIAL', description: 'Programas sociais, acolhimento e atendimento psicossocial' },
+      { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Apoio ao produtor rural, assistência técnica e fomento agrícola' },
       { name: 'Secretaria de Cultura', code: 'CULTURA', description: 'Eventos culturais, patrimônio histórico e incentivo à cultura' },
-      { name: 'Secretaria de Esporte e Lazer', code: 'ESPORTES', description: 'Gestão de equipamentos esportivos, eventos e programas de esporte' },
+      { name: 'Secretaria de Esportes', code: 'ESPORTES', description: 'Gestão de equipamentos esportivos, eventos e programas de esporte' },
       { name: 'Secretaria de Habitação', code: 'HABITACAO', description: 'Programas habitacionais, regularização fundiária e auxílio moradia' },
       { name: 'Secretaria de Meio Ambiente', code: 'MEIO_AMBIENTE', description: 'Licenciamento ambiental, fiscalização e educação ambiental' },
       { name: 'Secretaria de Obras Públicas', code: 'OBRAS_PUBLICAS', description: 'Obras públicas, pavimentação, drenagem e fiscalização de obras' },
       { name: 'Secretaria de Planejamento Urbano', code: 'PLANEJAMENTO_URBANO', description: 'Planejamento urbano, plano diretor, alvarás e licenciamento' },
       { name: 'Secretaria de Segurança Pública', code: 'SEGURANCA_PUBLICA', description: 'Guarda municipal, videomonitoramento e segurança pública' },
-      { name: 'Secretaria de Fazenda', code: 'FAZENDA', description: 'Arrecadação, IPTU, ISS, certidões e gestão fiscal' },
-      { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Apoio ao produtor rural, assistência técnica e fomento agrícola' },
+      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Limpeza urbana, iluminação pública e manutenção de vias' },
       { name: 'Secretaria de Turismo', code: 'TURISMO', description: 'Promoção turística, cadastro de guias e apoio a eventos' },
+      { name: 'Secretaria de Fazenda', code: 'FAZENDA', description: 'Arrecadação, IPTU, ISS, certidões e gestão fiscal' },
     ];
 
-    for (const dept of mainDepartments) {
+    for (const dept of globalDepartments) {
       await prisma.department.upsert({
-        where: {
-          tenantId_name: {
-            tenantId: demoTenant.id,
-            name: dept.name
-          }
-        },
+        where: { name: dept.name }, // ✅ Buscar por nome (global)
         update: { code: dept.code, description: dept.description, isActive: true },
         create: {
           name: dept.name,
           code: dept.code,
           description: dept.description,
-          tenantId: demoTenant.id,
           isActive: true
+          // ✅ SEM tenantId - departamentos são globais
         }
       });
       console.log(`   ✅ ${dept.name} (${dept.code})`);

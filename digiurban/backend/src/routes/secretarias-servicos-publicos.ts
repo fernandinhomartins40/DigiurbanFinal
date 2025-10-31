@@ -35,10 +35,7 @@ router.get(
 
       // Buscar departamento de serviços públicos
       const servicosPublicosDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'SERVICOS_PUBLICOS',
-        },
+        where: { code: 'SERVICOS_PUBLICOS' },
       });
 
       if (!servicosPublicosDept) {
@@ -273,10 +270,7 @@ router.get(
 
       // Buscar departamento de serviços públicos
       const servicosPublicosDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'SERVICOS_PUBLICOS',
-        },
+        where: { code: 'SERVICOS_PUBLICOS' },
       });
 
       if (!servicosPublicosDept) {

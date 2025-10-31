@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Users, Clock, CheckCircle, TrendingUp, FileText, AlertTriangle, Target } from 'lucide-react'
 import { KPICard } from '../KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart, AnalyticsAreaChart } from '../Charts'
-import { useDashboards } from '@/hooks/api/analytics'
+// LEGADO: import { useDashboards } from '@/hooks/api/analytics'
 
 interface EmployeeDashboardProps {
   employeeId?: string
@@ -16,16 +16,19 @@ interface EmployeeDashboardProps {
 }
 
 export function EmployeeDashboard({ employeeId, department }: EmployeeDashboardProps) {
-  const { fetchDashboard, loading: dashboardLoading } = useDashboards()
+  const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
-      const data = await fetchDashboard('employee', employeeId)
+      setDashboardLoading(true);
+      // TODO: Implementar via API
+      const data = null;
+      setDashboardLoading(false);
       setDashboardData(data)
     }
     loadDashboard()
-  }, [fetchDashboard, employeeId])
+  }, [employeeId])
 
   if (dashboardLoading || !dashboardData) {
     return (

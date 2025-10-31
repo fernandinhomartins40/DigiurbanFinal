@@ -11,6 +11,7 @@ import {
   gerarSlugMunicipio,
   obterMetadadosMunicipio,
 } from '../services/municipio-validator';
+import { seedServices } from '../seeds/services-simplified-complete';
 
 // ====================== TIPOS LOCAIS ISOLADOS ======================
 
@@ -53,7 +54,7 @@ router.get('/', authenticateToken, requireSuperAdmin, async (req, res) => {
           _count: {
             select: {
               users: true,
-              departments: true,
+              // ✅ REMOVIDO: departments (agora são globais)
               servicesSimplified: true,
               protocolsSimplified: true,
             },
@@ -107,16 +108,7 @@ router.get(
       const tenant = await prisma.tenant.findUnique({
         where: { id },
         include: {
-          departments: {
-            include: {
-              _count: {
-                select: {
-                  users: true,
-                  servicesSimplified: true,
-                },
-              },
-            },
-          },
+          // ✅ REMOVIDO: departments (agora são globais, não pertencem ao tenant)
           _count: {
             select: {
               users: true,
@@ -236,33 +228,21 @@ router.post('/', authenticateToken, requireSuperAdmin, async (req, res) => {
       },
     });
 
-    // Criar departamentos básicos para o novo tenant
-    const defaultDepartments = [
-      'Saúde',
-      'Educação',
-      'Assistência Social',
-      'Cultura',
-      'Segurança Pública',
-      'Planejamento Urbano',
-      'Agricultura',
-      'Esportes',
-      'Turismo',
-      'Habitação',
-      'Meio Ambiente',
-      'Obras Públicas',
-      'Serviços Públicos',
-    ];
+    // ✅ DEPARTAMENTOS GLOBAIS: Não precisam ser criados
+    // Os 14 departamentos padrão já existem no banco (criados no seed)
+    // e são compartilhados entre todos os municípios
 
-    await Promise.all(
-      defaultDepartments.map(deptName =>
-        prisma.department.create({
-          data: {
-            name: deptName,
-            tenantId: tenant.id,
-          },
-        })
-      )
-    );
+    // 🚀 CRIAR SERVIÇOS AUTOMATICAMENTE PARA O NOVO TENANT
+    console.log(`\n🚀 Criando serviços automaticamente para o tenant ${tenant.name}...`);
+    let servicesCreated = 0;
+    try {
+      servicesCreated = await seedServices(tenant.id);
+      console.log(`✅ ${servicesCreated} serviços criados com sucesso para ${tenant.name}`);
+    } catch (error) {
+      console.error(`❌ Erro ao criar serviços para o tenant ${tenant.name}:`, error);
+      // Não falha a criação do tenant, mas loga o erro
+      // O super-admin pode executar o seed manualmente depois
+    }
 
     // 🔗 HOOK: Vincular cidadãos pendentes ao novo tenant (se houver código IBGE)
     let citizensLinked = 0;
@@ -299,6 +279,7 @@ router.post('/', authenticateToken, requireSuperAdmin, async (req, res) => {
         uf: municipioValidado.uf,
         codigoIbge: municipioValidado.codigo_ibge,
       } : null,
+      servicesCreated, // Quantos serviços foram criados
       citizensLinked, // Quantos cidadãos foram vinculados (0 atualmente)
     });
   } catch (error) {
@@ -404,7 +385,8 @@ router.get(
         protocolsByStatus,
       ] = await Promise.all([
         prisma.user.count({ where: { tenantId: id } }),
-        prisma.department.count({ where: { tenantId: id } }),
+        // ✅ Departamentos globais - contar todos (14)
+        prisma.department.count(),
         prisma.serviceSimplified.count({ where: { tenantId: id } }),
         prisma.protocolSimplified.count({ where: { tenantId: id } }),
         prisma.citizen.count({ where: { tenantId: id } }),

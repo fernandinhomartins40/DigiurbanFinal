@@ -1700,9 +1700,9 @@ const TOURISM_SERVICES: ServiceDefinition[] = [
 export async function seedServices(tenantId: string) {
   console.log('\n📦 Iniciando seed de serviços simplificados...');
 
-  // Buscar departamentos
+  // Buscar departamentos GLOBAIS (não filtrar por tenantId)
   const departments = await prisma.department.findMany({
-    where: { tenantId }
+    // ✅ SEM filtro de tenant - departamentos são globais
   });
 
   const departmentMap = new Map(

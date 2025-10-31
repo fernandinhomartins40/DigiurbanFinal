@@ -707,7 +707,7 @@ router.get('/stats', authenticateToken, handleAsyncRoute(async (req, res) => {
 
   // 1. Buscar departamento de Saúde
   const healthDept = await prisma.department.findFirst({
-    where: { tenantId, code: 'SAUDE' }
+    where: { code: 'SAUDE' }
   });
 
   if (!healthDept) {

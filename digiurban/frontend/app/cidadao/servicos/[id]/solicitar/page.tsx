@@ -7,8 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Send, Loader2, CheckCircle, FileText, Clock } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, CheckCircle, FileText, Clock, UserCheck, Info } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCitizenAuth } from '@/contexts/CitizenAuthContext';
+import { useFormPrefill } from '@/hooks/useFormPrefill';
 
 interface Service {
   id: string;
@@ -38,12 +40,29 @@ export default function SolicitarServicoPage() {
   const router = useRouter();
   const params = useParams();
   const serviceId = params.id as string;
+  const { apiRequest, citizen } = useCitizenAuth();
 
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [description, setDescription] = useState('');
-  const [customFormData, setCustomFormData] = useState<Record<string, any>>({});
+
+  // Hook de pré-preenchimento (será inicializado depois que o serviço carregar)
+  const {
+    formData: customFormData,
+    updateField,
+    prefilledMessage,
+    isFieldPrefilled,
+    hasPrefilledData,
+    prefilledCount
+  } = useFormPrefill({
+    fields: service?.formSchema?.fields || [],
+    onPrefillComplete: (count) => {
+      if (count > 0) {
+        console.log(`✓ ${count} campos pré-preenchidos automaticamente`);
+      }
+    }
+  });
 
   useEffect(() => {
     loadService();
@@ -51,34 +70,13 @@ export default function SolicitarServicoPage() {
 
   const loadService = async () => {
     try {
-      const tenantId = window.location.hostname.split('.')[0];
-      const token = localStorage.getItem('citizenToken');
+      // ✅ SEGURANÇA: Usar apiRequest do context (httpOnly cookies)
+      const data = await apiRequest(`/citizen/services/${serviceId}`);
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/citizen/services/${serviceId}`,
-        {
-          headers: {
-            'X-Tenant-ID': tenantId,
-            'Authorization': `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Erro ao carregar serviço');
-      }
-
-      const data = await response.json();
       setService(data.service);
 
-      // Inicializar campos do formulário customizado (nova estrutura)
-      if (data.service.formSchema?.fields) {
-        const initialData: Record<string, any> = {};
-        data.service.formSchema.fields.forEach((field: any) => {
-          initialData[field.id] = '';
-        });
-        setCustomFormData(initialData);
-      }
+      // ✅ O pré-preenchimento será feito automaticamente pelo hook useFormPrefill
+      // quando o service.formSchema.fields estiver disponível
     } catch (error) {
       console.error('Erro ao carregar serviço:', error);
       toast.error('Erro ao carregar serviço');
@@ -109,33 +107,17 @@ export default function SolicitarServicoPage() {
     setSubmitting(true);
 
     try {
-      const tenantId = window.location.hostname.split('.')[0];
-      const token = localStorage.getItem('citizenToken');
-
       const payload = {
         description,
         customFormData: service?.serviceType === 'COM_DADOS' ? customFormData : undefined,
         priority: 3,
       };
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/citizen/services/${serviceId}/request`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Tenant-ID': tenantId,
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao enviar solicitação');
-      }
+      // ✅ SEGURANÇA: Usar apiRequest do context (httpOnly cookies)
+      const data = await apiRequest(`/citizen/services/${serviceId}/request`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
 
       toast.success('Solicitação enviada com sucesso!', {
         description: `Protocolo ${data.protocol.number} gerado`,
@@ -232,6 +214,21 @@ export default function SolicitarServicoPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Aviso de Pré-preenchimento */}
+              {hasPrefilledData && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+                  <UserCheck className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-blue-900">
+                      Dados pré-preenchidos automaticamente
+                    </p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      {prefilledMessage}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Descrição do Problema */}
               <div className="space-y-2">
                 <Label htmlFor="description">
@@ -255,84 +252,93 @@ export default function SolicitarServicoPage() {
               {service.serviceType === 'COM_DADOS' && service.formSchema?.fields && (
                 <div className="space-y-4 pt-4 border-t">
                   <h3 className="font-medium text-gray-900">Informações Específicas</h3>
-                  {service.formSchema.fields.map((field) => (
-                    <div key={field.id} className="space-y-2">
-                      <Label htmlFor={field.id}>
-                        {field.label}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
-                      </Label>
+                  {service.formSchema.fields.map((field) => {
+                    const isPrefilled = isFieldPrefilled(field.id);
 
-                      {field.type === 'text' && (
-                        <input
-                          id={field.id}
-                          type="text"
-                          required={field.required}
-                          value={customFormData[field.id] || ''}
-                          onChange={(e) =>
-                            setCustomFormData({
-                              ...customFormData,
-                              [field.id]: e.target.value,
-                            })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      )}
+                    return (
+                      <div key={field.id} className="space-y-2">
+                        <Label htmlFor={field.id} className="flex items-center gap-2">
+                          {field.label}
+                          {field.required && <span className="text-red-500">*</span>}
+                          {isPrefilled && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 text-xs rounded-full">
+                              <CheckCircle className="h-3 w-3" />
+                              Auto-preenchido
+                            </span>
+                          )}
+                        </Label>
 
-                      {field.type === 'number' && (
-                        <input
-                          id={field.id}
-                          type="number"
-                          required={field.required}
-                          value={customFormData[field.id] || ''}
-                          onChange={(e) =>
-                            setCustomFormData({
-                              ...customFormData,
-                              [field.id]: parseInt(e.target.value) || 0,
-                            })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      )}
+                        {field.type === 'text' && (
+                          <input
+                            id={field.id}
+                            type="text"
+                            required={field.required}
+                            value={customFormData[field.id] || ''}
+                            onChange={(e) => updateField(field.id, e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                              isPrefilled
+                                ? 'border-green-300 bg-green-50/30'
+                                : 'border-gray-300'
+                            }`}
+                            placeholder={field.placeholder}
+                          />
+                        )}
 
-                      {field.type === 'select' && field.options && (
-                        <select
-                          id={field.id}
-                          required={field.required}
-                          value={customFormData[field.id] || ''}
-                          onChange={(e) =>
-                            setCustomFormData({
-                              ...customFormData,
-                              [field.id]: e.target.value,
-                            })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="">Selecione...</option>
-                          {field.options.map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      )}
+                        {field.type === 'number' && (
+                          <input
+                            id={field.id}
+                            type="number"
+                            required={field.required}
+                            value={customFormData[field.id] || ''}
+                            onChange={(e) => updateField(field.id, parseInt(e.target.value) || 0)}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                              isPrefilled
+                                ? 'border-green-300 bg-green-50/30'
+                                : 'border-gray-300'
+                            }`}
+                            placeholder={field.placeholder}
+                          />
+                        )}
 
-                      {field.type === 'textarea' && (
-                        <Textarea
-                          id={field.id}
-                          required={field.required}
-                          value={customFormData[field.id] || ''}
-                          onChange={(e) =>
-                            setCustomFormData({
-                              ...customFormData,
-                              [field.id]: e.target.value,
-                            })
-                          }
-                          rows={3}
-                          className="resize-none"
-                        />
-                      )}
-                    </div>
-                  ))}
+                        {field.type === 'select' && field.options && (
+                          <select
+                            id={field.id}
+                            required={field.required}
+                            value={customFormData[field.id] || ''}
+                            onChange={(e) => updateField(field.id, e.target.value)}
+                            className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                              isPrefilled
+                                ? 'border-green-300 bg-green-50/30'
+                                : 'border-gray-300'
+                            }`}
+                          >
+                            <option value="">Selecione...</option>
+                            {field.options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        )}
+
+                        {field.type === 'textarea' && (
+                          <Textarea
+                            id={field.id}
+                            required={field.required}
+                            value={customFormData[field.id] || ''}
+                            onChange={(e) => updateField(field.id, e.target.value)}
+                            rows={3}
+                            className={`resize-none ${
+                              isPrefilled
+                                ? 'border-green-300 bg-green-50/30'
+                                : ''
+                            }`}
+                            placeholder={field.placeholder}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 

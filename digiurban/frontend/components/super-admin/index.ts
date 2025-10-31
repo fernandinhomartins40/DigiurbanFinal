@@ -5,3 +5,4 @@ export { TenantAutocomplete } from './TenantAutocomplete';
 export { ActivityLog } from './ActivityLog';
 export { QuickActions, QuickActionsCompact } from './QuickActions';
 export { UserCreateModal } from './UserCreateModal';
+export { UserEditModal } from './UserEditModal';

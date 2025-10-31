@@ -9,8 +9,8 @@ import { ModuleConfig } from './types';
 // 1. ATENDIMENTOS DE TURISMO
 export const tourismAttendanceConfig: ModuleConfig = {
   key: 'tourism-attendance',
-  departmentType: 'turismo',
   entityName: 'TourismAttendance',
+  departmentType: 'tourism',
   displayName: 'Atendimentos de Turismo',
   displayNameSingular: 'Atendimento',
   description: 'Atendimento e informações turísticas',

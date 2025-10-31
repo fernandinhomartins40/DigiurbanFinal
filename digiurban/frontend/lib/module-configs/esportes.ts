@@ -8,7 +8,9 @@ import { ModuleConfig } from './types';
 export const sportsAttendanceConfig: ModuleConfig = {
   key: 'sports-attendance',
   entityName: 'SportsAttendance',
+  departmentType: 'sports',
   displayName: 'Atendimentos Esportivos',
+  displayNameSingular: 'Atendimento Esportivo',
 
   fields: [
     { name: 'citizenName', label: 'Nome do Cidadão', type: 'text', required: true, showInList: true },
@@ -63,8 +65,10 @@ export const sportsAttendanceConfig: ModuleConfig = {
 // 2. ESCOLINHAS ESPORTIVAS
 export const sportsSchoolConfig: ModuleConfig = {
   key: 'sports-school',
+  departmentType: 'sports',
   entityName: 'SportsSchool',
   displayName: 'Escolinhas Esportivas',
+  displayNameSingular: 'Escolinha Esportiva',
 
   fields: [
     { name: 'name', label: 'Nome da Escolinha', type: 'text', required: true, showInList: true },
@@ -135,8 +139,10 @@ export const sportsSchoolConfig: ModuleConfig = {
 // 3. CADASTRO DE ATLETAS
 export const athleteConfig: ModuleConfig = {
   key: 'athlete',
+  departmentType: 'sports',
   entityName: 'Athlete',
   displayName: 'Cadastro de Atletas',
+  displayNameSingular: 'Cadastro de Atleta',
 
   fields: [
     { name: 'name', label: 'Nome Completo', type: 'text', required: true, showInList: true },
@@ -201,8 +207,10 @@ export const athleteConfig: ModuleConfig = {
 // 4. RESERVA DE ESPAÇOS ESPORTIVOS
 export const sportsInfrastructureReservationConfig: ModuleConfig = {
   key: 'sports-infrastructure-reservation',
+  departmentType: 'sports',
   entityName: 'SportsInfrastructureReservation',
   displayName: 'Reserva de Espaços Esportivos',
+  displayNameSingular: 'Reserva de Espaço Esportivo',
 
   fields: [
     { name: 'requesterName', label: 'Nome do Solicitante', type: 'text', required: true, showInList: true },
@@ -256,8 +264,10 @@ export const sportsInfrastructureReservationConfig: ModuleConfig = {
 // 5. COMPETIÇÕES
 export const competitionConfig: ModuleConfig = {
   key: 'competition',
+  departmentType: 'sports',
   entityName: 'Competition',
   displayName: 'Competições',
+  displayNameSingular: 'Competiçõe',
 
   fields: [
     { name: 'name', label: 'Nome da Competição', type: 'text', required: true, showInList: true },
@@ -317,8 +327,10 @@ export const competitionConfig: ModuleConfig = {
 // 6. EQUIPES ESPORTIVAS
 export const sportsTeamConfig: ModuleConfig = {
   key: 'sports-team',
+  departmentType: 'sports',
   entityName: 'SportsTeam',
   displayName: 'Equipes Esportivas',
+  displayNameSingular: 'Equipe Esportiva',
 
   fields: [
     { name: 'name', label: 'Nome da Equipe', type: 'text', required: true, showInList: true },
@@ -371,8 +383,10 @@ export const sportsTeamConfig: ModuleConfig = {
 // 7. TORNEIOS (similar a competições, mas com estrutura de chaveamento)
 export const tournamentConfig: ModuleConfig = {
   key: 'tournament',
+  departmentType: 'sports',
   entityName: 'Tournament',
   displayName: 'Torneios',
+  displayNameSingular: 'Torneio',
 
   fields: [
     { name: 'name', label: 'Nome do Torneio', type: 'text', required: true, showInList: true },
@@ -424,8 +438,10 @@ export const tournamentConfig: ModuleConfig = {
 // 8. MODALIDADES ESPORTIVAS
 export const sportsModalityConfig: ModuleConfig = {
   key: 'sports-modality',
+  departmentType: 'sports',
   entityName: 'SportsModality',
   displayName: 'Modalidades Esportivas',
+  displayNameSingular: 'Modalidade Esportiva',
 
   fields: [
     { name: 'name', label: 'Nome da Modalidade', type: 'text', required: true, showInList: true },
@@ -458,8 +474,10 @@ export const sportsModalityConfig: ModuleConfig = {
 // 9. AGENDA DE EVENTOS ESPORTIVOS (INFORMATIVO)
 export const sportsEventConfig: ModuleConfig = {
   key: 'sports-event',
+  departmentType: 'sports',
   entityName: 'SportsEvent',
   displayName: 'Agenda de Eventos Esportivos',
+  displayNameSingular: 'Agenda de Evento Esportivo',
 
   fields: [
     { name: 'name', label: 'Nome do Evento', type: 'text', required: true, showInList: true },

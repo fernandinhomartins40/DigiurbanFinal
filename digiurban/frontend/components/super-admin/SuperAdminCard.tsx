@@ -6,6 +6,7 @@ interface SuperAdminCardProps {
   children: ReactNode;
   className?: string;
   headerAction?: ReactNode;
+  icon?: ReactNode;
   loading?: boolean;
 }
 
@@ -15,6 +16,7 @@ export function SuperAdminCard({
   children,
   className = '',
   headerAction,
+  icon,
   loading = false
 }: SuperAdminCardProps) {
   return (
@@ -49,7 +51,7 @@ interface MetricCardProps {
     value: number;
     isPositive: boolean;
   };
-  subtitle?: string;
+  subtitle?: string | ReactNode;
   color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple' | 'gray';
   loading?: boolean;
 }

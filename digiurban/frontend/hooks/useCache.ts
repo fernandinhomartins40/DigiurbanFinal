@@ -81,7 +81,7 @@ class CacheManager<T = any> {
     let oldestKey: string | undefined
     let oldestTime = Date.now()
 
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of Array.from(this.cache.entries())) {
       if (entry.lastAccessed < oldestTime) {
         oldestTime = entry.lastAccessed
         oldestKey = key
@@ -95,7 +95,7 @@ class CacheManager<T = any> {
     let leastUsedKey: string | undefined
     let leastCount = Number.MAX_SAFE_INTEGER
 
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of Array.from(this.cache.entries())) {
       if (entry.accessCount < leastCount) {
         leastCount = entry.accessCount
         leastUsedKey = key
@@ -109,7 +109,7 @@ class CacheManager<T = any> {
     let oldestKey: string | undefined
     let oldestTime = Date.now()
 
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of Array.from(this.cache.entries())) {
       if (entry.timestamp < oldestTime) {
         oldestTime = entry.timestamp
         oldestKey = key
@@ -246,7 +246,7 @@ class CacheManager<T = any> {
   cleanup(): void {
     const keysToDelete: string[] = []
 
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of Array.from(this.cache.entries())) {
       if (this.isExpired(entry)) {
         keysToDelete.push(key)
       }

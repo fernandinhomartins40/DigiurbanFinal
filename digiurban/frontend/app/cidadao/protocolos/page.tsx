@@ -89,80 +89,80 @@ export default function ProtocolosPage() {
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Meus Protocolos</h1>
-          <p className="text-gray-600 mt-1">Acompanhe o status das suas solicitações</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Meus Protocolos</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Acompanhe o status das suas solicitações</p>
         </div>
 
         {/* Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <Card className="border-gray-200">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600">Total</p>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
                 </div>
-                <FileText className="h-8 w-8 text-gray-600" />
+                <FileText className="h-6 w-6 sm:h-8 sm:w-8 text-gray-600 self-end sm:self-auto" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-yellow-200">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Pendente</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.pendente}</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600">Pendente</p>
+                  <p className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.pendente}</p>
                 </div>
-                <Clock className="h-8 w-8 text-yellow-600" />
+                <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-yellow-600 self-end sm:self-auto" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-blue-200">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Em Andamento</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.em_andamento}</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600">Andamento</p>
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.em_andamento}</p>
                 </div>
-                <AlertCircle className="h-8 w-8 text-blue-600" />
+                <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 self-end sm:self-auto" />
               </div>
             </CardContent>
           </Card>
 
           <Card className="border-green-200">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Concluído</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.concluido}</p>
+            <CardContent className="p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+                <div className="flex-1">
+                  <p className="text-xs sm:text-sm text-gray-600">Concluído</p>
+                  <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.concluido}</p>
                 </div>
-                <CheckCircle2 className="h-8 w-8 text-green-600" />
+                <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-green-600 self-end sm:self-auto" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Busca e Filtros */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <div className="flex flex-col gap-3 sm:gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             <Input
-              placeholder="Buscar por número, serviço ou departamento..."
+              placeholder="Buscar por número, serviço..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-9 sm:pl-10 text-sm sm:text-base h-10 sm:h-11"
             />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide">
             {statusTypes.map((status) => (
               <Button
                 key={status.id}
                 variant={statusFilter === status.id ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setStatusFilter(status.id)}
-                className="whitespace-nowrap"
+                className="whitespace-nowrap flex-shrink-0 text-xs sm:text-sm"
               >
                 {status.name}
               </Button>
@@ -190,44 +190,44 @@ export default function ProtocolosPage() {
           ) : filteredProtocols.length > 0 ? (
             filteredProtocols.map((protocol) => (
               <Card key={protocol.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className="bg-gray-100 p-3 rounded-lg">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                    <div className="flex items-start gap-3 sm:gap-4 flex-1 w-full">
+                      <div className="bg-gray-100 p-2 sm:p-3 rounded-lg flex-shrink-0">
                         {getStatusIcon(protocol.status)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                          <h3 className="text-base sm:text-lg font-semibold text-gray-900 break-all">
                             {protocol.number}
                           </h3>
                           {getStatusBadge(protocol.status)}
                         </div>
-                        <p className="text-base text-gray-900 mb-1">{protocol.title}</p>
-                        <p className="text-sm text-gray-600 mb-1">{protocol.service.name}</p>
+                        <p className="text-sm sm:text-base text-gray-900 mb-1">{protocol.title}</p>
+                        <p className="text-xs sm:text-sm text-gray-600 mb-1">{protocol.service.name}</p>
                         {protocol.description && (
-                          <p className="text-sm text-gray-500 mb-3">{protocol.description}</p>
+                          <p className="text-xs sm:text-sm text-gray-500 mb-3">{protocol.description}</p>
                         )}
 
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-500">
                           <div className="flex items-center gap-1">
-                            <Building2 className="h-4 w-4" />
-                            <span>{protocol.department.name}</span>
+                            <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="truncate">{protocol.department.name}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>Criado em {new Date(protocol.createdAt).toLocaleDateString('pt-BR')}</span>
+                            <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="whitespace-nowrap">Criado em {new Date(protocol.createdAt).toLocaleDateString('pt-BR')}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>Atualizado em {new Date(protocol.updatedAt).toLocaleDateString('pt-BR')}</span>
+                            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                            <span className="whitespace-nowrap">Atualizado em {new Date(protocol.updatedAt).toLocaleDateString('pt-BR')}</span>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" disabled>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Detalhes
+                    <Button size="sm" variant="outline" disabled className="w-full sm:w-auto mt-2 sm:mt-0 flex-shrink-0">
+                      <Eye className="h-4 w-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Detalhes</span>
                     </Button>
                   </div>
                 </CardContent>

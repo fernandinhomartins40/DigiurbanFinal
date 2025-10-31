@@ -223,11 +223,9 @@ router.get('/budget/summary', authenticateToken, requireRole('USER'), async (req
     const { tenantId } = req.user!;
 
     // Para orçamento, vamos usar dados dos protocolos relacionados à agricultura
+    // ✅ Buscar departamento global de agricultura
     const agricultureDepartment = await prisma.department.findFirst({
-      where: {
-        tenantId,
-        name: { contains: 'Agricultura' },
-      },
+      where: { code: 'AGRICULTURA' }
     });
 
     if (!agricultureDepartment) {
@@ -305,11 +303,9 @@ router.get('/services/stats', authenticateToken, requireRole('USER'), async (req
     const { tenantId } = req.user!;
 
     // Buscar department de agricultura
+    // ✅ Buscar departamento global de agricultura
     const agricultureDepartment = await prisma.department.findFirst({
-      where: {
-        tenantId,
-        name: { contains: 'Agricultura' },
-      },
+      where: { code: 'AGRICULTURA' }
     });
 
     if (!agricultureDepartment) {
@@ -381,11 +377,9 @@ router.get('/monthly-stats', authenticateToken, requireRole('USER'), async (req:
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
 
     // Protocolos por mês (agricultura)
+    // ✅ Buscar departamento global de agricultura
     const agricultureDepartment = await prisma.department.findFirst({
-      where: {
-        tenantId,
-        name: { contains: 'Agricultura' },
-      },
+      where: { code: 'AGRICULTURA' }
     });
 
     let monthlyProtocols: Array<{ month: string; protocols: number }> = [];
@@ -590,11 +584,9 @@ async function getProductionOverview(tenantId: string) {
 }
 
 async function getBudgetSummary(tenantId: string) {
+  // ✅ Buscar departamento global de agricultura
   const agricultureDepartment = await prisma.department.findFirst({
-    where: {
-      tenantId,
-      name: { contains: 'Agricultura' },
-    },
+    where: { code: 'AGRICULTURA' }
   });
 
   if (!agricultureDepartment) {
@@ -637,11 +629,9 @@ async function getBudgetSummary(tenantId: string) {
 }
 
 async function getServicesStats(tenantId: string) {
+  // ✅ Buscar departamento global de agricultura
   const agricultureDepartment = await prisma.department.findFirst({
-    where: {
-      tenantId,
-      name: { contains: 'Agricultura' },
-    },
+    where: { code: 'AGRICULTURA' }
   });
 
   if (!agricultureDepartment) return [];

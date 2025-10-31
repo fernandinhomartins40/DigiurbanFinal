@@ -1,10 +1,12 @@
 // Dashboard Components - Fase 6
-export { CitizenDashboard } from './CitizenDashboard'
-export { EmployeeDashboard } from './EmployeeDashboard'
-export { CoordinatorDashboard } from './CoordinatorDashboard'
-export { ManagerDashboard } from './ManagerDashboard'
-export { ExecutiveDashboard } from './ExecutiveDashboard'
-export { SuperAdminDashboard } from './SuperAdminDashboard'
+import { CitizenDashboard } from './CitizenDashboard'
+import { EmployeeDashboard } from './EmployeeDashboard'
+import { CoordinatorDashboard } from './CoordinatorDashboard'
+import { ManagerDashboard } from './ManagerDashboard'
+import { ExecutiveDashboard } from './ExecutiveDashboard'
+import { SuperAdminDashboard } from './SuperAdminDashboard'
+
+export { CitizenDashboard, EmployeeDashboard, CoordinatorDashboard, ManagerDashboard, ExecutiveDashboard, SuperAdminDashboard }
 
 // Dashboard mapping by user level
 export const DASHBOARD_COMPONENTS = {

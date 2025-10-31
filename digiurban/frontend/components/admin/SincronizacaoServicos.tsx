@@ -94,7 +94,7 @@ export default function SincronizacaoServicos() {
     carregarEstatisticas()
   }
 
-  const formatarDataHora = (isoString: string | null) => {
+  const formatarDataHora = (isoString: string | null | undefined) => {
     if (!isoString) return 'Nunca'
     return new Date(isoString).toLocaleString('pt-BR')
   }

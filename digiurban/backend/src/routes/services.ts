@@ -171,10 +171,10 @@ router.post('/', adminAuthMiddleware, requireMinRole(UserRole.MANAGER), async (r
     }
 
     // Verificar se departamento existe
+    // ✅ Validar departamento global (sem tenantId)
     const department = await prisma.department.findFirst({
       where: {
         id: departmentId,
-        tenantId: authReq.tenantId,
         isActive: true,
       },
     });

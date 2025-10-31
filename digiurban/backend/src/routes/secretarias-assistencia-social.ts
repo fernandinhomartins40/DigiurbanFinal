@@ -34,11 +34,9 @@ router.get(
       const tenantId = authReq.tenantId;
 
       // Buscar departamento de assistência social
+      // ✅ Buscar departamento global
       const socialDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'ASSISTENCIA_SOCIAL',
-        },
+        where: { code: 'ASSISTENCIA_SOCIAL' }
       });
 
       if (!socialDept) {
@@ -304,11 +302,9 @@ router.get(
       const tenantId = authReq.tenantId;
 
       // Buscar departamento de assistência social
+      // ✅ Buscar departamento global
       const socialDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'ASSISTENCIA_SOCIAL',
-        },
+        where: { code: 'ASSISTENCIA_SOCIAL' }
       });
 
       if (!socialDept) {

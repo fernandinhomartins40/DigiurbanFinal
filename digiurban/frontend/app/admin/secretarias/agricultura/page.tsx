@@ -16,25 +16,32 @@ import {
   FileBarChart,
   AlertCircle,
 } from 'lucide-react';
-import { useAgricultureServices } from '@/hooks/api/agriculture/useAgricultureServices';
-import { useAgricultureStats } from '@/hooks/api/agriculture/useAgricultureStats';
 import { NewProtocolModal } from '@/components/admin/NewProtocolModal';
 import { useRouter } from 'next/navigation';
+// ✅ NOVOS HOOKS PARA CARREGAR DADOS REAIS
+import { useSecretariaServices } from '@/hooks/useSecretariaServices';
+import { useSecretariaStats } from '@/hooks/useSecretariaStats';
 
 export default function SecretariaAgriculturaPage() {
   const { user } = useAdminAuth();
   const router = useRouter();
   const [showNewProtocolModal, setShowNewProtocolModal] = useState(false);
 
-  // Buscar dados dinâmicos
-  const { data: servicesData, isLoading: servicesLoading, error: servicesError } = useAgricultureServices();
-  const { data: statsData, isLoading: statsLoading, error: statsError } = useAgricultureStats();
+  // ✅ CARREGAR SERVIÇOS E ESTATÍSTICAS REAIS
+  const {
+    services,
+    loading: servicesLoading,
+    error: servicesError
+  } = useSecretariaServices('agricultura');
 
-  const services = servicesData?.data || [];
-  const stats = statsData?.data;
+  const {
+    stats,
+    loading: statsLoading,
+    error: statsError
+  } = useSecretariaStats('agricultura');
 
   // Separar serviços com e sem módulo
-  const servicesWithModule = services.filter((s) => s.moduleType);
+  const servicesWithModule = services.filter((s: any) => s.moduleType);
   const allServices = services;
 
   return (
@@ -67,9 +74,9 @@ export default function SecretariaAgriculturaPage() {
               <Skeleton className="h-8 w-20" />
             ) : (
               <>
-                <div className="text-2xl font-bold">{stats?.producers.active || 0}</div>
+                <div className="text-2xl font-bold">{stats?.producers?.active || 0}</div>
                 <p className="text-xs text-muted-foreground">
-                  {stats?.producers.total || 0} cadastrados
+                  {stats?.producers?.total || 0} cadastrados
                 </p>
               </>
             )}
@@ -86,9 +93,9 @@ export default function SecretariaAgriculturaPage() {
               <Skeleton className="h-8 w-20" />
             ) : (
               <>
-                <div className="text-2xl font-bold">{stats?.properties.total || 0}</div>
+                <div className="text-2xl font-bold">{stats?.properties?.total || 0}</div>
                 <p className="text-xs text-muted-foreground">
-                  {stats?.properties.totalArea || 0} hectares totais
+                  {stats?.properties?.totalArea || 0} hectares totais
                 </p>
               </>
             )}
@@ -106,10 +113,10 @@ export default function SecretariaAgriculturaPage() {
             ) : (
               <>
                 <div className="text-2xl font-bold">
-                  {stats?.technicalAssistance.totalActive || 0}
+                  {stats?.technicalAssistance?.totalActive || 0}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {stats?.technicalAssistance.completedThisMonth || 0} concluídas este mês
+                  {stats?.technicalAssistance?.completedThisMonth || 0} concluídas este mês
                 </p>
               </>
             )}
@@ -126,9 +133,9 @@ export default function SecretariaAgriculturaPage() {
               <Skeleton className="h-8 w-20" />
             ) : (
               <>
-                <div className="text-2xl font-bold">{stats?.protocols.pending || 0}</div>
+                <div className="text-2xl font-bold">{stats?.protocols?.pending || 0}</div>
                 <p className="text-xs text-muted-foreground">
-                  {stats?.protocols.total || 0} total
+                  {stats?.protocols?.total || 0} total
                 </p>
               </>
             )}
@@ -162,7 +169,7 @@ export default function SecretariaAgriculturaPage() {
             >
               <FileText className="h-6 w-6 mb-2" />
               <span>Protocolos Pendentes</span>
-              {stats && stats.protocols.pending > 0 && (
+              {stats?.protocols?.pending && stats.protocols.pending > 0 && (
                 <Badge className="mt-1" variant="destructive">
                   {stats.protocols.pending}
                 </Badge>
@@ -201,11 +208,11 @@ export default function SecretariaAgriculturaPage() {
                 <div className="text-sm space-y-1">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Ativos:</span>
-                    <span className="font-medium">{stats?.producers.active || 0}</span>
+                    <span className="font-medium">{stats?.producers?.active || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total:</span>
-                    <span className="font-medium">{stats?.producers.total || 0}</span>
+                    <span className="font-medium">{stats?.producers?.total || 0}</span>
                   </div>
                 </div>
               )}
@@ -231,11 +238,11 @@ export default function SecretariaAgriculturaPage() {
                 <div className="text-sm space-y-1">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Total:</span>
-                    <span className="font-medium">{stats?.properties.total || 0}</span>
+                    <span className="font-medium">{stats?.properties?.total || 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Área:</span>
-                    <span className="font-medium">{stats?.properties.totalArea || 0} ha</span>
+                    <span className="font-medium">{stats?.properties?.totalArea || 0} ha</span>
                   </div>
                 </div>
               )}
@@ -394,7 +401,7 @@ export default function SecretariaAgriculturaPage() {
                       {service.name}
                     </CardTitle>
                     <Badge className="bg-green-600">
-                      {service.moduleEntity}
+                      {service.moduleType}
                     </Badge>
                   </div>
                   <CardDescription>{service.description}</CardDescription>
@@ -405,7 +412,7 @@ export default function SecretariaAgriculturaPage() {
                       <Skeleton className="h-16 w-full" />
                     ) : (
                       <div className="grid grid-cols-2 gap-2 text-sm">
-                        {service.moduleEntity === 'TechnicalAssistance' && stats && (
+                        {service.moduleType === 'TechnicalAssistance' && stats?.technicalAssistance && (
                           <>
                             <div>
                               <span className="text-muted-foreground">Pendentes:</span>
@@ -421,7 +428,7 @@ export default function SecretariaAgriculturaPage() {
                             </div>
                           </>
                         )}
-                        {service.moduleEntity === 'SeedDistribution' && stats && (
+                        {service.moduleType === 'SeedDistribution' && stats?.seedDistribution && (
                           <>
                             <div>
                               <span className="text-muted-foreground">Ativas:</span>
@@ -437,7 +444,7 @@ export default function SecretariaAgriculturaPage() {
                             </div>
                           </>
                         )}
-                        {service.moduleEntity === 'SoilAnalysis' && stats && (
+                        {service.moduleType === 'SoilAnalysis' && stats?.soilAnalysis && (
                           <>
                             <div>
                               <span className="text-muted-foreground">Pendentes:</span>

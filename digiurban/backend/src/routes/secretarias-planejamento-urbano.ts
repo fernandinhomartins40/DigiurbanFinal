@@ -78,10 +78,7 @@ router.get('/stats', authenticateToken, requireManager, asyncHandler(async (req:
 
   // 1. Buscar departamento de Planejamento Urbano
   const dept = await prisma.department.findFirst({
-    where: {
-      tenantId,
-      code: 'PLANEJAMENTO_URBANO'
-    }
+    where: { code: 'PLANEJAMENTO_URBANO' }
   });
 
   if (!dept) {

@@ -35,10 +35,7 @@ router.get(
 
       // Buscar departamento de esportes
       const sportsDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'ESPORTES',
-        },
+        where: { code: 'ESPORTES' },
       });
 
       if (!sportsDept) {
@@ -218,10 +215,7 @@ router.get(
 
       // Buscar departamento de esportes
       const sportsDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'ESPORTES',
-        },
+        where: { code: 'ESPORTES' },
       });
 
       if (!sportsDept) {

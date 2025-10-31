@@ -5,7 +5,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,47 +29,123 @@ import {
   FileText,
   AlertCircle,
 } from 'lucide-react';
-import {
-  useModulePendingProtocols,
-  useApproveProtocol,
-  useRejectProtocol,
-} from '@/hooks/api/useModulePendingProtocols';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ModuleConfig } from '@/lib/module-configs/types';
 
 interface PendingProtocolsListProps {
-  moduleType: string;
-  moduleName: string;
+  config?: ModuleConfig;
+  departmentType?: string;
+  // Backward compatibility
+  moduleType?: string;
+  moduleName?: string;
 }
 
-export function PendingProtocolsList({ moduleType, moduleName }: PendingProtocolsListProps) {
+interface Protocol {
+  id: string;
+  number: string;
+  title: string;
+  createdAt: string;
+  customData?: Record<string, any>;
+  citizen: {
+    name: string;
+    cpf?: string;
+  };
+}
+
+interface PendingProtocolsData {
+  data: Protocol[];
+  pagination: {
+    total: number;
+    page: number;
+    pages: number;
+  };
+}
+
+export function PendingProtocolsList({
+  config,
+  departmentType,
+  moduleType: legacyModuleType,
+  moduleName: legacyModuleName
+}: PendingProtocolsListProps) {
+  const { apiRequest } = useAdminAuth();
+
+  // Use new props or fallback to legacy
+  const moduleType = config?.key || legacyModuleType || '';
+  const moduleName = config?.displayName || legacyModuleName || '';
+  const dept = config?.departmentType || departmentType || '';
+
   const [page, setPage] = useState(1);
-  const [selectedProtocol, setSelectedProtocol] = useState<any>(null);
+  const [selectedProtocol, setSelectedProtocol] = useState<Protocol | null>(null);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [comment, setComment] = useState('');
   const [rejectReason, setRejectReason] = useState('');
 
-  const { data, isLoading, error } = useModulePendingProtocols(moduleType, page, 10);
-  const approveMutation = useApproveProtocol();
-  const rejectMutation = useRejectProtocol();
+  const [data, setData] = useState<PendingProtocolsData>({
+    data: [],
+    pagination: { total: 0, page: 1, pages: 1 }
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [isApproving, setIsApproving] = useState(false);
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  // Buscar protocolos pendentes
+  useEffect(() => {
+    const fetchPendingProtocols = async () => {
+      if (!moduleType || !dept) return;
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await apiRequest(
+          `/api/admin/secretarias/${dept}/${moduleType}/pending?page=${page}&limit=10`,
+          { method: 'GET' }
+        ) as PendingProtocolsData;
+
+        setData(response);
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPendingProtocols();
+  }, [moduleType, dept, page, apiRequest]);
 
   const handleApprove = async () => {
     if (!selectedProtocol) return;
 
+    setIsApproving(true);
     try {
-      await approveMutation.mutateAsync({
-        protocolId: selectedProtocol.id,
-        comment: comment || 'Aprovado pelo servidor',
-      });
+      await apiRequest(
+        `/api/admin/protocols/${selectedProtocol.id}/approve`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            comment: comment || 'Aprovado pelo servidor',
+          }),
+        }
+      );
 
       toast.success('Protocolo aprovado com sucesso!');
       setShowApproveDialog(false);
       setSelectedProtocol(null);
       setComment('');
+
+      // Recarregar lista
+      setData(prev => ({
+        ...prev,
+        data: prev.data.filter(p => p.id !== selectedProtocol.id)
+      }));
     } catch (error: any) {
       toast.error(error.message || 'Erro ao aprovar protocolo');
+    } finally {
+      setIsApproving(false);
     }
   };
 
@@ -78,18 +155,32 @@ export function PendingProtocolsList({ moduleType, moduleName }: PendingProtocol
       return;
     }
 
+    setIsRejecting(true);
     try {
-      await rejectMutation.mutateAsync({
-        protocolId: selectedProtocol.id,
-        reason: rejectReason,
-      });
+      await apiRequest(
+        `/api/admin/protocols/${selectedProtocol.id}/reject`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            reason: rejectReason,
+          }),
+        }
+      );
 
       toast.success('Protocolo rejeitado');
       setShowRejectDialog(false);
       setSelectedProtocol(null);
       setRejectReason('');
+
+      // Recarregar lista
+      setData(prev => ({
+        ...prev,
+        data: prev.data.filter(p => p.id !== selectedProtocol.id)
+      }));
     } catch (error: any) {
       toast.error(error.message || 'Erro ao rejeitar protocolo');
+    } finally {
+      setIsRejecting(false);
     }
   };
 
@@ -168,7 +259,7 @@ export function PendingProtocolsList({ moduleType, moduleName }: PendingProtocol
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {protocols.map((protocol) => (
+            {protocols.map((protocol: any) => (
               <Card key={protocol.id} className="border-orange-200 bg-orange-50/50">
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-4">
@@ -231,7 +322,7 @@ export function PendingProtocolsList({ moduleType, moduleName }: PendingProtocol
                           setSelectedProtocol(protocol);
                           setShowApproveDialog(true);
                         }}
-                        disabled={approveMutation.isPending || rejectMutation.isPending}
+                        disabled={isApproving || isRejecting}
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Aprovar
@@ -244,7 +335,7 @@ export function PendingProtocolsList({ moduleType, moduleName }: PendingProtocol
                           setSelectedProtocol(protocol);
                           setShowRejectDialog(true);
                         }}
-                        disabled={approveMutation.isPending || rejectMutation.isPending}
+                        disabled={isApproving || isRejecting}
                       >
                         <XCircle className="h-4 w-4 mr-1" />
                         Rejeitar
@@ -342,9 +433,9 @@ export function PendingProtocolsList({ moduleType, moduleName }: PendingProtocol
             <Button
               className="bg-green-600 hover:bg-green-700"
               onClick={handleApprove}
-              disabled={approveMutation.isPending}
+              disabled={isApproving}
             >
-              {approveMutation.isPending ? 'Aprovando...' : 'Confirmar Aprovação'}
+              {isApproving ? 'Aprovando...' : 'Confirmar Aprovação'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -398,9 +489,9 @@ export function PendingProtocolsList({ moduleType, moduleName }: PendingProtocol
             <Button
               variant="destructive"
               onClick={handleReject}
-              disabled={rejectMutation.isPending || !rejectReason.trim()}
+              disabled={isRejecting || !rejectReason.trim()}
             >
-              {rejectMutation.isPending ? 'Rejeitando...' : 'Confirmar Rejeição'}
+              {isRejecting ? 'Rejeitando...' : 'Confirmar Rejeição'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -208,33 +208,9 @@ router.post('/trial', async (req, res) => {
     });
 
     // Criar departamentos padrão
-    const defaultDepartments = [
-      'Saúde',
-      'Educação',
-      'Assistência Social',
-      'Cultura',
-      'Segurança Pública',
-      'Planejamento Urbano',
-      'Agricultura',
-      'Esportes',
-      'Turismo',
-      'Habitação',
-      'Meio Ambiente',
-      'Obras Públicos',
-      'Serviços Públicos',
-    ];
-
-    await Promise.all(
-      defaultDepartments.map(deptName =>
-        prisma.department.create({
-          data: {
-            name: deptName,
-            description: `Secretaria Municipal de ${deptName}`,
-            tenantId: tenant.id,
-          },
-        })
-      )
-    );
+    // ✅ DEPARTAMENTOS GLOBAIS: Não precisam ser criados
+    // Os 14 departamentos padrão já existem no banco (criados no seed)
+    // e são compartilhados entre todos os municípios
 
     // Criar usuário administrador
     const bcrypt = require('bcryptjs');

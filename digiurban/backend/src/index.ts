@@ -80,6 +80,7 @@ import superAdminRoutes from './routes/super-admin';
 // Fase 3 - Portal do Cidadão
 import citizenAuthRoutes from './routes/citizen-auth';
 import citizenServicesRoutes from './routes/citizen-services';
+import citizenProtocolsRoutes from './routes/citizen-protocols';
 import citizenFamilyRoutes from './routes/citizen-family';
 import citizenDocumentsRoutes from './routes/citizen-documents';
 import citizenNotificationsRoutes from './routes/citizen-notifications';
@@ -155,6 +156,7 @@ app.use('/api/super-admin', superAdminRoutes);
 // Rotas do Portal do Cidadão (Fase 3)
 app.use('/api/auth/citizen', citizenAuthRoutes);
 app.use('/api/citizen/services', citizenServicesRoutes);
+app.use('/api/citizen/protocols', citizenProtocolsRoutes);
 app.use('/api/citizen/family', citizenFamilyRoutes);
 app.use('/api/citizen/documents', citizenDocumentsRoutes);
 app.use('/api/citizen/notifications', citizenNotificationsRoutes);

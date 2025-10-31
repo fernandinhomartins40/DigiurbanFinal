@@ -78,10 +78,7 @@ router.get('/stats', authenticateToken, requireManager, asyncHandler(async (req:
 
   // 1. Buscar departamento de Segurança Pública
   const dept = await prisma.department.findFirst({
-    where: {
-      tenantId,
-      code: 'SEGURANCA_PUBLICA'
-    }
+    where: { code: 'SEGURANCA_PUBLICA' }
   });
 
   if (!dept) {

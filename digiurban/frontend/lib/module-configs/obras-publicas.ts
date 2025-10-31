@@ -8,8 +8,8 @@ import { ModuleConfig } from './types';
 
 export const atendimentosObrasPublicasConfig: ModuleConfig = {
   key: 'atendimentos-obras-publicas',
-  departmentType: 'obrasPublicas',
   entityName: 'PublicWorksAttendance',
+  departmentType: 'public-works',
   displayName: 'Atendimentos de Obras Públicas',
   displayNameSingular: 'Atendimento de Obras Públicas',
   description: 'Solicitações e atendimentos gerais da Secretaria de Obras Públicas',
@@ -220,14 +220,6 @@ export const atendimentosObrasPublicasConfig: ModuleConfig = {
     { key: 'inProgress', label: 'Em Andamento', color: 'orange' },
     { key: 'completed', label: 'Concluídos', color: 'green' },
   ],
-
-  actions: {
-    canCreate: true,
-    canEdit: true,
-    canDelete: true,
-    canView: true,
-    canExport: true,
-  },
 };
 
 export const reparosDeViasConfig: ModuleConfig = {
@@ -458,14 +450,6 @@ export const reparosDeViasConfig: ModuleConfig = {
     { key: 'inProgress', label: 'Em Execução', color: 'orange' },
     { key: 'completed', label: 'Concluídos', color: 'green' },
   ],
-
-  actions: {
-    canCreate: true,
-    canEdit: true,
-    canDelete: true,
-    canView: true,
-    canExport: true,
-  },
 };
 
 export const vistoriasTecnicasConfig: ModuleConfig = {
@@ -687,14 +671,6 @@ export const vistoriasTecnicasConfig: ModuleConfig = {
     { key: 'scheduled', label: 'Agendadas', color: 'purple' },
     { key: 'completed', label: 'Concluídas', color: 'green' },
   ],
-
-  actions: {
-    canCreate: true,
-    canEdit: true,
-    canDelete: true,
-    canView: true,
-    canExport: true,
-  },
 };
 
 export const cadastroDeObrasConfig: ModuleConfig = {
@@ -878,14 +854,6 @@ export const cadastroDeObrasConfig: ModuleConfig = {
     { key: 'inProgress', label: 'Em Andamento', color: 'orange' },
     { key: 'completed', label: 'Concluídas', color: 'green' },
   ],
-
-  actions: {
-    canCreate: true,
-    canEdit: true,
-    canDelete: true,
-    canView: true,
-    canExport: true,
-  },
 };
 
 export const inspecaoDeObrasConfig: ModuleConfig = {
@@ -1087,14 +1055,6 @@ export const inspecaoDeObrasConfig: ModuleConfig = {
     { key: 'completed', label: 'Concluídas', color: 'green' },
     { key: 'nonCompliant', label: 'Não Conformes', color: 'red' },
   ],
-
-  actions: {
-    canCreate: true,
-    canEdit: true,
-    canDelete: true,
-    canView: true,
-    canExport: true,
-  },
 };
 
 // ============================================================================
@@ -1112,13 +1072,7 @@ export const consultaContratosConfig: ModuleConfig = {
   color: 'yellow',
   fields: [],
   stats: [],
-  actions: {
-    canCreate: false,
-    canEdit: false,
-    canDelete: false,
-    canView: true,
-    canExport: false,
-  },
+  canCreate: false,
 };
 
 export const consultaMapaObrasConfig: ModuleConfig = {
@@ -1132,11 +1086,5 @@ export const consultaMapaObrasConfig: ModuleConfig = {
   color: 'green',
   fields: [],
   stats: [],
-  actions: {
-    canCreate: false,
-    canEdit: false,
-    canDelete: false,
-    canView: true,
-    canExport: false,
-  },
+  canCreate: false,
 };

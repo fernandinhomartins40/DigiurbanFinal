@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TrendingUp, Users, Target, DollarSign, BarChart3, AlertTriangle, Building, Calendar } from 'lucide-react'
 import { KPICard } from '../KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart, AnalyticsAreaChart, GaugeChart, HeatMap } from '../Charts'
-import { useDashboards, useBenchmarks } from '@/hooks/api/analytics'
+// LEGADO: import { useDashboards, useBenchmarks } from '@/hooks/api/analytics'
 
 interface ManagerDashboardProps {
   managerId?: string
@@ -16,17 +16,21 @@ interface ManagerDashboardProps {
 }
 
 export function ManagerDashboard({ managerId, departments }: ManagerDashboardProps) {
-  const { fetchDashboard, loading: dashboardLoading } = useDashboards()
-  const { comparisons } = useBenchmarks()
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  // LEGADO: const { comparisons } = useBenchmarks()
+  const comparisons: any[] = []; // TODO: Implementar
   const [dashboardData, setDashboardData] = useState<any>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
-      const data = await fetchDashboard('manager', managerId)
+      setDashboardLoading(true);
+      // TODO: Implementar via API
+      const data = null;
+      setDashboardLoading(false);
       setDashboardData(data)
     }
     loadDashboard()
-  }, [fetchDashboard, managerId])
+  }, [managerId])
 
   if (dashboardLoading || !dashboardData) {
     return (

@@ -34,11 +34,9 @@ router.get(
       const tenantId = authReq.tenantId;
 
       // Buscar departamento de agricultura
+      // ✅ Buscar departamento global
       const agricultureDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'AGRICULTURA',
-        },
+        where: { code: 'AGRICULTURA' }
       });
 
       if (!agricultureDept) {
@@ -223,11 +221,9 @@ router.get(
       console.log('[GET /services] User:', authReq.user?.email);
 
       // Buscar departamento de agricultura
+      // ✅ Buscar departamento global
       const agricultureDept = await prisma.department.findFirst({
-        where: {
-          tenantId,
-          code: 'AGRICULTURA',
-        },
+        where: { code: 'AGRICULTURA' }
       });
 
       console.log('[GET /services] Agriculture Dept:', agricultureDept ? `${agricultureDept.name} (${agricultureDept.id})` : 'NÃO ENCONTRADO');

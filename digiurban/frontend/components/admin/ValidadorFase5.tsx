@@ -259,7 +259,7 @@ export default function ValidadorFase5() {
         id: 'sincronizacao-servicos',
         categoria: '🧪 Validação',
         nome: 'Sincronização Serviços',
-        descricação: 'Testar sincronização com backend',
+        descricao: 'Testar sincronização com backend',
         status: 'pendente'
       }
     ]

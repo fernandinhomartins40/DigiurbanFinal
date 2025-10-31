@@ -7,8 +7,8 @@
 import { ModuleConfig } from './types';
 
 export const ruralProducersConfig: ModuleConfig = {
-  key: 'rural-producers',
-  departmentType: 'agriculture',
+  key: 'produtores',
+  departmentType: 'agricultura',
   entityName: 'RuralProducer',
   displayName: 'Produtores Rurais',
   displayNameSingular: 'Produtor Rural',
@@ -178,8 +178,8 @@ export const ruralProducersConfig: ModuleConfig = {
 };
 
 export const ruralPropertiesConfig: ModuleConfig = {
-  key: 'rural-properties',
-  departmentType: 'agriculture',
+  key: 'propriedades',
+  departmentType: 'agricultura',
   entityName: 'RuralProperty',
   displayName: 'Propriedades Rurais',
   displayNameSingular: 'Propriedade Rural',
@@ -318,8 +318,8 @@ export const ruralPropertiesConfig: ModuleConfig = {
 };
 
 export const ruralProgramsConfig: ModuleConfig = {
-  key: 'rural-programs',
-  departmentType: 'agriculture',
+  key: 'programas',
+  departmentType: 'agricultura',
   entityName: 'RuralProgram',
   displayName: 'Programas Rurais',
   displayNameSingular: 'Programa Rural',
@@ -469,8 +469,8 @@ export const ruralProgramsConfig: ModuleConfig = {
 };
 
 export const ruralTrainingsConfig: ModuleConfig = {
-  key: 'rural-trainings',
-  departmentType: 'agriculture',
+  key: 'capacitacoes',
+  departmentType: 'agricultura',
   entityName: 'RuralTraining',
   displayName: 'Capacitações',
   displayNameSingular: 'Capacitação',
@@ -611,8 +611,8 @@ export const ruralTrainingsConfig: ModuleConfig = {
 
 // Exportar todas as configurações de agricultura
 export const agricultureModules = {
-  'rural-producers': ruralProducersConfig,
-  'rural-properties': ruralPropertiesConfig,
-  'rural-programs': ruralProgramsConfig,
-  'rural-trainings': ruralTrainingsConfig,
+  'produtores': ruralProducersConfig,
+  'propriedades': ruralPropertiesConfig,
+  'programas': ruralProgramsConfig,
+  'capacitacoes': ruralTrainingsConfig,
 };

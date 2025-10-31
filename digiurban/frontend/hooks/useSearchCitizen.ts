@@ -16,7 +16,8 @@ export interface Citizen {
 }
 
 export function useSearchCitizen() {
-  const { tenantId } = useAdminAuth()
+  const { user } = useAdminAuth();
+  const tenantId = user?.tenantId;
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -57,6 +58,38 @@ export function useSearchCitizen() {
     }
   }
 
+  const searchByName = async (name: string): Promise<Citizen[]> => {
+    if (!name || name.length < 3) {
+      return []
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      const response = await fetch(
+        `${API_URL}/admin/citizens/search?q=${encodeURIComponent(name)}`,
+        {
+          credentials: 'include',
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error('Erro ao buscar cidadãos')
+      }
+
+      const data = await response.json()
+      return data.data?.citizens || []
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
+      setError(errorMessage)
+      return []
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const createCitizen = async (citizenData: Partial<Citizen>): Promise<Citizen> => {
     setLoading(true)
     setError(null)
@@ -90,6 +123,7 @@ export function useSearchCitizen() {
 
   return {
     searchByCPF,
+    searchByName,
     createCitizen,
     loading,
     error,

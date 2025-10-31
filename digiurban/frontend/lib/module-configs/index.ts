@@ -81,6 +81,3 @@ export function hasModule(departmentType: string, moduleKey: string): boolean {
 export * from './types';
 export { agricultureModules } from './agriculture';
 export { educacaoModuleConfigs } from './educacao';
-export { obrasPublicasModuleConfigs } from './obras-publicas';
-export { planejamentoUrbanoModuleConfigs, configsPlanejamentoUrbano } from './planejamento-urbano';
-export { servicosPublicosModuleConfigs, servicosPublicosConfigs } from './servicos-publicos';

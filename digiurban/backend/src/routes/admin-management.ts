@@ -434,7 +434,6 @@ router.post(
     const department = await prisma.department.findFirst({
       where: {
         id: departmentId,
-        tenantId: user.tenantId || '',
         isActive: true,
       },
     });
@@ -672,10 +671,10 @@ router.post(
 
     // Verificar se o departamento existe (se informado)
     if (departmentId) {
+      // ✅ Validar departamento global (sem tenantId)
       const department = await prisma.department.findFirst({
         where: {
           id: departmentId,
-          tenantId: user.tenantId || '',
           isActive: true,
         },
       });
@@ -782,7 +781,6 @@ router.put(
       const department = await prisma.department.findFirst({
         where: {
           id: data.departmentId,
-          tenantId: user.tenantId || '',
           isActive: true,
         },
       });
@@ -838,9 +836,9 @@ router.get(
   handleAsyncRoute(async (req, res) => {
     const { user } = req;
 
+    // ✅ Listar departamentos globais (sem filtro de tenant)
     const departments = await prisma.department.findMany({
       where: {
-        tenantId: user.tenantId || '',
         isActive: true,
       },
       include: {

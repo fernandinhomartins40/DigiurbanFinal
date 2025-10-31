@@ -31,9 +31,9 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
     let tenantId: string | null = null;
 
     // ============================================
-    // ESTRATÉGIA 1: JWT Cookie (PRINCIPAL - 99% dos casos)
+    // ESTRATÉGIA 1: JWT Cookie (PRINCIPAL)
     // ============================================
-    // Para usuários admin/cidadão logados, tenant vem do JWT
+    // Para usuários admin e cidadãos logados, tenant vem do JWT cookie
     if (req.cookies?.digiurban_admin_token) {
       if (isDev) console.log('[Tenant] Verificando JWT cookie admin...');
       try {
@@ -41,22 +41,63 @@ export const tenantMiddleware = async (req: Request, res: Response, next: NextFu
         const decoded = jwt.decode(req.cookies.digiurban_admin_token) as any;
         if (decoded?.tenantId) {
           tenantId = decoded.tenantId;
-          if (isDev) console.log('[Tenant] ✅ Tenant do JWT:', tenantId);
+          if (isDev) console.log('[Tenant] ✅ Tenant do JWT cookie admin:', tenantId);
         }
       } catch (err) {
-        if (isDev) console.error('[Tenant] Erro ao decodificar JWT:', err);
+        if (isDev) console.error('[Tenant] Erro ao decodificar JWT admin:', err);
       }
     }
 
     // ============================================
-    // ESTRATÉGIA 2: Header X-Tenant-ID (APIs externas e dev)
+    // ESTRATÉGIA 1.5: JWT Cookie Cidadão
+    // ============================================
+    // Cookie específico para cidadãos
+    if (!tenantId && req.cookies?.digiurban_citizen_token) {
+      if (isDev) console.log('[Tenant] Verificando JWT cookie cidadão...');
+      try {
+        const jwt = require('jsonwebtoken');
+        const decoded = jwt.decode(req.cookies.digiurban_citizen_token) as any;
+        if (decoded?.tenantId) {
+          tenantId = decoded.tenantId;
+          if (isDev) console.log('[Tenant] ✅ Tenant do JWT cookie cidadão:', tenantId);
+        }
+      } catch (err) {
+        if (isDev) console.error('[Tenant] Erro ao decodificar JWT cidadão:', err);
+      }
+    }
+
+    // ============================================
+    // ESTRATÉGIA 2: JWT Authorization Header (Fallback temporário)
+    // ============================================
+    // Para compatibilidade com código antigo que usa localStorage
+    // TODO: DEPRECAR após migração completa
+    if (!tenantId) {
+      const authHeader = req.get('Authorization');
+      if (authHeader?.startsWith('Bearer ')) {
+        if (isDev) console.log('[Tenant] ⚠️  Verificando JWT Authorization header (DEPRECATED)...');
+        try {
+          const token = authHeader.substring(7);
+          const jwt = require('jsonwebtoken');
+          const decoded = jwt.decode(token) as any;
+          if (decoded?.tenantId) {
+            tenantId = decoded.tenantId;
+            if (isDev) console.log('[Tenant] ✅ Tenant do JWT Authorization (DEPRECATED):', tenantId);
+          }
+        } catch (err) {
+          if (isDev) console.error('[Tenant] Erro ao decodificar JWT Authorization:', err);
+        }
+      }
+    }
+
+    // ============================================
+    // ESTRATÉGIA 3: Header X-Tenant-ID (APIs externas e dev)
     // ============================================
     // Para integrações externas ou desenvolvimento local
     if (!tenantId) {
       const headerTenant = req.get('X-Tenant-ID');
       if (headerTenant) {
         tenantId = headerTenant;
-        if (isDev) console.log('[Tenant] ✅ Tenant do header:', tenantId);
+        if (isDev) console.log('[Tenant] ✅ Tenant do header X-Tenant-ID:', tenantId);
       }
     }
 

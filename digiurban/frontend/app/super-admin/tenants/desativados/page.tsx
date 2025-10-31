@@ -224,7 +224,7 @@ export default function DeactivatedTenantsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {new Date(tenant.updatedAt).toLocaleDateString('pt-BR')}
+                      {(tenant as any).updatedAt ? new Date((tenant as any).updatedAt).toLocaleDateString('pt-BR') : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <div className="flex items-center gap-2">

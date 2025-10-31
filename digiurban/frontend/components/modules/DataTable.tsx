@@ -98,12 +98,8 @@ export function DataTable({
     if (!deleteId) return
 
     try {
-      // Token via useSuperAdminAuth
-      await axios.delete(`${endpoint}/${deleteId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'X-Tenant-ID': 'demo',
-        },
+      await apiRequest(`${endpoint}/${deleteId}`, {
+        method: 'DELETE',
       })
 
       toast({

@@ -134,9 +134,9 @@ export default function ProtocolsPage() {
       if (priorityFilter !== 'all') params.append('priority', priorityFilter)
       if (searchTerm) params.append('search', searchTerm)
 
-      const response = await apiRequest(`/api/admin/protocols?${params.toString()}`)
-      // Extrair protocolos de forma consistente (pode vir em data.protocols ou data.data.protocols)
-      const protocolsData = response.protocols || response.data?.protocols || []
+      const response = await apiRequest(`/api/protocols?${params.toString()}`)
+      // Extrair protocolos de forma consistente (pode vir em data.protocols ou response.protocols)
+      const protocolsData = response.protocols || []
       setProtocols(protocolsData)
     } catch (error) {
       console.error('Erro ao carregar protocolos:', error)
@@ -161,8 +161,8 @@ export default function ProtocolsPage() {
     if (!selectedProtocol || !selectedAssignee) return
 
     try {
-      await apiRequest(`/api/admin/protocols/${selectedProtocol.id}/assign`, {
-        method: 'PUT',
+      await apiRequest(`/api/protocols/${selectedProtocol.id}/assign`, {
+        method: 'PATCH',
         body: JSON.stringify({
           assignedUserId: selectedAssignee,
           comment: assignComment
@@ -181,8 +181,8 @@ export default function ProtocolsPage() {
   // Atualizar status do protocolo
   const updateStatus = async (protocolId: string, newStatus: string) => {
     try {
-      await apiRequest(`/api/admin/protocols/${protocolId}/status`, {
-        method: 'PUT',
+      await apiRequest(`/api/protocols/${protocolId}/status`, {
+        method: 'PATCH',
         body: JSON.stringify({
           status: newStatus,
           comment: `Status alterado para ${statusLabels[newStatus as keyof typeof statusLabels]}`
@@ -231,14 +231,20 @@ export default function ProtocolsPage() {
     }
 
     try {
-      await apiRequest('/admin/protocols', {
+      await apiRequest('/api/protocols', {
         method: 'POST',
         body: JSON.stringify({
-          citizenId: selectedCitizen.id,
           serviceId: newProtocol.serviceId,
-          departmentId: newProtocol.departmentId,
-          description: newProtocol.description,
-          priority: newProtocol.priority,
+          citizenData: {
+            cpf: selectedCitizen.cpf,
+            name: selectedCitizen.name,
+            email: selectedCitizen.email,
+            phone: selectedCitizen.phone
+          },
+          formData: {
+            description: newProtocol.description,
+            priority: newProtocol.priority,
+          }
         })
       })
 

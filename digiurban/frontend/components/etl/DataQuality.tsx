@@ -17,7 +17,8 @@ import {
   TrendingUp,
   BarChart3,
   FileText,
-  Download
+  Download,
+  Plus
 } from 'lucide-react'
 import { KPICard } from '../analytics/KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart } from '../analytics/Charts'

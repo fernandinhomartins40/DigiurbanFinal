@@ -548,36 +548,9 @@ router.post(
     });
 
     // Criar departamentos padrão com códigos padronizados (ALINHADO COM SEED)
-    const defaultDepartments = [
-      { name: 'Secretaria de Saúde', code: 'SAUDE', description: 'Gestão de saúde pública, consultas, exames e programas de saúde' },
-      { name: 'Secretaria de Educação', code: 'EDUCACAO', description: 'Gestão educacional, matrículas, transporte escolar e merenda' },
-      { name: 'Secretaria de Serviços Públicos', code: 'SERVICOS_PUBLICOS', description: 'Limpeza urbana, iluminação pública e manutenção de vias' },
-      { name: 'Secretaria de Assistência Social', code: 'ASSISTENCIA_SOCIAL', description: 'Programas sociais, acolhimento e atendimento psicossocial' },
-      { name: 'Secretaria de Cultura', code: 'CULTURA', description: 'Eventos culturais, patrimônio histórico e incentivo à cultura' },
-      { name: 'Secretaria de Esporte e Lazer', code: 'ESPORTES', description: 'Gestão de equipamentos esportivos, eventos e programas de esporte' },
-      { name: 'Secretaria de Habitação', code: 'HABITACAO', description: 'Programas habitacionais, regularização fundiária e auxílio moradia' },
-      { name: 'Secretaria de Meio Ambiente', code: 'MEIO_AMBIENTE', description: 'Licenciamento ambiental, fiscalização e educação ambiental' },
-      { name: 'Secretaria de Obras Públicas', code: 'OBRAS_PUBLICAS', description: 'Obras públicas, pavimentação, drenagem e fiscalização de obras' },
-      { name: 'Secretaria de Planejamento Urbano', code: 'PLANEJAMENTO_URBANO', description: 'Planejamento urbano, plano diretor, alvarás e licenciamento' },
-      { name: 'Secretaria de Segurança Pública', code: 'SEGURANCA_PUBLICA', description: 'Guarda municipal, videomonitoramento e segurança pública' },
-      { name: 'Secretaria de Fazenda', code: 'FAZENDA', description: 'Arrecadação, IPTU, ISS, certidões e gestão fiscal' },
-      { name: 'Secretaria de Agricultura', code: 'AGRICULTURA', description: 'Apoio ao produtor rural, assistência técnica e fomento agrícola' },
-      { name: 'Secretaria de Turismo', code: 'TURISMO', description: 'Promoção turística, cadastro de guias e apoio a eventos' },
-    ];
-
-    await Promise.all(
-      defaultDepartments.map(dept =>
-        prisma.department.create({
-          data: {
-            name: dept.name,
-            code: dept.code,
-            description: dept.description,
-            tenantId: tenant.id,
-            isActive: true,
-          },
-        })
-      )
-    );
+    // ✅ DEPARTAMENTOS GLOBAIS: Não precisam ser criados por tenant
+    // Os 14 departamentos padrão já existem no banco e são compartilhados
+    // entre todos os municípios (arquitetura SaaS)
 
     // ✅ Popular serviços padrão automaticamente (108 serviços - Arquitetura Simplificada)
     console.log(`📦 Populando 108 serviços padrão para tenant ${tenant.name} (${tenant.id})...`);
@@ -870,7 +843,7 @@ router.delete(
             protocolsSimplified: true,
             citizens: true,
             servicesSimplified: true,
-            departments: true,
+            // ✅ REMOVIDO: departments (agora são globais)
             invoices: true,
             leads: true,
           },
@@ -904,7 +877,7 @@ router.delete(
         protocols: tenant._count.protocolsSimplified,
         citizens: tenant._count.citizens,
         services: tenant._count.servicesSimplified,
-        departments: tenant._count.departments,
+        // ✅ REMOVIDO: departments (globais, não pertencem ao tenant)
         invoices: tenant._count.invoices,
         leads: tenant._count.leads,
       };
@@ -2071,12 +2044,7 @@ router.post(
         );
       }
 
-      // Verificar se departamento pertence ao tenant
-      if (department.tenantId !== tenantId) {
-        return res.status(400).json(
-          createErrorResponse('INVALID_DEPARTMENT', 'Departamento não pertence ao tenant selecionado')
-        );
-      }
+      // ✅ Departamentos são globais - não precisamos validar tenantId
     }
 
     // Hash da senha
@@ -2201,12 +2169,7 @@ router.put(
         );
       }
 
-      // Verificar se departamento pertence ao tenant
-      if (department.tenantId !== tenantId) {
-        return res.status(400).json(
-          createErrorResponse('INVALID_DEPARTMENT', 'Departamento não pertence ao tenant selecionado')
-        );
-      }
+      // ✅ Departamentos são globais - não precisamos validar tenantId
     }
 
     // Atualizar usuário
@@ -2274,12 +2237,13 @@ router.get(
       );
     }
 
+    // ✅ DEPARTAMENTOS GLOBAIS: Listar todos (não filtrar por tenant)
     const departments = await prisma.department.findMany({
-      where: { tenantId: id },
       orderBy: { name: 'asc' },
       select: {
         id: true,
         name: true,
+        code: true,
         description: true
       }
     });

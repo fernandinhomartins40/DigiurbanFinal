@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +17,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface TransferRequest {
   id: string;
@@ -60,6 +60,7 @@ interface Stats {
 
 export default function TransferenciasPage() {
   const { apiRequest } = useAdminAuth();
+  const { toast } = useToast();
   const [requests, setRequests] = useState<TransferRequest[]>([]);
   const [stats, setStats] = useState<Stats>({ pending: 0, approved: 0, rejected: 0, total: 0 });
   const [loading, setLoading] = useState(true);
@@ -68,6 +69,8 @@ export default function TransferenciasPage() {
   const [selectedRequest, setSelectedRequest] = useState<TransferRequest | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [processing, setProcessing] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<'APPROVED' | 'REJECTED' | null>(null);
 
   useEffect(() => {
     fetchRequests();
@@ -80,21 +83,23 @@ export default function TransferenciasPage() {
       const data = await apiRequest(`/admin/transfer-requests${params}`);
       setRequests(data.requests || []);
       setStats(data.stats || { pending: 0, approved: 0, rejected: 0, total: 0 });
-    } catch (error) {
-      console.error('Erro ao carregar solicitações:', error);
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao carregar solicitações',
+        description: error.message || 'Ocorreu um erro ao buscar as solicitações',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleReview = async (id: string, status: 'APPROVED' | 'REJECTED') => {
-    if (!window.confirm(`Tem certeza que deseja ${status === 'APPROVED' ? 'aprovar' : 'rejeitar'} esta transferência?`)) {
-      return;
-    }
+  const handleReview = async (status: 'APPROVED' | 'REJECTED') => {
+    if (!selectedRequest) return;
 
     try {
       setProcessing(true);
-      await apiRequest(`/admin/transfer-requests/${id}`, {
+      await apiRequest(`/admin/transfer-requests/${selectedRequest.id}`, {
         method: 'PATCH',
         body: JSON.stringify({
           status,
@@ -102,15 +107,37 @@ export default function TransferenciasPage() {
         }),
       });
 
+      toast({
+        title: status === 'APPROVED' ? 'Transferência aprovada' : 'Transferência rejeitada',
+        description: `A transferência de ${selectedRequest.citizen.name} foi ${status === 'APPROVED' ? 'aprovada' : 'rejeitada'} com sucesso.`,
+        variant: 'default',
+      });
+
       // Atualizar lista
       await fetchRequests();
       setSelectedRequest(null);
       setReviewNotes('');
-      alert(`Transferência ${status === 'APPROVED' ? 'aprovada' : 'rejeitada'} com sucesso!`);
+      setShowConfirmModal(false);
+      setConfirmAction(null);
     } catch (error: any) {
-      alert(error.message || 'Erro ao processar solicitação');
+      toast({
+        title: 'Erro ao processar solicitação',
+        description: error.message || 'Ocorreu um erro ao processar a solicitação',
+        variant: 'destructive',
+      });
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const openConfirmModal = (action: 'APPROVED' | 'REJECTED') => {
+    setConfirmAction(action);
+    setShowConfirmModal(true);
+  };
+
+  const confirmReview = () => {
+    if (confirmAction) {
+      handleReview(confirmAction);
     }
   };
 
@@ -140,8 +167,7 @@ export default function TransferenciasPage() {
   });
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -330,7 +356,6 @@ export default function TransferenciasPage() {
             )}
           </CardContent>
         </Card>
-      </div>
 
       {/* Modal de Análise */}
       {selectedRequest && (
@@ -386,28 +411,20 @@ export default function TransferenciasPage() {
               {/* Ações */}
               <div className="flex gap-3 pt-4 border-t">
                 <Button
-                  onClick={() => handleReview(selectedRequest.id, 'APPROVED')}
+                  onClick={() => openConfirmModal('APPROVED')}
                   disabled={processing}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                 >
-                  {processing ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                  )}
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
                   Aprovar
                 </Button>
                 <Button
-                  onClick={() => handleReview(selectedRequest.id, 'REJECTED')}
+                  onClick={() => openConfirmModal('REJECTED')}
                   disabled={processing}
                   variant="destructive"
                   className="flex-1"
                 >
-                  {processing ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <XCircle className="h-4 w-4 mr-2" />
-                  )}
+                  <XCircle className="h-4 w-4 mr-2" />
                   Rejeitar
                 </Button>
               </div>
@@ -415,6 +432,49 @@ export default function TransferenciasPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+
+      {/* Modal de Confirmação */}
+      {showConfirmModal && selectedRequest && confirmAction && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowConfirmModal(false)} />
+          <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirmar {confirmAction === 'APPROVED' ? 'Aprovação' : 'Rejeição'}
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Tem certeza que deseja {confirmAction === 'APPROVED' ? 'aprovar' : 'rejeitar'} a transferência de{' '}
+              <strong>{selectedRequest.citizen.name}</strong>?
+            </p>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowConfirmModal(false)}
+                variant="outline"
+                className="flex-1"
+                disabled={processing}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={confirmReview}
+                disabled={processing}
+                className={`flex-1 ${confirmAction === 'APPROVED' ? 'bg-green-600 hover:bg-green-700' : ''}`}
+                variant={confirmAction === 'REJECTED' ? 'destructive' : 'default'}
+              >
+                {processing ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  confirmAction === 'APPROVED' ? (
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                  ) : (
+                    <XCircle className="h-4 w-4 mr-2" />
+                  )
+                )}
+                Confirmar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

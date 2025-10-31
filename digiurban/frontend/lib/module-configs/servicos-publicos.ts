@@ -8,8 +8,8 @@ import { ModuleConfig } from './types';
 
 export const publicServiceAttendanceConfig: ModuleConfig = {
   key: 'atendimentos-gerais',
-  departmentType: 'servicos-publicos',
   entityName: 'PublicServiceAttendance',
+  departmentType: 'public-services',
   displayName: 'Atendimentos Gerais',
   displayNameSingular: 'Atendimento Geral',
   description: 'Atendimentos gerais de serviços públicos ao cidadão',

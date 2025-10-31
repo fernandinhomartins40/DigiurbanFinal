@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { LogIn, UserPlus, AlertCircle, User, CheckCircle, Search, MapPin } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
+import { LogIn, UserPlus, AlertCircle, User, CheckCircle, MapPin, Eye, EyeOff } from 'lucide-react'
+import { PasswordStrengthIndicator } from '@/components/ui/password-strength-indicator'
 import Link from 'next/link'
 
 interface Municipio {
@@ -21,6 +23,7 @@ interface Municipio {
   id?: string
   name?: string
   domain?: string
+  hasTenant?: boolean
 }
 
 export default function CitizenLoginPage() {
@@ -29,11 +32,16 @@ export default function CitizenLoginPage() {
   const { toast } = useToast()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [showLoginPassword, setShowLoginPassword] = useState(false)
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false)
+  const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false)
 
   const [loginData, setLoginData] = useState({
     cpf: '',
     password: '',
   })
+
+  const [rememberMe, setRememberMe] = useState(false)
 
   const [registerData, setRegisterData] = useState({
     cpf: '',
@@ -63,16 +71,24 @@ export default function CitizenLoginPage() {
 
       setLoadingMunicipios(true)
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
-        const response = await fetch(
-          `${apiUrl}/public/municipios-brasil?search=${encodeURIComponent(municipioSearch)}`
-        )
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+        const url = `${apiUrl}/public/municipios-brasil?search=${encodeURIComponent(municipioSearch)}`
+
+        console.log('🔍 Buscando municípios:', url)
+
+        const response = await fetch(url)
         const data = await response.json()
+
+        console.log('📊 Resposta da API:', data)
+
         if (data.success) {
           setMunicipios(data.data.municipios || [])
+          console.log(`✅ ${data.data.municipios?.length || 0} municípios encontrados`)
+        } else {
+          console.error('❌ Erro na resposta:', data)
         }
       } catch (error) {
-        console.error('Erro ao buscar municípios:', error)
+        console.error('❌ Erro ao buscar municípios:', error)
       } finally {
         setLoadingMunicipios(false)
       }
@@ -92,6 +108,17 @@ export default function CitizenLoginPage() {
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Carregar credenciais salvas ao montar componente
+  useEffect(() => {
+    const savedCpf = localStorage.getItem('digiurban_citizen_cpf')
+    const savedRememberMe = localStorage.getItem('digiurban_citizen_remember') === 'true'
+
+    if (savedCpf && savedRememberMe) {
+      setLoginData({ ...loginData, cpf: formatCPF(savedCpf) })
+      setRememberMe(true)
+    }
   }, [])
 
   const formatCPF = (value: string) => {
@@ -131,6 +158,15 @@ export default function CitizenLoginPage() {
       const loginSuccess = await login(cpfNumbers, loginData.password)
 
       if (loginSuccess) {
+        // Salvar ou remover credenciais baseado no checkbox
+        if (rememberMe) {
+          localStorage.setItem('digiurban_citizen_cpf', cpfNumbers)
+          localStorage.setItem('digiurban_citizen_remember', 'true')
+        } else {
+          localStorage.removeItem('digiurban_citizen_cpf')
+          localStorage.removeItem('digiurban_citizen_remember')
+        }
+
         toast({
           title: 'Login realizado com sucesso!',
           description: 'Redirecionando para o portal...',
@@ -177,13 +213,22 @@ export default function CitizenLoginPage() {
       return
     }
 
-    if (registerData.password !== registerData.confirmPassword) {
-      setError('As senhas não conferem')
+    // Validação de senha forte
+    const passwordRequirements = [
+      registerData.password.length >= 8,
+      /[A-Z]/.test(registerData.password),
+      /[a-z]/.test(registerData.password),
+      /\d/.test(registerData.password),
+      /[!@#$%^&*(),.?":{}|<>]/.test(registerData.password),
+    ]
+
+    if (!passwordRequirements.every(req => req)) {
+      setError('A senha não atende aos requisitos de segurança')
       return
     }
 
-    if (registerData.password.length < 6) {
-      setError('A senha deve ter no mínimo 6 caracteres')
+    if (registerData.password !== registerData.confirmPassword) {
+      setError('As senhas não conferem')
       return
     }
 
@@ -197,14 +242,14 @@ export default function CitizenLoginPage() {
       }
 
       // Adicionar dados do município selecionado
-      if (selectedMunicipio.codigo_ibge) {
-        // Município brasileiro - criar tenant automaticamente
+      if (selectedMunicipio.hasTenant === true && selectedMunicipio.id) {
+        // Tenant já existente - vincular ao tenant
+        payload.municipioId = selectedMunicipio.id
+      } else if (selectedMunicipio.hasTenant === false && selectedMunicipio.codigo_ibge) {
+        // Município brasileiro sem tenant - criar tenant automaticamente
         payload.codigoIbge = selectedMunicipio.codigo_ibge
         payload.nomeMunicipio = selectedMunicipio.nome
         payload.ufMunicipio = selectedMunicipio.uf
-      } else if (selectedMunicipio.id) {
-        // Tenant já existente
-        payload.municipioId = selectedMunicipio.id
       }
 
       const registerSuccess = await register(payload)
@@ -308,14 +353,42 @@ export default function CitizenLoginPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="login-password">Senha</Label>
-                  <Input
-                    id="login-password"
-                    type="password"
-                    placeholder="Digite sua senha"
-                    value={loginData.password}
-                    onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                    required
+                  <div className="relative">
+                    <Input
+                      id="login-password"
+                      type={showLoginPassword ? "text" : "password"}
+                      placeholder="Digite sua senha"
+                      value={loginData.password}
+                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowLoginPassword(!showLoginPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showLoginPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember-me"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked === true)}
                   />
+                  <label
+                    htmlFor="remember-me"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    Lembrar meu CPF
+                  </label>
                 </div>
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
@@ -457,7 +530,12 @@ export default function CitizenLoginPage() {
                         <span className="font-medium text-blue-900">
                           {selectedMunicipio.nome} - {selectedMunicipio.uf}
                         </span>
-                        {selectedMunicipio.codigo_ibge && (
+                        {selectedMunicipio.hasTenant === true && (
+                          <span className="text-green-600 ml-2">
+                            (DigiUrban ativo)
+                          </span>
+                        )}
+                        {selectedMunicipio.hasTenant === false && (
                           <span className="text-blue-600 ml-2">
                             (Será criado automaticamente)
                           </span>
@@ -469,27 +547,64 @@ export default function CitizenLoginPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="register-password">Senha *</Label>
-                  <Input
-                    id="register-password"
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={registerData.password}
-                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="register-password"
+                      type={showRegisterPassword ? "text" : "password"}
+                      placeholder="Mínimo 8 caracteres"
+                      value={registerData.password}
+                      onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showRegisterPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="register-confirm">Confirmar Senha *</Label>
-                  <Input
-                    id="register-confirm"
-                    type="password"
-                    placeholder="Digite a senha novamente"
-                    value={registerData.confirmPassword}
-                    onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
-                    required
-                  />
+                  <div className="relative">
+                    <Input
+                      id="register-confirm"
+                      type={showRegisterConfirmPassword ? "text" : "password"}
+                      placeholder="Digite a senha novamente"
+                      value={registerData.confirmPassword}
+                      onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                      required
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegisterConfirmPassword(!showRegisterConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      {showRegisterConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
+
+                {/* Indicador de força de senha */}
+                {registerData.password && (
+                  <PasswordStrengthIndicator
+                    password={registerData.password}
+                    confirmPassword={registerData.confirmPassword}
+                    showConfirmation={true}
+                  />
+                )}
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? 'Criando cadastro...' : 'Criar Cadastro'}

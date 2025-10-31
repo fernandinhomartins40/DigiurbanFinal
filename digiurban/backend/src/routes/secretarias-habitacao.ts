@@ -78,10 +78,7 @@ router.get('/stats', authenticateToken, requireManager, asyncHandler(async (req:
 
   // 1. Buscar departamento de Habitação
   const dept = await prisma.department.findFirst({
-    where: {
-      tenantId,
-      code: 'HABITACAO'
-    }
+    where: { code: 'HABITACAO' }
   });
 
   if (!dept) {

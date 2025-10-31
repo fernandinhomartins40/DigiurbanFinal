@@ -18,6 +18,7 @@ import {
   FileText,
   TrendingUp,
   Search,
+  BarChart3,
   Plus,
   Clock,
   User,
@@ -36,6 +37,8 @@ export interface HealthPageTemplateProps {
   onTfdRequest?: (request: any) => void
 }
 
+type PageType = 'atendimentos' | 'agendamentos' | 'medicamentos' | 'campanhas' | 'programas' | 'tfd' | 'exames' | 'acs' | 'transporte' | 'dashboard';
+
 export default function HealthPageTemplate({
   pageType,
   customSections = [],
@@ -48,7 +51,7 @@ export default function HealthPageTemplate({
   const [searchTerm, setSearchTerm] = useState('')
 
   // Page configurations por tipo
-  const pageConfigs = {
+  const pageConfigs: Partial<Record<PageType, { title: string; description: string; sections: PageSection[] }>> = {
     atendimentos: {
       title: 'Atendimentos Médicos',
       description: 'PDV para consultas médicas, emergências e especialidades',
@@ -210,7 +213,11 @@ export default function HealthPageTemplate({
     }
   }
 
-  const config = pageConfigs[pageType] || pageConfigs.dashboard
+  const config = pageConfigs[pageType] || pageConfigs.dashboard || {
+    title: 'Página de Saúde',
+    description: 'Gestão de serviços de saúde',
+    sections: []
+  }
 
   const quickActions: PageAction[] = [
     {

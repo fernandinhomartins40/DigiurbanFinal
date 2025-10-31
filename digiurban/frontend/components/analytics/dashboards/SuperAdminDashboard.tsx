@@ -8,23 +8,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Shield, Server, Users, Globe, BarChart3, AlertTriangle, Settings, Database, Lock, TrendingUp } from 'lucide-react'
 import { KPICard } from '../KPICard'
 import { AnalyticsLineChart, AnalyticsBarChart, AnalyticsPieChart, AnalyticsAreaChart, GaugeChart, HeatMap } from '../Charts'
-import { useDashboards, useBenchmarks } from '@/hooks/api/analytics'
+// LEGADO: import { useDashboards, useBenchmarks } from '@/hooks/api/analytics'
 
 interface SuperAdminDashboardProps {
   adminId?: string
 }
 
 export function SuperAdminDashboard({ adminId }: SuperAdminDashboardProps) {
-  const { fetchDashboard, loading: dashboardLoading } = useDashboards()
+  const [dashboardLoading, setDashboardLoading] = useState(false);
   const [dashboardData, setDashboardData] = useState<any>(null)
 
   useEffect(() => {
     const loadDashboard = async () => {
-      const data = await fetchDashboard('superadmin', adminId)
+      setDashboardLoading(true);
+      // TODO: Implementar via API
+      const data = null;
+      setDashboardLoading(false);
       setDashboardData(data)
     }
     loadDashboard()
-  }, [fetchDashboard, adminId])
+  }, [adminId])
 
   if (dashboardLoading || !dashboardData) {
     return (

@@ -13,17 +13,26 @@ interface Tenant {
 
 interface TenantSelectorProps {
   selectedTenantId?: string;
-  onSelect: (tenantId: string) => void;
+  selectedTenant?: string; // Alias for backward compatibility
+  onSelect?: (tenantId: string) => void;
+  onSelectTenant?: (tenantId: string) => void; // Alias for backward compatibility
   showAllOption?: boolean;
+  includeAll?: boolean; // Alias for backward compatibility
   className?: string;
 }
 
 export function TenantSelector({
   selectedTenantId,
+  selectedTenant,
   onSelect,
+  onSelectTenant,
   showAllOption = true,
+  includeAll = true,
   className = ''
 }: TenantSelectorProps) {
+  // Use whichever prop is provided
+  const selectedId = selectedTenantId || selectedTenant;
+  const handleSelect = onSelect || onSelectTenant || (() => {});
   const { apiRequest } = useSuperAdminAuth();
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,10 +57,11 @@ export function TenantSelector({
     }
   };
 
-  const selectedTenant = tenants.find(t => t.id === selectedTenantId);
+  const selectedTenantData = tenants.find(t => t.id === selectedId);
   const filteredTenants = tenants.filter(t =>
     t.name.toLowerCase().includes(search.toLowerCase())
   );
+  const showAll = showAllOption || includeAll;
 
   return (
     <div className={`relative ${className}`}>
@@ -62,7 +72,7 @@ export function TenantSelector({
         <div className="flex items-center gap-2">
           <Building2 size={18} className="text-gray-500" />
           <span className="text-sm font-medium text-gray-700">
-            {loading ? 'Carregando...' : selectedTenant ? selectedTenant.name : 'Todos os Tenants'}
+            {loading ? 'Carregando...' : selectedTenantData ? selectedTenantData.name : 'Todos os Tenants'}
           </span>
         </div>
         <ChevronDown size={18} className={`text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
@@ -87,16 +97,16 @@ export function TenantSelector({
             </div>
 
             <div className="overflow-y-auto max-h-80">
-              {showAllOption && (
+              {showAll && (
                 <button
                   onClick={() => {
-                    onSelect('');
+                    handleSelect('');
                     setOpen(false);
                   }}
                   className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors"
                 >
                   <span className="text-sm font-medium text-gray-700">Todos os Tenants</span>
-                  {!selectedTenantId && <Check size={16} className="text-blue-600" />}
+                  {!selectedId && <Check size={16} className="text-blue-600" />}
                 </button>
               )}
 
@@ -104,7 +114,7 @@ export function TenantSelector({
                 <button
                   key={tenant.id}
                   onClick={() => {
-                    onSelect(tenant.id);
+                    handleSelect(tenant.id);
                     setOpen(false);
                   }}
                   className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors border-t border-gray-100"
@@ -124,7 +134,7 @@ export function TenantSelector({
                       </div>
                     </div>
                   </div>
-                  {selectedTenantId === tenant.id && (
+                  {selectedId === tenant.id && (
                     <Check size={16} className="text-blue-600" />
                   )}
                 </button>

@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { useCitizenAuth } from '@/contexts/CitizenAuthContext';
 
 interface Department {
   id: string;
@@ -38,36 +36,20 @@ export function useCitizenServices(): UseCitizenServicesResult {
   const [services, setServices] = useState<CitizenService[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { apiRequest } = useCitizenAuth();
 
   const fetchServices = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Determinar o tenant ID a partir do hostname
-      let tenantId = 'demo';
-      if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-          // Extrair subdomain como tenant ID
-          const parts = hostname.split('.');
-          if (parts.length > 2) {
-            tenantId = parts[0];
-          }
-        }
-      }
+      // ✅ CORRIGIDO: Usar apiRequest do contexto (httpOnly cookies com tenant correto)
+      const response = await apiRequest('/citizen/services');
 
-      // Buscar serviços ativos da tenant (rota pública)
-      const response = await axios.get(`${API_URL}/citizen/services`, {
-        headers: {
-          'X-Tenant-ID': tenantId,
-        },
-      });
-
-      setServices(response.data.services || []);
+      setServices(response.services || []);
     } catch (err: any) {
       console.error('Erro ao buscar serviços:', err);
-      setError(err.response?.data?.error || 'Erro ao carregar serviços');
+      setError(err.message || 'Erro ao carregar serviços');
     } finally {
       setLoading(false);
     }

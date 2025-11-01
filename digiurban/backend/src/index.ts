@@ -73,6 +73,13 @@ import tenantRoutes from './routes/tenants';
 
 // Sistema Simplificado de Protocolos
 import protocolsSimplifiedRoutes from './routes/protocols-simplified.routes';
+import protocolInteractionsRoutes from './routes/protocol-interactions';
+import protocolDocumentsRoutes from './routes/protocol-documents';
+import protocolPendingsRoutes from './routes/protocol-pendings';
+import protocolStagesRoutes from './routes/protocol-stages';
+import protocolSLARoutes from './routes/protocol-sla';
+import moduleWorkflowsRoutes from './routes/module-workflows';
+import protocolAnalyticsRoutes from './routes/protocol-analytics';
 
 // Fase 2 - Super Admin e SaaS
 import superAdminRoutes from './routes/super-admin';
@@ -149,6 +156,14 @@ app.use('/api/tenants', tenantRoutes);
 
 // Sistema Simplificado de Protocolos (Motor de Protocolos V2)
 app.use('/api/protocols', protocolsSimplifiedRoutes);
+app.use('/api/protocols', protocolInteractionsRoutes);
+app.use('/api/protocols', protocolDocumentsRoutes);
+app.use('/api/protocols', protocolPendingsRoutes);
+app.use('/api/protocols', protocolStagesRoutes);
+app.use('/api/protocols', protocolSLARoutes);
+app.use('/api/protocol-analytics', protocolAnalyticsRoutes);
+app.use('/api/workflows', moduleWorkflowsRoutes);
+app.use('/api/sla', protocolSLARoutes); // Rotas globais de SLA
 
 // Rotas Super Admin (Fase 2)
 app.use('/api/super-admin', superAdminRoutes);

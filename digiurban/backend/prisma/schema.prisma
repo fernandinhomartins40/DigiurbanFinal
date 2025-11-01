@@ -29,7 +29,7 @@ model Tenant {
   agendaEvents                     AgendaEvent[]
   agricultureAttendances           AgricultureAttendance[]
   artisticGroups                   ArtisticGroup[]
-  athletes                         Athlete[]
+  athletes     Athlete[]
   benefitRequests                  BenefitRequest[]
   buildingPermits                  BuildingPermit[]
   businessLicenses                 BusinessLicense[]
@@ -132,7 +132,7 @@ model Tenant {
   socialPrograms                   SocialProgram[]
   specialCollections               SpecialCollection[]
   specializedPages                 SpecializedPage[]
-  sportModalities                  SportModality[]
+  sportsModalities                 SportsModality[]
   sportsAttendances                SportsAttendance[]
   sportsClubs                      SportsClub[]
   sportsEvents                     SportsEvent[]
@@ -166,7 +166,6 @@ model Tenant {
   InfrastructureProblem            InfrastructureProblem[]
   UrbanMaintenanceRequest          UrbanMaintenanceRequest[]
   HousingRequest                   HousingRequest[]
-  SportsModality                   SportsModality[]
   socialGroupEnrollments           SocialGroupEnrollment[]
   socialProgramEnrollments         SocialProgramEnrollment[]
   socialAppointments               SocialAppointment[]
@@ -417,8 +416,13 @@ model ProtocolSimplified {
   assignedUser User?             @relation("AssignedUserSimplified", fields: [assignedUserId], references: [id])
   createdBy    User?             @relation("CreatedByUserSimplified", fields: [createdById], references: [id])
 
-  history     ProtocolHistorySimplified[]
-  evaluations ProtocolEvaluationSimplified[]
+  history       ProtocolHistorySimplified[]
+  evaluations   ProtocolEvaluationSimplified[]
+  interactions  ProtocolInteraction[]
+  documentFiles ProtocolDocument[]
+  pendings      ProtocolPending[]
+  stages        ProtocolStage[]
+  sla           ProtocolSLA?
 
   // Módulos de Agricultura
   ruralProducers  RuralProducer[] @relation("RuralProducerProtocol")
@@ -476,7 +480,7 @@ model ProtocolSimplified {
 
   // Módulos de Esportes
   sportsAttendances                SportsAttendance[]                @relation("SportsAttendanceProtocol")
-  athletes                         Athlete[]                         @relation("AthleteProtocol")
+  athletes     Athlete[]                         @relation("AthleteProtocol")
   sportsTeams                      SportsTeam[]                      @relation("SportsTeamProtocol")
   competitions                     Competition[]                     @relation("CompetitionProtocol")
   sportsInfrastructures            SportsInfrastructure[]            @relation("SportsInfrastructureProtocol")
@@ -498,21 +502,21 @@ model ProtocolSimplified {
   culturalManifestations      CulturalManifestation[]      @relation("CulturalManifestationProtocol")
 
   // Módulos de Habitação
-  housingAttendances      HousingAttendance[]      @relation("HousingAttendanceProtocol")
-  housingApplications     HousingApplication[]     @relation("HousingApplicationProtocol")
-  landRegularizations     LandRegularization[]     @relation("LandRegularizationProtocol")
-  rentAssistances         RentAssistance[]         @relation("RentAssistanceProtocol")
-  housingUnits            HousingUnit[]            @relation("HousingUnitProtocol")
-  housingRegistrations    HousingRegistration[]    @relation("HousingRegistrationProtocol")
+  housingAttendances   HousingAttendance[]   @relation("HousingAttendanceProtocol")
+  housingApplications  HousingApplication[]  @relation("HousingApplicationProtocol")
+  landRegularizations  LandRegularization[]  @relation("LandRegularizationProtocol")
+  rentAssistances      RentAssistance[]      @relation("RentAssistanceProtocol")
+  housingUnits         HousingUnit[]         @relation("HousingUnitProtocol")
+  housingRegistrations HousingRegistration[] @relation("HousingRegistrationProtocol")
 
   // Módulos de Meio Ambiente
-  environmentalAttendances     EnvironmentalAttendance[]     @relation("EnvironmentalAttendanceProtocol")
-  environmentalLicenses        EnvironmentalLicense[]        @relation("EnvironmentalLicenseProtocol")
-  environmentalComplaints      EnvironmentalComplaint[]      @relation("EnvironmentalComplaintProtocol")
-  environmentalPrograms        EnvironmentalProgram[]        @relation("EnvironmentalProgramProtocol")
-  treeCuttingAuthorizations    TreeCuttingAuthorization[]    @relation("TreeCuttingAuthorizationProtocol")
-  environmentalInspections     EnvironmentalInspection[]     @relation("EnvironmentalInspectionProtocol")
-  protectedAreas               ProtectedArea[]               @relation("ProtectedAreaProtocol")
+  environmentalAttendances  EnvironmentalAttendance[]  @relation("EnvironmentalAttendanceProtocol")
+  environmentalLicenses     EnvironmentalLicense[]     @relation("EnvironmentalLicenseProtocol")
+  environmentalComplaints   EnvironmentalComplaint[]   @relation("EnvironmentalComplaintProtocol")
+  environmentalPrograms     EnvironmentalProgram[]     @relation("EnvironmentalProgramProtocol")
+  treeCuttingAuthorizations TreeCuttingAuthorization[] @relation("TreeCuttingAuthorizationProtocol")
+  environmentalInspections  EnvironmentalInspection[]  @relation("EnvironmentalInspectionProtocol")
+  protectedAreas            ProtectedArea[]            @relation("ProtectedAreaProtocol")
 
   // Módulos de Obras Públicas
   publicWorksAttendances PublicWorksAttendance[] @relation("PublicWorksAttendanceProtocol")
@@ -522,38 +526,43 @@ model ProtocolSimplified {
   workInspections        WorkInspection[]        @relation("WorkInspectionProtocol")
 
   // Módulos de Planejamento Urbano
-  projectApprovals            ProjectApproval[]            @relation("ProjectApprovalProtocol")
-  buildingPermits             BuildingPermit[]             @relation("BuildingPermitProtocol")
-  businessLicenses            BusinessLicense[]            @relation("BusinessLicenseProtocol")
-  certificateRequests         CertificateRequest[]         @relation("CertificateRequestProtocol")
-  urbanInfractions            UrbanInfraction[]            @relation("UrbanInfractionProtocol")
-  urbanZonings                UrbanZoning[]                @relation("UrbanZoningProtocol")
-  urbanPlanningAttendances    UrbanPlanningAttendance[]    @relation("UrbanPlanningAttendanceProtocol")
+  projectApprovals         ProjectApproval[]         @relation("ProjectApprovalProtocol")
+  buildingPermits          BuildingPermit[]          @relation("BuildingPermitProtocol")
+  businessLicenses         BusinessLicense[]         @relation("BusinessLicenseProtocol")
+  certificateRequests      CertificateRequest[]      @relation("CertificateRequestProtocol")
+  urbanInfractions         UrbanInfraction[]         @relation("UrbanInfractionProtocol")
+  urbanZonings             UrbanZoning[]             @relation("UrbanZoningProtocol")
+  urbanPlanningAttendances UrbanPlanningAttendance[] @relation("UrbanPlanningAttendanceProtocol")
 
   // Módulos de Serviços Públicos
-  publicServiceAttendances    PublicServiceAttendance[]    @relation("PublicServiceAttendanceProtocol")
-  streetLightings             StreetLighting[]             @relation("StreetLightingProtocol")
-  urbanCleanings              UrbanCleaning[]              @relation("UrbanCleaningProtocol")
-  specialCollections          SpecialCollection[]          @relation("SpecialCollectionProtocol")
-  weedingRequests             WeedingRequest[]             @relation("WeedingRequestProtocol")
-  drainageRequests            DrainageRequest[]            @relation("DrainageRequestProtocol")
-  treePruningRequests         TreePruningRequest[]         @relation("TreePruningRequestProtocol")
-  serviceTeams                ServiceTeam[]                @relation("ServiceTeamProtocol")
-  publicServiceRequests       PublicServiceRequest[]       @relation("PublicServiceRequestProtocol")
-  cleaningSchedules           CleaningSchedule[]           @relation("CleaningScheduleProtocol")
-  teamSchedules               TeamSchedule[]               @relation("TeamScheduleProtocol")
-  publicProblemReports        PublicProblemReport[]        @relation("PublicProblemReportProtocol")
+  publicServiceAttendances PublicServiceAttendance[] @relation("PublicServiceAttendanceProtocol")
+  streetLightings          StreetLighting[]          @relation("StreetLightingProtocol")
+  urbanCleanings           UrbanCleaning[]           @relation("UrbanCleaningProtocol")
+  specialCollections       SpecialCollection[]       @relation("SpecialCollectionProtocol")
+  weedingRequests          WeedingRequest[]          @relation("WeedingRequestProtocol")
+  drainageRequests         DrainageRequest[]         @relation("DrainageRequestProtocol")
+  treePruningRequests      TreePruningRequest[]      @relation("TreePruningRequestProtocol")
+  serviceTeams             ServiceTeam[]             @relation("ServiceTeamProtocol")
+  publicServiceRequests    PublicServiceRequest[]    @relation("PublicServiceRequestProtocol")
+  cleaningSchedules        CleaningSchedule[]        @relation("CleaningScheduleProtocol")
+  teamSchedules            TeamSchedule[]            @relation("TeamScheduleProtocol")
+  publicProblemReports     PublicProblemReport[]     @relation("PublicProblemReportProtocol")
 
   // Módulos de Turismo
-  tourismAttendances  TourismAttendance[]  @relation("TourismAttendanceProtocol")
-  touristAttractions  TouristAttraction[]  @relation("TouristAttractionProtocol")
-  localBusinesses     LocalBusiness[]      @relation("LocalBusinessProtocol")
-  tourismPrograms     TourismProgram[]     @relation("TourismProgramProtocol")
-  tourismGuides       TourismGuide[]       @relation("TourismGuideProtocol")
-  tourismRoutes       TourismRoute[]       @relation("TourismRouteProtocol")
-  tourismEvents       TourismEvent[]       @relation("TourismEventProtocol")
+  tourismAttendances     TourismAttendance[]     @relation("TourismAttendanceProtocol")
+  touristAttractions     TouristAttraction[]     @relation("TouristAttractionProtocol")
+  localBusinesses        LocalBusiness[]         @relation("LocalBusinessProtocol")
+  tourismPrograms        TourismProgram[]        @relation("TourismProgramProtocol")
+  tourismGuides          TourismGuide[]          @relation("TourismGuideProtocol")
+  tourismRoutes          TourismRoute[]          @relation("TourismRouteProtocol")
+  tourismEvents          TourismEvent[]          @relation("TourismEventProtocol")
+  technicalAssistances   TechnicalAssistance[]   @relation("TechnicalAssistanceProtocol")
+  agricultureAttendances AgricultureAttendance[] @relation("AgricultureAttendanceProtocol")
 
   @@map("protocols_simplified")
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, moduleType, status])
 }
 
 model ProtocolHistorySimplified {
@@ -583,6 +592,267 @@ model ProtocolEvaluationSimplified {
   protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
 
   @@map("protocol_evaluations_simplified")
+}
+
+// ========================================
+// SISTEMA DE INTERAÇÕES
+// ========================================
+
+model ProtocolInteraction {
+  id         String          @id @default(cuid())
+  protocolId String
+  type       InteractionType
+
+  // Autor
+  authorType String // CITIZEN, SERVER, SYSTEM
+  authorId   String?
+  authorName String
+
+  // Conteúdo
+  message  String?
+  metadata Json?
+
+  // Visibilidade
+  isInternal Boolean   @default(false)
+  isRead     Boolean   @default(false)
+  readAt     DateTime?
+
+  // Anexos
+  attachments Json?
+
+  createdAt DateTime @default(now())
+
+  protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@index([protocolId, createdAt])
+  @@map("protocol_interactions")
+  @@index([protocolId])
+}
+
+enum InteractionType {
+  MESSAGE
+  DOCUMENT_REQUEST
+  DOCUMENT_UPLOAD
+  PENDING_CREATED
+  PENDING_RESOLVED
+  STATUS_CHANGED
+  ASSIGNED
+  INSPECTION_SCHEDULED
+  INSPECTION_COMPLETED
+  APPROVAL
+  REJECTION
+  CANCELLATION
+  NOTE
+}
+
+// ========================================
+// SISTEMA DE DOCUMENTOS
+// ========================================
+
+model ProtocolDocument {
+  id         String @id @default(cuid())
+  protocolId String
+
+  // Tipo de documento
+  documentType String
+  isRequired   Boolean
+
+  // Status do documento
+  status DocumentStatus @default(PENDING)
+
+  // Arquivo
+  fileName String?
+  fileUrl  String?
+  fileSize Int?
+  mimeType String?
+
+  // Validação
+  uploadedAt      DateTime?
+  uploadedBy      String?
+  validatedAt     DateTime?
+  validatedBy     String?
+  rejectedAt      DateTime?
+  rejectionReason String?
+
+  // Versionamento
+  version       Int     @default(1)
+  previousDocId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@index([protocolId, documentType])
+  @@map("protocol_documents")
+  @@index([protocolId])
+}
+
+enum DocumentStatus {
+  PENDING
+  UPLOADED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+// ========================================
+// SISTEMA DE PENDÊNCIAS
+// ========================================
+
+model ProtocolPending {
+  id         String @id @default(cuid())
+  protocolId String
+
+  // Tipo e descrição
+  type        PendingType
+  title       String
+  description String
+
+  // Prazo
+  dueDate DateTime?
+
+  // Status
+  status     PendingStatus @default(OPEN)
+  resolvedAt DateTime?
+  resolvedBy String?
+  resolution String?
+
+  // Bloqueio
+  blocksProgress Boolean @default(true)
+
+  // Metadados
+  metadata Json?
+
+  // Criação
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@index([protocolId, status])
+  @@map("protocol_pendings")
+  @@index([protocolId])
+}
+
+enum PendingType {
+  DOCUMENT
+  INFORMATION
+  CORRECTION
+  VALIDATION
+  PAYMENT
+  INSPECTION
+  APPROVAL
+  OTHER
+}
+
+enum PendingStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  EXPIRED
+  CANCELLED
+}
+
+// ========================================
+// WORKFLOW ESPECÍFICO POR MÓDULO
+// ========================================
+
+model ModuleWorkflow {
+  id          String  @id @default(cuid())
+  moduleType  String  @unique
+  name        String
+  description String?
+
+  // Etapas estruturadas
+  stages Json // Array de etapas do workflow
+
+  // SLA padrão
+  defaultSLA Int? // Dias úteis
+
+  // Regras de transição
+  rules Json? // Regras de validação e transição
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("module_workflows")
+}
+
+model ProtocolStage {
+  id         String @id @default(cuid())
+  protocolId String
+
+  // Etapa
+  stageName  String
+  stageOrder Int
+
+  // Status
+  status StageStatus @default(PENDING)
+
+  // Timestamps
+  startedAt   DateTime?
+  completedAt DateTime?
+  dueDate     DateTime?
+
+  // Responsável
+  assignedTo  String?
+  completedBy String?
+
+  // Resultado
+  result   String?
+  notes    String?
+  metadata Json?
+
+  protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@index([protocolId, stageOrder])
+  @@map("protocol_stages")
+  @@index([protocolId])
+}
+
+enum StageStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  FAILED
+}
+
+// ========================================
+// SLA E PRAZOS AUTOMÁTICOS
+// ========================================
+
+model ProtocolSLA {
+  id         String @id @default(cuid())
+  protocolId String @unique
+
+  // Prazos
+  startDate       DateTime
+  expectedEndDate DateTime
+  actualEndDate   DateTime?
+
+  // Pausa (ex: aguardando cidadão)
+  isPaused        Boolean   @default(false)
+  pausedAt        DateTime?
+  pausedReason    String?
+  totalPausedDays Int       @default(0)
+
+  // Status
+  isOverdue   Boolean @default(false)
+  daysOverdue Int     @default(0)
+
+  // Cálculo
+  workingDays  Int // Dias úteis
+  calendarDays Int // Dias corridos
+
+  updatedAt DateTime @updatedAt
+
+  protocol ProtocolSimplified @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+
+  @@map("protocol_sla")
 }
 
 // ========================================
@@ -647,6 +917,196 @@ model Analytics {
   @@index([tenantId, entityId, metric])
   @@index([tenantId, periodType, createdAt])
   @@map("analytics")
+}
+
+// ========================================
+// ANALYTICS E RELATÓRIOS - FASE 4
+// ========================================
+
+model ProtocolMetrics {
+  id       String @id @default(cuid())
+  tenantId String
+
+  // Período
+  periodType String // DAILY, WEEKLY, MONTHLY, YEARLY
+  periodDate DateTime // Data de referência do período
+
+  // Métricas gerais
+  totalProtocols     Int @default(0)
+  newProtocols       Int @default(0)
+  closedProtocols    Int @default(0)
+  cancelledProtocols Int @default(0)
+  overdueProtocols   Int @default(0)
+
+  // Métricas de tempo
+  avgCompletionTime Float? // Em horas
+  avgFirstResponse  Float? // Tempo até primeira interação
+  avgResolutionTime Float? // Tempo até resolução
+
+  // Métricas de qualidade
+  approvalRate      Float? // Taxa de aprovação (0-100)
+  rejectionRate     Float? // Taxa de rejeição (0-100)
+  satisfactionScore Float? // Nota média de avaliação
+
+  // Métricas de SLA
+  slaComplianceRate Float? // % de protocolos dentro do prazo
+  avgSlaDeviation   Float? // Desvio médio do SLA em dias
+
+  // Métricas de pendências
+  totalPendings    Int    @default(0)
+  resolvedPendings Int    @default(0)
+  avgPendingTime   Float? // Tempo médio para resolver pendência
+
+  // Métricas de documentos
+  totalDocuments       Int    @default(0)
+  approvedDocuments    Int    @default(0)
+  rejectedDocuments    Int    @default(0)
+  documentApprovalRate Float?
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, periodType, periodDate])
+  @@index([tenantId, periodType, periodDate])
+  @@map("protocol_metrics")
+}
+
+model DepartmentMetrics {
+  id           String @id @default(cuid())
+  tenantId     String
+  departmentId String
+
+  // Período
+  periodType String // DAILY, WEEKLY, MONTHLY, YEARLY
+  periodDate DateTime
+
+  // Volume
+  totalProtocols     Int @default(0)
+  activeProtocols    Int @default(0)
+  completedProtocols Int @default(0)
+
+  // Performance
+  avgCompletionTime Float? // Em horas
+  slaComplianceRate Float? // %
+  satisfactionScore Float?
+
+  // Produtividade
+  protocolsPerServer Float? // Média de protocolos por servidor
+  avgWorkload        Float? // Carga média de trabalho
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, departmentId, periodType, periodDate])
+  @@index([tenantId, departmentId, periodType])
+  @@map("department_metrics")
+}
+
+model ServiceMetrics {
+  id        String @id @default(cuid())
+  tenantId  String
+  serviceId String
+
+  // Período
+  periodType String
+  periodDate DateTime
+
+  // Volume
+  totalRequests     Int @default(0)
+  completedRequests Int @default(0)
+
+  // Performance
+  avgCompletionTime Float?
+  approvalRate      Float?
+  rejectionRate     Float?
+
+  // Qualidade
+  satisfactionScore Float?
+  complaintRate     Float? // Taxa de reclamações
+
+  // Gargalos
+  avgDocumentTime Float? // Tempo médio em análise documental
+  avgPendingTime  Float? // Tempo médio aguardando pendências
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, serviceId, periodType, periodDate])
+  @@index([tenantId, serviceId, periodType])
+  @@map("service_metrics")
+}
+
+model ServerPerformance {
+  id       String @id @default(cuid())
+  tenantId String
+  userId   String
+
+  // Período
+  periodType String
+  periodDate DateTime
+
+  // Produtividade
+  protocolsAssigned  Int @default(0)
+  protocolsCompleted Int @default(0)
+  protocolsOnTime    Int @default(0)
+  protocolsOverdue   Int @default(0)
+
+  // Tempo
+  avgCompletionTime Float?
+  avgResponseTime   Float? // Tempo médio até primeira resposta
+  totalWorkingHours Float? // Horas trabalhadas no período
+
+  // Qualidade
+  satisfactionScore Float?
+  approvalRate      Float?
+  pendingResolution Float? // Taxa de resolução de pendências
+
+  // Interações
+  totalInteractions          Int    @default(0)
+  avgInteractionsPerProtocol Float?
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, userId, periodType, periodDate])
+  @@index([tenantId, userId, periodType])
+  @@map("server_performance")
+}
+
+model ProtocolBottleneck {
+  id       String @id @default(cuid())
+  tenantId String
+
+  // Identificação do gargalo
+  bottleneckType String // STAGE, DOCUMENT, PENDING, APPROVAL
+  entityId       String // ID da etapa, tipo de documento, etc
+  entityName     String // Nome legível
+
+  // Período
+  periodType String
+  periodDate DateTime
+
+  // Métricas
+  affectedProtocols Int   @default(0)
+  avgStuckTime      Float // Tempo médio parado neste gargalo (horas)
+  maxStuckTime      Float // Tempo máximo
+  totalDelayHours   Float // Soma total de horas de atraso
+
+  // Impacto
+  impactScore Float // Score de 0-100 de impacto
+  priority    String @default("MEDIUM") // LOW, MEDIUM, HIGH, CRITICAL
+
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, bottleneckType, entityId, periodType, periodDate])
+  @@index([tenantId, periodType, impactScore])
+  @@map("protocol_bottlenecks")
 }
 
 model KPI {
@@ -1142,6 +1602,9 @@ model RuralProducer {
   @@unique([tenantId, citizenId])
   @@index([citizenId])
   @@map("rural_producers")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model RuralProperty {
@@ -1165,10 +1628,13 @@ model RuralProperty {
   tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("rural_properties")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model BuildingPermit {
-  id                String    @id @default(cuid())
+  id                String              @id @default(cuid())
   tenantId          String
   protocolId        String?
   applicantName     String
@@ -1181,8 +1647,8 @@ model BuildingPermit {
   permitType        String
   requestedBy       String?
   observations      String?
-  status            String    @default("PENDING")
-  submissionDate    DateTime  @default(now())
+  status            String              @default("PENDING")
+  submissionDate    DateTime            @default(now())
   approvalDate      DateTime?
   description       String?
   documents         Json?
@@ -1205,12 +1671,15 @@ model BuildingPermit {
   floors            Int? // Número de andares
   projectValue      Float? // Valor do projeto
   approvedAt        DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   protocol          ProtocolSimplified? @relation("BuildingPermitProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("building_permits")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model PublicComplaint {
@@ -1250,7 +1719,7 @@ model PublicConsultation {
 }
 
 model UrbanZoning {
-  id           String   @id @default(cuid())
+  id           String              @id @default(cuid())
   tenantId     String
   protocolId   String?
   name         String?
@@ -1264,37 +1733,40 @@ model UrbanZoning {
   restrictions Json?
   coordinates  Json?
   boundaries   Json?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  isActive     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
   protocol     ProtocolSimplified? @relation("UrbanZoningProtocol", fields: [protocolId], references: [id])
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("urban_zoning")
 }
 
 model ProjectApproval {
-  id             String    @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
   protocolId     String?
   projectName    String
   applicantName  String
   projectType    String
-  status         String    @default("UNDER_REVIEW")
-  submissionDate DateTime  @default(now())
+  status         String              @default("UNDER_REVIEW")
+  submissionDate DateTime            @default(now())
   approvalDate   DateTime?
   description    String?
   documents      Json?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
   protocol       ProtocolSimplified? @relation("ProjectApprovalProtocol", fields: [protocolId], references: [id])
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("project_approvals")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model UrbanPlanningAttendance {
-  id             String    @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
   protocolId     String?
   citizenId      String?
@@ -1302,17 +1774,20 @@ model UrbanPlanningAttendance {
   contactInfo    String?
   subject        String
   description    String
-  status         String    @default("OPEN")
-  attendanceDate DateTime  @default(now())
+  status         String              @default("OPEN")
+  attendanceDate DateTime            @default(now())
   resolvedDate   DateTime?
   assignedTo     String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
   protocol       ProtocolSimplified? @relation("UrbanPlanningAttendanceProtocol", fields: [protocolId], references: [id])
-  citizen        Citizen?  @relation("UrbanPlanningAttendanceCitizen", fields: [citizenId], references: [id])
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  citizen        Citizen?            @relation("UrbanPlanningAttendanceCitizen", fields: [citizenId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("urban_planning_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model UrbanProject {
@@ -1335,7 +1810,7 @@ model UrbanProject {
 }
 
 model BusinessLicense {
-  id                String    @id @default(cuid())
+  id                String              @id @default(cuid())
   tenantId          String
   protocolId        String?
   applicantName     String
@@ -1349,8 +1824,8 @@ model BusinessLicense {
   propertyNumber    String?
   neighborhood      String?
   licenseType       String
-  status            String    @default("PENDING")
-  submissionDate    DateTime  @default(now())
+  status            String              @default("PENDING")
+  submissionDate    DateTime            @default(now())
   approvalDate      DateTime?
   validUntil        DateTime?
   licenseNumber     String?
@@ -1360,71 +1835,71 @@ model BusinessLicense {
   reviewedBy        String?
   reviewedAt        DateTime?
   issuedDate        DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   protocol          ProtocolSimplified? @relation("BusinessLicenseProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("business_licenses")
 }
 
 model CertificateRequest {
-  id               String    @id @default(cuid())
-  tenantId         String
-  protocolId       String?
-  applicantName    String
-  applicantCpfCnpj String
-  applicantPhone   String?
-  applicantEmail   String?
-  certificateType  String
-  purpose          String?
-  propertyAddress  String?
-  propertyNumber   String?
-  neighborhood     String?
-  status           String    @default("PENDING")
-  submissionDate   DateTime  @default(now())
-  issuedDate       DateTime?
-  validUntil       DateTime?
+  id                String              @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  applicantName     String
+  applicantCpfCnpj  String
+  applicantPhone    String?
+  applicantEmail    String?
+  certificateType   String
+  purpose           String?
+  propertyAddress   String?
+  propertyNumber    String?
+  neighborhood      String?
+  status            String              @default("PENDING")
+  submissionDate    DateTime            @default(now())
+  issuedDate        DateTime?
+  validUntil        DateTime?
   certificateNumber String?
-  observations     String?
-  documents        Json?
-  reviewedBy       String?
-  reviewedAt       DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  protocol         ProtocolSimplified? @relation("CertificateRequestProtocol", fields: [protocolId], references: [id])
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  observations      String?
+  documents         Json?
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  protocol          ProtocolSimplified? @relation("CertificateRequestProtocol", fields: [protocolId], references: [id])
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("certificate_requests")
 }
 
 model UrbanInfraction {
-  id                String    @id @default(cuid())
-  tenantId          String
-  protocolId        String?
-  complainantName   String?
-  complainantPhone  String?
-  complainantEmail  String?
-  infractionType    String
-  description       String
-  propertyAddress   String
-  propertyNumber    String?
-  neighborhood      String?
-  latitude          Float?
-  longitude         Float?
-  photos            Json?
-  status            String    @default("OPEN")
-  priority          String    @default("MEDIUM")
-  submissionDate    DateTime  @default(now())
-  inspectionDate    DateTime?
-  resolutionDate    DateTime?
-  assignedTo        String?
-  observations      String?
-  documents         Json?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  protocol          ProtocolSimplified? @relation("UrbanInfractionProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  id               String              @id @default(cuid())
+  tenantId         String
+  protocolId       String?
+  complainantName  String?
+  complainantPhone String?
+  complainantEmail String?
+  infractionType   String
+  description      String
+  propertyAddress  String
+  propertyNumber   String?
+  neighborhood     String?
+  latitude         Float?
+  longitude        Float?
+  photos           Json?
+  status           String              @default("OPEN")
+  priority         String              @default("MEDIUM")
+  submissionDate   DateTime            @default(now())
+  inspectionDate   DateTime?
+  resolutionDate   DateTime?
+  assignedTo       String?
+  observations     String?
+  documents        Json?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  protocol         ProtocolSimplified? @relation("UrbanInfractionProtocol", fields: [protocolId], references: [id])
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("urban_infractions")
 }
@@ -1478,6 +1953,9 @@ model CulturalAttendance {
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("cultural_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model ArtisticGroup {
@@ -1595,6 +2073,9 @@ model CulturalProject {
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("cultural_projects")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model CulturalProjectSubmission {
@@ -1704,6 +2185,9 @@ model SportsAttendance {
   protocolSimplified   ProtocolSimplified?    @relation("SportsAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("sports_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SportsEvent {
@@ -1777,13 +2261,19 @@ model HealthAttendance {
   appointmentDate DateTime?
   symptoms        String?
   priority        String                 @default("MEDIUM")
+  moduleType      String                 @default("ATENDIMENTOS_SAUDE")
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @updatedAt
 
   protocolSimplified ProtocolSimplified? @relation("HealthAttendanceProtocol", fields: [protocolId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("health_attendances")
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, moduleType, status])
 }
 
 model HealthUnit {
@@ -1862,6 +2352,7 @@ model Vaccination {
   appliedBy  String
   lotNumber  String?
   nextDose   DateTime?
+  moduleType String    @default("VACINACAO")
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
@@ -1873,7 +2364,10 @@ model Vaccination {
   @@index([tenantId, patientId])
   @@index([tenantId, appliedAt])
   @@index([tenantId, vaccine])
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("vaccinations")
+  @@index([tenantId, createdAt])
 }
 
 model CulturalSpace {
@@ -2017,6 +2511,8 @@ model CulturalEvent {
   @@index([tenantId, spaceId])
   @@index([tenantId, freeEvent])
   @@map("cultural_events")
+  @@index([protocolId])
+  @@index([tenantId, createdAt])
 }
 
 model HousingAttendance {
@@ -2048,6 +2544,9 @@ model HousingAttendance {
   protocolSimplified ProtocolSimplified?     @relation("HousingAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model HousingProgram {
@@ -2078,25 +2577,25 @@ model HousingProgram {
 }
 
 model HousingRegistration {
-  id               String         @id @default(cuid())
-  tenantId         String
-  protocolId       String?
-  programId        String
-  familyHeadName   String
-  familyHeadCPF    String
-  contact          String
-  address          String
-  familyIncome     Float
-  familySize       Int
-  score            Float?
-  status           String         @default("REGISTERED")
-  registrationDate DateTime       @default(now())
-  selectedDate     DateTime?
-  observations     String?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  program          HousingProgram @relation(fields: [programId], references: [id])
-  tenant           Tenant         @relation(fields: [tenantId], references: [id])
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  programId          String
+  familyHeadName     String
+  familyHeadCPF      String
+  contact            String
+  address            String
+  familyIncome       Float
+  familySize         Int
+  score              Float?
+  status             String              @default("REGISTERED")
+  registrationDate   DateTime            @default(now())
+  selectedDate       DateTime?
+  observations       String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  program            HousingProgram      @relation(fields: [programId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("HousingRegistrationProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_registrations")
@@ -2121,6 +2620,7 @@ model HealthAppointment {
   diagnosis        String?
   treatment        String?
   followUpDate     DateTime?
+  moduleType       String    @default("AGENDAMENTOS_MEDICOS")
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -2128,7 +2628,12 @@ model HealthAppointment {
   doctor             HealthDoctor?       @relation(fields: [doctorId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("health_appointments")
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, moduleType, status])
 }
 
 model HealthDoctor {
@@ -2230,6 +2735,9 @@ model VulnerableFamily {
   protocol          ProtocolSimplified? @relation("VulnerableFamilyProtocol", fields: [protocolId], references: [id])
 
   @@map("vulnerable_families")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model BenefitRequest {
@@ -2255,6 +2763,9 @@ model BenefitRequest {
   protocol          ProtocolSimplified? @relation("BenefitRequestProtocol", fields: [protocolId], references: [id])
 
   @@map("benefit_requests")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model EmergencyDelivery {
@@ -2308,7 +2819,7 @@ model HomeVisit {
 }
 
 model PublicWork {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   tenantId        String
   protocolId      String?
   title           String
@@ -2322,17 +2833,17 @@ model PublicWork {
   plannedBudget   Float?
   actualBudget    Float?
   budget          Json?
-  progressPercent Int       @default(0)
-  status          String    @default("PLANNED")
-  priority        String    @default("MEDIUM")
+  progressPercent Int                 @default(0)
+  status          String              @default("PLANNED")
+  priority        String              @default("MEDIUM")
   beneficiaries   Int?
   photos          Json?
   documents       Json?
   timeline        Json?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   protocol        ProtocolSimplified? @relation("PublicWorkProtocol", fields: [protocolId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("public_works")
 }
@@ -2360,6 +2871,7 @@ model School {
 
   @@unique([tenantId, code])
   @@map("schools")
+  @@index([tenantId, createdAt])
 }
 
 model Student {
@@ -2376,6 +2888,7 @@ model Student {
   address     String
   medicalInfo Json?
   isActive    Boolean             @default(true)
+  moduleType  String              @default("MATRICULA_ALUNO")
   createdAt   DateTime            @default(now())
   updatedAt   DateTime            @updatedAt
   schoolId    String
@@ -2387,7 +2900,10 @@ model Student {
   protocol    ProtocolSimplified? @relation("StudentProtocol", fields: [protocolId], references: [id])
 
   @@unique([tenantId, cpf])
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("students")
+  @@index([tenantId, createdAt])
 }
 
 model SchoolClass {
@@ -2428,6 +2944,8 @@ model StudentEnrollment {
 
   @@unique([studentId, classId, year])
   @@map("student_enrollments")
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model StudentAttendance {
@@ -2457,10 +2975,13 @@ model SchoolTransport {
   shift      String
   stops      Json?
   isActive   Boolean             @default(true)
+  moduleType String              @default("TRANSPORTE_ESCOLAR")
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @updatedAt
   protocol   ProtocolSimplified? @relation("SchoolTransportProtocol", fields: [protocolId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("school_transports")
 }
 
@@ -2474,12 +2995,15 @@ model SchoolMeal {
   menu           Json
   studentsServed Int                 @default(0)
   cost           Float?
+  moduleType     String              @default("GESTAO_MERENDA")
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   school         School?             @relation(fields: [schoolId], references: [id])
   tenant         Tenant              @relation(fields: [tenantId], references: [id])
   protocol       ProtocolSimplified? @relation("SchoolMealProtocol", fields: [protocolId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("school_meals")
 }
 
@@ -2536,11 +3060,14 @@ model EducationAttendance {
   scheduledDate DateTime?
   completedDate DateTime?
   observations  String?
+  moduleType    String              @default("ATENDIMENTOS_EDUCACAO")
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   tenant        Tenant              @relation(fields: [tenantId], references: [id])
   protocol      ProtocolSimplified? @relation("EducationAttendanceProtocol", fields: [protocolId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("education_attendances")
 }
 
@@ -2556,11 +3083,14 @@ model SchoolDocument {
   status       String              @default("PENDING")
   observations String?
   fileUrl      String?
+  moduleType   String              @default("SOLICITACAO_DOCUMENTO_ESCOLAR")
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   tenant       Tenant              @relation(fields: [tenantId], references: [id])
   protocol     ProtocolSimplified? @relation("SchoolDocumentProtocol", fields: [protocolId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("school_documents")
 }
 
@@ -2580,11 +3110,14 @@ model StudentTransfer {
   documents      Json?
   observations   String?
   approvedBy     String?
+  moduleType     String              @default("TRANSFERENCIA_ESCOLAR")
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
   tenant         Tenant              @relation(fields: [tenantId], references: [id])
   protocol       ProtocolSimplified? @relation("StudentTransferProtocol", fields: [protocolId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("student_transfers")
 }
 
@@ -2604,12 +3137,18 @@ model AttendanceRecord {
   percentage   Float
   status       String              @default("ACTIVE")
   observations String?
+  moduleType   String              @default("CONSULTA_FREQUENCIA")
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   tenant       Tenant              @relation(fields: [tenantId], references: [id])
   protocol     ProtocolSimplified? @relation("AttendanceRecordProtocol", fields: [protocolId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("attendance_records")
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, moduleType, status])
 }
 
 model GradeRecord {
@@ -2633,6 +3172,9 @@ model GradeRecord {
   protocol     ProtocolSimplified? @relation("GradeRecordProtocol", fields: [protocolId], references: [id])
 
   @@map("grade_records")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SchoolManagement {
@@ -2686,12 +3228,14 @@ model Athlete {
   source             String              @default("manual") // Campo adicionado
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  modality           SportModality?      @relation(fields: [modalityId], references: [id])
+  modality           SportsModality?      @relation(fields: [modalityId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("AthleteProtocol", fields: [protocolId], references: [id])
 
   @@unique([tenantId, cpf])
   @@map("athletes")
+  @@index([protocolId])
+  @@index([tenantId, createdAt])
 }
 
 model TouristAttraction {
@@ -2725,6 +3269,8 @@ model TouristAttraction {
   protocolRel   ProtocolSimplified? @relation("TouristAttractionProtocol", fields: [protocolId], references: [id])
 
   @@map("tourist_attractions")
+  @@index([protocolId])
+  @@index([tenantId, createdAt])
 }
 
 model HealthTransport {
@@ -2741,12 +3287,15 @@ model HealthTransport {
   observations      String?
   responsibleDriver String?
   vehicleId         String?
+  moduleType        String   @default("ENCAMINHAMENTOS_TFD")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
   protocolSimplified ProtocolSimplified? @relation("HealthTransportProtocol", fields: [protocolId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("health_transports")
 }
 
@@ -2766,13 +3315,19 @@ model MedicationDispense {
   unitId         String?
   status         String   @default("DISPENSED")
   observations   String?
+  moduleType     String   @default("CONTROLE_MEDICAMENTOS")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   protocolSimplified ProtocolSimplified? @relation("MedicationDispenseProtocol", fields: [protocolId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("medication_dispenses")
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, moduleType, status])
 }
 
 model HealthCampaign {
@@ -2791,6 +3346,7 @@ model HealthCampaign {
   coordinatorName String
   budget          Float?
   results         Json?
+  moduleType      String   @default("CAMPANHAS_SAUDE")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -2798,6 +3354,8 @@ model HealthCampaign {
   enrollments        CampaignEnrollment[]
   tenant             Tenant               @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("health_campaigns")
 }
 
@@ -2838,12 +3396,15 @@ model HealthProgram {
   participants    Int       @default(0)
   budget          Float?
   observations    String?
+  moduleType      String    @default("PROGRAMAS_SAUDE")
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
   protocol ProtocolSimplified? @relation("HealthProgramProtocol", fields: [protocolId], references: [id])
   tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("health_programs")
 }
 
@@ -2866,12 +3427,15 @@ model HealthExam {
   observations  String?
   result        String?
   attachments   Json?
+  moduleType    String    @default("EXAMES")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   protocol ProtocolSimplified? @relation("HealthExamProtocol", fields: [protocolId], references: [id])
   tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("health_exams")
 }
 
@@ -2895,12 +3459,15 @@ model HealthTransportRequest {
   vehicleId         String?
   departureTime     DateTime?
   arrivalTime       DateTime?
+  moduleType        String    @default("TRANSPORTE_PACIENTES")
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
   protocol ProtocolSimplified? @relation("HealthTransportRequestProtocol", fields: [protocolId], references: [id])
   tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("health_transport_requests")
 }
 
@@ -2930,6 +3497,7 @@ model Patient {
   status           String   @default("ACTIVE") // ACTIVE, INACTIVE, DECEASED
   registeredBy     String
   registrationDate DateTime @default(now())
+  moduleType       String   @default("CADASTRO_PACIENTE")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -2937,7 +3505,12 @@ model Patient {
   tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, cpf])
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("patients")
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, moduleType, status])
 }
 
 model CommunityHealthAgent {
@@ -2958,6 +3531,7 @@ model CommunityHealthAgent {
   familiesServed  Int      @default(0)
   workSchedule    Json? // Escala de trabalho
   observations    String?
+  moduleType      String   @default("GESTAO_ACS")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -2965,6 +3539,8 @@ model CommunityHealthAgent {
   tenant   Tenant              @relation(fields: [tenantId], references: [id])
 
   @@unique([tenantId, cpf])
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
   @@map("community_health_agents")
 }
 
@@ -3026,11 +3602,9 @@ model SportsTeam {
   source             String              @default("manual")
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  modality           SportModality?      @relation(fields: [modalityId], references: [id])
+  modality           SportsModality?      @relation(fields: [modalityId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
-  SportsModality     SportsModality?     @relation(fields: [sportsModalityId], references: [id])
-  sportsModalityId   String?
-  protocolSimplified ProtocolSimplified? @relation("SportsTeamProtocol", fields: [protocolId], references: [id])
+      protocolSimplified ProtocolSimplified? @relation("SportsTeamProtocol", fields: [protocolId], references: [id])
 
   @@map("sports_teams")
 }
@@ -3062,13 +3636,14 @@ model Competition {
   modalityId         String?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  modality           SportModality?      @relation(fields: [modalityId], references: [id])
+  modality           SportsModality?      @relation(fields: [modalityId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
-  SportsModality     SportsModality?     @relation(fields: [sportsModalityId], references: [id])
-  sportsModalityId   String?
-  protocolSimplified ProtocolSimplified? @relation("CompetitionProtocol", fields: [protocolId], references: [id])
+      protocolSimplified ProtocolSimplified? @relation("CompetitionProtocol", fields: [protocolId], references: [id])
 
   @@map("competitions")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SportsInfrastructure {
@@ -3166,6 +3741,9 @@ model SportsSchoolEnrollment {
   protocolSimplified ProtocolSimplified? @relation("SportsSchoolEnrollmentProtocol", fields: [protocolId], references: [id])
 
   @@map("sports_school_enrollments")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SportsInfrastructureReservation {
@@ -3271,26 +3849,6 @@ model TournamentEnrollment {
   @@map("tournament_enrollments")
 }
 
-model SportModality {
-  id           String        @id @default(cuid())
-  tenantId     String
-  name         String
-  description  String?
-  category     String
-  equipment    Json?
-  rules        String?
-  minAge       Int?
-  maxAge       Int?
-  isActive     Boolean       @default(true)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  athletes     Athlete[]
-  competitions Competition[]
-  tenant       Tenant        @relation(fields: [tenantId], references: [id])
-  teams        SportsTeam[]
-
-  @@map("sport_modalities")
-}
 
 model SecurityOccurrence {
   id             String              @id @default(cuid())
@@ -3324,6 +3882,9 @@ model SecurityOccurrence {
   protocolRel    ProtocolSimplified? @relation("SecurityOccurrenceProtocol", fields: [protocolId], references: [id])
 
   @@map("security_occurrences")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SecurityAlert {
@@ -3444,6 +4005,9 @@ model SecurityAttendance {
   protocolRel        ProtocolSimplified? @relation("SecurityAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("security_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model LocalBusiness {
@@ -3480,6 +4044,8 @@ model LocalBusiness {
   protocolRel      ProtocolSimplified? @relation("LocalBusinessProtocol", fields: [protocolId], references: [id])
 
   @@map("local_businesses")
+  @@index([protocolId])
+  @@index([tenantId, createdAt])
 }
 
 model TourismInfo {
@@ -3573,39 +4139,42 @@ model TourismAttendance {
   protocolRel    ProtocolSimplified? @relation("TourismAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("tourism_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model TourismGuide {
-  id                 String              @id @default(cuid())
-  tenantId           String
-  protocolId         String?
-  name               String
-  cpf                String
-  rg                 String?
-  email              String?
-  phone              String
-  address            String?
-  birthDate          DateTime?
-  languages          Json
-  specialties        Json?
-  certifications     Json?
-  licenseNumber      String?
-  licenseExpiry      DateTime?
-  registrationDate   DateTime            @default(now())
-  status             String              @default("ACTIVE")
-  experienceYears    Int?
-  bio                String?
-  photo              String?
-  availableSchedule  Json?
-  rating             Float?
-  totalTours         Int                 @default(0)
-  isActive           Boolean             @default(true)
-  emergencyContact   Json?
-  bankInfo           Json?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  tenant             Tenant              @relation(fields: [tenantId], references: [id])
-  protocol           ProtocolSimplified? @relation("TourismGuideProtocol", fields: [protocolId], references: [id])
+  id                String              @id @default(cuid())
+  tenantId          String
+  protocolId        String?
+  name              String
+  cpf               String
+  rg                String?
+  email             String?
+  phone             String
+  address           String?
+  birthDate         DateTime?
+  languages         Json
+  specialties       Json?
+  certifications    Json?
+  licenseNumber     String?
+  licenseExpiry     DateTime?
+  registrationDate  DateTime            @default(now())
+  status            String              @default("ACTIVE")
+  experienceYears   Int?
+  bio               String?
+  photo             String?
+  availableSchedule Json?
+  rating            Float?
+  totalTours        Int                 @default(0)
+  isActive          Boolean             @default(true)
+  emergencyContact  Json?
+  bankInfo          Json?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
+  protocol          ProtocolSimplified? @relation("TourismGuideProtocol", fields: [protocolId], references: [id])
 
   @@unique([tenantId, cpf])
   @@map("tourism_guides")
@@ -3697,10 +4266,10 @@ model TourismEvent {
 }
 
 model EnvironmentalLicense {
-  id                String    @id @default(cuid())
+  id                String              @id @default(cuid())
   tenantId          String
   protocolId        String?
-  licenseNumber     String    @unique
+  licenseNumber     String              @unique
   applicantName     String
   applicantCpf      String
   applicantPhone    String? // Campo adicionado
@@ -3717,7 +4286,7 @@ model EnvironmentalLicense {
   issueDate         DateTime?
   validFrom         DateTime? // Campo adicionado
   expiryDate        DateTime?
-  status            String    @default("UNDER_ANALYSIS")
+  status            String              @default("UNDER_ANALYSIS")
   conditions        Json?
   technicalOpinion  String?
   analyst           String?
@@ -3735,20 +4304,23 @@ model EnvironmentalLicense {
   approvedAt        DateTime? // Campo adicionado
   protocolNumber    String? // Campo adicionado
   serviceId         String? // Campo adicionado
-  source            String    @default("manual") // Campo adicionado
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  source            String              @default("manual") // Campo adicionado
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   protocol          ProtocolSimplified? @relation("EnvironmentalLicenseProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_licenses")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model EnvironmentalComplaint {
-  id                  String    @id @default(cuid())
+  id                  String              @id @default(cuid())
   tenantId            String
   protocolId          String?
-  protocol            String    @unique
+  protocol            String              @unique
   reporterName        String?
   complainantName     String? // Campo adicionado (alias de reporterName)
   reporterPhone       String?
@@ -3760,8 +4332,8 @@ model EnvironmentalComplaint {
   coordinates         Json?
   evidence            Json?
   occurrenceDate      DateTime
-  reportDate          DateTime  @default(now())
-  status              String    @default("OPEN")
+  reportDate          DateTime            @default(now())
+  status              String              @default("OPEN")
   inspector           String?
   assignedTo          String? // Campo adicionado
   inspectionDate      DateTime?
@@ -3770,8 +4342,8 @@ model EnvironmentalComplaint {
   actionsTaken        Json? // Campo adicionado
   resolution          String?
   penalty             Float?
-  followUp            Boolean   @default(false)
-  isAnonymous         Boolean   @default(false)
+  followUp            Boolean             @default(false)
+  isAnonymous         Boolean             @default(false)
   complainantPhone    String? // Campo adicionado
   complainantEmail    String? // Campo adicionado
   investigationDate   DateTime? // Campo adicionado
@@ -3779,20 +4351,23 @@ model EnvironmentalComplaint {
   investigationReport Json? // Campo adicionado
   resolvedBy          String? // Campo adicionado
   resolvedAt          DateTime? // Campo adicionado
-  priority            String    @default("normal") // Campo adicionado
+  priority            String              @default("normal") // Campo adicionado
   serviceId           String? // Campo adicionado
-  source              String    @default("manual") // Campo adicionado
+  source              String              @default("manual") // Campo adicionado
   photos              Json? // Campo adicionado
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
   protocolRelation    ProtocolSimplified? @relation("EnvironmentalComplaintProtocol", fields: [protocolId], references: [id])
-  tenant              Tenant    @relation(fields: [tenantId], references: [id])
+  tenant              Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_complaints")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model ProtectedArea {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   tenantId        String
   protocolId      String?
   name            String
@@ -3811,19 +4386,19 @@ model ProtectedArea {
   guardian        String?
   contact         String?
   visitationRules Json?
-  isPublicAccess  Boolean   @default(false)
-  status          String    @default("ACTIVE")
+  isPublicAccess  Boolean             @default(false)
+  status          String              @default("ACTIVE")
   lastInspection  DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   protocol        ProtocolSimplified? @relation("ProtectedAreaProtocol", fields: [protocolId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("protected_areas")
 }
 
 model EnvironmentalProgram {
-  id             String    @id @default(cuid())
+  id             String              @id @default(cuid())
   tenantId       String
   protocolId     String?
   name           String
@@ -3840,23 +4415,23 @@ model EnvironmentalProgram {
   partnerships   Json?
   beneficiaries  Int?
   results        Json?
-  status         String    @default("ACTIVE")
-  isActive       Boolean   @default(true)
+  status         String              @default("ACTIVE")
+  isActive       Boolean             @default(true)
   evaluation     Json?
   reports        Json?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
   protocol       ProtocolSimplified? @relation("EnvironmentalProgramProtocol", fields: [protocolId], references: [id])
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_programs")
 }
 
 model EnvironmentalAttendance {
-  id               String    @id @default(cuid())
+  id               String              @id @default(cuid())
   tenantId         String
   protocolId       String?
-  protocol         String    @unique
+  protocol         String              @unique
   citizenId        String?
   citizenName      String
   citizenCpf       String?
@@ -3865,106 +4440,109 @@ model EnvironmentalAttendance {
   subject          String
   description      String
   category         String?
-  urgency          String    @default("NORMAL")
+  urgency          String              @default("NORMAL")
   location         String?
   evidence         Json?
-  status           String    @default("PENDING")
+  status           String              @default("PENDING")
   analyst          String?
   technicalOpinion String?
   recommendation   String?
   followUpDate     DateTime?
   resolution       String?
   satisfaction     Int?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
   protocolRelation ProtocolSimplified? @relation("EnvironmentalAttendanceProtocol", fields: [protocolId], references: [id])
-  citizen          Citizen?  @relation("EnvironmentalAttendanceCitizen", fields: [citizenId], references: [id])
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  citizen          Citizen?            @relation("EnvironmentalAttendanceCitizen", fields: [citizenId], references: [id])
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model TreeCuttingAuthorization {
-  id                String    @id @default(cuid())
-  tenantId          String
-  protocolId        String?
-  authorizationNumber String  @unique
-  applicantName     String
-  applicantCpf      String
-  applicantPhone    String?
-  applicantEmail    String?
-  propertyAddress   String
-  coordinates       Json?
-  requestType       String    // PODA, CORTE, TRANSPLANTE
-  treeSpecies       String
-  treeQuantity      Int       @default(1)
-  treeHeight        Float?
-  trunkDiameter     Float?
-  justification     String
-  technicalReport   String?
-  photos            Json?
-  requestDate       DateTime  @default(now())
-  inspectionDate    DateTime?
-  inspector         String?
-  inspectionReport  String?
-  decision          String?   // APROVADO, NEGADO, APROVADO_COM_CONDICOES
-  conditions        Json?
-  authorizationDate DateTime?
-  validUntil        DateTime?
-  executionDate     DateTime?
-  status            String    @default("UNDER_ANALYSIS")
-  fee               Float?
-  observations      String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  protocol          ProtocolSimplified? @relation("TreeCuttingAuthorizationProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  id                  String              @id @default(cuid())
+  tenantId            String
+  protocolId          String?
+  authorizationNumber String              @unique
+  applicantName       String
+  applicantCpf        String
+  applicantPhone      String?
+  applicantEmail      String?
+  propertyAddress     String
+  coordinates         Json?
+  requestType         String // PODA, CORTE, TRANSPLANTE
+  treeSpecies         String
+  treeQuantity        Int                 @default(1)
+  treeHeight          Float?
+  trunkDiameter       Float?
+  justification       String
+  technicalReport     String?
+  photos              Json?
+  requestDate         DateTime            @default(now())
+  inspectionDate      DateTime?
+  inspector           String?
+  inspectionReport    String?
+  decision            String? // APROVADO, NEGADO, APROVADO_COM_CONDICOES
+  conditions          Json?
+  authorizationDate   DateTime?
+  validUntil          DateTime?
+  executionDate       DateTime?
+  status              String              @default("UNDER_ANALYSIS")
+  fee                 Float?
+  observations        String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  protocol            ProtocolSimplified? @relation("TreeCuttingAuthorizationProtocol", fields: [protocolId], references: [id])
+  tenant              Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("tree_cutting_authorizations")
 }
 
 model EnvironmentalInspection {
-  id                String    @id @default(cuid())
-  tenantId          String
-  protocolId        String?
-  inspectionNumber  String    @unique
-  inspectionType    String    // LICENCIAMENTO, DENUNCIA, ROTINA, SEGUIMENTO
-  subject           String
-  location          String
-  coordinates       Json?
-  scheduledDate     DateTime
-  inspectionDate    DateTime?
-  inspector         String
-  inspectorTeam     Json?
-  findings          String?
-  photos            Json?
-  evidence          Json?
-  nonCompliances    Json?     // Lista de não conformidades
-  recommendations   String?
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  inspectionNumber   String              @unique
+  inspectionType     String // LICENCIAMENTO, DENUNCIA, ROTINA, SEGUIMENTO
+  subject            String
+  location           String
+  coordinates        Json?
+  scheduledDate      DateTime
+  inspectionDate     DateTime?
+  inspector          String
+  inspectorTeam      Json?
+  findings           String?
+  photos             Json?
+  evidence           Json?
+  nonCompliances     Json? // Lista de não conformidades
+  recommendations    String?
   reportedViolations Json?
-  penalties         Float?
-  correctiveActions Json?
-  followUpRequired  Boolean   @default(false)
-  followUpDate      DateTime?
-  status            String    @default("SCHEDULED")
-  priority          String    @default("NORMAL")
-  report            String?
-  reportDate        DateTime?
-  relatedLicenseId  String?
+  penalties          Float?
+  correctiveActions  Json?
+  followUpRequired   Boolean             @default(false)
+  followUpDate       DateTime?
+  status             String              @default("SCHEDULED")
+  priority           String              @default("NORMAL")
+  report             String?
+  reportDate         DateTime?
+  relatedLicenseId   String?
   relatedComplaintId String?
-  observations      String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  protocol          ProtocolSimplified? @relation("EnvironmentalInspectionProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  observations       String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  protocol           ProtocolSimplified? @relation("EnvironmentalInspectionProtocol", fields: [protocolId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("environmental_inspections")
 }
 
 model TechnicalAssistance {
-  id               String    @id @default(cuid())
+  id               String              @id @default(cuid())
   tenantId         String
-  protocol         String    @unique
+  protocolId       String?             @unique
   producerName     String
   producerCpf      String
   producerPhone    String? // Campo adicionado
@@ -3988,28 +4566,32 @@ model TechnicalAssistance {
   followUpPlan     Json?
   materials        Json?
   costs            Float?
-  status           String    @default("SCHEDULED")
+  status           String              @default("SCHEDULED")
   satisfaction     Int?
   photos           Json?
   nextVisitDate    DateTime?
   observations     String?
   propertyLocation String? // Campo adicionado
   technicianId     String? // Campo adicionado
-  followUpRequired Boolean   @default(false) // Campo adicionado
+  followUpRequired Boolean             @default(false) // Campo adicionado
   propertyArea     Float? // Campo adicionado
   cropTypes        Json? // Campo adicionado
-  priority         String    @default("normal") // Campo adicionado
+  priority         String              @default("normal") // Campo adicionado
   serviceId        String? // Campo adicionado
-  source           String    @default("manual") // Campo adicionado
+  source           String              @default("manual") // Campo adicionado
   completedBy      String? // Campo adicionado
   completedAt      DateTime? // Campo adicionado
   followUpDate     DateTime? // Campo adicionado
   followUpNotes    String? // Campo adicionado
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
+  protocol         ProtocolSimplified? @relation("TechnicalAssistanceProtocol", fields: [protocolId], references: [id])
 
   @@map("technical_assistances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model RuralProgram {
@@ -4079,9 +4661,9 @@ model RuralTraining {
 }
 
 model AgricultureAttendance {
-  id                 String    @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
-  protocol           String    @unique
+  protocolId         String?             @unique
   producerName       String
   producerCpf        String
   contact            String
@@ -4090,13 +4672,13 @@ model AgricultureAttendance {
   subject            String
   description        String
   category           String?
-  urgency            String    @default("NORMAL")
+  urgency            String              @default("NORMAL")
   location           String?
   propertySize       Float?
   crops              Json?
   livestock          Json?
   preferredVisitDate DateTime?
-  status             String    @default("PENDING")
+  status             String              @default("PENDING")
   technician         String?
   scheduledDate      DateTime?
   visitDate          DateTime?
@@ -4105,91 +4687,98 @@ model AgricultureAttendance {
   followUpDate       DateTime?
   resolution         String?
   satisfaction       Int?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-  tenant             Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  protocol           ProtocolSimplified? @relation("AgricultureAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("agriculture_attendances")
 }
 
 model HousingApplication {
-  id               String    @id @default(cuid())
-  tenantId         String
-  protocolId       String?
-  protocol         String    @unique
-  applicantName    String
-  applicantCpf     String
-  contact          Json
-  address          String
-  familyIncome     Float
-  familySize       Int
-  housingType      String
-  programType      String
-  propertyValue    Float?
-  hasProperty      Boolean   @default(false)
-  isFirstHome      Boolean   @default(true)
-  priorityScore    Int       @default(0)
-  documents        Json
-  program          String?
-  applicationDate  DateTime  @default(now())
-  submissionDate   DateTime?
-  analysisDate     DateTime?
-  approvalDate     DateTime?
-  status           String    @default("UNDER_ANALYSIS")
-  analyst          String?
-  observations     String?
-  rejection_reason String?
-  approvedBenefit  Json?
-  disbursementDate DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  protocol           String              @unique
+  applicantName      String
+  applicantCpf       String
+  contact            Json
+  address            String
+  familyIncome       Float
+  familySize         Int
+  housingType        String
+  programType        String
+  propertyValue      Float?
+  hasProperty        Boolean             @default(false)
+  isFirstHome        Boolean             @default(true)
+  priorityScore      Int                 @default(0)
+  documents          Json
+  program            String?
+  applicationDate    DateTime            @default(now())
+  submissionDate     DateTime?
+  analysisDate       DateTime?
+  approvalDate       DateTime?
+  status             String              @default("UNDER_ANALYSIS")
+  analyst            String?
+  observations       String?
+  rejection_reason   String?
+  approvedBenefit    Json?
+  disbursementDate   DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("HousingApplicationProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_applications")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model HousingUnit {
-  id               String    @id @default(cuid())
-  tenantId         String
-  protocolId       String?
-  unitCode         String    @unique
-  unitType         String
-  address          String
-  coordinates      Json?
-  neighborhood     String
-  area             Float
-  bedrooms         Int
-  bathrooms        Int
-  constructionYear Int?
-  propertyValue    Float?
-  monthlyRent      Float?
-  isOccupied       Boolean   @default(false)
-  occupantName     String?
-  occupantCpf      String?
-  occupancyDate    DateTime?
-  contractType     String?
-  contractEnd      DateTime?
-  program          String?
-  conditions       Json?
-  lastInspection   DateTime?
-  needsMaintenance Boolean   @default(false)
-  maintenanceItems Json?
-  photos           Json?
-  status           String    @default("AVAILABLE")
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  unitCode           String              @unique
+  unitType           String
+  address            String
+  coordinates        Json?
+  neighborhood       String
+  area               Float
+  bedrooms           Int
+  bathrooms          Int
+  constructionYear   Int?
+  propertyValue      Float?
+  monthlyRent        Float?
+  isOccupied         Boolean             @default(false)
+  occupantName       String?
+  occupantCpf        String?
+  occupancyDate      DateTime?
+  contractType       String?
+  contractEnd        DateTime?
+  program            String?
+  conditions         Json?
+  lastInspection     DateTime?
+  needsMaintenance   Boolean             @default(false)
+  maintenanceItems   Json?
+  photos             Json?
+  status             String              @default("AVAILABLE")
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("HousingUnitProtocol", fields: [protocolId], references: [id])
 
   @@map("housing_units")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model LandRegularization {
-  id                    String    @id @default(cuid())
+  id                    String              @id @default(cuid())
   tenantId              String
   protocolId            String?
-  protocol              String    @unique
+  protocol              String              @unique
   applicantName         String
   applicantCpf          String
   contact               Json
@@ -4198,7 +4787,7 @@ model LandRegularization {
   propertyArea          Float
   occupationDate        DateTime?
   occupationType        String
-  hasBuilding           Boolean   @default(false)
+  hasBuilding           Boolean             @default(false)
   buildingArea          Float?
   landValue             Float?
   neighbors             Json?
@@ -4207,61 +4796,61 @@ model LandRegularization {
   legalDocuments        Json?
   technicalSurvey       Json?
   environmentalAnalysis Json?
-  applicationDate       DateTime  @default(now())
+  applicationDate       DateTime            @default(now())
   analysisStartDate     DateTime?
   fieldVisitDate        DateTime?
   publicationDate       DateTime?
   objectionPeriod       Json?
   approvalDate          DateTime?
   titleIssueDate        DateTime?
-  status                String    @default("UNDER_ANALYSIS")
+  status                String              @default("UNDER_ANALYSIS")
   analyst               String?
   observations          String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  tenant                Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  tenant                Tenant              @relation(fields: [tenantId], references: [id])
   protocolSimplified    ProtocolSimplified? @relation("LandRegularizationProtocol", fields: [protocolId], references: [id])
 
   @@map("land_regularizations")
 }
 
 model RentAssistance {
-  id                   String    @id @default(cuid())
-  tenantId             String
-  protocolId           String?
-  protocol             String    @unique
-  applicantName        String
-  applicantCpf         String
-  contact              Json
-  currentAddress       String
-  monthlyRent          Float
-  landlordName         String
-  landlordContact      Json
-  leaseContract        Json?
-  familyIncome         Float
-  familySize           Int
-  hasEmployment        Boolean   @default(false)
-  employmentDetails    Json?
-  vulnerabilityReason  String
-  requestedAmount      Float
-  requestedPeriod      Int       // meses
-  bankAccount          Json?
-  documents            Json
-  socialReport         Json?
-  applicationDate      DateTime  @default(now())
-  analysisDate         DateTime?
-  approvalDate         DateTime?
-  firstPaymentDate     DateTime?
-  lastPaymentDate      DateTime?
-  totalPaid            Float     @default(0)
-  paymentsCount        Int       @default(0)
-  status               String    @default("UNDER_ANALYSIS")
-  analyst              String?
-  observations         String?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  tenant               Tenant    @relation(fields: [tenantId], references: [id])
-  protocolSimplified   ProtocolSimplified? @relation("RentAssistanceProtocol", fields: [protocolId], references: [id])
+  id                  String              @id @default(cuid())
+  tenantId            String
+  protocolId          String?
+  protocol            String              @unique
+  applicantName       String
+  applicantCpf        String
+  contact             Json
+  currentAddress      String
+  monthlyRent         Float
+  landlordName        String
+  landlordContact     Json
+  leaseContract       Json?
+  familyIncome        Float
+  familySize          Int
+  hasEmployment       Boolean             @default(false)
+  employmentDetails   Json?
+  vulnerabilityReason String
+  requestedAmount     Float
+  requestedPeriod     Int // meses
+  bankAccount         Json?
+  documents           Json
+  socialReport        Json?
+  applicationDate     DateTime            @default(now())
+  analysisDate        DateTime?
+  approvalDate        DateTime?
+  firstPaymentDate    DateTime?
+  lastPaymentDate     DateTime?
+  totalPaid           Float               @default(0)
+  paymentsCount       Int                 @default(0)
+  status              String              @default("UNDER_ANALYSIS")
+  analyst             String?
+  observations        String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  tenant              Tenant              @relation(fields: [tenantId], references: [id])
+  protocolSimplified  ProtocolSimplified? @relation("RentAssistanceProtocol", fields: [protocolId], references: [id])
 
   @@map("rent_assistances")
 }
@@ -4339,6 +4928,9 @@ model SocialAssistanceAttendance {
   protocolSimplified ProtocolSimplified? @relation("SocialAssistanceAttendanceProtocol", fields: [protocolId], references: [id])
 
   @@map("social_assistance_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SocialGroupEnrollment {
@@ -4391,6 +4983,9 @@ model SocialProgramEnrollment {
   protocol        ProtocolSimplified? @relation("SocialProgramEnrollmentProtocol", fields: [protocolId], references: [id])
 
   @@map("social_program_enrollments")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SocialAppointment {
@@ -4449,10 +5044,10 @@ model SocialEquipment {
 }
 
 model WorkInspection {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   tenantId        String
   protocolId      String?
-  protocol        String    @unique
+  protocol        String              @unique
   workName        String
   workType        String
   contractor      String
@@ -4470,21 +5065,21 @@ model WorkInspection {
   deadline        DateTime?
   followUpDate    DateTime?
   nextInspection  DateTime?
-  status          String    @default("COMPLETED")
+  status          String              @default("COMPLETED")
   observations    String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   protocolRel     ProtocolSimplified? @relation("WorkInspectionProtocol", fields: [protocolId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("work_inspections")
 }
 
 model PublicWorksAttendance {
-  id               String    @id @default(cuid())
+  id               String              @id @default(cuid())
   tenantId         String
   protocolId       String?
-  protocol         String    @unique
+  protocol         String              @unique
   citizenName      String
   citizenCpf       String?
   contact          Json
@@ -4494,69 +5089,75 @@ model PublicWorksAttendance {
   workType         String?
   location         String
   coordinates      Json?
-  urgency          String    @default("NORMAL")
+  urgency          String              @default("NORMAL")
   photos           Json?
   estimatedCost    Float?
-  priority         String    @default("MEDIUM")
+  priority         String              @default("MEDIUM")
   feasibility      String?
   technicalOpinion String?
   engineer         String?
   scheduledDate    DateTime?
   completionDate   DateTime?
-  status           String    @default("PENDING")
+  status           String              @default("PENDING")
   resolution       String?
   satisfaction     Int?
   followUpDate     DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
   protocolRel      ProtocolSimplified? @relation("PublicWorksAttendanceProtocol", fields: [protocolId], references: [id])
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  tenant           Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("public_works_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model RoadRepairRequest {
-  id              String    @id @default(cuid())
-  tenantId        String
-  protocolId      String?
-  protocol        String    @unique
-  citizenName     String
-  citizenCpf      String?
-  contact         Json
-  roadName        String
-  location        String
-  coordinates     Json?
-  problemType     String
-  severity        String    @default("MEDIUM")
-  description     String
-  photos          Json?
-  affectedArea    Float?
-  trafficImpact   String?
-  urgency         String    @default("NORMAL")
-  estimatedCost   Float?
-  priority        String    @default("MEDIUM")
-  assignedTeam    String?
-  scheduledDate   DateTime?
-  completionDate  DateTime?
-  status          String    @default("PENDING")
-  resolution      String?
-  materialsUsed   Json?
-  workDuration    Int?
-  satisfaction    Int?
-  observations    String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  protocolRel     ProtocolSimplified? @relation("RoadRepairRequestProtocol", fields: [protocolId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  protocol       String              @unique
+  citizenName    String
+  citizenCpf     String?
+  contact        Json
+  roadName       String
+  location       String
+  coordinates    Json?
+  problemType    String
+  severity       String              @default("MEDIUM")
+  description    String
+  photos         Json?
+  affectedArea   Float?
+  trafficImpact  String?
+  urgency        String              @default("NORMAL")
+  estimatedCost  Float?
+  priority       String              @default("MEDIUM")
+  assignedTeam   String?
+  scheduledDate  DateTime?
+  completionDate DateTime?
+  status         String              @default("PENDING")
+  resolution     String?
+  materialsUsed  Json?
+  workDuration   Int?
+  satisfaction   Int?
+  observations   String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocolRel    ProtocolSimplified? @relation("RoadRepairRequestProtocol", fields: [protocolId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("road_repair_requests")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model TechnicalInspection {
-  id                String    @id @default(cuid())
+  id                String              @id @default(cuid())
   tenantId          String
   protocolId        String?
-  protocol          String    @unique
+  protocol          String              @unique
   requestorName     String
   requestorCpf      String?
   contact           Json
@@ -4569,7 +5170,7 @@ model TechnicalInspection {
   constructionStage String?
   documents         Json?
   photos            Json?
-  urgency           String    @default("NORMAL")
+  urgency           String              @default("NORMAL")
   scheduledDate     DateTime?
   inspectionDate    DateTime?
   inspector         String?
@@ -4578,57 +5179,57 @@ model TechnicalInspection {
   approved          Boolean?
   conditions        Json?
   validUntil        DateTime?
-  status            String    @default("PENDING")
+  status            String              @default("PENDING")
   resolution        String?
   followUpDate      DateTime?
   observations      String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   protocolRel       ProtocolSimplified? @relation("TechnicalInspectionProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("technical_inspections")
 }
 
 model PublicServiceRequest {
-  id             String    @id @default(cuid())
-  tenantId       String
-  protocolId     String?
-  protocol       String    @unique
-  requestorName  String
-  requestorCpf   String?
-  contact        Json
-  serviceType    String
-  category       String
-  description    String
-  location       String
-  coordinates    Json?
-  requestDate    DateTime  @default(now())
-  preferredDate  DateTime?
-  urgency        String    @default("NORMAL")
-  priority       String?
-  photos         Json?
-  assignedTeam   String?
-  scheduledDate  DateTime?
-  expectedDate   DateTime?
-  completionDate DateTime?
-  materials      Json?
-  workDetails    String?
-  cost           Float?
-  estimatedCost  Float?
-  status         String    @default("PENDING")
-  resolution     String?
-  satisfaction   Int?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id                 String              @id @default(cuid())
+  tenantId           String
+  protocolId         String?
+  protocol           String              @unique
+  requestorName      String
+  requestorCpf       String?
+  contact            Json
+  serviceType        String
+  category           String
+  description        String
+  location           String
+  coordinates        Json?
+  requestDate        DateTime            @default(now())
+  preferredDate      DateTime?
+  urgency            String              @default("NORMAL")
+  priority           String?
+  photos             Json?
+  assignedTeam       String?
+  scheduledDate      DateTime?
+  expectedDate       DateTime?
+  completionDate     DateTime?
+  materials          Json?
+  workDetails        String?
+  cost               Float?
+  estimatedCost      Float?
+  status             String              @default("PENDING")
+  resolution         String?
+  satisfaction       Int?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   protocolSimplified ProtocolSimplified? @relation("PublicServiceRequestProtocol", fields: [protocolId], references: [id])
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("public_service_requests")
 }
 
 model CleaningSchedule {
-  id                String    @id @default(cuid())
+  id                String              @id @default(cuid())
   tenantId          String
   protocolId        String?
   area              String
@@ -4645,23 +5246,23 @@ model CleaningSchedule {
   team              String?
   vehicle           String?
   observations      String?
-  isActive          Boolean   @default(true)
+  isActive          Boolean             @default(true)
   lastExecution     DateTime?
   nextExecution     DateTime
   executionHistory  Json?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   protocol          ProtocolSimplified? @relation("CleaningScheduleProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  tenant            Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("cleaning_schedules")
 }
 
 model StreetLighting {
-  id                 String    @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
   protocolId         String?
-  pointCode          String    @unique
+  pointCode          String              @unique
   streetName         String
   neighborhood       String
   coordinates        Json
@@ -4672,24 +5273,27 @@ model StreetLighting {
   installDate        DateTime?
   lastMaintenance    DateTime?
   nextMaintenance    DateTime?
-  condition          String    @default("GOOD")
+  condition          String              @default("GOOD")
   status             String?
   issues             Json?
   maintenanceHistory Json?
   energyConsumption  Float?
-  isActive           Boolean   @default(true)
+  isActive           Boolean             @default(true)
   photos             Json?
   observations       String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   protocol           ProtocolSimplified? @relation("StreetLightingProtocol", fields: [protocolId], references: [id])
-  tenant             Tenant    @relation(fields: [tenantId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("street_lightings")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SpecialCollection {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   tenantId        String
   protocolId      String?
   citizenId       String?
@@ -4704,7 +5308,7 @@ model SpecialCollection {
   quantity        Int?
   unit            String?
   photos          Json?
-  requestDate     DateTime  @default(now())
+  requestDate     DateTime            @default(now())
   preferredDate   DateTime?
   scheduledDate   DateTime?
   timeSlot        String?
@@ -4714,24 +5318,24 @@ model SpecialCollection {
   actualVolume    Float?
   destination     String?
   cost            Float?
-  status          String    @default("REQUESTED")
+  status          String              @default("REQUESTED")
   observations    String?
   satisfaction    Int?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   protocol        ProtocolSimplified? @relation("SpecialCollectionProtocol", fields: [protocolId], references: [id])
-  citizen         Citizen?  @relation("SpecialCollectionCitizen", fields: [citizenId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  citizen         Citizen?            @relation("SpecialCollectionCitizen", fields: [citizenId], references: [id])
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("special_collections")
 }
 
 model PublicProblemReport {
-  id                 String    @id @default(cuid())
+  id                 String              @id @default(cuid())
   tenantId           String
   protocolId         String?
   citizenId          String?
-  protocol           String    @unique
+  protocol           String              @unique
   reporterName       String?
   reporterPhone      String?
   reporterEmail      String?
@@ -4745,31 +5349,31 @@ model PublicProblemReport {
   coordinates        Json?
   landmark           String?
   photos             Json?
-  reportDate         DateTime  @default(now())
-  status             String    @default("REPORTED")
+  reportDate         DateTime            @default(now())
+  status             String              @default("REPORTED")
   assignedDepartment String?
   assignedTeam       String?
-  priority           String    @default("MEDIUM")
+  priority           String              @default("MEDIUM")
   estimatedCost      Float?
   scheduledDate      DateTime?
   completionDate     DateTime?
   resolution         String?
   materials          Json?
   workHours          Float?
-  isAnonymous        Boolean   @default(false)
-  followUp           Boolean   @default(false)
+  isAnonymous        Boolean             @default(false)
+  followUp           Boolean             @default(false)
   satisfaction       Int?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   protocolSimplified ProtocolSimplified? @relation("PublicProblemReportProtocol", fields: [protocolId], references: [id])
-  citizen            Citizen?  @relation("PublicProblemReportCitizen", fields: [citizenId], references: [id])
-  tenant             Tenant    @relation(fields: [tenantId], references: [id])
+  citizen            Citizen?            @relation("PublicProblemReportCitizen", fields: [citizenId], references: [id])
+  tenant             Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("public_problem_reports")
 }
 
 model TeamSchedule {
-  id           String   @id @default(cuid())
+  id           String              @id @default(cuid())
   tenantId     String
   protocolId   String?
   teamName     String
@@ -4790,94 +5394,94 @@ model TeamSchedule {
   weeklyTasks  Json?
   monthlyTasks Json?
   productivity Json?
-  isActive     Boolean  @default(true)
+  isActive     Boolean             @default(true)
   observations String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
   protocol     ProtocolSimplified? @relation("TeamScheduleProtocol", fields: [protocolId], references: [id])
-  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  tenant       Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("team_schedules")
 }
 
 model WeedingRequest {
-  id              String    @id @default(cuid())
-  tenantId        String
-  protocolId      String?
-  citizenId       String?
-  requestorName   String
-  requestorCpf    String?
-  contact         Json
-  location        String
-  address         String
-  coordinates     Json?
-  areaSize        Float?
-  terrainType     String
-  accessType      String
-  description     String
-  photos          Json?
-  urgency         String    @default("NORMAL")
-  requestDate     DateTime  @default(now())
-  preferredDate   DateTime?
-  scheduledDate   DateTime?
-  completionDate  DateTime?
-  assignedTeam    String?
-  status          String    @default("REQUESTED")
-  workDetails     String?
-  equipmentUsed   Json?
-  workHours       Float?
-  observations    String?
-  satisfaction    Int?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  protocol        ProtocolSimplified? @relation("WeedingRequestProtocol", fields: [protocolId], references: [id])
-  citizen         Citizen?  @relation("WeedingRequestCitizen", fields: [citizenId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  citizenId      String?
+  requestorName  String
+  requestorCpf   String?
+  contact        Json
+  location       String
+  address        String
+  coordinates    Json?
+  areaSize       Float?
+  terrainType    String
+  accessType     String
+  description    String
+  photos         Json?
+  urgency        String              @default("NORMAL")
+  requestDate    DateTime            @default(now())
+  preferredDate  DateTime?
+  scheduledDate  DateTime?
+  completionDate DateTime?
+  assignedTeam   String?
+  status         String              @default("REQUESTED")
+  workDetails    String?
+  equipmentUsed  Json?
+  workHours      Float?
+  observations   String?
+  satisfaction   Int?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocol       ProtocolSimplified? @relation("WeedingRequestProtocol", fields: [protocolId], references: [id])
+  citizen        Citizen?            @relation("WeedingRequestCitizen", fields: [citizenId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("weeding_requests")
 }
 
 model DrainageRequest {
-  id              String    @id @default(cuid())
-  tenantId        String
-  protocolId      String?
-  citizenId       String?
-  requestorName   String
-  requestorCpf    String?
-  contact         Json
-  location        String
-  address         String
-  coordinates     Json?
-  problemType     String
-  severity        String
-  description     String
-  photos          Json?
-  waterLevel      String?
-  affectedArea    Float?
-  urgency         String    @default("HIGH")
-  requestDate     DateTime  @default(now())
-  preferredDate   DateTime?
-  scheduledDate   DateTime?
-  completionDate  DateTime?
-  assignedTeam    String?
-  status          String    @default("REQUESTED")
-  workDetails     String?
-  equipmentUsed   Json?
-  materialsUsed   Json?
-  workHours       Float?
-  observations    String?
-  satisfaction    Int?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  protocol        ProtocolSimplified? @relation("DrainageRequestProtocol", fields: [protocolId], references: [id])
-  citizen         Citizen?  @relation("DrainageRequestCitizen", fields: [citizenId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  citizenId      String?
+  requestorName  String
+  requestorCpf   String?
+  contact        Json
+  location       String
+  address        String
+  coordinates    Json?
+  problemType    String
+  severity       String
+  description    String
+  photos         Json?
+  waterLevel     String?
+  affectedArea   Float?
+  urgency        String              @default("HIGH")
+  requestDate    DateTime            @default(now())
+  preferredDate  DateTime?
+  scheduledDate  DateTime?
+  completionDate DateTime?
+  assignedTeam   String?
+  status         String              @default("REQUESTED")
+  workDetails    String?
+  equipmentUsed  Json?
+  materialsUsed  Json?
+  workHours      Float?
+  observations   String?
+  satisfaction   Int?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocol       ProtocolSimplified? @relation("DrainageRequestProtocol", fields: [protocolId], references: [id])
+  citizen        Citizen?            @relation("DrainageRequestCitizen", fields: [citizenId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("drainage_requests")
 }
 
 model TreePruningRequest {
-  id              String    @id @default(cuid())
+  id              String              @id @default(cuid())
   tenantId        String
   protocolId      String?
   citizenId       String?
@@ -4895,142 +5499,145 @@ model TreePruningRequest {
   description     String
   photos          Json?
   riskLevel       String?
-  urgency         String    @default("NORMAL")
-  requestDate     DateTime  @default(now())
+  urgency         String              @default("NORMAL")
+  requestDate     DateTime            @default(now())
   preferredDate   DateTime?
   scheduledDate   DateTime?
   completionDate  DateTime?
   assignedTeam    String?
-  technicalVisit  Boolean   @default(false)
+  technicalVisit  Boolean             @default(false)
   visitDate       DateTime?
   approved        Boolean?
   approvalNotes   String?
-  status          String    @default("REQUESTED")
+  status          String              @default("REQUESTED")
   workDetails     String?
   equipmentUsed   Json?
   materialRemoved Float?
   workHours       Float?
   observations    String?
   satisfaction    Int?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
   protocol        ProtocolSimplified? @relation("TreePruningRequestProtocol", fields: [protocolId], references: [id])
-  citizen         Citizen?  @relation("TreePruningRequestCitizen", fields: [citizenId], references: [id])
-  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  citizen         Citizen?            @relation("TreePruningRequestCitizen", fields: [citizenId], references: [id])
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("tree_pruning_requests")
 }
 
 model UrbanCleaning {
-  id                String    @id @default(cuid())
-  tenantId          String
-  protocolId        String?
-  serviceType       String
-  location          String
-  address           String
-  neighborhood      String?
-  coordinates       Json?
-  description       String
-  areaSize          Float?
-  cleaningType      String
-  frequency         String?
-  requestDate       DateTime  @default(now())
-  scheduledDate     DateTime?
-  completionDate    DateTime?
-  assignedTeam      String?
-  teamLeader        String?
-  workers           Json?
-  equipmentUsed     Json?
-  vehiclesUsed      Json?
-  wasteCollected    Float?
-  wasteType         Json?
-  photos            Json?
-  status            String    @default("SCHEDULED")
-  priority          String    @default("NORMAL")
-  cost              Float?
-  workHours         Float?
-  observations      String?
-  satisfaction      Int?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  protocol          ProtocolSimplified? @relation("UrbanCleaningProtocol", fields: [protocolId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  serviceType    String
+  location       String
+  address        String
+  neighborhood   String?
+  coordinates    Json?
+  description    String
+  areaSize       Float?
+  cleaningType   String
+  frequency      String?
+  requestDate    DateTime            @default(now())
+  scheduledDate  DateTime?
+  completionDate DateTime?
+  assignedTeam   String?
+  teamLeader     String?
+  workers        Json?
+  equipmentUsed  Json?
+  vehiclesUsed   Json?
+  wasteCollected Float?
+  wasteType      Json?
+  photos         Json?
+  status         String              @default("SCHEDULED")
+  priority       String              @default("NORMAL")
+  cost           Float?
+  workHours      Float?
+  observations   String?
+  satisfaction   Int?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocol       ProtocolSimplified? @relation("UrbanCleaningProtocol", fields: [protocolId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("urban_cleanings")
 }
 
 model ServiceTeam {
-  id               String    @id @default(cuid())
-  tenantId         String
-  protocolId       String?
-  teamCode         String    @unique
-  teamName         String
-  teamType         String
-  department       String
-  leader           String
-  leaderContact    Json?
-  members          Json
-  totalMembers     Int
-  specialization   String?
-  workShift        String
-  shiftStart       String
-  shiftEnd         String
-  workDays         Json
-  breakTime        Json?
-  equipment        Json?
-  vehicles         Json?
-  workArea         String?
-  coverage         Json?
-  productivity     Json?
-  performance      Json?
-  status           String    @default("ACTIVE")
-  isActive         Boolean   @default(true)
-  hireDate         DateTime?
-  observations     String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  protocol         ProtocolSimplified? @relation("ServiceTeamProtocol", fields: [protocolId], references: [id])
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  teamCode       String              @unique
+  teamName       String
+  teamType       String
+  department     String
+  leader         String
+  leaderContact  Json?
+  members        Json
+  totalMembers   Int
+  specialization String?
+  workShift      String
+  shiftStart     String
+  shiftEnd       String
+  workDays       Json
+  breakTime      Json?
+  equipment      Json?
+  vehicles       Json?
+  workArea       String?
+  coverage       Json?
+  productivity   Json?
+  performance    Json?
+  status         String              @default("ACTIVE")
+  isActive       Boolean             @default(true)
+  hireDate       DateTime?
+  observations   String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocol       ProtocolSimplified? @relation("ServiceTeamProtocol", fields: [protocolId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("service_teams")
 }
 
 model PublicServiceAttendance {
-  id                String    @id @default(cuid())
-  tenantId          String
-  protocolId        String?
-  citizenId         String?
-  citizenName       String
-  citizenCpf        String?
-  citizenPhone      String?
-  citizenEmail      String?
-  serviceType       String
-  requestType       String
-  description       String
-  location          String?
-  address           String?
-  coordinates       Json?
-  urgency           String    @default("NORMAL")
-  priority          String    @default("MEDIUM")
-  requestDate       DateTime  @default(now())
-  scheduledDate     DateTime?
-  completionDate    DateTime?
-  status            String    @default("PENDING")
-  assignedTeam      String?
-  assignedTo        String?
-  resolution        String?
-  photos            Json?
-  documents         Json?
-  cost              Float?
-  satisfaction      Int?
-  observations      String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  protocol          ProtocolSimplified? @relation("PublicServiceAttendanceProtocol", fields: [protocolId], references: [id])
-  citizen           Citizen?  @relation("PublicServiceAttendanceCitizen", fields: [citizenId], references: [id])
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  id             String              @id @default(cuid())
+  tenantId       String
+  protocolId     String?
+  citizenId      String?
+  citizenName    String
+  citizenCpf     String?
+  citizenPhone   String?
+  citizenEmail   String?
+  serviceType    String
+  requestType    String
+  description    String
+  location       String?
+  address        String?
+  coordinates    Json?
+  urgency        String              @default("NORMAL")
+  priority       String              @default("MEDIUM")
+  requestDate    DateTime            @default(now())
+  scheduledDate  DateTime?
+  completionDate DateTime?
+  status         String              @default("PENDING")
+  assignedTeam   String?
+  assignedTo     String?
+  resolution     String?
+  photos         Json?
+  documents      Json?
+  cost           Float?
+  satisfaction   Int?
+  observations   String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  protocol       ProtocolSimplified? @relation("PublicServiceAttendanceProtocol", fields: [protocolId], references: [id])
+  citizen        Citizen?            @relation("PublicServiceAttendanceCitizen", fields: [citizenId], references: [id])
+  tenant         Tenant              @relation(fields: [tenantId], references: [id])
 
   @@map("public_service_attendances")
+  @@index([protocolId])
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 model SpecializedPage {
@@ -5285,9 +5892,9 @@ enum EmailPlan {
 }
 
 enum VerificationStatus {
-  PENDING  // Bronze - Cadastro pendente de verificação
+  PENDING // Bronze - Cadastro pendente de verificação
   VERIFIED // Prata - Cadastro verificado pelo admin
-  GOLD     // Ouro - Cadastro completo com documentação adicional
+  GOLD // Ouro - Cadastro completo com documentação adicional
   REJECTED // Rejeitado
 }
 
@@ -5540,6 +6147,13 @@ model SportsModality {
 
   teams        SportsTeam[]
   competitions Competition[]
+  athletes     Athlete[]
+
+  // Campos consolidados do antigo SportModality
+  equipment    Json?
+  rules        String?
+  minAge       Int?
+  maxAge       Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

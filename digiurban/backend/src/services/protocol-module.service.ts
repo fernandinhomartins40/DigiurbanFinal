@@ -143,7 +143,68 @@ export class ProtocolModuleService {
       };
     });
 
+    // ============================================================================
+    // FASE 3: APLICAR WORKFLOW E SLA (FORA DA TRANSAÇÃO)
+    // ============================================================================
+
+    // Aplicar workflow se houver moduleType
+    if (result.protocol.moduleType) {
+      try {
+        await this.applyWorkflowToProtocol(result.protocol.id, result.protocol.moduleType);
+      } catch (error) {
+        console.error('Erro ao aplicar workflow:', error);
+        // Não falhar a criação do protocolo se workflow falhar
+      }
+    }
+
     return result;
+  }
+
+  /**
+   * FASE 3: Aplicar workflow ao protocolo
+   */
+  private async applyWorkflowToProtocol(protocolId: string, moduleType: string) {
+    try {
+      // Importar serviços de workflow
+      const workflowService = await import('./module-workflow.service');
+      const slaService = await import('./protocol-sla.service');
+
+      // 1. Buscar workflow do módulo
+      const workflow = await workflowService.getWorkflowByModuleType(moduleType);
+
+      if (!workflow) {
+        // Se não tem workflow específico, tentar genérico
+        const genericWorkflow = await workflowService.getWorkflowByModuleType('GENERICO');
+        if (genericWorkflow) {
+          await workflowService.applyWorkflowToProtocol(protocolId, 'GENERICO');
+
+          // Criar SLA baseado no workflow genérico
+          if (genericWorkflow.defaultSLA) {
+            await slaService.createSLA({
+              protocolId,
+              workingDays: genericWorkflow.defaultSLA,
+            });
+          }
+        }
+        return;
+      }
+
+      // 2. Aplicar workflow (criar etapas)
+      await workflowService.applyWorkflowToProtocol(protocolId, moduleType);
+
+      // 3. Criar SLA se definido
+      if (workflow.defaultSLA) {
+        await slaService.createSLA({
+          protocolId,
+          workingDays: workflow.defaultSLA,
+        });
+      }
+
+      console.log(`✅ Workflow '${workflow.name}' aplicado ao protocolo ${protocolId}`);
+    } catch (error) {
+      console.error('Erro ao aplicar workflow:', error);
+      throw error;
+    }
   }
 
   /**
@@ -160,103 +221,27 @@ export class ProtocolModuleService {
       status: string;
     }
   ) {
-    const { tenantId, protocolId, protocolNumber, formData, status } = data;
+    const { tenantId, protocolId, protocolNumber, formData } = data;
 
-    // Mapear entityName para model Prisma
-    const entityMap: Record<string, any> = {
-      // AGRICULTURA - RuralProducer (Produtor Rural)
-      RuralProducer: async () => {
-        if (!formData.citizenId) {
-          throw new Error('citizenId é obrigatório para cadastro de produtor rural');
-        }
+    // Import handlers helpers
+    const { entityHandlers } = await import('./entity-handlers');
 
-        const citizen = await tx.citizen.findFirst({
-          where: {
-            id: formData.citizenId,
-            tenantId
-          }
-        });
-
-        if (!citizen) {
-          throw new Error('Cidadão não encontrado ou não pertence a este município');
-        }
-
-        const existingProducer = await tx.ruralProducer.findFirst({
-          where: {
-            tenantId,
-            citizenId: formData.citizenId
-          }
-        });
-
-        if (existingProducer) {
-          throw new Error('Este cidadão já está cadastrado como produtor rural');
-        }
-
-        const mainCrop = formData.mainCrop || formData.principaisCulturas || formData.principaisProducoes || 'Não informado';
-        const productionType = formData.productionType || formData.tipoProducao || formData.tipoProdutor || 'Agricultor Familiar';
-
-        return tx.ruralProducer.create({
-          data: {
-            tenantId,
-            citizenId: formData.citizenId,
-            protocolId,
-            name: formData.name || formData.nome || formData.producerName || formData.nomeProdutor || citizen.name,
-            document: formData.document || formData.cpf || formData.producerCpf || citizen.cpf,
-            email: formData.email || citizen.email,
-            phone: formData.phone || formData.telefone || formData.producerPhone || citizen.phone || '',
-            address: formData.address || formData.endereco || JSON.stringify(citizen.address),
-            productionType,
-            mainCrop,
-            status: 'PENDING_APPROVAL',
-            isActive: false,
-          },
-        });
-      },
-
-      RuralProperty: () => tx.ruralProperty.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.propertyName || formData.name,
-          producerId: formData.producerId,
-          size: formData.size ? parseFloat(formData.size) : 0,
-          location: formData.location || formData.propertyLocation,
-          plantedArea: formData.plantedArea ? parseFloat(formData.plantedArea) : null,
-          mainCrops: formData.mainCrops ,
-          status: 'PENDING_APPROVAL',
-        },
-      }),
-
-      RuralProgram: () => tx.ruralProgram.create({
-        data: {
-          tenantId,
-          protocolId,
-          name: formData.name || formData.programName,
-          programType: formData.programType || 'other',
-          description: formData.description || '',
-          objectives: formData.objectives || {},
-          targetAudience: formData.targetAudience || 'Produtores Rurais',
-          requirements: formData.requirements || {},
-          benefits: formData.benefits || {},
-          startDate: formData.startDate ? new Date(formData.startDate) : new Date(),
-          endDate: formData.endDate ? new Date(formData.endDate) : null,
-          budget: formData.budget ? parseFloat(formData.budget) : null,
-          coordinator: formData.coordinator || 'A definir',
-          maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : null,
-          currentParticipants: 0,
-          status: 'PENDING_APPROVAL',
-        },
-      }),
-
-      // Demais módulos omitidos por brevidade...
-    };
-
-    const creator = entityMap[entityName];
-    if (!creator) {
-      throw new Error(`Entidade ${entityName} não mapeada`);
+    // Se existe handler específico, usar
+    if (entityHandlers[entityName]) {
+      return entityHandlers[entityName]({
+        tenantId,
+        protocolId,
+        protocolNumber,
+        formData,
+        tx,
+      });
     }
 
-    return creator();
+    // Se chegou aqui, o handler não está em entity-handlers.ts
+    throw new Error(
+      `Handler não encontrado para entidade: ${entityName}. ` +
+      `Verifique se o handler está implementado em entity-handlers.ts`
+    );
   }
 
   /**
@@ -346,23 +331,56 @@ export class ProtocolModuleService {
 
   /**
    * Ativar entidade do módulo após aprovação
+   *
+   * Ativa a entidade vinculada ao protocolo, alterando status e isActive.
+   * Cada modelo pode ter campos diferentes para ativação.
    */
   private async activateModuleEntity(
     tx: Prisma.TransactionClient,
     entityName: string,
     protocolId: string
   ) {
-    const entityMap: Record<string, any> = {
+    // Mapeamento de modelos para suas estruturas de ativação
+    const activationStrategies: Record<string, () => Promise<any>> = {
+      // Modelos com status e isActive
       RuralProducer: () => tx.ruralProducer.updateMany({
         where: { protocolId },
         data: { status: 'ACTIVE', isActive: true },
       }),
-      // Demais módulos...
+      Patient: () => tx.patient.updateMany({
+        where: { protocolId },
+        data: { status: 'ACTIVE' },
+      }),
+      Student: () => tx.student.updateMany({
+        where: { protocolId },
+        data: { isActive: true },
+      }),
+
+      // Modelos apenas com isActive
+      SchoolTransport: () => tx.schoolTransport.updateMany({
+        where: { protocolId },
+        data: { isActive: true },
+      }),
+
+      // Modelos apenas com status
+      HealthAttendance: () => tx.healthAttendance.updateMany({
+        where: { protocolId },
+        data: { status: 'COMPLETED' },
+      }),
+      HealthAppointment: () => tx.healthAppointment.updateMany({
+        where: { protocolId },
+        data: { status: 'CONFIRMED' },
+      }),
+
+      // Adicione mais conforme necessário...
     };
 
-    const activator = entityMap[entityName];
-    if (activator) {
-      return activator();
+    const strategy = activationStrategies[entityName];
+    if (strategy) {
+      await strategy();
+    } else {
+      // Log para debug - não bloqueia se não tiver estratégia específica
+      console.log(`Nenhuma estratégia de ativação definida para: ${entityName}`);
     }
   }
 

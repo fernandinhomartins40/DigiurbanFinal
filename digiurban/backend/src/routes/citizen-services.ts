@@ -9,6 +9,14 @@ import { AuthenticatedRequest, SuccessResponse, ErrorResponse, GuaranteedTenantR
 // FASE 2 - Interface para serviços de cidadãos
 // WhereClause interface removida - usando WhereCondition do sistema centralizado
 
+// Classe de erro para validações de negócio
+class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
 const router = Router();
 
 // Middleware para verificar tenant em todas as rotas
@@ -482,6 +490,28 @@ router.post('/:id/request', async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao solicitar serviço:', error);
+
+    // Verificar se é erro de validação de negócio
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase();
+
+      // Erros de duplicação/validação devem retornar 400 (Bad Request) ou 409 (Conflict)
+      if (
+        errorMessage.includes('já está cadastrado') ||
+        errorMessage.includes('já existe') ||
+        errorMessage.includes('duplicado') ||
+        errorMessage.includes('não encontrado') ||
+        errorMessage.includes('obrigatório') ||
+        errorMessage.includes('inválido')
+      ) {
+        return res.status(400).json({
+          error: error.message,
+          details: 'Erro de validação',
+        });
+      }
+    }
+
+    // Outros erros são 500
     return res.status(500).json({
       error: 'Erro interno do servidor',
       details: error instanceof Error ? error.message : 'Erro desconhecido',

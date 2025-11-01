@@ -473,4 +473,100 @@ router.get(
   }
 );
 
+/**
+ * GET /api/admin/secretarias/agricultura/CADASTRO_PRODUTOR/pending
+ * Listar protocolos de cadastro de produtor pendentes de aprovação
+ */
+router.get(
+  '/CADASTRO_PRODUTOR/pending',
+  requireMinRole(UserRole.USER),
+  async (req, res) => {
+    try {
+      const authReq = req as AuthenticatedRequest;
+      const tenantId = authReq.tenantId;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const skip = (page - 1) * limit;
+
+      console.log('\n========== GET /api/admin/secretarias/agricultura/CADASTRO_PRODUTOR/pending ==========');
+      console.log('[GET /pending] TenantId:', tenantId);
+      console.log('[GET /pending] Page:', page, 'Limit:', limit);
+
+      // Buscar protocolos VINCULADOS (protocolo criado + entidade criada)
+      // que têm produtor rural com status PENDING_APPROVAL
+      const protocolsData = await prisma.protocolSimplified.findMany({
+        where: {
+          tenantId,
+          moduleType: 'CADASTRO_PRODUTOR',
+          status: {
+            in: [ProtocolStatus.VINCULADO, ProtocolStatus.ATUALIZACAO], // Protocolos aguardando aprovação
+          },
+        },
+        include: {
+          citizen: {
+            select: {
+              id: true,
+              name: true,
+              cpf: true,
+              email: true,
+            },
+          },
+          service: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      // Filtrar apenas protocolos cujo produtor rural está PENDING_APPROVAL
+      const protocolIds = protocolsData.map(p => p.id);
+      const pendingProducers = await prisma.ruralProducer.findMany({
+        where: {
+          protocolId: { in: protocolIds },
+          status: 'PENDING_APPROVAL',
+          isActive: false, // Ainda não ativado
+        },
+        select: {
+          protocolId: true,
+        },
+      });
+
+      const pendingProtocolIds = new Set(pendingProducers.map(p => p.protocolId));
+      const protocols = protocolsData.filter(p => pendingProtocolIds.has(p.id));
+
+      // Paginar os resultados
+      const total = protocols.length;
+      const paginatedProtocols = protocols.slice(skip, skip + limit);
+
+      const [_, totalCount] = await Promise.all([
+        Promise.resolve(paginatedProtocols),
+        Promise.resolve(total),
+      ]);
+
+      console.log(`[GET /pending] Found ${paginatedProtocols.length} pending protocols (total: ${total})`);
+
+      return res.json({
+        data: paginatedProtocols,
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit),
+        },
+      });
+    } catch (error) {
+      console.error('Get pending rural producers error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Internal server error',
+      });
+    }
+  }
+);
+
 export default router;

@@ -62,7 +62,7 @@ export class TechnicalAssistanceHandler extends BaseModuleHandler {
         requestDate: new Date(),
         scheduledVisit: data.scheduledVisit ? new Date(data.scheduledVisit) : undefined,
         completedAt: undefined,
-        protocol,
+        protocolId: protocol,
         serviceId,
         source: 'service'
       }

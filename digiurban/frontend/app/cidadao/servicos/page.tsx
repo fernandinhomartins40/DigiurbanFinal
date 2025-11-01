@@ -151,16 +151,16 @@ export default function ServicosPage() {
               <FileText className={`h-4 w-4 ${categoryColor.textClass}`} />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className={`text-sm font-semibold ${categoryColor.textClass} mb-1 line-clamp-2 group-hover:underline`}>
+              <h3 className="text-sm font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:underline">
                 {service.name}
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {service.category && (
-                  <Badge variant="outline" className={`text-xs px-2 py-0 ${categoryColor.textClass} ${categoryColor.borderClass}`}>
+                  <Badge variant="outline" className={`text-xs px-2 py-0 text-gray-700 ${categoryColor.borderClass}`}>
                     {service.category}
                   </Badge>
                 )}
-                <Badge variant="outline" className={`text-xs px-2 py-0 ${deptTheme.textClass} ${deptTheme.borderClass}`}>
+                <Badge variant="outline" className={`text-xs px-2 py-0 text-gray-700 ${deptTheme.borderClass}`}>
                   {service.department?.name}
                 </Badge>
               </div>
@@ -190,7 +190,7 @@ export default function ServicosPage() {
             </div>
             <Button
               size="sm"
-              className={`h-7 text-xs px-3 ${categoryColor.bgClass} ${categoryColor.textClass} hover:opacity-80 border ${categoryColor.borderClass}`}
+              className={`h-7 text-xs px-3 text-gray-700 hover:bg-gray-50 border ${categoryColor.borderClass}`}
               variant="outline"
               onClick={(e) => {
                 e.stopPropagation();
@@ -388,7 +388,7 @@ export default function ServicosPage() {
                             <div key={categoryName}>
                               <div className="flex items-center gap-2 mb-2 pb-1 border-b">
                                 <div className={`w-3 h-3 rounded-full ${categoryColor.bgClass} border-2 ${categoryColor.borderClass}`} />
-                                <h3 className={`text-sm font-semibold ${categoryColor.textClass}`}>
+                                <h3 className="text-sm font-semibold text-gray-800">
                                   {categoryName}
                                 </h3>
                                 <span className="text-xs text-gray-500">({categoryServices.length})</span>

@@ -25,6 +25,7 @@ export default function ProdutoresPage() {
           <PendingProtocolsList
             moduleType="CADASTRO_PRODUTOR"
             moduleName="Produtores Rurais"
+            departmentType="agricultura"
           />
         </TabsContent>
       </Tabs>

@@ -523,18 +523,27 @@ router.get(
         },
       });
 
-      // Filtrar apenas protocolos cujo produtor rural está PENDING_APPROVAL
+      console.log(`[GET /pending] Found ${protocolsData.length} protocols with VINCULADO/ATUALIZACAO status`);
+
+      // Filtrar apenas protocolos cujo produtor rural está PENDING
       const protocolIds = protocolsData.map(p => p.id);
+      console.log('[GET /pending] Protocol IDs:', protocolIds);
+
       const pendingProducers = await prisma.ruralProducer.findMany({
         where: {
           protocolId: { in: protocolIds },
-          status: 'PENDING_APPROVAL',
+          status: 'PENDING',
           isActive: false, // Ainda não ativado
         },
         select: {
           protocolId: true,
+          name: true,
+          status: true,
+          isActive: true,
         },
       });
+
+      console.log('[GET /pending] Pending producers found:', pendingProducers);
 
       const pendingProtocolIds = new Set(pendingProducers.map(p => p.protocolId));
       const protocols = protocolsData.filter(p => pendingProtocolIds.has(p.id));
@@ -548,7 +557,7 @@ router.get(
         Promise.resolve(total),
       ]);
 
-      console.log(`[GET /pending] Found ${paginatedProtocols.length} pending protocols (total: ${total})`);
+      console.log(`[GET /pending] Final result: ${paginatedProtocols.length} pending protocols (total: ${total})`);
 
       return res.json({
         data: paginatedProtocols,

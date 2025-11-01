@@ -444,6 +444,12 @@ router.post('/:id/request', async (req, res) => {
       ...customFormData,
     };
 
+    console.log('📥 Dados recebidos do frontend:');
+    console.log('  - citizenId:', citizenId);
+    console.log('  - serviceId:', serviceId);
+    console.log('  - customFormData:', JSON.stringify(customFormData, null, 2));
+    console.log('  - moduleFormData (com citizenId):', JSON.stringify(moduleFormData, null, 2));
+
     const result = await protocolModuleService.createProtocolWithModule({
       tenantId: tenant.id,
       citizenId,

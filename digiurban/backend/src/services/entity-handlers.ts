@@ -753,13 +753,29 @@ export const entityHandlers: Record<string, (ctx: EntityHandlerContext) => Promi
   },
 
   RuralProducer: async (ctx) => {
-    if (!ctx.formData.name && !ctx.formData.producerName) {
+    console.log('🌾 RuralProducer Handler - formData recebido:', JSON.stringify(ctx.formData, null, 2));
+
+    // Aceitar campos em português e inglês
+    const name = ctx.formData.name || ctx.formData.producerName || ctx.formData.nome;
+    const document = ctx.formData.document || ctx.formData.cpf || ctx.formData.producerCpf;
+    const phone = ctx.formData.phone || ctx.formData.contact || ctx.formData.telefone;
+    const address = ctx.formData.address || ctx.formData.endereco;
+    const productionType = ctx.formData.productionType || ctx.formData.producerType || ctx.formData.tipoProdutor || 'INDIVIDUAL';
+
+    console.log('🌾 Campos extraídos:');
+    console.log('  - name:', name);
+    console.log('  - document:', document);
+    console.log('  - phone:', phone);
+    console.log('  - address:', address);
+    console.log('  - productionType:', productionType);
+
+    if (!name) {
       throw new Error('Nome do produtor é obrigatório');
     }
     if (!ctx.formData.citizenId) {
       throw new Error('citizenId é obrigatório para cadastro de produtor rural');
     }
-    if (!ctx.formData.document && !ctx.formData.cpf && !ctx.formData.producerCpf) {
+    if (!document) {
       throw new Error('Documento (CPF) do produtor é obrigatório');
     }
 
@@ -776,15 +792,15 @@ export const entityHandlers: Record<string, (ctx: EntityHandlerContext) => Promi
         tenantId: ctx.tenantId,
         protocolId: ctx.protocolId,
         citizenId: ctx.formData.citizenId,
-        name: ctx.formData.name || ctx.formData.producerName,
-        document: ctx.formData.document || ctx.formData.cpf || ctx.formData.producerCpf,
-        phone: ctx.formData.phone || ctx.formData.contact,
+        name,
+        document,
+        phone,
         email: ctx.formData.email,
-        address: ctx.formData.address,
-        productionType: ctx.formData.productionType || ctx.formData.producerType || 'INDIVIDUAL',
-        mainCrop: ctx.formData.mainCrop || ctx.formData.mainActivity || 'AGRICULTURA',
-        status: 'ACTIVE',
-        isActive: true,
+        address,
+        productionType,
+        mainCrop: ctx.formData.mainCrop || ctx.formData.mainActivity || ctx.formData.principaisProducoes || 'AGRICULTURA',
+        status: 'PENDING', // Aguardando aprovação do setor
+        isActive: false, // Só fica ativo após aprovação
       },
     });
   },

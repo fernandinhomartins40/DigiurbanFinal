@@ -6,6 +6,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,7 @@ export function PendingProtocolsList({
   moduleType: legacyModuleType,
   moduleName: legacyModuleName
 }: PendingProtocolsListProps) {
+  const router = useRouter();
   const { apiRequest } = useAdminAuth();
 
   // Use new props or fallback to legacy
@@ -95,19 +97,24 @@ export function PendingProtocolsList({
   // Buscar protocolos pendentes
   useEffect(() => {
     const fetchPendingProtocols = async () => {
-      if (!moduleType || !dept) return;
+      if (!moduleType || !dept) {
+        console.log('⚠️ PendingProtocolsList: Missing moduleType or dept', { moduleType, dept });
+        return;
+      }
+
+      const url = `/api/admin/secretarias/${dept}/${moduleType}/pending?page=${page}&limit=10`;
+      console.log('📡 PendingProtocolsList: Fetching', url);
 
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await apiRequest(
-          `/api/admin/secretarias/${dept}/${moduleType}/pending?page=${page}&limit=10`,
-          { method: 'GET' }
-        ) as PendingProtocolsData;
+        const response = await apiRequest(url, { method: 'GET' }) as PendingProtocolsData;
 
+        console.log('✅ PendingProtocolsList: Response received', response);
         setData(response);
       } catch (err: any) {
+        console.error('❌ PendingProtocolsList: Error', err);
         setError(err);
       } finally {
         setIsLoading(false);
@@ -123,9 +130,9 @@ export function PendingProtocolsList({
     setIsApproving(true);
     try {
       await apiRequest(
-        `/api/admin/protocols/${selectedProtocol.id}/approve`,
+        `/api/protocols/${selectedProtocol.id}/approve`,
         {
-          method: 'POST',
+          method: 'PUT',
           body: JSON.stringify({
             comment: comment || 'Aprovado pelo servidor',
           }),
@@ -158,9 +165,9 @@ export function PendingProtocolsList({
     setIsRejecting(true);
     try {
       await apiRequest(
-        `/api/admin/protocols/${selectedProtocol.id}/reject`,
+        `/api/protocols/${selectedProtocol.id}/reject`,
         {
-          method: 'POST',
+          method: 'PUT',
           body: JSON.stringify({
             reason: rejectReason,
           }),
@@ -343,13 +350,11 @@ export function PendingProtocolsList({
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          // TODO: Abrir modal de detalhes
-                          toast.info('Visualização detalhada em desenvolvimento');
-                        }}
+                        onClick={() => router.push(`/admin/protocolos/${protocol.id}`)}
+                        title="Ver protocolo completo com todas as interações, documentos e pendências"
                       >
                         <FileText className="h-4 w-4 mr-1" />
-                        Ver mais
+                        Ver Protocolo
                       </Button>
                     </div>
                   </div>

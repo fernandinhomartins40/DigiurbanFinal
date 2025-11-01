@@ -109,9 +109,11 @@ export default function SolicitarServicoPage() {
     try {
       const payload = {
         description,
-        customFormData: service?.serviceType === 'COM_DADOS' ? customFormData : undefined,
+        customFormData: service?.formSchema?.fields ? customFormData : undefined,
         priority: 3,
       };
+
+      console.log('📤 Enviando payload:', JSON.stringify(payload, null, 2));
 
       // ✅ SEGURANÇA: Usar apiRequest do context (httpOnly cookies)
       const data = await apiRequest(`/citizen/services/${serviceId}/request`, {

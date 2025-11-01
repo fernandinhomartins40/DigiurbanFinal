@@ -80,9 +80,21 @@ const FIELD_MAPPINGS: Record<string, (citizen: CitizenData) => any> = {
   // Endereço - Rua
   'rua': (c) => c.address?.street || '',
   'logradouro': (c) => c.address?.street || '',
-  'endereco': (c) => c.address?.street || '',
   'street': (c) => c.address?.street || '',
   'endereco_rua': (c) => c.address?.street || '',
+
+  // Endereço completo (quando campo único)
+  'endereco': (c) => {
+    if (!c.address) return '';
+    const parts = [
+      c.address.street,
+      c.address.number,
+      c.address.neighborhood,
+      c.address.city,
+      c.address.state
+    ].filter(Boolean);
+    return parts.join(', ');
+  },
 
   // Endereço - Número
   'numero': (c) => c.address?.number || '',

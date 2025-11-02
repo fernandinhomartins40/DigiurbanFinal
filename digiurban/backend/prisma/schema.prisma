@@ -2016,9 +2016,16 @@ model CulturalWorkshop {
   currentParticipants Int      @default(0)
   isFree              Boolean  @default(true)
   status              String   @default("PLANNED")
+
+  // Campos customizáveis para formulário de inscrição
+  customFields        Json?    // Array de campos adicionais
+  requiredDocuments   Json?    // Array de documentos necessários
+  enrollmentSettings  Json?    // Configurações de inscrição
+
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   tenant              Tenant   @relation(fields: [tenantId], references: [id])
+  enrollments         CulturalWorkshopEnrollment[]
 
   @@map("cultural_workshops")
 }
@@ -2027,7 +2034,8 @@ model CulturalWorkshopEnrollment {
   id            String    @id @default(cuid())
   tenantId      String
   protocolId    String?
-  workshopId    String?
+  workshopId    String
+  citizenId     String?
   citizenName   String
   cpf           String
   birthDate     DateTime?
@@ -2040,12 +2048,30 @@ model CulturalWorkshopEnrollment {
   status        String    @default("PENDING")
   enrolledAt    DateTime  @default(now())
   approvedAt    DateTime?
+
+  // Dados customizados
+  customData    Json?
+  documents     Json?
+
+  // Observações
+  adminNotes      String?
+  rejectionReason String?
+
+  // Metadados
+  moduleType    String    @default("INSCRICAO_OFICINA_CULTURAL")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
+  workshop           CulturalWorkshop    @relation(fields: [workshopId], references: [id])
   protocolSimplified ProtocolSimplified? @relation("CulturalWorkshopEnrollmentProtocol", fields: [protocolId], references: [id])
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  citizen            Citizen?            @relation("CulturalWorkshopEnrollmentCitizen", fields: [citizenId], references: [id])
 
+  @@index([tenantId, workshopId])
+  @@index([tenantId, status])
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
+  @@index([tenantId, createdAt])
   @@map("cultural_workshop_enrollments")
 }
 
@@ -4717,12 +4743,71 @@ model RuralTraining {
   feedback            Json?
   photos              Json?
   status              String              @default("PLANNED")
+
+  // Campos customizáveis para formulário de inscrição
+  customFields        Json?               // Array de campos adicionais
+  requiredDocuments   Json?               // Array de documentos necessários
+  enrollmentSettings  Json?               // Configurações de inscrição
+
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   protocol            ProtocolSimplified? @relation("RuralTrainingProtocol", fields: [protocolId], references: [id])
   tenant              Tenant              @relation(fields: [tenantId], references: [id])
+  enrollments         RuralTrainingEnrollment[]
 
   @@map("rural_trainings")
+}
+
+model RuralTrainingEnrollment {
+  id              String              @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  trainingId      String
+  citizenId       String?
+  producerId      String?
+
+  // Dados do inscrito
+  applicantName   String
+  applicantCpf    String?
+  applicantEmail  String?
+  applicantPhone  String?
+  applicantAddress String?
+
+  // Status da inscrição
+  status          String              @default("PENDING")
+  enrollmentDate  DateTime            @default(now())
+  approvedDate    DateTime?
+  rejectedDate    DateTime?
+  completionDate  DateTime?
+  certificateIssued Boolean           @default(false)
+
+  // Dados customizados
+  customData      Json?
+  documents       Json?
+
+  // Observações
+  observations    String?
+  adminNotes      String?
+  rejectionReason String?
+
+  // Metadados
+  moduleType      String              @default("INSCRICAO_CURSO_RURAL")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relacionamentos
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  training        RuralTraining       @relation(fields: [trainingId], references: [id])
+  protocol        ProtocolSimplified? @relation("RuralTrainingEnrollmentProtocol", fields: [protocolId], references: [id])
+  citizen         Citizen?            @relation("RuralTrainingEnrollmentCitizen", fields: [citizenId], references: [id])
+  producer        RuralProducer?      @relation("RuralTrainingEnrollmentProducer", fields: [producerId], references: [id])
+
+  @@index([tenantId, trainingId])
+  @@index([tenantId, status])
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
+  @@index([tenantId, createdAt])
+  @@map("rural_training_enrollments")
 }
 
 model AgricultureAttendance {

@@ -64,7 +64,7 @@ export const MODULE_MAPPING: Record<string, string | null> = {
   CADASTRO_PRODUTOR: 'RuralProducer',
   ASSISTENCIA_TECNICA: 'TechnicalAssistance',
   INSCRICAO_CURSO_RURAL: 'RuralTraining',
-  INSCRICAO_PROGRAMA_RURAL: 'RuralProgram',
+  INSCRICAO_PROGRAMA_RURAL: 'RuralProgramEnrollment',
   CADASTRO_PROPRIEDADE_RURAL: 'RuralProperty',
 
   // ========================================

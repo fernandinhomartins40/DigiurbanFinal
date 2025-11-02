@@ -112,6 +112,7 @@ model Tenant {
   technicalInspections             TechnicalInspection[]
   ruralProducers                   RuralProducer[]
   ruralPrograms                    RuralProgram[]
+  ruralProgramEnrollments          RuralProgramEnrollment[]
   ruralProperties                  RuralProperty[]
   ruralTrainings                   RuralTraining[]
   schoolCalls                      SchoolCall[]
@@ -273,6 +274,7 @@ model Citizen {
   treePruningRequests         TreePruningRequest[]         @relation("TreePruningRequestCitizen")
   publicServiceAttendances    PublicServiceAttendance[]    @relation("PublicServiceAttendanceCitizen")
   ruralProducers              RuralProducer[]              @relation("RuralProducerCitizen")
+  ruralProgramEnrollments     RuralProgramEnrollment[]     @relation("RuralProgramEnrollmentCitizen")
 
   @@unique([tenantId, cpf])
   @@map("citizens")
@@ -425,10 +427,11 @@ model ProtocolSimplified {
   sla           ProtocolSLA?
 
   // Módulos de Agricultura
-  ruralProducers  RuralProducer[] @relation("RuralProducerProtocol")
-  ruralProperties RuralProperty[] @relation("RuralPropertyProtocol")
-  ruralPrograms   RuralProgram[]  @relation("RuralProgramProtocol")
-  ruralTrainings  RuralTraining[] @relation("RuralTrainingProtocol")
+  ruralProducers          RuralProducer[]            @relation("RuralProducerProtocol")
+  ruralProperties         RuralProperty[]            @relation("RuralPropertyProtocol")
+  ruralPrograms           RuralProgram[]             @relation("RuralProgramProtocol")
+  ruralProgramEnrollments RuralProgramEnrollment[]   @relation("RuralProgramEnrollmentProtocol")
+  ruralTrainings          RuralTraining[]            @relation("RuralTrainingProtocol")
 
   // Módulos de Saúde
   healthAttendances       HealthAttendance[]       @relation("HealthAttendanceProtocol")
@@ -1593,10 +1596,11 @@ model RuralProducer {
   isActive       Boolean             @default(true)
   createdAt      DateTime            @default(now())
   updatedAt      DateTime            @updatedAt
-  citizen        Citizen             @relation("RuralProducerCitizen", fields: [citizenId], references: [id])
-  protocol       ProtocolSimplified? @relation("RuralProducerProtocol", fields: [protocolId], references: [id])
-  tenant         Tenant              @relation(fields: [tenantId], references: [id])
-  properties     RuralProperty[]
+  citizen             Citizen                    @relation("RuralProducerCitizen", fields: [citizenId], references: [id])
+  protocol            ProtocolSimplified?        @relation("RuralProducerProtocol", fields: [protocolId], references: [id])
+  tenant              Tenant                     @relation(fields: [tenantId], references: [id])
+  properties          RuralProperty[]
+  programEnrollments  RuralProgramEnrollment[]   @relation("RuralProgramEnrollmentProducer")
 
   @@unique([tenantId, document])
   @@unique([tenantId, citizenId])
@@ -4617,12 +4621,73 @@ model RuralProgram {
   results             Json?
   status              String              @default("PLANNED")
   evaluation          Json?
+
+  // Campos customizáveis para formulário de inscrição
+  customFields        Json?               // Array de campos adicionais: [{id, label, type, required, options}]
+  requiredDocuments   Json?               // Array de documentos necessários: [{id, name, description, required}]
+  enrollmentSettings  Json?               // Configurações: {allowMultipleEnrollments, autoApprove, sendNotifications}
+
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   protocol            ProtocolSimplified? @relation("RuralProgramProtocol", fields: [protocolId], references: [id])
   tenant              Tenant              @relation(fields: [tenantId], references: [id])
+  enrollments         RuralProgramEnrollment[]
 
   @@map("rural_programs")
+}
+
+model RuralProgramEnrollment {
+  id              String              @id @default(cuid())
+  tenantId        String
+  protocolId      String?
+  programId       String
+  citizenId       String?
+  producerId      String?
+
+  // Dados do inscrito
+  applicantName   String
+  applicantCpf    String?
+  applicantEmail  String?
+  applicantPhone  String?
+  applicantAddress String?
+
+  // Status da inscrição
+  status          String              @default("PENDING") // PENDING, APPROVED, REJECTED, CANCELLED
+  enrollmentDate  DateTime            @default(now())
+  approvedDate    DateTime?
+  rejectedDate    DateTime?
+  startDate       DateTime?
+  endDate         DateTime?
+
+  // Dados customizados (resposta aos campos customFields do programa)
+  customData      Json?
+
+  // Documentos enviados
+  documents       Json?               // Array de documentos: [{id, name, url, uploadedAt}]
+
+  // Observações e notas
+  observations    String?
+  adminNotes      String?
+  rejectionReason String?
+
+  // Metadados
+  moduleType      String              @default("INSCRICAO_PROGRAMA_RURAL")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relacionamentos
+  tenant          Tenant              @relation(fields: [tenantId], references: [id])
+  program         RuralProgram        @relation(fields: [programId], references: [id])
+  protocol        ProtocolSimplified? @relation("RuralProgramEnrollmentProtocol", fields: [protocolId], references: [id])
+  citizen         Citizen?            @relation("RuralProgramEnrollmentCitizen", fields: [citizenId], references: [id])
+  producer        RuralProducer?      @relation("RuralProgramEnrollmentProducer", fields: [producerId], references: [id])
+
+  @@index([tenantId, programId])
+  @@index([tenantId, status])
+  @@index([tenantId, moduleType])
+  @@index([protocolId])
+  @@index([tenantId, createdAt])
+  @@map("rural_program_enrollments")
 }
 
 model RuralTraining {

@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { ModuleConfig, ModuleRecord } from '@/lib/module-configs';
 import { ArrowLeft, Save } from 'lucide-react';
+import { apiClient } from '@/lib/api-client';
 
 interface ModuleFormProps {
   config: ModuleConfig;
@@ -57,9 +58,7 @@ export function ModuleForm({ config, departmentType, recordId, initialData }: Mo
 
   const fetchRecord = async () => {
     try {
-      const response = await fetch(`${apiEndpoint}/${recordId}`, {
-        credentials: 'include',
-      });
+      const response = await apiClient.get(`${apiEndpoint}/${recordId}`);
 
       if (!response.ok) throw new Error('Erro ao carregar dados');
 
@@ -100,22 +99,30 @@ export function ModuleForm({ config, departmentType, recordId, initialData }: Mo
         return;
       }
 
-      const url = isEditMode ? `${apiEndpoint}/${recordId}` : apiEndpoint;
-      const method = isEditMode ? 'PUT' : 'POST';
+      const path = isEditMode ? `${apiEndpoint}/${recordId}` : apiEndpoint;
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(formData),
-      });
+      console.log('\n========== ModuleForm Submit ==========');
+      console.log('Path:', path);
+      console.log('Is Edit Mode:', isEditMode);
+      console.log('FormData:', formData);
+      console.log('API Endpoint:', apiEndpoint);
+
+      const response = isEditMode
+        ? await apiClient.put(path, formData)
+        : await apiClient.post(path, formData);
+
+      console.log('Response status:', response.status);
+      console.log('Response OK:', response.ok);
 
       if (!response.ok) {
         const error = await response.json();
+        console.log('Error response:', error);
         throw new Error(error.message || 'Erro ao salvar');
       }
+
+      const result = await response.json();
+      console.log('Success response:', result);
+      console.log('========== FIM ModuleForm Submit ==========\n');
 
       toast({
         title: 'Sucesso',
